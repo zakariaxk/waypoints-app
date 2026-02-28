@@ -10,6 +10,7 @@ import {
   StatusBar,
   ToastAndroid,
   KeyboardAvoidingView,
+  type LayoutChangeEvent,
 } from 'react-native';
 import { useSessionStore, type Participant } from '../state/session-store';
 import {
@@ -41,8 +42,8 @@ import FriendSheet from '../components/FriendSheet';
 import GroupETASummary from '../components/GroupETASummary';
 import SessionSummaryScreen, { type SessionSummaryData, type ParticipantSummary } from '../components/SessionSummaryScreen';
 import DestinationVoting, { type DestinationProposal } from '../components/DestinationVoting';
-import { spacing, fontSize, borderRadius, shadow, type ThemeColors } from '../utils/theme';
-import { useTheme } from '../contexts/ThemeContext';
+import { spacing, fontSize, borderRadius, shadow, glow, type ThemeColors } from '../ui/theme';
+import { useTheme } from '../ui/theme';
 import { haversineDistance, formatDistance } from '../utils/geo';
 
 type Tab = 'people' | 'chat';
@@ -79,6 +80,9 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
 
   // Follow mode
   const [followTargetId, setFollowTargetId] = useState<string | null>(null);
+
+  // Keyboard avoid offset — dynamically measured
+  const [kavOffset, setKavOffset] = useState(0);
 
   // Arrival tracking: Map<participantId, arrivalTimestamp>
   const arrivalsRef = useRef<Map<string, number>>(new Map());
@@ -591,8 +595,15 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
       {/* Tab Content — wrapped in KeyboardAvoidingView for chat input */}
       <KeyboardAvoidingView
         style={styles.tabContent}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={kavOffset}
+        onLayout={(e: LayoutChangeEvent) => {
+          if (Platform.OS === 'ios') {
+            (e.target as any).measureInWindow((_x: number, y: number) => {
+              if (y > 0) setKavOffset(y);
+            });
+          }
+        }}
       >
         {activeTab === 'people' ? (
           <PresenceList
@@ -650,7 +661,6 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.background,
     },
     header: {
       flexDirection: 'row',
@@ -658,10 +668,9 @@ const createStyles = (colors: ThemeColors) =>
       paddingHorizontal: spacing.md,
       paddingTop: Platform.OS === 'ios' ? 50 : spacing.lg,
       paddingBottom: spacing.sm,
-      backgroundColor: colors.surface,
+      backgroundColor: colors.panel,
       borderBottomWidth: 1,
-      borderBottomColor: colors.border,
-      ...shadow.sm,
+      borderBottomColor: colors.panelBorder,
     },
     headerButton: {
       paddingVertical: spacing.xs,
@@ -669,7 +678,7 @@ const createStyles = (colors: ThemeColors) =>
     },
     leaveText: {
       fontSize: fontSize.md,
-      color: colors.offline,
+      color: colors.danger,
       fontWeight: '600',
     },
     headerCenter: {
@@ -689,7 +698,7 @@ const createStyles = (colors: ThemeColors) =>
       fontSize: fontSize.lg,
       fontWeight: '700',
       color: colors.accent,
-      letterSpacing: 3,
+      letterSpacing: 4,
     },
     shareHint: {
       fontSize: fontSize.xs - 1,
@@ -734,6 +743,7 @@ const createStyles = (colors: ThemeColors) =>
       color: colors.destinationText,
       textAlign: 'center',
       fontWeight: '500',
+      letterSpacing: 0.5,
     },
     votingToggle: {
       fontSize: fontSize.xs,
@@ -785,8 +795,8 @@ const createStyles = (colors: ThemeColors) =>
     tabBar: {
       flexDirection: 'row',
       borderTopWidth: 1,
-      borderTopColor: colors.border,
-      backgroundColor: colors.surface,
+      borderTopColor: colors.panelBorder,
+      backgroundColor: colors.panel,
     },
     tab: {
       flex: 1,
@@ -802,10 +812,12 @@ const createStyles = (colors: ThemeColors) =>
       fontSize: fontSize.sm,
       fontWeight: '500',
       color: colors.textSecondary,
+      letterSpacing: 1,
+      textTransform: 'uppercase',
     },
     activeTabText: {
       color: colors.accent,
-      fontWeight: '600',
+      fontWeight: '700',
     },
     badge: {
       color: colors.secondary,
@@ -820,12 +832,13 @@ const createStyles = (colors: ThemeColors) =>
       position: 'absolute',
       bottom: 100,
       alignSelf: 'center',
-      backgroundColor: colors.surface,
+      backgroundColor: colors.panel,
       paddingHorizontal: spacing.lg,
       paddingVertical: spacing.sm,
       borderRadius: borderRadius.full,
       borderWidth: 1,
       borderColor: colors.borderAccent,
+      ...glow.cyan.sm,
     },
     toastText: {
       color: colors.text,

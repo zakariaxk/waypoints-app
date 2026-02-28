@@ -54,3 +54,20 @@ Inspired by apps like convoy-style live location sharing. We are building our ow
 ## Privacy
 - Location is shared only within a session the user joins.
 - No public browsing of users/sessions.
+
+## Visual Identity — Cyberpunk / Neon-Tech UI
+
+### Aesthetic
+Dark-first, neon-lit HUD with translucent panels, colored glow effects, and cinematic gradients. Inspired by cyberpunk aesthetics — futuristic but highly readable.
+
+### Key Design Decisions
+- **Color palette**: Deep-space blacks (#05060A, #0A0C14), neon accents (cyan #2DE2E6, magenta #FF2A6D, violet #7A5CFF, lime #B6FF6A, amber #FFB000).
+- **Typography**: Orbitron (headings) + Rajdhani (body) — geometric/futuristic font pairing.
+- **Panels**: Translucent `rgba(20,24,40,0.72)` with subtle neon borders rather than opaque cards.
+- **Glow system**: Colored shadows on iOS, elevation on Android for neon glow effects.
+- **Haptics**: All interactive buttons provide tactile feedback.
+- **Participant colors**: 8-color neon rotating palette for individual markers and avatars.
+- **Light mode**: Supported but secondary — light backgrounds with deeper neon tones for contrast.
+
+### Full Style Reference
+See [docs/UI_STYLEGUIDE.md](./UI_STYLEGUIDE.md) for the complete token reference, component catalog, and design principles.

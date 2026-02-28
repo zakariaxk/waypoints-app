@@ -2,9 +2,8 @@
 // Displays stats: duration, arrival order, distances.
 
 import { useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, ScrollView } from 'react-native';
-import { spacing, fontSize, borderRadius, shadow, type ThemeColors } from '../utils/theme';
-import { useTheme } from '../contexts/ThemeContext';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { spacing, fontSize, borderRadius, glow, type ThemeColors, useTheme } from '../ui/theme';
 import { formatDistance } from '../utils/geo';
 import { formatDuration } from '../hooks/useParticipantETAs';
 
@@ -130,15 +129,12 @@ const createStyles = (colors: ThemeColors) =>
     card: {
       width: '100%',
       maxHeight: '85%',
-      backgroundColor: colors.card,
+      backgroundColor: colors.panel,
       borderRadius: borderRadius.xl,
       padding: spacing.xl,
       borderWidth: 1,
-      borderColor: colors.borderAccent,
-      ...Platform.select({
-        ios: shadow.lg,
-        android: { elevation: 8 } as any,
-      }),
+      borderColor: colors.panelBorder,
+      ...glow.cyan.md,
     },
     title: {
       fontSize: fontSize.xl,
@@ -152,8 +148,10 @@ const createStyles = (colors: ThemeColors) =>
       justifyContent: 'space-around',
       marginBottom: spacing.lg,
       paddingVertical: spacing.md,
-      backgroundColor: colors.surfaceAlt,
+      backgroundColor: colors.surface,
       borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.panelBorder,
     },
     stat: {
       alignItems: 'center',
@@ -193,8 +191,10 @@ const createStyles = (colors: ThemeColors) =>
       paddingVertical: spacing.sm,
       paddingHorizontal: spacing.sm,
       marginBottom: spacing.xs,
-      backgroundColor: colors.surfaceAlt,
+      backgroundColor: colors.surface,
       borderRadius: borderRadius.sm,
+      borderWidth: 1,
+      borderColor: colors.panelBorder,
     },
     badge: {
       width: 28,
@@ -240,6 +240,7 @@ const createStyles = (colors: ThemeColors) =>
       paddingVertical: spacing.md,
       borderRadius: borderRadius.md,
       alignItems: 'center',
+      ...glow.cyan.sm,
     },
     dismissText: {
       color: colors.textInverse,

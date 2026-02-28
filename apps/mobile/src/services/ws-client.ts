@@ -186,7 +186,7 @@ function handleServerMessage(msg: { type: string; payload: Record<string, unknow
     }
 
     case 'EVENT': {
-      const event = msg.payload as ServerEvent;
+      const event = msg.payload as unknown as ServerEvent;
       store.applyEvent(event);
       break;
     }

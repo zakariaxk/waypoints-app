@@ -8,10 +8,10 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  StatusBar,
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { createSession, joinSession } from '../services/api';
 import { useSessionStore } from '../state/session-store';
 import {
@@ -22,8 +22,20 @@ import {
   type SessionHistoryEntry,
 } from '../utils/storage';
 import SessionHistory from '../components/SessionHistory';
-import { spacing, fontSize, borderRadius, shadow, type ThemeColors } from '../utils/theme';
-import { useTheme, type ThemeMode } from '../contexts/ThemeContext';
+import {
+  useTheme,
+  type ThemeMode,
+  type ThemeColors,
+  spacing,
+  fontSize,
+  fontFamily,
+  borderRadius,
+  gradients,
+  glow,
+  palette,
+} from '../ui/theme';
+import { NeonText, NeonButton, HudCard, NeonDivider, Chip } from '../ui/components';
+import * as Haptics from 'expo-haptics';
 
 interface HomeScreenProps {
   onSessionReady: () => void;
@@ -164,7 +176,6 @@ export default function HomeScreen({ onSessionReady, initialJoinCode }: HomeScre
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <ScrollView
         contentContainerStyle={styles.inner}
         keyboardShouldPersistTaps="handled"
@@ -176,10 +187,13 @@ export default function HomeScreen({ onSessionReady, initialJoinCode }: HomeScre
             <TouchableOpacity
               key={m}
               style={[styles.themeChip, mode === m && styles.themeChipActive]}
-              onPress={() => setMode(m)}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setMode(m);
+              }}
             >
               <Text style={[styles.themeChipText, mode === m && styles.themeChipTextActive]}>
-                {m === 'system' ? '⚙ Auto' : m === 'light' ? '☀ Light' : '🌙 Dark'}
+                {m === 'system' ? '⚙ AUTO' : m === 'light' ? '☀ LIGHT' : '🌙 DARK'}
               </Text>
             </TouchableOpacity>
           ))}
@@ -187,14 +201,22 @@ export default function HomeScreen({ onSessionReady, initialJoinCode }: HomeScre
 
         {/* Logo area */}
         <View style={styles.logoArea}>
-          <Text style={styles.logoEmoji}>📍</Text>
-          <Text style={styles.title}>Waypoints</Text>
-          <Text style={styles.subtitle}>Real-time location sharing</Text>
+          <NeonText variant="hero" accent glow center>
+            W
+          </NeonText>
+          <NeonText variant="h1" accent center style={styles.logoTitle}>
+            WAYPOINTS
+          </NeonText>
+          <NeonText variant="body" color={colors.textSecondary} center>
+            Real-time location sharing
+          </NeonText>
         </View>
 
-        {/* Form */}
-        <View style={styles.formCard}>
-          <Text style={styles.label}>Your Name</Text>
+        {/* Form Card */}
+        <HudCard>
+          <NeonText variant="caption" color={colors.textTertiary} style={styles.label}>
+            YOUR NAME
+          </NeonText>
           <TextInput
             style={styles.input}
             placeholder="Enter your display name"
@@ -206,25 +228,20 @@ export default function HomeScreen({ onSessionReady, initialJoinCode }: HomeScre
             maxLength={30}
           />
 
-          <TouchableOpacity
-            style={[styles.button, styles.createButton, loading && styles.buttonDisabled]}
+          <NeonButton
+            title="CREATE SESSION"
             onPress={handleCreate}
+            variant="primary"
             disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color={colors.textInverse} size="small" />
-            ) : (
-              <Text style={styles.buttonText}>Create Session</Text>
-            )}
-          </TouchableOpacity>
+            loading={loading}
+            fullWidth
+          />
 
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>or join existing</Text>
-            <View style={styles.dividerLine} />
-          </View>
+          <NeonDivider intensity={0.15} style={styles.dividerSpacing} />
 
-          <Text style={styles.label}>Join Code</Text>
+          <NeonText variant="caption" color={colors.textTertiary} style={styles.label}>
+            JOIN CODE
+          </NeonText>
           <TextInput
             style={[styles.input, styles.codeInput]}
             placeholder="ABC123"
@@ -235,18 +252,15 @@ export default function HomeScreen({ onSessionReady, initialJoinCode }: HomeScre
             maxLength={6}
           />
 
-          <TouchableOpacity
-            style={[styles.button, styles.joinButton, loading && styles.buttonDisabled]}
+          <NeonButton
+            title="JOIN SESSION"
             onPress={handleJoin}
+            variant="secondary"
             disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color={colors.textInverse} size="small" />
-            ) : (
-              <Text style={styles.buttonText}>Join Session</Text>
-            )}
-          </TouchableOpacity>
-        </View>
+            loading={loading}
+            fullWidth
+          />
+        </HudCard>
 
         {/* Session history */}
         {!loadingHistory && (
@@ -257,7 +271,9 @@ export default function HomeScreen({ onSessionReady, initialJoinCode }: HomeScre
           />
         )}
 
-        <Text style={styles.footer}>Share location with your group in real time</Text>
+        <NeonText variant="caption" color={colors.textTertiary} center style={styles.footer}>
+          Share location with your group in real time
+        </NeonText>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -267,7 +283,6 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: colors.background,
     },
     inner: {
       flexGrow: 1,
@@ -297,6 +312,7 @@ const createStyles = (colors: ThemeColors) =>
       fontSize: fontSize.xs,
       color: colors.textSecondary,
       fontWeight: '600',
+      letterSpacing: 1,
     },
     themeChipTextActive: {
       color: colors.accent,
@@ -306,37 +322,13 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       marginBottom: spacing.xxl,
     },
-    logoEmoji: {
-      fontSize: 56,
-      marginBottom: spacing.sm,
-    },
-    title: {
-      fontSize: fontSize.title,
-      fontWeight: '800',
-      color: colors.text,
-      letterSpacing: -1,
-    },
-    subtitle: {
-      fontSize: fontSize.md,
-      color: colors.textSecondary,
-      marginTop: spacing.xs,
+    logoTitle: {
+      marginTop: -spacing.sm,
+      marginBottom: spacing.xs,
     },
     // ─── Form ───
-    formCard: {
-      backgroundColor: colors.card,
-      borderRadius: borderRadius.lg,
-      padding: spacing.xl,
-      borderWidth: 1,
-      borderColor: colors.border,
-      ...shadow.md,
-    },
     label: {
-      fontSize: fontSize.sm,
-      fontWeight: '600',
-      color: colors.textSecondary,
       marginBottom: spacing.xs,
-      textTransform: 'uppercase',
-      letterSpacing: 0.5,
     },
     input: {
       borderWidth: 1,
@@ -355,45 +347,10 @@ const createStyles = (colors: ThemeColors) =>
       textAlign: 'center',
       color: colors.accent,
     },
-    button: {
-      paddingVertical: 14,
-      borderRadius: borderRadius.md,
-      alignItems: 'center',
-      marginBottom: spacing.sm,
-    },
-    createButton: {
-      backgroundColor: colors.accent,
-    },
-    joinButton: {
-      backgroundColor: colors.online,
-    },
-    buttonDisabled: {
-      opacity: 0.6,
-    },
-    buttonText: {
-      color: colors.textInverse,
-      fontSize: fontSize.md,
-      fontWeight: '700',
-    },
-    divider: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginVertical: spacing.lg,
-    },
-    dividerLine: {
-      flex: 1,
-      height: 1,
-      backgroundColor: colors.border,
-    },
-    dividerText: {
-      marginHorizontal: spacing.md,
-      color: colors.textTertiary,
-      fontSize: fontSize.sm,
+    dividerSpacing: {
+      marginVertical: spacing.md,
     },
     footer: {
-      textAlign: 'center',
-      color: colors.textTertiary,
-      fontSize: fontSize.sm,
       marginTop: spacing.xl,
     },
   });

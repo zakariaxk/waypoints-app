@@ -12,8 +12,7 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { spacing, fontSize, borderRadius, getParticipantColor, type ThemeColors } from '../utils/theme';
-import { useTheme } from '../contexts/ThemeContext';
+import { spacing, fontSize, borderRadius, getParticipantColor, glow, type ThemeColors, useTheme } from '../ui/theme';
 
 export interface DestinationProposal {
   id: string;
@@ -133,20 +132,20 @@ export default function DestinationVoting({
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     container: {
-      backgroundColor: colors.card,
+      backgroundColor: colors.panel,
       borderRadius: borderRadius.lg,
       maxHeight: 300,
       overflow: 'hidden',
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: colors.panelBorder,
     },
     emptyContainer: {
-      backgroundColor: colors.card,
+      backgroundColor: colors.panel,
       borderRadius: borderRadius.lg,
       padding: spacing.xl,
       alignItems: 'center',
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: colors.panelBorder,
     },
     emptyText: {
       fontSize: fontSize.md,
@@ -166,7 +165,7 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       padding: spacing.md,
       borderBottomWidth: 1,
-      borderBottomColor: colors.border,
+      borderBottomColor: colors.panelBorder,
     },
     title: {
       fontSize: fontSize.md,
@@ -188,8 +187,10 @@ const createStyles = (colors: ThemeColors) =>
       paddingVertical: spacing.sm,
       paddingHorizontal: spacing.sm,
       marginBottom: spacing.xs,
-      backgroundColor: colors.surfaceAlt,
+      backgroundColor: colors.surface,
       borderRadius: borderRadius.sm,
+      borderWidth: 1,
+      borderColor: colors.panelBorder,
     },
     proposalColor: {
       width: 4,
@@ -218,15 +219,15 @@ const createStyles = (colors: ThemeColors) =>
     voteButton: {
       width: 36,
       height: 36,
-      borderRadius: 18,
-      backgroundColor: colors.surfaceHover,
+      borderRadius: borderRadius.sm,
+      backgroundColor: colors.surface,
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: colors.panelBorder,
     },
     votedButton: {
-      backgroundColor: colors.accentSoft,
+      backgroundColor: 'rgba(45,226,230,0.15)',
       borderColor: colors.accent,
     },
     voteText: {
@@ -239,10 +240,11 @@ const createStyles = (colors: ThemeColors) =>
     acceptButton: {
       paddingHorizontal: spacing.sm,
       height: 36,
-      borderRadius: 18,
+      borderRadius: borderRadius.sm,
       backgroundColor: colors.accent,
       alignItems: 'center',
       justifyContent: 'center',
+      ...glow.cyan.sm,
     },
     acceptText: {
       color: colors.textInverse,
@@ -252,8 +254,10 @@ const createStyles = (colors: ThemeColors) =>
     closeButton: {
       paddingVertical: spacing.sm,
       paddingHorizontal: spacing.lg,
-      backgroundColor: colors.surfaceAlt,
+      backgroundColor: colors.surface,
       borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.panelBorder,
     },
     closeText: {
       fontSize: fontSize.sm,

@@ -4,8 +4,7 @@ import { useMemo } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, Alert } from 'react-native';
 import type { SessionHistoryEntry } from '../utils/storage';
 import { removeSessionFromHistory } from '../utils/storage';
-import { spacing, fontSize, borderRadius, shadow, type ThemeColors } from '../utils/theme';
-import { useTheme } from '../contexts/ThemeContext';
+import { spacing, fontSize, borderRadius, type ThemeColors, useTheme } from '../ui/theme';
 
 interface SessionHistoryProps {
   sessions: SessionHistoryEntry[];
@@ -91,21 +90,22 @@ const createStyles = (colors: ThemeColors) =>
     row: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: colors.card,
+      backgroundColor: colors.panel,
       paddingVertical: spacing.md,
       paddingHorizontal: spacing.md,
       borderRadius: borderRadius.md,
       marginBottom: spacing.xs,
       borderWidth: 1,
-      borderColor: colors.border,
-      ...shadow.sm,
+      borderColor: colors.panelBorder,
     },
     codeBox: {
-      backgroundColor: colors.surfaceAlt,
+      backgroundColor: colors.surface,
       paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs,
       borderRadius: borderRadius.sm,
       marginRight: spacing.md,
+      borderWidth: 1,
+      borderColor: colors.panelBorder,
     },
     code: {
       fontSize: fontSize.sm,

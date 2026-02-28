@@ -4,8 +4,7 @@ import MapView, { Marker, Polyline, Callout, Region, PROVIDER_DEFAULT, MapType }
 import { useSessionStore, type Participant, type Destination } from '../state/session-store';
 import { fetchRoute, type RouteCoord } from '../utils/routing';
 import { haversineDistance, formatSpeed } from '../utils/geo';
-import { fontSize, spacing, borderRadius, getParticipantColor, type ThemeColors } from '../utils/theme';
-import { useTheme } from '../contexts/ThemeContext';
+import { fontSize, spacing, borderRadius, getParticipantColor, glow, type ThemeColors, useTheme } from '../ui/theme';
 
 const ARRIVAL_THRESHOLD_KM = 0.05; // 50 meters
 
@@ -402,7 +401,7 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
         style={styles.mapTypeButton}
         onPress={() => {
           setMapType((prev) => {
-            if (prev === 'standard') return isDark ? 'mutedStandard' as MapType : 'satellite';
+            if (prev === 'standard') return 'satellite';
             if (prev === 'satellite') return 'hybrid';
             return 'standard';
           });
@@ -436,11 +435,11 @@ const createStyles = (colors: ThemeColors) =>
     markerContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: colors.card,
+      backgroundColor: colors.panel,
       paddingHorizontal: 6,
       paddingVertical: 3,
-      borderRadius: borderRadius.lg,
-      borderWidth: 2,
+      borderRadius: borderRadius.md,
+      borderWidth: 1.5,
       ...Platform.select({
         ios: {
           shadowColor: '#000',
@@ -519,23 +518,13 @@ const createStyles = (colors: ThemeColors) =>
       left: spacing.sm,
       width: 40,
       height: 40,
-      borderRadius: 20,
+      borderRadius: borderRadius.md,
       backgroundColor: colors.mapControlBg,
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 1,
       borderColor: colors.borderAccent,
-      ...Platform.select({
-        ios: {
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.2,
-          shadowRadius: 3,
-        },
-        android: {
-          elevation: 4,
-        },
-      }),
+      ...glow.cyan.sm,
     },
     centerButtonText: {
       fontSize: 22,
@@ -551,23 +540,13 @@ const createStyles = (colors: ThemeColors) =>
       left: spacing.sm + 48,
       width: 40,
       height: 40,
-      borderRadius: 20,
+      borderRadius: borderRadius.md,
       backgroundColor: colors.mapControlBg,
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 1,
       borderColor: colors.borderAccent,
-      ...Platform.select({
-        ios: {
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.2,
-          shadowRadius: 3,
-        },
-        android: {
-          elevation: 4,
-        },
-      }),
+      ...glow.cyan.sm,
     },
     mapTypeButtonText: {
       fontSize: 18,
@@ -576,10 +555,10 @@ const createStyles = (colors: ThemeColors) =>
       position: 'absolute',
       bottom: spacing.sm,
       right: spacing.sm,
-      backgroundColor: colors.surface + 'CC',
+      backgroundColor: colors.panel,
       paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs,
-      borderRadius: borderRadius.full,
+      borderRadius: borderRadius.md,
       borderWidth: 1,
       borderColor: colors.borderAccent,
     },
@@ -587,5 +566,6 @@ const createStyles = (colors: ThemeColors) =>
       color: colors.accent,
       fontSize: fontSize.xs,
       fontWeight: '600',
+      letterSpacing: 0.5,
     },
   });

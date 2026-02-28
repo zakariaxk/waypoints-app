@@ -53,7 +53,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     versionCode: 1,
     permissions: ['ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION'],
   },
-  plugins: ['expo-location'],
+  plugins: ['expo-location', 'expo-font', 'react-native-reanimated/plugin'],
   extra: {
     eas: {
       projectId: process.env.EAS_PROJECT_ID || '',

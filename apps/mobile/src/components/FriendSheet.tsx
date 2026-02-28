@@ -16,8 +16,7 @@ import * as Haptics from 'expo-haptics';
 import type { Participant, Destination } from '../state/session-store';
 import { formatDuration, type ParticipantETA } from '../hooks/useParticipantETAs';
 import { formatDistance } from '../utils/geo';
-import { spacing, fontSize, borderRadius, shadow, getParticipantColor, type ThemeColors } from '../utils/theme';
-import { useTheme } from '../contexts/ThemeContext';
+import { spacing, fontSize, borderRadius, shadow, getParticipantColor, glow, type ThemeColors, useTheme } from '../ui/theme';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SHEET_HEIGHT = 280;
@@ -192,23 +191,13 @@ const createStyles = (colors: ThemeColors) =>
       left: 0,
       right: 0,
       height: SHEET_HEIGHT,
-      backgroundColor: colors.card,
+      backgroundColor: colors.panel,
       borderTopLeftRadius: borderRadius.xl,
       borderTopRightRadius: borderRadius.xl,
       borderWidth: 1,
       borderBottomWidth: 0,
-      borderColor: colors.borderAccent,
-      ...Platform.select({
-        ios: {
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.15,
-          shadowRadius: 12,
-        },
-        android: {
-          elevation: 8,
-        },
-      }),
+      borderColor: colors.panelBorder,
+      ...glow.cyan.md,
     },
     handleRow: {
       alignItems: 'center',
@@ -219,7 +208,8 @@ const createStyles = (colors: ThemeColors) =>
       width: 36,
       height: 4,
       borderRadius: 2,
-      backgroundColor: colors.border,
+      backgroundColor: colors.accent,
+      opacity: 0.6,
     },
     header: {
       flexDirection: 'row',
@@ -230,7 +220,7 @@ const createStyles = (colors: ThemeColors) =>
     avatar: {
       width: 44,
       height: 44,
-      borderRadius: 22,
+      borderRadius: borderRadius.md,
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: spacing.md,
@@ -262,10 +252,10 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       paddingVertical: spacing.md,
       paddingHorizontal: spacing.lg,
-      backgroundColor: colors.surfaceAlt,
+      backgroundColor: colors.surface,
       borderRadius: borderRadius.md,
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: colors.panelBorder,
     },
     actionDisabled: {
       opacity: 0.45,

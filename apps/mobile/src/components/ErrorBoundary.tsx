@@ -2,7 +2,7 @@
 
 import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { spacing, fontSize, borderRadius, darkColors } from '../utils/theme';
+import { spacing, fontSize, borderRadius, darkColors } from '../ui/theme';
 
 // ErrorBoundary is a class component and cannot use hooks.
 // We use darkColors as default (the app is dark-first).
@@ -77,6 +77,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: c.text,
     marginBottom: spacing.sm,
+    letterSpacing: 1,
   },
   message: {
     fontSize: fontSize.sm,
@@ -95,5 +96,6 @@ const styles = StyleSheet.create({
     color: c.textInverse,
     fontSize: fontSize.md,
     fontWeight: '600',
+    letterSpacing: 0.5,
   },
 });

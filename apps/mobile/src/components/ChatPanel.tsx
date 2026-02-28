@@ -1,19 +1,17 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   FlatList,
-  KeyboardAvoidingView,
   Platform,
   StyleSheet,
   Keyboard,
 } from 'react-native';
 import { useSessionStore, type ChatMessage } from '../state/session-store';
 import { sendChatMessage } from '../services/ws-client';
-import { spacing, fontSize, borderRadius, type ThemeColors } from '../utils/theme';
-import { useTheme } from '../contexts/ThemeContext';
+import { spacing, fontSize, borderRadius, glow, type ThemeColors, useTheme } from '../ui/theme';
 
 interface ChatPanelProps {
   currentParticipantId: string | null;
@@ -26,27 +24,26 @@ export default function ChatPanel({ currentParticipantId }: ChatPanelProps) {
   const flatListRef = useRef<FlatList>(null);
   const chatMessages = useSessionStore((s) => s.chatMessages);
 
+  // Stable scroll-to-end callback
+  const scrollToEnd = useCallback((animated = true) => {
+    flatListRef.current?.scrollToEnd({ animated });
+  }, []);
+
   // Auto-scroll to bottom on new messages
   useEffect(() => {
     if (chatMessages.length > 0) {
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
+      setTimeout(() => scrollToEnd(), 100);
     }
-  }, [chatMessages.length]);
+  }, [chatMessages.length, scrollToEnd]);
 
   // Scroll to bottom when keyboard opens
   useEffect(() => {
-    const sub = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      () => {
-        setTimeout(() => {
-          flatListRef.current?.scrollToEnd({ animated: true });
-        }, 150);
-      },
-    );
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const sub = Keyboard.addListener(showEvent, () => {
+      setTimeout(() => scrollToEnd(), 150);
+    });
     return () => sub.remove();
-  }, []);
+  }, [scrollToEnd]);
 
   const handleSend = () => {
     const trimmed = text.trim();
@@ -54,9 +51,7 @@ export default function ChatPanel({ currentParticipantId }: ChatPanelProps) {
     sendChatMessage(trimmed);
     setText('');
     // Scroll after sending
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+    setTimeout(() => scrollToEnd(), 100);
   };
 
   const formatTime = (ts: number) => {
@@ -82,11 +77,7 @@ export default function ChatPanel({ currentParticipantId }: ChatPanelProps) {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 120 : 0}
-    >
+    <View style={styles.container}>
       {chatMessages.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>No messages yet</Text>
@@ -101,9 +92,9 @@ export default function ChatPanel({ currentParticipantId }: ChatPanelProps) {
           contentContainerStyle={styles.messageList}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
-          onContentSizeChange={() => {
-            flatListRef.current?.scrollToEnd({ animated: false });
-          }}
+          keyboardDismissMode="interactive"
+          automaticallyAdjustKeyboardInsets={false}
+          onContentSizeChange={() => scrollToEnd(false)}
         />
       )}
 
@@ -118,11 +109,7 @@ export default function ChatPanel({ currentParticipantId }: ChatPanelProps) {
           returnKeyType="send"
           maxLength={500}
           multiline={false}
-          onFocus={() => {
-            setTimeout(() => {
-              flatListRef.current?.scrollToEnd({ animated: true });
-            }, 300);
-          }}
+          onFocus={() => setTimeout(() => scrollToEnd(), 300)}
         />
         <TouchableOpacity
           style={[styles.sendButton, !text.trim() && styles.sendButtonDisabled]}
@@ -132,7 +119,7 @@ export default function ChatPanel({ currentParticipantId }: ChatPanelProps) {
           <Text style={styles.sendButtonText}>↑</Text>
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -151,6 +138,7 @@ const createStyles = (colors: ThemeColors) =>
       fontSize: fontSize.md,
       color: colors.textSecondary,
       fontWeight: '500',
+      letterSpacing: 0.3,
     },
     emptySubtext: {
       fontSize: fontSize.sm,
@@ -165,24 +153,28 @@ const createStyles = (colors: ThemeColors) =>
       maxWidth: '80%',
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
-      borderRadius: borderRadius.lg,
+      borderRadius: borderRadius.md,
       marginBottom: spacing.sm,
+      borderWidth: 1,
     },
     myMessage: {
       alignSelf: 'flex-end',
-      backgroundColor: colors.accent,
-      borderBottomRightRadius: borderRadius.sm,
+      backgroundColor: 'rgba(45,226,230,0.15)',
+      borderColor: 'rgba(45,226,230,0.3)',
+      borderBottomRightRadius: borderRadius.xs,
     },
     otherMessage: {
       alignSelf: 'flex-start',
-      backgroundColor: colors.surfaceAlt,
-      borderBottomLeftRadius: borderRadius.sm,
+      backgroundColor: colors.panel,
+      borderColor: colors.panelBorder,
+      borderBottomLeftRadius: borderRadius.xs,
     },
     senderName: {
       fontSize: fontSize.xs,
       fontWeight: '600',
       color: colors.accent,
       marginBottom: 2,
+      letterSpacing: 0.5,
     },
     messageText: {
       fontSize: fontSize.md,
@@ -190,7 +182,7 @@ const createStyles = (colors: ThemeColors) =>
       lineHeight: 20,
     },
     myMessageText: {
-      color: colors.textInverse,
+      color: colors.text,
     },
     messageTime: {
       fontSize: fontSize.xs - 1,
@@ -199,7 +191,7 @@ const createStyles = (colors: ThemeColors) =>
       alignSelf: 'flex-end',
     },
     myMessageTime: {
-      color: 'rgba(255,255,255,0.7)',
+      color: 'rgba(45,226,230,0.6)',
     },
     inputRow: {
       flexDirection: 'row',
@@ -207,13 +199,15 @@ const createStyles = (colors: ThemeColors) =>
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
       borderTopWidth: 1,
-      borderTopColor: colors.border,
-      backgroundColor: colors.surface,
+      borderTopColor: colors.panelBorder,
+      backgroundColor: colors.panel,
     },
     input: {
       flex: 1,
-      backgroundColor: colors.surfaceAlt,
-      borderRadius: borderRadius.xl,
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.panelBorder,
       paddingHorizontal: spacing.lg,
       paddingVertical: Platform.OS === 'ios' ? spacing.sm : spacing.xs,
       fontSize: fontSize.md,
@@ -223,14 +217,17 @@ const createStyles = (colors: ThemeColors) =>
     sendButton: {
       width: 34,
       height: 34,
-      borderRadius: 17,
+      borderRadius: borderRadius.md,
       backgroundColor: colors.accent,
       alignItems: 'center',
       justifyContent: 'center',
       marginLeft: spacing.sm,
+      ...glow.cyan.sm,
     },
     sendButtonDisabled: {
-      backgroundColor: colors.border,
+      backgroundColor: colors.panelBorder,
+      shadowOpacity: 0,
+      elevation: 0,
     },
     sendButtonText: {
       color: colors.textInverse,

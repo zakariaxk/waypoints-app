@@ -3,8 +3,7 @@
 import { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { formatDuration, type ParticipantETA } from '../hooks/useParticipantETAs';
-import { spacing, fontSize, borderRadius, type ThemeColors } from '../utils/theme';
-import { useTheme } from '../contexts/ThemeContext';
+import { spacing, fontSize, borderRadius, type ThemeColors, useTheme } from '../ui/theme';
 
 interface GroupETASummaryProps {
   etas: Map<string, ParticipantETA>;
@@ -70,9 +69,9 @@ const createStyles = (colors: ThemeColors) =>
       flexDirection: 'row',
       paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs,
-      backgroundColor: colors.surface,
+      backgroundColor: colors.panel,
       borderTopWidth: 1,
-      borderTopColor: colors.border,
+      borderTopColor: colors.panelBorder,
       gap: spacing.xs,
     },
     pill: {
@@ -80,25 +79,27 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       paddingVertical: spacing.xs,
       paddingHorizontal: spacing.xs,
-      backgroundColor: colors.surfaceAlt,
+      backgroundColor: colors.surface,
       borderRadius: borderRadius.sm,
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: colors.panelBorder,
     },
     pillAvg: {
-      backgroundColor: colors.accentSoft,
-      borderColor: colors.borderAccent,
+      backgroundColor: 'rgba(45,226,230,0.1)',
+      borderColor: 'rgba(45,226,230,0.3)',
     },
     label: {
       fontSize: fontSize.xs - 1,
       color: colors.textTertiary,
       fontWeight: '600',
       marginBottom: 1,
+      letterSpacing: 0.5,
     },
     value: {
       fontSize: fontSize.xs,
       fontWeight: '700',
-      color: colors.text,
+      color: colors.accent,
       maxWidth: 90,
+      letterSpacing: 0.3,
     },
   });

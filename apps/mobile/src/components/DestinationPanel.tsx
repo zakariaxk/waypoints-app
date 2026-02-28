@@ -3,8 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import type { Destination, Participant } from '../state/session-store';
 import { haversineDistance, formatDistance } from '../utils/geo';
 import { formatDuration, type ParticipantETA } from '../hooks/useParticipantETAs';
-import { spacing, fontSize, type ThemeColors } from '../utils/theme';
-import { useTheme } from '../contexts/ThemeContext';
+import { spacing, fontSize, borderRadius, type ThemeColors, useTheme } from '../ui/theme';
 
 interface DestinationPanelProps {
   destination: Destination | null;
@@ -76,9 +75,9 @@ const createStyles = (colors: ThemeColors) =>
       alignItems: 'center',
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
-      backgroundColor: colors.destinationBg,
+      backgroundColor: colors.panel,
       borderTopWidth: 1,
-      borderTopColor: colors.destinationBorder,
+      borderTopColor: colors.panelBorder,
     },
     icon: {
       fontSize: 18,
@@ -91,6 +90,7 @@ const createStyles = (colors: ThemeColors) =>
       fontSize: fontSize.sm,
       fontWeight: '600',
       color: colors.text,
+      letterSpacing: 0.3,
     },
     statsRow: {
       flexDirection: 'row',
@@ -100,7 +100,8 @@ const createStyles = (colors: ThemeColors) =>
     stat: {
       fontSize: fontSize.xs,
       fontWeight: '600',
-      color: colors.destinationText,
+      color: colors.accent,
+      letterSpacing: 0.3,
     },
     coords: {
       fontSize: fontSize.xs,
@@ -110,11 +111,13 @@ const createStyles = (colors: ThemeColors) =>
     clearButton: {
       width: 28,
       height: 28,
-      borderRadius: 14,
-      backgroundColor: colors.surfaceHover,
+      borderRadius: borderRadius.sm,
+      backgroundColor: colors.surface,
       alignItems: 'center',
       justifyContent: 'center',
       marginLeft: spacing.sm,
+      borderWidth: 1,
+      borderColor: colors.panelBorder,
     },
     clearText: {
       fontSize: fontSize.sm,

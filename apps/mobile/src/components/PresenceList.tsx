@@ -3,8 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native
 import type { Participant, Destination } from '../state/session-store';
 import { haversineDistance, formatDistance, formatSpeed } from '../utils/geo';
 import { formatDuration, type ParticipantETA } from '../hooks/useParticipantETAs';
-import { spacing, fontSize, borderRadius, getParticipantColor, type ThemeColors } from '../utils/theme';
-import { useTheme } from '../contexts/ThemeContext';
+import { spacing, fontSize, borderRadius, getParticipantColor, type ThemeColors, useTheme } from '../ui/theme';
 
 interface PresenceListProps {
   participants: Participant[];
@@ -144,15 +143,15 @@ const createStyles = (colors: ThemeColors) =>
       paddingVertical: spacing.sm,
       paddingHorizontal: spacing.sm,
       marginBottom: spacing.xs,
-      backgroundColor: colors.surface,
+      backgroundColor: colors.panel,
       borderRadius: borderRadius.md,
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: colors.panelBorder,
     },
     avatar: {
       width: 36,
       height: 36,
-      borderRadius: 18,
+      borderRadius: borderRadius.md,
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: spacing.md,
@@ -189,6 +188,7 @@ const createStyles = (colors: ThemeColors) =>
       color: colors.accent,
       fontWeight: '600',
       marginTop: 1,
+      letterSpacing: 0.3,
     },
     time: {
       fontSize: fontSize.xs,
