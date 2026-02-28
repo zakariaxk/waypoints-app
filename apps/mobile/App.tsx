@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
-import { SafeAreaView, StyleSheet, Platform } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import HomeScreen from './src/screens/HomeScreen';
 import SessionScreen from './src/screens/SessionScreen';
@@ -38,19 +39,21 @@ export default function App() {
   }, []);
 
   return (
-    <ErrorBoundary>
-      <StatusBar style="dark" />
-      <SafeAreaView style={styles.container}>
-        {inSession ? (
-          <SessionScreen onLeave={handleLeave} />
-        ) : (
-          <HomeScreen
-            onSessionReady={handleSessionReady}
-            initialJoinCode={pendingJoinCode}
-          />
-        )}
-      </SafeAreaView>
-    </ErrorBoundary>
+    <SafeAreaProvider>
+      <ErrorBoundary>
+        <StatusBar style="dark" />
+        <SafeAreaView style={styles.container}>
+          {inSession ? (
+            <SessionScreen onLeave={handleLeave} />
+          ) : (
+            <HomeScreen
+              onSessionReady={handleSessionReady}
+              initialJoinCode={pendingJoinCode}
+            />
+          )}
+        </SafeAreaView>
+      </ErrorBoundary>
+    </SafeAreaProvider>
   );
 }
 

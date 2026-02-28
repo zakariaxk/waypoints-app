@@ -16,13 +16,15 @@ import {
   sendSetDestination,
   sendClearDestination,
   sendLeaveSession,
+  isSessionInvalidated,
+  onMessage,
 } from '../services/ws-client';
 import {
   requestLocationPermission,
   startLocationUpdates,
   stopLocationUpdates,
 } from '../services/location';
-import { updateSessionActivity } from '../utils/storage';
+import { updateSessionActivity, removeSessionFromHistory } from '../utils/storage';
 import { makeJoinLink } from '../utils/deeplink';
 import MapSection from '../components/MapSection';
 import PresenceList from '../components/PresenceList';
@@ -94,6 +96,30 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
       disconnectWs();
     };
   }, [sessionId, participantId, token]);
+
+  // Detect dead/expired session — server lost it (free tier restart, etc.)
+  useEffect(() => {
+    const unsub = onMessage((msg: unknown) => {
+      const m = msg as { type?: string; payload?: { code?: string } };
+      if (m.type === 'ERROR') {
+        const code = m.payload?.code;
+        if (code === 'NOT_IN_SESSION' || code === 'SESSION_NOT_FOUND' || code === 'INVALID_TOKEN') {
+          // Remove stale entry from history and go home
+          if (sessionId) {
+            removeSessionFromHistory(sessionId);
+          }
+          stopLocationUpdates();
+          reset();
+          Alert.alert(
+            'Session Expired',
+            'This session no longer exists on the server. It may have been cleared when the server restarted.',
+            [{ text: 'OK', onPress: onLeave }],
+          );
+        }
+      }
+    });
+    return unsub;
+  }, [sessionId, reset, onLeave]);
 
   // Update session activity timestamp periodically
   useEffect(() => {

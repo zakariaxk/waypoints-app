@@ -10,6 +10,7 @@ let messageHandlers: MessageHandler[] = [];
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let intentionalClose = false;
 let reconnectAttempts = 0;
+let sessionInvalidated = false;
 
 /** Exponential backoff: 1s, 2s, 4s, 8s max */
 function getReconnectDelay(): number {
@@ -31,6 +32,7 @@ export function connectWs(
   }
 
   intentionalClose = false;
+  sessionInvalidated = false;
   ws = new WebSocket(WS_URL);
 
   ws.onopen = () => {
@@ -58,8 +60,8 @@ export function connectWs(
     useSessionStore.getState().setConnected(false);
     ws = null;
 
-    // Auto-reconnect unless intentionally closed
-    if (!intentionalClose) {
+    // Auto-reconnect unless intentionally closed or session is gone
+    if (!intentionalClose && !sessionInvalidated) {
       if (reconnectTimer) clearTimeout(reconnectTimer);
       const delay = getReconnectDelay();
       reconnectTimer = setTimeout(() => {
@@ -79,6 +81,7 @@ export function connectWs(
 
 export function disconnectWs(): void {
   intentionalClose = true;
+  sessionInvalidated = false;
   reconnectAttempts = 0;
   if (reconnectTimer) {
     clearTimeout(reconnectTimer);
@@ -123,6 +126,10 @@ export function sendChatMessage(text: string): void {
 export function sendLeaveSession(): void {
   sendJson({ type: 'LEAVE_SESSION', payload: {} });
   disconnectWs();
+}
+
+export function isSessionInvalidated(): boolean {
+  return sessionInvalidated;
 }
 
 export function onMessage(handler: MessageHandler): () => void {
@@ -187,6 +194,13 @@ function handleServerMessage(msg: { type: string; payload: Record<string, unknow
     case 'ERROR': {
       const payload = msg.payload as { code: string; message: string };
       console.warn(`[WS ERROR] ${payload.code}: ${payload.message}`);
+
+      // Fatal errors — session no longer exists on server
+      const FATAL_CODES = ['NOT_IN_SESSION', 'SESSION_NOT_FOUND', 'INVALID_TOKEN'];
+      if (FATAL_CODES.includes(payload.code)) {
+        sessionInvalidated = true;
+        disconnectWs();
+      }
       break;
     }
   }
