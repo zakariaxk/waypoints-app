@@ -107,8 +107,8 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
     }
 
     const now = Date.now();
-    const newRoutes = new Map(participantRoutes);
-    let changed = false;
+    const updates = new Map<string, RouteCoord[]>();
+    const deletions: string[] = [];
 
     for (const p of participantsWithLocation) {
       if (p.status === 'offline') continue;
@@ -127,37 +127,38 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
       // Check if participant is near destination (arrived) — skip route
       const distToDest = haversineDistance(loc.lat, loc.lng, destination.lat, destination.lng);
       if (distToDest < ARRIVAL_THRESHOLD_KM) {
-        newRoutes.delete(p.participantId);
+        deletions.push(p.participantId);
         lastRouteFetchRef.current.delete(p.participantId);
-        changed = true;
         continue;
       }
 
       const result = await fetchRoute(loc, destination);
       if (result) {
-        newRoutes.set(p.participantId, result.coords);
+        updates.set(p.participantId, result.coords);
         lastRouteFetchRef.current.set(p.participantId, {
           lat: loc.lat, lng: loc.lng,
           destLat: destination.lat, destLng: destination.lng,
           time: now,
         });
-        changed = true;
       }
 
       // Stagger to be polite to OSRM
       await new Promise((r) => setTimeout(r, 250));
     }
 
-    // Remove routes for participants no longer present
-    for (const pid of newRoutes.keys()) {
-      if (!participants.has(pid)) {
-        newRoutes.delete(pid);
-        changed = true;
-      }
+    if (updates.size > 0 || deletions.length > 0) {
+      setParticipantRoutes((prev) => {
+        const next = new Map(prev);
+        for (const [pid, coords] of updates) next.set(pid, coords);
+        for (const pid of deletions) next.delete(pid);
+        // Remove routes for participants no longer present
+        for (const pid of next.keys()) {
+          if (!participants.has(pid)) next.delete(pid);
+        }
+        return next;
+      });
     }
-
-    if (changed) setParticipantRoutes(newRoutes);
-  }, [participantsWithLocation, destination, participants, participantRoutes]);
+  }, [participantsWithLocation, destination, participants]);
 
   // Fetch routes on location/destination change
   useEffect(() => {

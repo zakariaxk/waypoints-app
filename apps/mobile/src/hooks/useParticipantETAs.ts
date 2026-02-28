@@ -76,7 +76,7 @@ export function useParticipantETAs(
     if (toFetch.length === 0) return;
 
     // Stagger calls to be polite to the public OSRM server
-    const newEtas = new Map(etas);
+    const updates = new Map<string, ParticipantETA>();
 
     for (let i = 0; i < toFetch.length; i++) {
       if (!mountedRef.current) return;
@@ -84,7 +84,7 @@ export function useParticipantETAs(
 
       const result = await fetchDuration(loc, destination);
       if (result && mountedRef.current) {
-        newEtas.set(pid, { durationSec: result.durationSec, distanceM: result.distanceM });
+        updates.set(pid, { durationSec: result.durationSec, distanceM: result.distanceM });
         lastFetchRef.current.set(pid, {
           lat: loc.lat,
           lng: loc.lng,
@@ -99,14 +99,18 @@ export function useParticipantETAs(
       }
     }
 
-    if (mountedRef.current) {
-      // Remove ETAs for participants no longer in the session
-      for (const pid of newEtas.keys()) {
-        if (!participants.has(pid)) newEtas.delete(pid);
-      }
-      setEtas(newEtas);
+    if (mountedRef.current && updates.size > 0) {
+      setEtas((prev) => {
+        const next = new Map(prev);
+        for (const [pid, eta] of updates) next.set(pid, eta);
+        // Remove ETAs for participants no longer in the session
+        for (const pid of next.keys()) {
+          if (!participants.has(pid)) next.delete(pid);
+        }
+        return next;
+      });
     }
-  }, [participants, destination, etas]);
+  }, [participants, destination]);
 
   // Fetch immediately when destination changes or new participants arrive
   useEffect(() => {
