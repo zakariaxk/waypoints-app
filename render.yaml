@@ -4,11 +4,12 @@
 services:
   - type: web
     name: waypoints-api
-    runtime: docker
+    runtime: node
     repo: https://github.com/zakariaxk/waypoints-app.git
     branch: main
     plan: free
-    dockerfilePath: ./Dockerfile
+    buildCommand: npm ci && npm run build -w packages/shared && npm run build -w services/api
+    startCommand: node services/api/dist/index.js
     envVars:
       - key: PORT
         value: "8080"
