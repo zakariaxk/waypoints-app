@@ -5,6 +5,7 @@ import { colors, spacing, fontSize, borderRadius } from '../utils/theme';
 interface PresenceListProps {
   participants: Participant[];
   currentParticipantId: string | null;
+  hostParticipantId?: string | null;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -28,7 +29,7 @@ function timeAgo(ts: number): string {
   return `${Math.floor(minutes / 60)}h ago`;
 }
 
-export default function PresenceList({ participants, currentParticipantId }: PresenceListProps) {
+export default function PresenceList({ participants, currentParticipantId, hostParticipantId }: PresenceListProps) {
   // Sort: online first, then stale, then offline
   const sorted = [...participants].sort((a, b) => {
     const order: Record<string, number> = { online: 0, stale: 1, offline: 2 };
@@ -42,6 +43,7 @@ export default function PresenceList({ participants, currentParticipantId }: Pre
       contentContainerStyle={styles.list}
       renderItem={({ item }) => {
         const isMe = item.participantId === currentParticipantId;
+        const isHost = item.participantId === hostParticipantId;
         return (
           <View style={styles.row}>
             <View style={[styles.avatar, { backgroundColor: STATUS_COLORS[item.status] || colors.border }]}>
@@ -50,10 +52,13 @@ export default function PresenceList({ participants, currentParticipantId }: Pre
               </Text>
             </View>
             <View style={styles.info}>
-              <Text style={styles.name} numberOfLines={1}>
-                {item.displayName || item.participantId.slice(0, 8)}
-                {isMe ? ' (you)' : ''}
-              </Text>
+              <View style={styles.nameRow}>
+                <Text style={styles.name} numberOfLines={1}>
+                  {item.displayName || item.participantId.slice(0, 8)}
+                  {isMe ? ' (you)' : ''}
+                </Text>
+                {isHost && <Text style={styles.hostTag}> 👑</Text>}
+              </View>
               <Text style={styles.detail}>
                 {STATUS_LABELS[item.status] || item.status}
                 {item.lastLocation
@@ -103,10 +108,19 @@ const styles = StyleSheet.create({
   info: {
     flex: 1,
   },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   name: {
     fontSize: fontSize.md,
     fontWeight: '600',
     color: colors.text,
+    flexShrink: 1,
+  },
+  hostTag: {
+    fontSize: fontSize.md,
+    marginLeft: 2,
   },
   detail: {
     fontSize: fontSize.xs,

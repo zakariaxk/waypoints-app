@@ -10,11 +10,15 @@ async function buildApp() {
 
 describe('HTTP Routes', () => {
   describe('GET /health', () => {
-    it('returns status ok', async () => {
+    it('returns status ok with metadata', async () => {
       const app = await buildApp();
       const res = await app.inject({ method: 'GET', url: '/health' });
       expect(res.statusCode).toBe(200);
-      expect(res.json()).toEqual({ status: 'ok' });
+      const body = res.json();
+      expect(body.status).toBe('ok');
+      expect(body).toHaveProperty('uptime');
+      expect(body).toHaveProperty('sessions');
+      expect(body).toHaveProperty('timestamp');
     });
   });
 

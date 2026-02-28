@@ -206,3 +206,38 @@ npm run lint                   # eslint across all workspaces
 | State lost on restart | Persisted sessions |
 | Timestamp rate limit | Token bucket |
 | Manual test/lint | GitHub Actions CI |
+
+## Batch 9 – Real App Upgrades
+
+### Changes Summary
+
+**Backend:**
+- **CORS**: `@fastify/cors` registered with configurable origin (default: allow all in dev).
+- **HTTP validation**: Display name sanitization (trim + truncate to 30 chars), join code format validation (`/^[A-Z0-9]{6}$/`), session capacity check (409 if full, default 50 participants).
+- **Health endpoint**: Now returns `{ status, uptime, sessions, timestamp }`.
+- **Host-only destination**: Only the session creator (`hostParticipantId`) can SET_DESTINATION or CLEAR_DESTINATION. Non-host gets `FORBIDDEN` error.
+- **CLEAR_DESTINATION**: New message type that nulls the destination and broadcasts `DESTINATION_CLEARED` event with `clearedBy`.
+- **WELCOME**: Now includes `hostParticipantId` so client knows who the host is.
+- **DESTINATION_SET**: Now includes `setBy` (participantId of who set it).
+- **Session info**: `GET /sessions/:id` now returns `lastSeenTs` per participant and `createdAt`.
+
+**Mobile:**
+- **AsyncStorage persistence**: Display name and session history stored locally (up to 10 entries).
+- **Session history**: Recent sessions list on home screen with tap-to-rejoin and long-press-to-delete.
+- **Exponential backoff reconnect**: 1s → 2s → 4s → 8s (max), resets on successful connection.
+- **Distance/ETA**: Haversine distance and walking ETA shown in destination panel.
+- **Host controls**: Only host sees long-press-to-set-destination and clear destination button. Host badge (👑) shown in presence list and banner.
+- **Error boundary**: React error boundary wraps entire app with retry UI.
+- **Connection quality**: Reconnect count displayed during reconnection attempts.
+
+**Shared:**
+- New types: `ClearDestinationMessage`, `DestinationClearedEvent`, `FORBIDDEN` error code.
+- New event kind: `DESTINATION_CLEARED`.
+- `WelcomeMessage` now includes `hostParticipantId`.
+- `DestinationSetEvent.data` now includes `setBy`.
+
+**Tests:** 44 total (was 34). New tests cover host-only destination, FORBIDDEN for non-host, CLEAR_DESTINATION, DESTINATION_CLEARED in SNAPSHOT, WELCOME hostParticipantId, HTTP validation, health endpoint metadata.
+
+**New dependencies:**
+- `@fastify/cors@^9.0.0` (backend CORS)
+- `@react-native-async-storage/async-storage@^2.1.0` (mobile persistence)

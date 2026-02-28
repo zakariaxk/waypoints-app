@@ -25,6 +25,15 @@
 - [x] Location permission denied UX — Batch 7
 - [x] Chat/leave backend tests (34 total passing) — Batch 7
 - [x] WS-PROTOCOL.md updated with all new message types — Batch 7
+- [x] CORS + HTTP validation (display name sanitize, join code format, capacity) — Batch 9
+- [x] Host-only destination (SET_DESTINATION + CLEAR_DESTINATION) — Batch 9
+- [x] Distance/ETA to destination (Haversine) — Batch 9
+- [x] AsyncStorage persistent identity + session history — Batch 9
+- [x] Exponential backoff reconnect (1s→8s) — Batch 9
+- [x] Error boundary + host badge UI — Batch 9
+- [x] .env.example files for backend + mobile — Batch 9
+- [x] New backend tests (44 total passing) — Batch 9
+- [x] Docs updated (WS-PROTOCOL, ARCHITECTURE) — Batch 9
 - [ ] End-to-end smoke test on physical device — Batch 8
 - [ ] Documentation cleanup + demo instructions — Batch 8
 
@@ -37,3 +46,4 @@
 - [x] Batch 4: Reconnect replay + 27 backend tests (all passing)
 - [x] Batch 5: Mobile app — HomeScreen, SessionScreen, WS client, location service, zustand store
 - [x] Batch 7: Beyond-MVP — chat, leave, live map, theme, polished UI, 34 tests
+- [x] Batch 9: Real app upgrades — CORS, host controls, persistence, backoff, ETA, error boundary, 44 tests

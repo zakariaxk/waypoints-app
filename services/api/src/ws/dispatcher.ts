@@ -6,7 +6,7 @@ import type { ConnState } from './handler.js';
 import { sendJson } from './handler.js';
 import { handleHello } from './handshake.js';
 import { handleLocUpdate } from './location.js';
-import { handleSetDestination } from './destination.js';
+import { handleSetDestination, handleClearDestination } from './destination.js';
 import { handleChatMessage } from './chat.js';
 import { handleLeaveSession } from './leave.js';
 
@@ -49,6 +49,9 @@ export function dispatch(conn: ConnState, raw: Buffer | string): void {
       break;
     case 'SET_DESTINATION':
       handleSetDestination(conn, message.payload);
+      break;
+    case 'CLEAR_DESTINATION':
+      handleClearDestination(conn);
       break;
     case 'CHAT_MESSAGE':
       handleChatMessage(conn, message.payload);

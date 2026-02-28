@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import cors from '@fastify/cors';
 import { config } from './config.js';
 import { registerRoutes } from './http/routes.js';
 import { setupWebSocket } from './ws/handler.js';
@@ -6,6 +7,12 @@ import { sessionStore } from './state/session-store.js';
 
 async function main() {
   const app = Fastify({ logger: true });
+
+  // CORS — allow all origins in dev, restrict in production
+  await app.register(cors, {
+    origin: config.corsOrigin,
+    methods: ['GET', 'POST'],
+  });
 
   // Register HTTP routes
   await registerRoutes(app);

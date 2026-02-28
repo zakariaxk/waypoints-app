@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,12 +10,19 @@ import {
   StatusBar,
 } from 'react-native';
 import { useSessionStore } from '../state/session-store';
-import { connectWs, disconnectWs, sendSetDestination, sendLeaveSession } from '../services/ws-client';
+import {
+  connectWs,
+  disconnectWs,
+  sendSetDestination,
+  sendClearDestination,
+  sendLeaveSession,
+} from '../services/ws-client';
 import {
   requestLocationPermission,
   startLocationUpdates,
   stopLocationUpdates,
 } from '../services/location';
+import { updateSessionActivity } from '../utils/storage';
 import MapSection from '../components/MapSection';
 import PresenceList from '../components/PresenceList';
 import ChatPanel from '../components/ChatPanel';
@@ -35,8 +42,9 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
     token,
     joinCode,
     connected,
-    lastEventId,
+    reconnectCount,
     chatMessages,
+    isHost,
   } = useSessionStore();
   const participants = useSessionStore((s) => s.participants);
   const destination = useSessionStore((s) => s.destination);
@@ -44,6 +52,13 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
   const [locationGranted, setLocationGranted] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('people');
   const [unreadChat, setUnreadChat] = useState(0);
+
+  // My location for distance calculation
+  const myLocation = useMemo(() => {
+    if (!participantId) return null;
+    const me = participants.get(participantId);
+    return me?.lastLocation ?? null;
+  }, [participants, participantId]);
 
   // Track unread chat when on people tab
   useEffect(() => {
@@ -67,6 +82,14 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
       disconnectWs();
     };
   }, [sessionId, participantId, token]);
+
+  // Update session activity timestamp periodically
+  useEffect(() => {
+    if (!sessionId) return;
+    updateSessionActivity(sessionId);
+    const timer = setInterval(() => updateSessionActivity(sessionId), 30_000);
+    return () => clearInterval(timer);
+  }, [sessionId]);
 
   // Request location permission and start updates
   useEffect(() => {
@@ -117,35 +140,53 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
 
   const handleMapLongPress = useCallback(
     (lat: number, lng: number) => {
-      Alert.prompt
-        ? // iOS has Alert.prompt
-          Alert.prompt(
-            'Set Destination',
-            'Enter a label for the destination (optional)',
-            [
-              { text: 'Cancel', style: 'cancel' },
-              {
-                text: 'Set',
-                onPress: (label) => {
-                  sendSetDestination(lat, lng, label || null);
-                },
-              },
-            ],
-            'plain-text',
-          )
-        : // Android fallback
-          Alert.alert('Set Destination', `Set destination at this location?`, [
+      if (!isHost) {
+        Alert.alert('Host Only', 'Only the session host can set the destination.');
+        return;
+      }
+
+      // @ts-expect-error — Alert.prompt exists on iOS but not in types
+      if (Platform.OS === 'ios' && Alert.prompt) {
+        // @ts-expect-error
+        Alert.prompt(
+          'Set Destination',
+          'Enter a label for the destination (optional)',
+          [
             { text: 'Cancel', style: 'cancel' },
             {
               text: 'Set',
-              onPress: () => {
-                sendSetDestination(lat, lng, null);
+              onPress: (label?: string) => {
+                sendSetDestination(lat, lng, label || null);
               },
             },
-          ]);
+          ],
+          'plain-text',
+        );
+      } else {
+        Alert.alert('Set Destination', `Set destination at this location?`, [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Set',
+            onPress: () => {
+              sendSetDestination(lat, lng, null);
+            },
+          },
+        ]);
+      }
     },
-    [],
+    [isHost],
   );
+
+  const handleClearDestination = useCallback(() => {
+    Alert.alert('Clear Destination', 'Remove the current destination?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Clear',
+        style: 'destructive',
+        onPress: () => sendClearDestination(),
+      },
+    ]);
+  }, []);
 
   const participantList = Array.from(participants.values());
   const onlineCount = participantList.filter((p) => p.status === 'online').length;
@@ -168,12 +209,30 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
         </View>
 
         <View style={styles.headerRight}>
-          <View style={[styles.connectionDot, connected ? styles.dotConnected : styles.dotDisconnected]} />
+          <View
+            style={[
+              styles.connectionDot,
+              connected ? styles.dotConnected : styles.dotDisconnected,
+            ]}
+          />
           <Text style={styles.connectionText}>
-            {connected ? `${onlineCount} online` : 'Reconnecting...'}
+            {connected
+              ? `${onlineCount} online`
+              : reconnectCount > 0
+                ? `Retry #${reconnectCount}...`
+                : 'Connecting...'}
           </Text>
         </View>
       </View>
+
+      {/* Host badge */}
+      {isHost && (
+        <View style={styles.hostBadge}>
+          <Text style={styles.hostBadgeText}>
+            👑 You are the host — long-press map to set destination
+          </Text>
+        </View>
+      )}
 
       {/* Map Section */}
       <View style={styles.mapContainer}>
@@ -194,7 +253,12 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
       </View>
 
       {/* Destination bar (if set) */}
-      {destination && <DestinationPanel destination={destination} />}
+      <DestinationPanel
+        destination={destination}
+        myLocation={myLocation}
+        isHost={isHost}
+        onClear={handleClearDestination}
+      />
 
       {/* Tab Bar */}
       <View style={styles.tabBar}>
@@ -228,6 +292,7 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
           <PresenceList
             participants={participantList}
             currentParticipantId={participantId}
+            hostParticipantId={useSessionStore.getState().hostParticipantId}
           />
         ) : (
           <ChatPanel currentParticipantId={participantId} />
@@ -242,7 +307,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  // ─── Header ───
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -306,7 +370,19 @@ const styles = StyleSheet.create({
     fontSize: fontSize.xs,
     color: colors.textSecondary,
   },
-  // ─── Map ───
+  hostBadge: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderBottomWidth: 1,
+    borderBottomColor: '#FDE68A',
+  },
+  hostBadgeText: {
+    fontSize: fontSize.xs,
+    color: '#92400E',
+    textAlign: 'center',
+    fontWeight: '500',
+  },
   mapContainer: {
     flex: 3,
     minHeight: 200,
@@ -334,7 +410,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
-  // ─── Tabs ───
   tabBar: {
     flexDirection: 'row',
     borderTopWidth: 1,
@@ -364,7 +439,6 @@ const styles = StyleSheet.create({
     color: colors.offline,
     fontWeight: '700',
   },
-  // ─── Tab content ───
   tabContent: {
     flex: 2,
     minHeight: 120,

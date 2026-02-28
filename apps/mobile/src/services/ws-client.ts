@@ -9,6 +9,15 @@ let ws: WebSocket | null = null;
 let messageHandlers: MessageHandler[] = [];
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let intentionalClose = false;
+let reconnectAttempts = 0;
+
+/** Exponential backoff: 1s, 2s, 4s, 8s max */
+function getReconnectDelay(): number {
+  const base = 1000;
+  const delay = Math.min(base * 2 ** reconnectAttempts, 8000);
+  reconnectAttempts++;
+  return delay;
+}
 
 export function connectWs(
   sessionId: string,
@@ -25,6 +34,7 @@ export function connectWs(
   ws = new WebSocket(WS_URL);
 
   ws.onopen = () => {
+    reconnectAttempts = 0; // reset backoff on successful connect
     sendJson({
       type: 'HELLO',
       payload: { sessionId, participantId, token, lastEventId },
@@ -51,12 +61,14 @@ export function connectWs(
     // Auto-reconnect unless intentionally closed
     if (!intentionalClose) {
       if (reconnectTimer) clearTimeout(reconnectTimer);
+      const delay = getReconnectDelay();
       reconnectTimer = setTimeout(() => {
         const store = useSessionStore.getState();
         if (store.sessionId && store.participantId && store.token) {
+          store.incrementReconnectCount();
           connectWs(store.sessionId, store.participantId, store.token, store.lastEventId);
         }
-      }, 2000);
+      }, delay);
     }
   };
 
@@ -67,6 +79,7 @@ export function connectWs(
 
 export function disconnectWs(): void {
   intentionalClose = true;
+  reconnectAttempts = 0;
   if (reconnectTimer) {
     clearTimeout(reconnectTimer);
     reconnectTimer = null;
@@ -99,13 +112,16 @@ export function sendSetDestination(lat: number, lng: number, label: string | nul
   sendJson({ type: 'SET_DESTINATION', payload: { lat, lng, label } });
 }
 
+export function sendClearDestination(): void {
+  sendJson({ type: 'CLEAR_DESTINATION', payload: {} });
+}
+
 export function sendChatMessage(text: string): void {
   sendJson({ type: 'CHAT_MESSAGE', payload: { text } });
 }
 
 export function sendLeaveSession(): void {
   sendJson({ type: 'LEAVE_SESSION', payload: {} });
-  // Don't wait for server close — disconnect immediately
   disconnectWs();
 }
 
@@ -129,9 +145,14 @@ function handleServerMessage(msg: { type: string; payload: Record<string, unknow
   const store = useSessionStore.getState();
 
   switch (msg.type) {
-    case 'WELCOME':
-      // Connection confirmed
+    case 'WELCOME': {
+      // Extract hostParticipantId from WELCOME
+      const welcome = msg.payload as { hostParticipantId?: string };
+      if (welcome.hostParticipantId) {
+        store.setHostParticipantId(welcome.hostParticipantId);
+      }
       break;
+    }
 
     case 'SNAPSHOT': {
       const payload = msg.payload as {

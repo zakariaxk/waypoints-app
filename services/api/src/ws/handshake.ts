@@ -44,6 +44,7 @@ export function handleHello(conn: ConnState, payload: ValidatedHelloPayload): vo
       connId: conn.connId,
       sessionId,
       participantId,
+      hostParticipantId: session.hostParticipantId,
       latestEventId: session.lastEventId,
     },
   });

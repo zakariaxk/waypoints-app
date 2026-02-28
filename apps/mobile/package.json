@@ -10,6 +10,7 @@
     "lint": "eslint src --ext .ts,.tsx"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.2.0",
     "@waypoints/shared": "*",
     "expo": "~52.0.0",
     "expo-location": "~17.0.0",

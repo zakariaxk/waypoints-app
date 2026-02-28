@@ -49,10 +49,16 @@ export interface LeaveSessionMessage {
   payload: Record<string, never>;
 }
 
+export interface ClearDestinationMessage {
+  type: 'CLEAR_DESTINATION';
+  payload: Record<string, never>;
+}
+
 export type ClientMessage =
   | HelloMessage
   | LocUpdateMessage
   | SetDestinationMessage
+  | ClearDestinationMessage
   | ChatMessageMessage
   | LeaveSessionMessage;
 
@@ -64,6 +70,7 @@ export interface WelcomeMessage {
     connId: string;
     sessionId: string;
     participantId: string;
+    hostParticipantId: string;
     latestEventId: number;
   };
 }
@@ -103,6 +110,7 @@ export type EventKind =
   | 'PARTICIPANT_LEFT'
   | 'LOCATION_UPDATED'
   | 'DESTINATION_SET'
+  | 'DESTINATION_CLEARED'
   | 'CHAT_MESSAGE';
 
 export interface BaseEvent {
@@ -140,6 +148,14 @@ export interface DestinationSetEvent extends BaseEvent {
     lat: number;
     lng: number;
     label: string | null;
+    setBy: string; // participantId of who set it
+  };
+}
+
+export interface DestinationClearedEvent extends BaseEvent {
+  kind: 'DESTINATION_CLEARED';
+  data: {
+    clearedBy: string; // participantId
   };
 }
 
@@ -157,8 +173,9 @@ export type SessionEvent =
   | ParticipantLeftEvent
   | LocationUpdatedEvent
   | DestinationSetEvent
+  | DestinationClearedEvent
   | ChatMessageEvent;
 
 // ─── Error codes ───
 
-export type ErrorCode = 'BAD_MESSAGE' | 'UNAUTHORIZED' | 'NOT_IN_SESSION' | 'RATE_LIMITED';
+export type ErrorCode = 'BAD_MESSAGE' | 'UNAUTHORIZED' | 'NOT_IN_SESSION' | 'RATE_LIMITED' | 'FORBIDDEN';

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,9 +9,19 @@ import {
   KeyboardAvoidingView,
   Platform,
   StatusBar,
+  ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { createSession, joinSession } from '../services/api';
 import { useSessionStore } from '../state/session-store';
+import {
+  getStoredDisplayName,
+  setStoredDisplayName,
+  getSessionHistory,
+  addSessionToHistory,
+  type SessionHistoryEntry,
+} from '../utils/storage';
+import SessionHistory from '../components/SessionHistory';
 import { colors, spacing, fontSize, borderRadius, shadow } from '../utils/theme';
 
 interface HomeScreenProps {
@@ -22,24 +32,73 @@ export default function HomeScreen({ onSessionReady }: HomeScreenProps) {
   const [displayName, setDisplayName] = useState('');
   const [joinCode, setJoinCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+  const [sessionHistory, setSessionHistory] = useState<SessionHistoryEntry[]>([]);
   const setSession = useSessionStore((s) => s.setSession);
+
+  // Load persisted display name and session history on mount
+  useEffect(() => {
+    (async () => {
+      const [storedName, history] = await Promise.all([
+        getStoredDisplayName(),
+        getSessionHistory(),
+      ]);
+      if (storedName) setDisplayName(storedName);
+      setSessionHistory(history);
+      setLoadingHistory(false);
+    })();
+  }, []);
+
+  const refreshHistory = useCallback(async () => {
+    const history = await getSessionHistory();
+    setSessionHistory(history);
+  }, []);
+
+  const persistAndSetSession = useCallback(
+    async (params: {
+      sessionId: string;
+      participantId: string;
+      token: string;
+      joinCode: string;
+      displayName: string;
+      hostParticipantId?: string;
+    }) => {
+      // Persist display name
+      await setStoredDisplayName(params.displayName);
+
+      // Add to session history
+      await addSessionToHistory({
+        sessionId: params.sessionId,
+        joinCode: params.joinCode,
+        participantId: params.participantId,
+        token: params.token,
+        displayName: params.displayName,
+        hostParticipantId: params.hostParticipantId ?? null,
+        joinedAt: Date.now(),
+        lastActiveAt: Date.now(),
+      });
+
+      setSession(params);
+      onSessionReady();
+    },
+    [setSession, onSessionReady],
+  );
 
   const handleCreate = async () => {
     if (!displayName.trim()) {
-      Alert.alert('Enter a display name');
+      Alert.alert('Name Required', 'Enter a display name to continue.');
       return;
     }
     setLoading(true);
     try {
       const result = await createSession(displayName.trim());
-      setSession({
+      await persistAndSetSession({
         sessionId: result.sessionId,
         participantId: result.participantId,
         token: result.token,
         joinCode: result.joinCode,
         displayName: displayName.trim(),
       });
-      onSessionReady();
     } catch (err) {
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to create session');
     } finally {
@@ -49,23 +108,23 @@ export default function HomeScreen({ onSessionReady }: HomeScreenProps) {
 
   const handleJoin = async () => {
     if (!displayName.trim()) {
-      Alert.alert('Enter a display name');
+      Alert.alert('Name Required', 'Enter a display name to continue.');
       return;
     }
     if (!joinCode.trim()) {
-      Alert.alert('Enter a join code');
+      Alert.alert('Code Required', 'Enter a 6-character join code.');
       return;
     }
     setLoading(true);
     try {
       const result = await joinSession(joinCode.trim(), displayName.trim());
-      setSession({
+      await persistAndSetSession({
         sessionId: result.sessionId,
         participantId: result.participantId,
         token: result.token,
+        joinCode: joinCode.trim().toUpperCase(),
         displayName: displayName.trim(),
       });
-      onSessionReady();
     } catch (err) {
       Alert.alert('Error', err instanceof Error ? err.message : 'Failed to join session');
     } finally {
@@ -73,13 +132,33 @@ export default function HomeScreen({ onSessionReady }: HomeScreenProps) {
     }
   };
 
+  const handleRejoin = useCallback(
+    (entry: SessionHistoryEntry) => {
+      // Rejoin using stored credentials — server will accept the token
+      setSession({
+        sessionId: entry.sessionId,
+        participantId: entry.participantId,
+        token: entry.token,
+        joinCode: entry.joinCode,
+        displayName: entry.displayName ?? displayName.trim() || undefined,
+        hostParticipantId: entry.hostParticipantId ?? undefined,
+      });
+      onSessionReady();
+    },
+    [setSession, onSessionReady, displayName],
+  );
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <StatusBar barStyle="dark-content" />
-      <View style={styles.inner}>
+      <ScrollView
+        contentContainerStyle={styles.inner}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         {/* Logo area */}
         <View style={styles.logoArea}>
           <Text style={styles.logoEmoji}>📍</Text>
@@ -98,6 +177,7 @@ export default function HomeScreen({ onSessionReady }: HomeScreenProps) {
             onChangeText={setDisplayName}
             autoCapitalize="words"
             autoComplete="name"
+            maxLength={30}
           />
 
           <TouchableOpacity
@@ -105,9 +185,11 @@ export default function HomeScreen({ onSessionReady }: HomeScreenProps) {
             onPress={handleCreate}
             disabled={loading}
           >
-            <Text style={styles.buttonText}>
-              {loading ? 'Creating...' : 'Create Session'}
-            </Text>
+            {loading ? (
+              <ActivityIndicator color={colors.textInverse} size="small" />
+            ) : (
+              <Text style={styles.buttonText}>Create Session</Text>
+            )}
           </TouchableOpacity>
 
           <View style={styles.divider}>
@@ -132,14 +214,25 @@ export default function HomeScreen({ onSessionReady }: HomeScreenProps) {
             onPress={handleJoin}
             disabled={loading}
           >
-            <Text style={styles.buttonText}>
-              {loading ? 'Joining...' : 'Join Session'}
-            </Text>
+            {loading ? (
+              <ActivityIndicator color={colors.textInverse} size="small" />
+            ) : (
+              <Text style={styles.buttonText}>Join Session</Text>
+            )}
           </TouchableOpacity>
         </View>
 
+        {/* Session history */}
+        {!loadingHistory && (
+          <SessionHistory
+            sessions={sessionHistory}
+            onRejoin={handleRejoin}
+            onRefresh={refreshHistory}
+          />
+        )}
+
         <Text style={styles.footer}>Share location with your group in real time</Text>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -150,7 +243,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   inner: {
-    flex: 1,
+    flexGrow: 1,
     padding: spacing.xl,
     justifyContent: 'center',
   },

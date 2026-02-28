@@ -39,7 +39,8 @@
     "connId": "string",
     "sessionId": "string",
     "participantId": "string",
-    "latestEventId": "number"
+    "latestEventId": "number",
+    "hostParticipantId": "string"
   }
 }
 ```
@@ -109,7 +110,16 @@ Server rate limits per participant (900ms min interval). Excess updates silently
   }
 }
 ```
-Any participant can set a destination. Everyone sees it on the map.
+**Host-only.** Only the session creator (host) can set a destination. Non-host participants receive a `FORBIDDEN` error.
+
+### CLEAR_DESTINATION
+```json
+{
+  "type": "CLEAR_DESTINATION",
+  "payload": {}
+}
+```
+**Host-only.** Clears the current destination. Broadcasts `DESTINATION_CLEARED` event.
 
 ### CHAT_MESSAGE
 ```json
@@ -156,7 +166,10 @@ All events are delivered as:
 `data: { participantId, lat, lng, speed, heading, accuracy, ts }`
 
 ### DESTINATION_SET
-`data: { lat, lng, label }`
+`data: { lat, lng, label, setBy: participantId }`
+
+### DESTINATION_CLEARED
+`data: { clearedBy: participantId }`
 
 ### CHAT_MESSAGE
 `data: { participantId: string, displayName: string | null, text: string }`
@@ -166,12 +179,13 @@ All events are delivered as:
 {
   "type": "ERROR",
   "payload": {
-    "code": "BAD_MESSAGE | UNAUTHORIZED | NOT_IN_SESSION | RATE_LIMITED",
+    "code": "BAD_MESSAGE | UNAUTHORIZED | NOT_IN_SESSION | RATE_LIMITED | FORBIDDEN",
     "message": "string"
   }
 }
 ```
-Client should show a friendly error and attempt reconnect if appropriate.
+- `FORBIDDEN` — returned when a non-host attempts a host-only action (e.g., SET_DESTINATION, CLEAR_DESTINATION).
+- Client should show a friendly error and attempt reconnect if appropriate.
 
 ## Reconnect Rules
 1. Client stores the last applied `eventId`.

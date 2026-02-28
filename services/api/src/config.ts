@@ -15,6 +15,12 @@ export interface Config {
   sessionTtlMs: number;
   /** Interval between session cleanup sweeps in ms */
   cleanupIntervalMs: number;
+  /** CORS allowed origin(s) — '*' for dev, specific URL for production */
+  corsOrigin: string | string[] | boolean;
+  /** Max participants per session */
+  maxParticipantsPerSession: number;
+  /** Max display name length */
+  maxDisplayNameLength: number;
 }
 
 function envInt(key: string, fallback: number): number {
@@ -33,4 +39,7 @@ export const config: Config = {
   eventBufferCapacity: envInt('EVENT_BUFFER_CAPACITY', 1000),
   sessionTtlMs: envInt('SESSION_TTL_MS', 2 * 60 * 60 * 1000), // 2 hours
   cleanupIntervalMs: envInt('CLEANUP_INTERVAL_MS', 60_000), // 60s
+  corsOrigin: process.env.CORS_ORIGIN || true, // true = reflect request origin
+  maxParticipantsPerSession: envInt('MAX_PARTICIPANTS', 50),
+  maxDisplayNameLength: envInt('MAX_DISPLAY_NAME_LENGTH', 30),
 };

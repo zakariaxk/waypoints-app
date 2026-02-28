@@ -34,6 +34,8 @@ export const chatMessagePayloadSchema = z.object({
 
 export const leaveSessionPayloadSchema = z.object({});
 
+export const clearDestinationPayloadSchema = z.object({});
+
 // ─── Discriminated union for all client messages ───
 
 export const helloMessageSchema = z.object({
@@ -61,10 +63,16 @@ export const leaveSessionMessageSchema = z.object({
   payload: leaveSessionPayloadSchema,
 });
 
+export const clearDestinationMessageSchema = z.object({
+  type: z.literal('CLEAR_DESTINATION'),
+  payload: clearDestinationPayloadSchema,
+});
+
 export const clientMessageSchema = z.discriminatedUnion('type', [
   helloMessageSchema,
   locUpdateMessageSchema,
   setDestinationMessageSchema,
+  clearDestinationMessageSchema,
   chatMessageMessageSchema,
   leaveSessionMessageSchema,
 ]);
