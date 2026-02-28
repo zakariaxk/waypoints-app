@@ -1,19 +1,12 @@
 /**
  * BottomSheetPanel — Cyberpunk HUD-style bottom sheet.
  *
- * Uses react-native-reanimated for smooth slide animation.
+ * Uses React Native Animated API for smooth slide animation.
  * Features: draggable handle, neon accent border, translucent panel background.
  */
 
-import React, { useEffect, type ReactNode } from 'react';
-import { View, StyleSheet, Dimensions, Pressable, type ViewStyle } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-  runOnJS,
-} from 'react-native-reanimated';
+import React, { useEffect, useRef, type ReactNode } from 'react';
+import { View, StyleSheet, Dimensions, Pressable, Animated, type ViewStyle } from 'react-native';
 import { useTheme, borderRadius, spacing, glow } from '../theme';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -35,26 +28,40 @@ export default function BottomSheetPanel({
   style,
 }: BottomSheetPanelProps) {
   const { colors } = useTheme();
-  const translateY = useSharedValue(height);
-  const backdropOpacity = useSharedValue(0);
+  const translateY = useRef(new Animated.Value(height)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (visible) {
-      translateY.value = withSpring(0, { damping: 22, stiffness: 220 });
-      backdropOpacity.value = withTiming(1, { duration: 200 });
+      Animated.parallel([
+        Animated.spring(translateY, {
+          toValue: 0,
+          damping: 22,
+          stiffness: 220,
+          mass: 1,
+          useNativeDriver: true,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
     } else {
-      translateY.value = withTiming(height, { duration: 200 });
-      backdropOpacity.value = withTiming(0, { duration: 200 });
+      Animated.parallel([
+        Animated.timing(translateY, {
+          toValue: height,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
     }
   }, [visible, height, translateY, backdropOpacity]);
-
-  const sheetStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
-
-  const backdropStyle = useAnimatedStyle(() => ({
-    opacity: backdropOpacity.value,
-  }));
 
   if (!visible) return null;
 
@@ -68,8 +75,7 @@ export default function BottomSheetPanel({
         <Animated.View
           style={[
             styles.backdrop,
-            { backgroundColor: colors.overlay },
-            backdropStyle,
+            { backgroundColor: colors.overlay, opacity: backdropOpacity },
           ]}
         />
       </Pressable>
@@ -82,9 +88,9 @@ export default function BottomSheetPanel({
             height,
             backgroundColor: colors.panel,
             borderColor: colors.borderAccent,
+            transform: [{ translateY }],
           },
           glow.cyan.sm,
-          sheetStyle,
           style,
         ]}
       >

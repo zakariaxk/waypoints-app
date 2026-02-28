@@ -14,7 +14,6 @@ import {
   Orbitron_500Medium,
   Orbitron_700Bold,
 } from '@expo-google-fonts/orbitron';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import HomeScreen from './src/screens/HomeScreen';
 import SessionScreen from './src/screens/SessionScreen';
@@ -86,22 +85,17 @@ export default function App() {
   });
 
   return (
-    <GestureHandlerRootView style={styles.flex}>
-      <SafeAreaProvider>
-        <ThemeProvider fontsLoaded={fontsLoaded}>
-          <ErrorBoundary>
-            <AppContent />
-          </ErrorBoundary>
-        </ThemeProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <SafeAreaProvider>
+      <ThemeProvider fontsLoaded={fontsLoaded}>
+        <ErrorBoundary>
+          <AppContent />
+        </ErrorBoundary>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
   gradient: {
     flex: 1,
   },

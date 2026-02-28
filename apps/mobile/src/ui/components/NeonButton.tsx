@@ -5,15 +5,18 @@
  * Features: scale animation on press, glow intensity shift, haptic impact.
  */
 
-import React, { useCallback } from 'react';
-import { StyleSheet, Pressable, type ViewStyle, type TextStyle, ActivityIndicator } from 'react-native';
+import React, { useCallback, useRef } from 'react';
+import {
+  StyleSheet,
+  Pressable,
+  Animated,
+  Text,
+  type ViewStyle,
+  type TextStyle,
+  ActivityIndicator,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
 import { useTheme, gradients, borderRadius, spacing, fontSize, fontFamily, glow } from '../theme';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
@@ -62,19 +65,25 @@ export default function NeonButton({
   fullWidth = false,
 }: NeonButtonProps) {
   const { colors, fontsLoaded } = useTheme();
-  const scale = useSharedValue(1);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = useCallback(() => {
-    scale.value = withSpring(0.97, { damping: 15, stiffness: 400 });
-  }, [scale]);
+    Animated.spring(scaleAnim, {
+      toValue: 0.97,
+      friction: 8,
+      tension: 400,
+      useNativeDriver: true,
+    }).start();
+  }, [scaleAnim]);
 
   const handlePressOut = useCallback(() => {
-    scale.value = withSpring(1, { damping: 15, stiffness: 400 });
-  }, [scale]);
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 8,
+      tension: 400,
+      useNativeDriver: true,
+    }).start();
+  }, [scaleAnim]);
 
   const handlePress = useCallback(() => {
     if (disabled || loading) return;
@@ -95,7 +104,7 @@ export default function NeonButton({
       {loading ? (
         <ActivityIndicator color={isGhost ? colors.accent : colors.textInverse} size="small" />
       ) : (
-        <Animated.Text
+        <Text
           style={[
             styles.text,
             textFont,
@@ -106,7 +115,7 @@ export default function NeonButton({
           ]}
         >
           {icon ? `${icon}  ${title}` : title}
-        </Animated.Text>
+        </Text>
       )}
     </>
   );
@@ -121,7 +130,7 @@ export default function NeonButton({
       >
         <Animated.View
           style={[
-            animatedStyle,
+            { transform: [{ scale: scaleAnim }] },
             styles.base,
             {
               paddingVertical: sizeConfig.paddingVertical,
@@ -151,7 +160,7 @@ export default function NeonButton({
     >
       <Animated.View
         style={[
-          animatedStyle,
+          { transform: [{ scale: scaleAnim }] },
           styles.base,
           fullWidth && styles.fullWidth,
           !disabled && glowS,
