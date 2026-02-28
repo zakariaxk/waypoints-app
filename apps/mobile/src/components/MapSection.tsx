@@ -1,5 +1,5 @@
 import { useRef, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, Text, StyleSheet, Platform, TouchableOpacity } from 'react-native';
 import MapView, { Marker, Callout, Region, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useSessionStore, type Participant, type Destination } from '../state/session-store';
 import { colors, fontSize, spacing, borderRadius } from '../utils/theme';
@@ -153,6 +153,29 @@ export default function MapSection({ currentParticipantId, onLongPress }: MapSec
         )}
       </MapView>
 
+      {/* Center on me button */}
+      <TouchableOpacity
+        style={styles.centerButton}
+        onPress={() => {
+          if (!mapRef.current || !currentParticipantId) return;
+          const me = participants.get(currentParticipantId);
+          if (me?.lastLocation) {
+            mapRef.current.animateToRegion(
+              {
+                latitude: me.lastLocation.lat,
+                longitude: me.lastLocation.lng,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              },
+              500,
+            );
+          }
+        }}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.centerButtonText}>◎</Text>
+      </TouchableOpacity>
+
       {/* Participant count overlay */}
       <View style={styles.overlay}>
         <Text style={styles.overlayText}>
@@ -232,6 +255,33 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     overflow: 'hidden',
     maxWidth: 80,
+  },
+  centerButton: {
+    position: 'absolute',
+    bottom: spacing.sm,
+    left: spacing.sm,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  centerButtonText: {
+    fontSize: 22,
+    color: colors.primary,
+    fontWeight: '700',
   },
   overlay: {
     position: 'absolute',

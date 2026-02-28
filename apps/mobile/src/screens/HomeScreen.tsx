@@ -26,9 +26,10 @@ import { colors, spacing, fontSize, borderRadius, shadow } from '../utils/theme'
 
 interface HomeScreenProps {
   onSessionReady: () => void;
+  initialJoinCode?: string | null;
 }
 
-export default function HomeScreen({ onSessionReady }: HomeScreenProps) {
+export default function HomeScreen({ onSessionReady, initialJoinCode }: HomeScreenProps) {
   const [displayName, setDisplayName] = useState('');
   const [joinCode, setJoinCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -48,6 +49,13 @@ export default function HomeScreen({ onSessionReady }: HomeScreenProps) {
       setLoadingHistory(false);
     })();
   }, []);
+
+  // Handle deep link join code
+  useEffect(() => {
+    if (initialJoinCode) {
+      setJoinCode(initialJoinCode);
+    }
+  }, [initialJoinCode]);
 
   const refreshHistory = useCallback(async () => {
     const history = await getSessionHistory();
@@ -140,7 +148,7 @@ export default function HomeScreen({ onSessionReady }: HomeScreenProps) {
         participantId: entry.participantId,
         token: entry.token,
         joinCode: entry.joinCode,
-        displayName: entry.displayName ?? displayName.trim() || undefined,
+        displayName: entry.displayName ?? (displayName.trim() || undefined),
         hostParticipantId: entry.hostParticipantId ?? undefined,
       });
       onSessionReady();

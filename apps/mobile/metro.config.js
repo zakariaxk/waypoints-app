@@ -20,4 +20,25 @@ config.resolver.nodeModulesPaths = [
 // 3. Force Metro to resolve (sub)dependencies only from the root node_modules
 config.resolver.disableHierarchicalLookup = true;
 
+// 4. Fix monorepo entry point: expo/AppEntry.js does `import App from '../../App'`
+//    which breaks when expo is hoisted to root node_modules. Intercept and redirect.
+const defaultResolveRequest = config.resolver.resolveRequest;
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  // When AppEntry.js tries to import '../../App', redirect to our App.tsx
+  if (
+    moduleName === '../../App' &&
+    context.originModulePath &&
+    context.originModulePath.includes('expo/AppEntry')
+  ) {
+    return {
+      filePath: path.resolve(projectRoot, 'App.tsx'),
+      type: 'sourceFile',
+    };
+  }
+  if (defaultResolveRequest) {
+    return defaultResolveRequest(context, moduleName, platform);
+  }
+  return context.resolveRequest(context, moduleName, platform);
+};
+
 module.exports = config;

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -23,6 +23,7 @@ import {
   stopLocationUpdates,
 } from '../services/location';
 import { updateSessionActivity } from '../utils/storage';
+import { makeJoinLink } from '../utils/deeplink';
 import MapSection from '../components/MapSection';
 import PresenceList from '../components/PresenceList';
 import ChatPanel from '../components/ChatPanel';
@@ -61,17 +62,28 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
   }, [participants, participantId]);
 
   // Track unread chat when on people tab
+  const prevChatLenRef = useRef(chatMessages.length);
   useEffect(() => {
     if (activeTab === 'chat') {
       setUnreadChat(0);
+      prevChatLenRef.current = chatMessages.length;
     }
-  }, [activeTab]);
+  }, [activeTab, chatMessages.length]);
 
   useEffect(() => {
-    if (activeTab !== 'chat' && chatMessages.length > 0) {
-      setUnreadChat((prev) => prev + 1);
+    if (activeTab !== 'chat') {
+      const newCount = chatMessages.length - prevChatLenRef.current;
+      if (newCount > 0) {
+        // Only count messages from others
+        const newMessages = chatMessages.slice(prevChatLenRef.current);
+        const othersCount = newMessages.filter((m) => m.participantId !== participantId).length;
+        if (othersCount > 0) {
+          setUnreadChat((prev) => prev + othersCount);
+        }
+        prevChatLenRef.current = chatMessages.length;
+      }
     }
-  }, [chatMessages.length]);
+  }, [chatMessages.length, activeTab, participantId]);
 
   // Connect WebSocket
   useEffect(() => {
@@ -130,8 +142,9 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
   const handleShare = useCallback(async () => {
     if (!joinCode) return;
     try {
+      const link = makeJoinLink(joinCode);
       await Share.share({
-        message: `Join my Waypoints session! Code: ${joinCode}`,
+        message: `Join my Waypoints session!\n\nCode: ${joinCode}\n${link}`,
       });
     } catch {
       // User cancelled share
@@ -225,6 +238,17 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
         </View>
       </View>
 
+      {/* Offline / Connecting Banner */}
+      {!connected && (
+        <View style={styles.offlineBanner}>
+          <Text style={styles.offlineBannerText}>
+            {reconnectCount > 0
+              ? `⚠ Connection lost — reconnecting (attempt ${reconnectCount})...`
+              : '⚠ Connecting to server...'}
+          </Text>
+        </View>
+      )}
+
       {/* Host badge */}
       {isHost && (
         <View style={styles.hostBadge}>
@@ -293,6 +317,7 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
             participants={participantList}
             currentParticipantId={participantId}
             hostParticipantId={useSessionStore.getState().hostParticipantId}
+            myLocation={myLocation}
           />
         ) : (
           <ChatPanel currentParticipantId={participantId} />
@@ -382,6 +407,19 @@ const styles = StyleSheet.create({
     color: colors.destinationText,
     textAlign: 'center',
     fontWeight: '500',
+  },
+  offlineBanner: {
+    backgroundColor: colors.dangerLight,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: '#FECACA',
+  },
+  offlineBannerText: {
+    fontSize: fontSize.xs,
+    color: colors.danger,
+    textAlign: 'center',
+    fontWeight: '600',
   },
   mapContainer: {
     flex: 3,

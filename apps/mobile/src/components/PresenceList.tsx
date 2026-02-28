@@ -1,11 +1,13 @@
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import type { Participant } from '../state/session-store';
+import { haversineDistance, formatDistance } from '../utils/geo';
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme';
 
 interface PresenceListProps {
   participants: Participant[];
   currentParticipantId: string | null;
   hostParticipantId?: string | null;
+  myLocation?: { lat: number; lng: number } | null;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -29,7 +31,7 @@ function timeAgo(ts: number): string {
   return `${Math.floor(minutes / 60)}h ago`;
 }
 
-export default function PresenceList({ participants, currentParticipantId, hostParticipantId }: PresenceListProps) {
+export default function PresenceList({ participants, currentParticipantId, hostParticipantId, myLocation }: PresenceListProps) {
   // Sort: online first, then stale, then offline
   const sorted = [...participants].sort((a, b) => {
     const order: Record<string, number> = { online: 0, stale: 1, offline: 2 };
@@ -61,9 +63,11 @@ export default function PresenceList({ participants, currentParticipantId, hostP
               </View>
               <Text style={styles.detail}>
                 {STATUS_LABELS[item.status] || item.status}
-                {item.lastLocation
-                  ? ` · ${item.lastLocation.lat.toFixed(4)}, ${item.lastLocation.lng.toFixed(4)}`
-                  : ' · No location'}
+                {item.lastLocation && myLocation && !isMe
+                  ? ` · ${formatDistance(haversineDistance(myLocation.lat, myLocation.lng, item.lastLocation.lat, item.lastLocation.lng))} away`
+                  : item.lastLocation && isMe
+                    ? ' · Your location'
+                    : ' · No location'}
               </Text>
             </View>
             <Text style={styles.time}>{timeAgo(item.lastSeenTs)}</Text>
