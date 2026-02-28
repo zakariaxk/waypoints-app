@@ -1,0 +1,26 @@
+{
+  "name": "waypoints",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "services/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build:shared": "npm run build -w packages/shared",
+    "dev:api": "npm run dev -w services/api",
+    "dev:mobile": "npm run start -w apps/mobile",
+    "test": "npm run test -w services/api",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\""
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "eslint": "^8.57.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "prettier": "^3.2.0",
+    "eslint-config-prettier": "^9.1.0"
+  }
+}
