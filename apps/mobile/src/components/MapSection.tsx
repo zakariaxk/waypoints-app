@@ -4,18 +4,16 @@ import MapView, { Marker, Polyline, Callout, Region, PROVIDER_DEFAULT, MapType }
 import { useSessionStore, type Participant, type Destination } from '../state/session-store';
 import { fetchRoute, type RouteCoord } from '../utils/routing';
 import { haversineDistance } from '../utils/geo';
-import { colors, fontSize, spacing, borderRadius } from '../utils/theme';
+import { colors, fontSize, spacing, borderRadius, getParticipantColor } from '../utils/theme';
 
-const STATUS_MARKER_COLORS: Record<string, string> = {
-  online: colors.markerOther,
-  stale: colors.stale,
-  offline: colors.markerOffline,
-};
+const ARRIVAL_THRESHOLD_KM = 0.05; // 50 meters
 
 interface MapSectionProps {
   currentParticipantId: string | null;
   onLongPress?: (lat: number, lng: number) => void;
   focusLocation?: { lat: number; lng: number } | null;
+  followTargetId?: string | null;
+  onFollowEnd?: () => void;
   onMapRef?: (ref: MapView | null) => void;
 }
 
@@ -24,15 +22,27 @@ const ROUTE_RETHRESH_KM = 0.05; // 50 meters
 /** Time-based route refresh interval */
 const ROUTE_REFRESH_MS = 10_000; // 10 seconds
 
-export default function MapSection({ currentParticipantId, onLongPress, focusLocation, onMapRef }: MapSectionProps) {
+export default function MapSection({ currentParticipantId, onLongPress, focusLocation, followTargetId, onFollowEnd, onMapRef }: MapSectionProps) {
   const mapRef = useRef<MapView>(null);
   const participants = useSessionStore((s) => s.participants);
   const destination = useSessionStore((s) => s.destination);
 
-  // Route polyline state
-  const [routeCoords, setRouteCoords] = useState<RouteCoord[]>([]);
+  // Per-participant route polylines: Map<participantId, RouteCoord[]>
+  const [participantRoutes, setParticipantRoutes] = useState<Map<string, RouteCoord[]>>(new Map());
   const [mapType, setMapType] = useState<MapType>('standard');
-  const lastRouteFetchRef = useRef<{ lat: number; lng: number; destLat: number; destLng: number; time: number } | null>(null);
+  const lastRouteFetchRef = useRef<Map<string, { lat: number; lng: number; destLat: number; destLng: number; time: number }>>(new Map());
+
+  // Follow mode state
+  const [followParticipantId, setFollowParticipantId] = useState<string | null>(null);
+  const userPannedRef = useRef(false);
+
+  // Sync follow mode from external prop (e.g. FriendSheet "Follow on map")
+  useEffect(() => {
+    if (followTargetId !== undefined && followTargetId !== null) {
+      setFollowParticipantId(followTargetId);
+      userPannedRef.current = false;
+    }
+  }, [followTargetId]);
 
   // Expose map ref to parent
   useEffect(() => {
@@ -82,66 +92,90 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
     }
   }, [participantsWithLocation.length, destination?.lat, destination?.lng]);
 
-  // ─── Route polyline fetching ───
+  // ─── Route polyline fetching for ALL participants ───
   const myLoc = useMemo(() => {
     if (!currentParticipantId) return null;
     const me = participants.get(currentParticipantId);
     return me?.lastLocation ?? null;
   }, [participants, currentParticipantId]);
 
-  const fetchRouteIfNeeded = useCallback(async () => {
-    if (!myLoc || !destination) {
-      setRouteCoords([]);
-      lastRouteFetchRef.current = null;
+  const fetchAllRoutes = useCallback(async () => {
+    if (!destination) {
+      setParticipantRoutes(new Map());
+      lastRouteFetchRef.current.clear();
       return;
     }
 
-    const last = lastRouteFetchRef.current;
     const now = Date.now();
+    const newRoutes = new Map(participantRoutes);
+    let changed = false;
 
-    if (last) {
-      const movedKm = haversineDistance(myLoc.lat, myLoc.lng, last.lat, last.lng);
-      const destChanged = last.destLat !== destination.lat || last.destLng !== destination.lng;
-      const timeElapsed = now - last.time;
+    for (const p of participantsWithLocation) {
+      if (p.status === 'offline') continue;
+      const loc = p.lastLocation!;
 
-      // Only re-fetch if moved >50m OR destination changed OR 10s elapsed
-      if (!destChanged && movedKm < ROUTE_RETHRESH_KM && timeElapsed < ROUTE_REFRESH_MS) {
-        return;
+      const last = lastRouteFetchRef.current.get(p.participantId);
+      if (last) {
+        const movedKm = haversineDistance(loc.lat, loc.lng, last.lat, last.lng);
+        const destChanged = last.destLat !== destination.lat || last.destLng !== destination.lng;
+        const timeElapsed = now - last.time;
+        if (!destChanged && movedKm < ROUTE_RETHRESH_KM && timeElapsed < ROUTE_REFRESH_MS) {
+          continue;
+        }
+      }
+
+      // Check if participant is near destination (arrived) — skip route
+      const distToDest = haversineDistance(loc.lat, loc.lng, destination.lat, destination.lng);
+      if (distToDest < ARRIVAL_THRESHOLD_KM) {
+        newRoutes.delete(p.participantId);
+        lastRouteFetchRef.current.delete(p.participantId);
+        changed = true;
+        continue;
+      }
+
+      const result = await fetchRoute(loc, destination);
+      if (result) {
+        newRoutes.set(p.participantId, result.coords);
+        lastRouteFetchRef.current.set(p.participantId, {
+          lat: loc.lat, lng: loc.lng,
+          destLat: destination.lat, destLng: destination.lng,
+          time: now,
+        });
+        changed = true;
+      }
+
+      // Stagger to be polite to OSRM
+      await new Promise((r) => setTimeout(r, 250));
+    }
+
+    // Remove routes for participants no longer present
+    for (const pid of newRoutes.keys()) {
+      if (!participants.has(pid)) {
+        newRoutes.delete(pid);
+        changed = true;
       }
     }
 
-    lastRouteFetchRef.current = {
-      lat: myLoc.lat,
-      lng: myLoc.lng,
-      destLat: destination.lat,
-      destLng: destination.lng,
-      time: now,
-    };
+    if (changed) setParticipantRoutes(newRoutes);
+  }, [participantsWithLocation, destination, participants, participantRoutes]);
 
-    const result = await fetchRoute(myLoc, destination);
-    if (result) {
-      setRouteCoords(result.coords);
-    }
-    // On failure, keep existing route (or empty) — destination marker still shows
-  }, [myLoc, destination]);
-
-  // Fetch route on location/destination change
+  // Fetch routes on location/destination change
   useEffect(() => {
-    fetchRouteIfNeeded();
-  }, [fetchRouteIfNeeded]);
+    fetchAllRoutes();
+  }, [fetchAllRoutes]);
 
   // Timer-based route refresh every 10s
   useEffect(() => {
-    if (!myLoc || !destination) return;
-    const timer = setInterval(fetchRouteIfNeeded, ROUTE_REFRESH_MS);
+    if (!destination || participantsWithLocation.length === 0) return;
+    const timer = setInterval(fetchAllRoutes, ROUTE_REFRESH_MS);
     return () => clearInterval(timer);
-  }, [myLoc, destination, fetchRouteIfNeeded]);
+  }, [destination, participantsWithLocation.length, fetchAllRoutes]);
 
-  // Clear route when destination is removed
+  // Clear routes when destination is removed
   useEffect(() => {
     if (!destination) {
-      setRouteCoords([]);
-      lastRouteFetchRef.current = null;
+      setParticipantRoutes(new Map());
+      lastRouteFetchRef.current.clear();
     }
   }, [destination]);
 
@@ -158,6 +192,23 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
       600,
     );
   }, [focusLocation]);
+
+  // ─── Follow mode: track a participant's location continuously ───
+  useEffect(() => {
+    if (!followParticipantId || !mapRef.current || userPannedRef.current) return;
+    const target = participants.get(followParticipantId);
+    if (target?.lastLocation) {
+      mapRef.current.animateToRegion(
+        {
+          latitude: target.lastLocation.lat,
+          longitude: target.lastLocation.lng,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        400,
+      );
+    }
+  }, [followParticipantId, participants]);
 
   // Use current user's location or a sensible default
   const initialRegion: Region = useMemo(() => {
@@ -190,6 +241,12 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
     };
   }, []);
 
+  // Sorted participant IDs for deterministic color assignment
+  const allParticipantIds = useMemo(
+    () => Array.from(participants.keys()),
+    [participants],
+  );
+
   return (
     <View style={styles.container}>
       <MapView
@@ -202,6 +259,14 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
         showsMyLocationButton={false}
         showsCompass={true}
         rotateEnabled={true}
+        onPanDrag={() => {
+          // Disable follow mode when user manually pans
+          if (followParticipantId) {
+            userPannedRef.current = true;
+            setFollowParticipantId(null);
+            onFollowEnd?.();
+          }
+        }}
         onLongPress={(e) => {
           if (onLongPress) {
             const { latitude, longitude } = e.nativeEvent.coordinate;
@@ -212,10 +277,23 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
         {/* Participant markers */}
         {participantsWithLocation.map((p) => {
           const isMe = p.participantId === currentParticipantId;
-          const markerColor = isMe ? colors.markerSelf : (STATUS_MARKER_COLORS[p.status] || colors.markerOffline);
+          const pColor = getParticipantColor(p.participantId, allParticipantIds, currentParticipantId);
           const loc = p.lastLocation!;
           const heading = loc.heading;
           const hasHeading = heading != null && heading >= 0 && (loc.speed ?? 0) > 0.5;
+
+          // Arrival detection: within 50m of destination
+          const isArrived = destination
+            ? haversineDistance(loc.lat, loc.lng, destination.lat, destination.lng) < ARRIVAL_THRESHOLD_KM
+            : false;
+
+          // Movement status
+          const speed = loc.speed ?? 0;
+          const movementIcon = speed > 5 ? '🚗' : speed > 1 ? '🚶' : '';
+
+          // Grey out offline participants
+          const markerColor = p.status === 'offline' ? colors.markerOffline : isArrived ? '#22C55E' : pColor;
+          const markerOpacity = p.status === 'offline' ? 0.4 : 1;
 
           return (
             <Marker
@@ -223,11 +301,11 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
               coordinate={{ latitude: loc.lat, longitude: loc.lng }}
               pinColor={markerColor}
               title={p.displayName || p.participantId.slice(0, 8)}
-              description={isMe ? 'You' : p.status}
+              description={isMe ? 'You' : isArrived ? '✓ Arrived' : p.status}
               anchor={{ x: 0.5, y: 1 }}
             >
               {/* Custom marker view */}
-              <View style={styles.markerWrapper}>
+              <View style={[styles.markerWrapper, { opacity: markerOpacity }]}>
                 {hasHeading && (
                   <View style={[styles.headingArrow, { transform: [{ rotate: `${heading}deg` }] }]}>
                     <View style={[styles.headingTriangle, { borderBottomColor: markerColor }]} />
@@ -236,6 +314,7 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
                 <View style={[styles.markerContainer, { borderColor: markerColor }]}>
                   <View style={[styles.markerDot, { backgroundColor: markerColor }]} />
                   <Text style={[styles.markerLabel, isMe && styles.markerLabelBold]} numberOfLines={1}>
+                    {isArrived ? '✓ ' : movementIcon ? `${movementIcon} ` : ''}
                     {isMe ? 'You' : (p.displayName || p.participantId.slice(0, 6))}
                   </Text>
                 </View>
@@ -260,17 +339,24 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
           </Marker>
         )}
 
-        {/* Route polyline from user to destination */}
-        {routeCoords.length > 1 && (
-          <Polyline
-            coordinates={routeCoords}
-            strokeColor={colors.route}
-            strokeWidth={5}
-            lineJoin="round"
-            lineCap="round"
-            geodesic={true}
-          />
-        )}
+        {/* Per-participant route polylines */}
+        {Array.from(participantRoutes.entries()).map(([pid, coords]) => {
+          if (coords.length < 2) return null;
+          const pColor = getParticipantColor(pid, allParticipantIds, currentParticipantId);
+          const isMe = pid === currentParticipantId;
+          return (
+            <Polyline
+              key={`route-${pid}`}
+              coordinates={coords}
+              strokeColor={pColor}
+              strokeWidth={isMe ? 5 : 3}
+              lineJoin="round"
+              lineCap="round"
+              geodesic={true}
+              lineDashPattern={isMe ? undefined : [8, 4]}
+            />
+          );
+        })}
       </MapView>
 
       {/* Center on me button */}
@@ -278,22 +364,31 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
         style={styles.centerButton}
         onPress={() => {
           if (!mapRef.current || !currentParticipantId) return;
-          const me = participants.get(currentParticipantId);
-          if (me?.lastLocation) {
-            mapRef.current.animateToRegion(
-              {
-                latitude: me.lastLocation.lat,
-                longitude: me.lastLocation.lng,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              },
-              500,
-            );
+          // Toggle follow mode on self
+          if (followParticipantId === currentParticipantId) {
+            setFollowParticipantId(null);
+          } else {
+            setFollowParticipantId(currentParticipantId);
+            userPannedRef.current = false;
+            const me = participants.get(currentParticipantId);
+            if (me?.lastLocation) {
+              mapRef.current.animateToRegion(
+                {
+                  latitude: me.lastLocation.lat,
+                  longitude: me.lastLocation.lng,
+                  latitudeDelta: 0.01,
+                  longitudeDelta: 0.01,
+                },
+                500,
+              );
+            }
           }
         }}
         activeOpacity={0.7}
       >
-        <Text style={styles.centerButtonText}>◎</Text>
+        <Text style={[styles.centerButtonText, followParticipantId === currentParticipantId && styles.followActive]}>
+          {followParticipantId === currentParticipantId ? '⊚' : '◎'}
+        </Text>
       </TouchableOpacity>
 
       {/* Map type toggle */}
@@ -437,6 +532,9 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: colors.primary,
     fontWeight: '700',
+  },
+  followActive: {
+    color: colors.online,
   },
   mapTypeButton: {
     position: 'absolute',

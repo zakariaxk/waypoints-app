@@ -50,6 +50,18 @@
 - [x] All docs updated (ARCHITECTURE, WS-PROTOCOL, MANUAL_ACTIONS, DECISIONS)
 - [x] Git commit + push
 
+### Batch 16: Enhanced Session Features ✅
+- [x] Per-user route colors — unique color palette for each participant's route + markers
+- [x] Arrival detection + status badge — participants within 50m show ✓ Arrived, green marker
+- [x] Movement status indicator — 🚗 Driving / 🚶 Walking / 📍 Stationary from speed data
+- [x] Enhanced live ETA + distance — OSRM distance shown alongside ETA in PresenceList + FriendSheet
+- [x] Follow mode toggle — track selected user's camera, disable on manual pan
+- [x] Graceful disconnect handling — faded markers for offline (opacity 0.4)
+- [x] Group ETA summary bar — fastest/average/longest ETA above tab bar
+- [x] Session summary screen — post-session stats with arrival order, duration, distances
+- [x] Destination voting — non-hosts propose via long-press, host accepts proposals
+- [x] Map mode toggle (standard/satellite/hybrid) — already done in previous batch
+
 ## Remaining Manual Steps (see docs/MANUAL_ACTIONS.md)
 - [ ] Apple Developer account enrollment ($99/yr)
 - [ ] EAS project init (`eas login && eas init`)

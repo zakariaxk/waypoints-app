@@ -38,7 +38,11 @@ import PresenceList from '../components/PresenceList';
 import ChatPanel from '../components/ChatPanel';
 import DestinationPanel from '../components/DestinationPanel';
 import FriendSheet from '../components/FriendSheet';
+import GroupETASummary from '../components/GroupETASummary';
+import SessionSummaryScreen, { type SessionSummaryData, type ParticipantSummary } from '../components/SessionSummaryScreen';
+import DestinationVoting, { type DestinationProposal } from '../components/DestinationVoting';
 import { colors, spacing, fontSize, borderRadius, shadow } from '../utils/theme';
+import { haversineDistance, formatDistance } from '../utils/geo';
 
 type Tab = 'people' | 'chat';
 
@@ -70,6 +74,21 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
   // Friend bottom sheet
   const [selectedFriend, setSelectedFriend] = useState<Participant | null>(null);
 
+  // Follow mode
+  const [followTargetId, setFollowTargetId] = useState<string | null>(null);
+
+  // Arrival tracking: Map<participantId, arrivalTimestamp>
+  const arrivalsRef = useRef<Map<string, number>>(new Map());
+
+  // Session summary
+  const [summaryData, setSummaryData] = useState<SessionSummaryData | null>(null);
+
+  const ARRIVAL_THRESHOLD_KM = 0.05; // 50 meters
+
+  // Destination voting
+  const [proposals, setProposals] = useState<DestinationProposal[]>([]);
+  const [showVoting, setShowVoting] = useState(false);
+
   // Per-participant ETAs
   const participantETAs = useParticipantETAs(participants, destination);
 
@@ -93,6 +112,18 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
     }
   }, []);
   useArrivalAlert(myLocation, destination, handleArrival);
+
+  // Track arrivals for all participants (for session summary)
+  useEffect(() => {
+    if (!destination) return;
+    for (const p of participants.values()) {
+      if (!p.lastLocation) continue;
+      const dist = haversineDistance(p.lastLocation.lat, p.lastLocation.lng, destination.lat, destination.lng);
+      if (dist < ARRIVAL_THRESHOLD_KM && !arrivalsRef.current.has(p.participantId)) {
+        arrivalsRef.current.set(p.participantId, Date.now());
+      }
+    }
+  }, [participants, destination]);
 
   // Track unread chat when on people tab
   const prevChatLenRef = useRef(chatMessages.length);
@@ -187,14 +218,49 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
         text: 'Leave',
         style: 'destructive',
         onPress: () => {
+          // Build session summary before resetting state
+          const arrivals = arrivalsRef.current;
+          const arrivalOrder = Array.from(arrivals.entries())
+            .sort((a, b) => a[1] - b[1]);
+
+          const summaries: ParticipantSummary[] = Array.from(participants.values()).map((p) => {
+            const arrIdx = arrivalOrder.findIndex(([pid]) => pid === p.participantId);
+            const arrivalTs = arrivals.get(p.participantId);
+            let distToDest: number | undefined;
+            if (destination && p.lastLocation) {
+              distToDest = haversineDistance(p.lastLocation.lat, p.lastLocation.lng, destination.lat, destination.lng) * 1000;
+            }
+            return {
+              participantId: p.participantId,
+              displayName: p.displayName || p.participantId.slice(0, 8),
+              isMe: p.participantId === participantId,
+              arrived: arrivals.has(p.participantId),
+              arrivalOrder: arrIdx >= 0 ? arrIdx + 1 : undefined,
+              arrivalTime: arrivalTs ? new Date(arrivalTs).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined,
+              distanceToDestinationM: distToDest,
+            };
+          });
+
+          const summary: SessionSummaryData = {
+            sessionDuration: sessionTimer,
+            participantSummaries: summaries,
+            destinationLabel: destination?.label ?? null,
+          };
+
           sendLeaveSession();
           stopLocationUpdates();
-          reset();
-          onLeave();
+
+          // Show summary if there was a destination
+          if (destination) {
+            setSummaryData(summary);
+          } else {
+            reset();
+            onLeave();
+          }
         },
       },
     ]);
-  }, [onLeave, reset]);
+  }, [onLeave, reset, participants, destination, participantId, sessionTimer]);
 
   const handleShare = useCallback(async () => {
     if (!joinCode) return;
@@ -222,41 +288,59 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
 
   const handleMapLongPress = useCallback(
     (lat: number, lng: number) => {
-      if (!isHost) {
-        Alert.alert('Host Only', 'Only the session host can set the destination.');
-        return;
-      }
-
-      // @ts-ignore — Alert.prompt exists on iOS but not in types
-      if (Platform.OS === 'ios' && Alert.prompt) {
-        // @ts-ignore
-        Alert.prompt(
-          'Set Destination',
-          'Enter a label for the destination (optional)',
-          [
+      if (isHost) {
+        // Host can set destination directly
+        // @ts-ignore — Alert.prompt exists on iOS but not in types
+        if (Platform.OS === 'ios' && Alert.prompt) {
+          // @ts-ignore
+          Alert.prompt(
+            'Set Destination',
+            'Enter a label for the destination (optional)',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              {
+                text: 'Set',
+                onPress: (label?: string) => {
+                  sendSetDestination(lat, lng, label || null);
+                },
+              },
+            ],
+            'plain-text',
+          );
+        } else {
+          Alert.alert('Set Destination', `Set destination at this location?`, [
             { text: 'Cancel', style: 'cancel' },
             {
               text: 'Set',
-              onPress: (label?: string) => {
-                sendSetDestination(lat, lng, label || null);
+              onPress: () => {
+                sendSetDestination(lat, lng, null);
               },
             },
-          ],
-          'plain-text',
-        );
+          ]);
+        }
       } else {
-        Alert.alert('Set Destination', `Set destination at this location?`, [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Set',
-            onPress: () => {
-              sendSetDestination(lat, lng, null);
-            },
-          },
-        ]);
+        // Non-host: propose destination
+        const proposal: DestinationProposal = {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          lat,
+          lng,
+          label: `Proposal ${proposals.length + 1}`,
+          proposedBy: participantId || 'unknown',
+          proposedByName: useSessionStore.getState().displayName || 'Anonymous',
+          votes: new Set([participantId || '']),
+          timestamp: Date.now(),
+        };
+        setProposals((prev) => [...prev, proposal]);
+        setShowVoting(true);
+        if (Platform.OS === 'android') {
+          ToastAndroid.show('📍 Destination proposed!', ToastAndroid.SHORT);
+        } else {
+          setToastMessage('📍 Destination proposed!');
+          setTimeout(() => setToastMessage(null), 2000);
+        }
       }
     },
-    [isHost],
+    [isHost, participantId, proposals.length],
   );
 
   const handleClearDestination = useCallback(() => {
@@ -268,6 +352,29 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
         onPress: () => sendClearDestination(),
       },
     ]);
+  }, []);
+
+  // Voting handlers
+  const handleVote = useCallback((proposalId: string) => {
+    if (!participantId) return;
+    setProposals((prev) =>
+      prev.map((p) => {
+        if (p.id !== proposalId) return p;
+        const newVotes = new Set(p.votes);
+        if (newVotes.has(participantId)) {
+          newVotes.delete(participantId);
+        } else {
+          newVotes.add(participantId);
+        }
+        return { ...p, votes: newVotes };
+      }),
+    );
+  }, [participantId]);
+
+  const handleAcceptProposal = useCallback((proposal: DestinationProposal) => {
+    sendSetDestination(proposal.lat, proposal.lng, proposal.label || null);
+    setShowVoting(false);
+    setProposals([]);
   }, []);
 
   // ─── Participant focus ───
@@ -287,6 +394,17 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
     }
     focusKeyRef.current += 1;
     setFocusLocation({ lat: p.lastLocation.lat, lng: p.lastLocation.lng, _key: focusKeyRef.current });
+  }, []);
+
+  const handleFollowOnMap = useCallback((p: Participant) => {
+    if (!p.lastLocation) return;
+    setFollowTargetId(p.participantId);
+    if (Platform.OS === 'android') {
+      ToastAndroid.show(`Following ${p.displayName || 'participant'}`, ToastAndroid.SHORT);
+    } else {
+      setToastMessage(`Following ${p.displayName || 'participant'}`);
+      setTimeout(() => setToastMessage(null), 2000);
+    }
   }, []);
 
   const handleSetFriendAsDestination = useCallback((p: Participant) => {
@@ -363,6 +481,29 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
           <Text style={styles.hostBadgeText}>
             👑 You are the host — long-press map to set destination
           </Text>
+          {proposals.length > 0 && (
+            <TouchableOpacity onPress={() => setShowVoting(!showVoting)}>
+              <Text style={styles.votingToggle}>
+                📋 {proposals.length} proposal{proposals.length > 1 ? 's' : ''}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+
+      {/* Non-host hint */}
+      {!isHost && (
+        <View style={styles.hostBadge}>
+          <Text style={styles.hostBadgeText}>
+            Long-press map to propose a destination
+          </Text>
+          {proposals.length > 0 && (
+            <TouchableOpacity onPress={() => setShowVoting(!showVoting)}>
+              <Text style={styles.votingToggle}>
+                📋 {proposals.length} proposal{proposals.length > 1 ? 's' : ''}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
 
@@ -373,6 +514,8 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
             currentParticipantId={participantId}
             onLongPress={handleMapLongPress}
             focusLocation={focusLocation}
+            followTargetId={followTargetId}
+            onFollowEnd={() => setFollowTargetId(null)}
           />
         ) : (
           <View style={styles.noLocationContainer}>
@@ -385,6 +528,20 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
         )}
       </View>
 
+      {/* Voting panel (when open) */}
+      {showVoting && (
+        <DestinationVoting
+          proposals={proposals}
+          currentParticipantId={participantId}
+          isHost={isHost}
+          allParticipantIds={participantList.map((p) => p.participantId)}
+          onPropose={() => {}}
+          onVote={handleVote}
+          onAccept={handleAcceptProposal}
+          onDismiss={() => setShowVoting(false)}
+        />
+      )}
+
       {/* Destination bar (if set) */}
       <DestinationPanel
         destination={destination}
@@ -393,6 +550,14 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
         isHost={isHost}
         onClear={handleClearDestination}
       />
+
+      {/* Group ETA Summary (when destination is set and ETAs available) */}
+      {destination && participantETAs.size > 0 && (
+        <GroupETASummary
+          etas={participantETAs}
+          participantNames={new Map(participantList.map((p) => [p.participantId, p.displayName || p.participantId.slice(0, 6)]))}
+        />
+      )}
 
       {/* Tab Bar */}
       <View style={styles.tabBar}>
@@ -432,6 +597,7 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
             currentParticipantId={participantId}
             hostParticipantId={useSessionStore.getState().hostParticipantId}
             myLocation={myLocation}
+            destination={destination}
             etas={participantETAs}
             onParticipantPress={handleParticipantPress}
           />
@@ -452,10 +618,27 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
         participant={selectedFriend}
         eta={selectedFriend ? participantETAs.get(selectedFriend.participantId) ?? null : null}
         isHost={isHost}
+        allParticipantIds={participantList.map((p) => p.participantId)}
+        currentParticipantId={participantId}
         onFocusOnMap={handleFocusOnMap}
+        onFollowOnMap={handleFollowOnMap}
         onSetAsDestination={handleSetFriendAsDestination}
         onClose={() => setSelectedFriend(null)}
       />
+
+      {/* Session summary overlay */}
+      {summaryData && (
+        <View style={StyleSheet.absoluteFill}>
+          <SessionSummaryScreen
+            data={summaryData}
+            onDismiss={() => {
+              setSummaryData(null);
+              reset();
+              onLeave();
+            }}
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -545,6 +728,13 @@ const styles = StyleSheet.create({
     color: colors.destinationText,
     textAlign: 'center',
     fontWeight: '500',
+  },
+  votingToggle: {
+    fontSize: fontSize.xs,
+    color: colors.primary,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginTop: spacing.xs,
   },
   offlineBanner: {
     backgroundColor: colors.dangerLight,

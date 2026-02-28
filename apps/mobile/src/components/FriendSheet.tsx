@@ -13,18 +13,22 @@ import {
   Platform,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import type { Participant } from '../state/session-store';
+import type { Participant, Destination } from '../state/session-store';
 import { formatDuration, type ParticipantETA } from '../hooks/useParticipantETAs';
-import { colors, spacing, fontSize, borderRadius, shadow } from '../utils/theme';
+import { formatDistance } from '../utils/geo';
+import { colors, spacing, fontSize, borderRadius, shadow, getParticipantColor } from '../utils/theme';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-const SHEET_HEIGHT = 240;
+const SHEET_HEIGHT = 280;
 
 interface FriendSheetProps {
   participant: Participant | null;
   eta?: ParticipantETA | null;
   isHost: boolean;
+  allParticipantIds: string[];
+  currentParticipantId: string | null;
   onFocusOnMap: (participant: Participant) => void;
+  onFollowOnMap: (participant: Participant) => void;
   onSetAsDestination: (participant: Participant) => void;
   onClose: () => void;
 }
@@ -33,7 +37,10 @@ export default function FriendSheet({
   participant,
   eta,
   isHost,
+  allParticipantIds,
+  currentParticipantId,
   onFocusOnMap,
+  onFollowOnMap,
   onSetAsDestination,
   onClose,
 }: FriendSheetProps) {
@@ -76,6 +83,7 @@ export default function FriendSheet({
   if (!participant) return null;
 
   const hasLocation = !!participant.lastLocation;
+  const pColor = getParticipantColor(participant.participantId, allParticipantIds, currentParticipantId);
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
@@ -93,7 +101,7 @@ export default function FriendSheet({
 
         {/* Participant info */}
         <View style={styles.header}>
-          <View style={[styles.avatar, { backgroundColor: hasLocation ? colors.online : colors.offline }]}>
+          <View style={[styles.avatar, { backgroundColor: hasLocation ? pColor : colors.markerOffline }]}>
             <Text style={styles.avatarText}>
               {(participant.displayName || '?')[0].toUpperCase()}
             </Text>
@@ -104,7 +112,7 @@ export default function FriendSheet({
             </Text>
             <Text style={styles.status}>
               {participant.status === 'online' ? '● Online' : participant.status}
-              {eta ? ` · ETA ${formatDuration(eta.durationSec)}` : ''}
+              {eta ? ` · ETA ${formatDuration(eta.durationSec)} · ${formatDistance(eta.distanceM / 1000)}` : ''}
             </Text>
           </View>
         </View>
@@ -124,6 +132,22 @@ export default function FriendSheet({
             <Text style={styles.actionIcon}>🗺</Text>
             <Text style={[styles.actionLabel, !hasLocation && styles.actionLabelDisabled]}>
               Focus on map
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.actionButton, !hasLocation && styles.actionDisabled]}
+            activeOpacity={0.7}
+            disabled={!hasLocation}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              onFollowOnMap(participant);
+              onClose();
+            }}
+          >
+            <Text style={styles.actionIcon}>👁</Text>
+            <Text style={[styles.actionLabel, !hasLocation && styles.actionLabelDisabled]}>
+              Follow on map
             </Text>
           </TouchableOpacity>
 

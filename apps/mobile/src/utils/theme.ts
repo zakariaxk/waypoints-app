@@ -105,3 +105,41 @@ export const STATUS_COLORS: Record<string, string> = {
   stale: colors.stale,
   offline: colors.offline,
 };
+
+/**
+ * Distinct color palette for per-user route/marker coloring.
+ * Ordered to maximize visual contrast between adjacent indices.
+ */
+export const PARTICIPANT_COLORS = [
+  '#4F46E5', // indigo (self / primary)
+  '#10B981', // emerald
+  '#F59E0B', // amber
+  '#EC4899', // pink
+  '#8B5CF6', // violet
+  '#06B6D4', // cyan
+  '#F97316', // orange
+  '#14B8A6', // teal
+  '#E11D48', // rose
+  '#6366F1', // blue-indigo
+  '#84CC16', // lime
+  '#A855F7', // purple
+] as const;
+
+/**
+ * Get a deterministic color for a participant based on a sorted index.
+ * The current user always gets PARTICIPANT_COLORS[0] (primary indigo).
+ */
+export function getParticipantColor(
+  participantId: string,
+  allParticipantIds: string[],
+  currentParticipantId: string | null,
+): string {
+  if (participantId === currentParticipantId) return PARTICIPANT_COLORS[0];
+  // Sort all non-self IDs for stable ordering
+  const others = allParticipantIds
+    .filter((id) => id !== currentParticipantId)
+    .sort();
+  const idx = others.indexOf(participantId);
+  // +1 because index 0 is reserved for self
+  return PARTICIPANT_COLORS[(idx + 1) % PARTICIPANT_COLORS.length];
+}

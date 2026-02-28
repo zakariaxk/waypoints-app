@@ -1,23 +1,20 @@
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import type { Participant } from '../state/session-store';
+import type { Participant, Destination } from '../state/session-store';
 import { haversineDistance, formatDistance } from '../utils/geo';
 import { formatDuration, type ParticipantETA } from '../hooks/useParticipantETAs';
-import { colors, spacing, fontSize, borderRadius } from '../utils/theme';
+import { colors, spacing, fontSize, borderRadius, getParticipantColor } from '../utils/theme';
 
 interface PresenceListProps {
   participants: Participant[];
   currentParticipantId: string | null;
   hostParticipantId?: string | null;
   myLocation?: { lat: number; lng: number } | null;
+  destination?: Destination | null;
   etas?: Map<string, ParticipantETA>;
   onParticipantPress?: (participant: Participant) => void;
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  online: colors.online,
-  stale: colors.stale,
-  offline: colors.offline,
-};
+const ARRIVAL_THRESHOLD_KM = 0.05; // 50 meters
 
 const STATUS_LABELS: Record<string, string> = {
   online: 'Online',
@@ -34,9 +31,18 @@ function timeAgo(ts: number): string {
   return `${Math.floor(minutes / 60)}h ago`;
 }
 
-export default function PresenceList({ participants, currentParticipantId, hostParticipantId, myLocation, etas, onParticipantPress }: PresenceListProps) {
-  // Sort: online first, then stale, then offline
+export default function PresenceList({ participants, currentParticipantId, hostParticipantId, myLocation, destination, etas, onParticipantPress }: PresenceListProps) {
+  const allIds = participants.map((p) => p.participantId);
+
+  // Sort: arrived first, then online, then stale, then offline
   const sorted = [...participants].sort((a, b) => {
+    const aArrived = destination && a.lastLocation
+      ? haversineDistance(a.lastLocation.lat, a.lastLocation.lng, destination.lat, destination.lng) < ARRIVAL_THRESHOLD_KM
+      : false;
+    const bArrived = destination && b.lastLocation
+      ? haversineDistance(b.lastLocation.lat, b.lastLocation.lng, destination.lat, destination.lng) < ARRIVAL_THRESHOLD_KM
+      : false;
+    if (aArrived !== bArrived) return aArrived ? -1 : 1;
     const order: Record<string, number> = { online: 0, stale: 1, offline: 2 };
     return (order[a.status] ?? 3) - (order[b.status] ?? 3);
   });
@@ -49,15 +55,31 @@ export default function PresenceList({ participants, currentParticipantId, hostP
       renderItem={({ item }) => {
         const isMe = item.participantId === currentParticipantId;
         const isHost = item.participantId === hostParticipantId;
+        const pColor = getParticipantColor(item.participantId, allIds, currentParticipantId);
+        const eta = etas?.get(item.participantId);
+
+        // Arrival detection
+        const isArrived = destination && item.lastLocation
+          ? haversineDistance(item.lastLocation.lat, item.lastLocation.lng, destination.lat, destination.lng) < ARRIVAL_THRESHOLD_KM
+          : false;
+
+        // Movement status from speed
+        const speed = item.lastLocation?.speed ?? 0;
+        const movementIcon = speed > 5 ? '🚗' : speed > 1 ? '🚶' : '📍';
+        const movementLabel = speed > 5 ? 'Driving' : speed > 1 ? 'Walking' : 'Stationary';
+
+        const avatarBg = item.status === 'offline' ? colors.markerOffline : isArrived ? '#22C55E' : pColor;
+        const rowOpacity = item.status === 'offline' ? 0.5 : 1;
+
         return (
           <TouchableOpacity
-            style={styles.row}
+            style={[styles.row, { opacity: rowOpacity }]}
             activeOpacity={0.6}
             onPress={() => onParticipantPress?.(item)}
           >
-            <View style={[styles.avatar, { backgroundColor: STATUS_COLORS[item.status] || colors.border }]}>
+            <View style={[styles.avatar, { backgroundColor: avatarBg }]}>
               <Text style={styles.avatarText}>
-                {(item.displayName || '?')[0].toUpperCase()}
+                {isArrived ? '✓' : (item.displayName || '?')[0].toUpperCase()}
               </Text>
             </View>
             <View style={styles.info}>
@@ -69,16 +91,24 @@ export default function PresenceList({ participants, currentParticipantId, hostP
                 {isHost && <Text style={styles.hostTag}> 👑</Text>}
               </View>
               <Text style={styles.detail}>
-                {STATUS_LABELS[item.status] || item.status}
-                {item.lastLocation && myLocation && !isMe
-                  ? ` · ${formatDistance(haversineDistance(myLocation.lat, myLocation.lng, item.lastLocation.lat, item.lastLocation.lng))} away`
-                  : item.lastLocation && isMe
-                    ? ' · Your location'
-                    : ' · No location'}
+                {isArrived ? (
+                  '✓ Arrived'
+                ) : (
+                  <>
+                    {item.status === 'online' && item.lastLocation
+                      ? `${movementIcon} ${movementLabel}`
+                      : STATUS_LABELS[item.status] || item.status}
+                    {item.lastLocation && myLocation && !isMe
+                      ? ` · ${formatDistance(haversineDistance(myLocation.lat, myLocation.lng, item.lastLocation.lat, item.lastLocation.lng))} away`
+                      : item.lastLocation && isMe
+                        ? ' · Your location'
+                        : ' · No location'}
+                  </>
+                )}
               </Text>
-              {etas?.get(item.participantId) && (
+              {eta && !isArrived && (
                 <Text style={styles.etaText}>
-                  🕐 ETA {formatDuration(etas.get(item.participantId)!.durationSec)}
+                  🕐 ETA {formatDuration(eta.durationSec)} · {formatDistance(eta.distanceM / 1000)}
                 </Text>
               )}
             </View>
