@@ -3,13 +3,14 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy root package files and workspaces
+# Copy root package files and workspace package.jsons
 COPY package.json package-lock.json ./
 COPY packages/shared/package.json packages/shared/
 COPY services/api/package.json services/api/
+COPY apps/mobile/package.json apps/mobile/
 
-# Install all dependencies
-RUN npm ci --workspace=packages/shared --workspace=services/api
+# Install all dependencies (including devDependencies for build)
+RUN npm ci
 
 # Copy source code
 COPY tsconfig.base.json ./
