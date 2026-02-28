@@ -1,6 +1,6 @@
 # Waypoints
 
-Real-time location sharing app — create a session, share the code, see everyone on a live map. Built with a cyberpunk neon-tech aesthetic.
+Real-time location sharing app — create a session, share the code, see everyone on a live map. 
 
 ## Features
 
@@ -25,7 +25,7 @@ Real-time location sharing app — create a session, share the code, see everyon
 - **Session history** — rejoin recent sessions from home screen
 - **Dark/light mode** — persisted toggle with AsyncStorage
 
-### Cyberpunk UI
+### UI
 - **Neon-tech design system** — deep-space blacks, cyan/magenta/violet/lime/amber accents
 - **Custom typography** — Orbitron (headings) + Rajdhani (body) Google Fonts
 - **Glow effects** — colored shadows on iOS, elevation on Android
@@ -71,13 +71,11 @@ npm test
 
 ## Production Deployment
 
-### Backend (Fly.io / Render)
+### Backend (Render)
 ```bash
-# Option A: Fly.io
-fly auth login
-fly deploy
 
-# Option B: Render (currently deployed)
+
+# Render (currently deployed)
 # Auto-deploys from main branch
 # Live at https://waypoints-api.onrender.com
 ```
