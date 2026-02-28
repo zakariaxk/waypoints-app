@@ -284,3 +284,51 @@ npm run lint                   # eslint across all workspaces
 - **Shared**: 4 source files, full WS protocol types + validators
 - **Docs**: PRD, Architecture, WS Protocol, Privacy Policy, App Store Metadata, Manual Actions
 - **Total**: ~50 source files, ~6,500 lines of code
+
+## Phase 2 – Voice Chat (Batch 18)
+
+### What Changed
+
+**Shared (`packages/shared`)**:
+- Added VOICE_* TypeScript types: `VoiceJoinMessage`, `VoiceLeaveMessage`, `VoiceSignalMessage`, `ServerVoiceSignalMessage`, `VoiceStateMessage`
+- Added Zod schemas: `voiceJoinPayloadSchema`, `voiceLeavePayloadSchema`, `voiceSignalPayloadSchema`
+- Extended `ClientMessage` and `ServerMessage` unions with voice message types
+- New exported type: `ValidatedVoiceSignalPayload`
+
+**Backend (`services/api`)**:
+- `state/session-store.ts`: Added `voiceMembers: Set<string>` to `FullSessionState`
+- `ws/voice.ts`: New handler module with `handleVoiceJoin`, `handleVoiceLeave`, `handleVoiceSignal`, `cleanupVoiceMember`
+- `ws/dispatcher.ts`: Routes `VOICE_JOIN`, `VOICE_LEAVE`, `VOICE_SIGNAL` to voice handlers
+- `ws/handler.ts`: Calls `cleanupVoiceMember` on disconnect
+- `ws/leave.ts`: Calls `cleanupVoiceMember` on LEAVE_SESSION
+- **Payload validation**: SDP offer/answer ≤ 40KB, ICE candidates ≤ 8KB
+- **Security**: Sender must be in voiceMembers; recipient must be in same session AND voiceMembers
+
+**Tests**: 58 total (was 44). 14 new tests in `voice.test.ts` covering:
+- VOICE_JOIN/LEAVE membership management + broadcast
+- VOICE_SIGNAL sender/recipient validation
+- VOICE_SIGNAL forwarding to intended recipient only (not leaked to others)
+- Payload size limit enforcement (40KB SDP, 8KB ICE)
+- Bad payload rejection
+- No voice events in replay ring buffer
+- Cleanup on disconnect and LEAVE_SESSION
+- Auth required (VOICE_JOIN before HELLO rejected)
+
+**Mobile (`apps/mobile`)**:
+- `services/voice.ts`: Voice service with `joinVoice()`, `leaveVoice()`, `sendSignal()` functions
+- `services/ws-client.ts`: Extended to handle incoming `VOICE_SIGNAL` and `VOICE_STATE` messages
+- `state/session-store.ts`: Added `voiceMembers` set and `voiceState` tracking
+- `hooks/useVoiceChat.ts`: Full WebRTC hook with mic permission, peer connections, mute/PTT, multi-peer mesh
+- `SessionScreen.tsx`: Voice (beta) UI — join/leave toggle, mute, push-to-talk, peer count indicator
+
+### Design Decisions
+- Voice messages are **ephemeral** — NOT emitted as EVENT, NOT stored in ring buffer, NOT replayed on reconnect
+- Mesh topology for audio (each participant connects to all others) — suitable for ≤ 8 participants
+- STUN-only for NAT traversal (free tier); TURN server can be added later if needed
+- No audio persistence, no server-side media processing
+
+### Next Steps
+- Monitor NAT traversal success rate; add TURN fallback if needed
+- Consider SFU architecture if voice groups regularly exceed 8 participants
+- Add visual audio level indicators
+- Add spatial/proximity audio (tie volume to map distance)

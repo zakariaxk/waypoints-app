@@ -9,11 +9,13 @@
       "distribution": "internal",
       "env": {
         "APP_VARIANT": "development",
-        "EXPO_PUBLIC_API_URL": "http://localhost:3000",
-        "EXPO_PUBLIC_WS_URL": "ws://localhost:3000"
+        "GOOGLE_MAPS_API_KEY": ""
       },
       "ios": {
-        "simulator": true
+        "resourceClass": "m-medium"
+      },
+      "android": {
+        "buildType": "apk"
       }
     },
     "preview": {
@@ -32,15 +34,6 @@
       "env": {
         "EXPO_PUBLIC_API_URL": "https://waypoints-api.onrender.com",
         "EXPO_PUBLIC_WS_URL": "wss://waypoints-api.onrender.com"
-      }
-    }
-  },
-  "submit": {
-    "production": {
-      "ios": {
-        "appleId": "",
-        "ascAppId": "",
-        "appleTeamId": ""
       }
     }
   }

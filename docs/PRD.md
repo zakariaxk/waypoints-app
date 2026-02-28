@@ -71,3 +71,42 @@ Dark-first, neon-lit HUD with translucent panels, colored glow effects, and cine
 
 ### Full Style Reference
 See [docs/UI_STYLEGUIDE.md](./UI_STYLEGUIDE.md) for the complete token reference, component catalog, and design principles.
+
+---
+
+## Phase 2: Voice Chat
+
+### Overview
+Real-time voice communication between session participants using WebRTC peer-to-peer audio, with signaling relayed through the existing WebSocket server. This is a post-MVP feature that extends the session experience without changing any MVP behavior.
+
+### Goals
+- Enable participants in a session to join an optional voice channel
+- WebRTC peer-to-peer audio streaming (no server-side media processing)
+- Minimal UI: join/leave voice, mute toggle, push-to-talk (PTT)
+- Free-tier friendly: single backend instance, in-memory only, no TURN server (STUN only for MVP)
+- Ephemeral: voice state is not persisted, not replayed on reconnect
+
+### Non-Goals (Phase 2)
+- Video chat
+- Voice recording or persistence
+- Server-side audio mixing or relaying (SFU/MCU)
+- TURN server (relies on STUN; may be added later if NAT traversal issues arise)
+- Noise cancellation or audio processing beyond platform defaults
+
+### User Stories
+1. As a participant, I can join/leave an optional voice channel within my session.
+2. As a participant, I can mute/unmute my microphone.
+3. As a participant, I can use push-to-talk (press and hold to speak).
+4. As a participant, I can see how many people are in the voice channel and their connection state.
+5. As a participant, if I disconnect and reconnect, I can re-join voice manually (voice is not auto-restored).
+
+### Technical Approach
+- **Signaling**: WebRTC offer/answer/ICE relayed via existing WS server using VOICE_SIGNAL messages.
+- **Voice membership**: Tracked in-memory via `voiceMembers: Set<participantId>` per session.
+- **Ephemeral**: VOICE_* messages are NOT part of the EVENT stream, NOT replayed on reconnect.
+- **Mesh topology**: Each participant creates a direct peer connection to every other voice participant (suitable for small groups ≤ 8).
+- **Protocol**: See [docs/WS-PROTOCOL.md](./WS-PROTOCOL.md) for VOICE_* message definitions.
+
+### Implementation Phases
+- **Phase A0**: Signaling + voice presence (server-side VOICE_JOIN/LEAVE/SIGNAL handlers, mobile ws-client integration, UI stub)
+- **Phase A1**: Mobile WebRTC audio integration (react-native-webrtc, microphone capture, peer connection management, full voice UI)

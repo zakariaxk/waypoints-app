@@ -197,11 +197,23 @@ function handleServerMessage(msg: { type: string; payload: Record<string, unknow
 
       // Fatal errors — session no longer exists on server
       const FATAL_CODES = ['NOT_IN_SESSION', 'SESSION_NOT_FOUND', 'INVALID_TOKEN'];
-      if (FATAL_CODES.includes(payload.code)) {
+      if (FATAL_CODES.indexOf(payload.code) !== -1) {
         sessionInvalidated = true;
         disconnectWs();
       }
       break;
     }
+
+    case 'VOICE_STATE': {
+      const vsPayload = msg.payload as { participantId: string; state: 'joined' | 'left' };
+      if (vsPayload.state === 'joined') {
+        store.addVoiceMember(vsPayload.participantId);
+      } else {
+        store.removeVoiceMember(vsPayload.participantId);
+      }
+      break;
+    }
+
+    // VOICE_SIGNAL is handled by voice service listeners, not the store
   }
 }

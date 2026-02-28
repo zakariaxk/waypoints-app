@@ -51,6 +51,9 @@ interface SessionState {
   hostParticipantId: string | null;
   isHost: boolean;
 
+  // Voice chat (Phase 2)
+  voiceMembers: Set<string>;
+
   // Actions
   setSession: (s: {
     sessionId: string;
@@ -74,6 +77,8 @@ interface SessionState {
     data: Record<string, unknown>;
     ts: number;
   }) => void;
+  addVoiceMember: (participantId: string) => void;
+  removeVoiceMember: (participantId: string) => void;
   reset: () => void;
 }
 
@@ -91,6 +96,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   chatMessages: [],
   hostParticipantId: null,
   isHost: false,
+  voiceMembers: new Set(),
 
   setSession: (s) => {
     const isHost = s.hostParticipantId ? s.participantId === s.hostParticipantId : false;
@@ -217,6 +223,18 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     set({ participants, lastEventId: event.eventId });
   },
 
+  addVoiceMember: (participantId) => {
+    const voiceMembers = new Set(get().voiceMembers);
+    voiceMembers.add(participantId);
+    set({ voiceMembers });
+  },
+
+  removeVoiceMember: (participantId) => {
+    const voiceMembers = new Set(get().voiceMembers);
+    voiceMembers.delete(participantId);
+    set({ voiceMembers });
+  },
+
   reset: () =>
     set({
       sessionId: null,
@@ -232,5 +250,6 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       chatMessages: [],
       hostParticipantId: null,
       isHost: false,
+      voiceMembers: new Set(),
     }),
 }));

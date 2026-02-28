@@ -24,17 +24,38 @@ config.resolver.disableHierarchicalLookup = true;
 //    which breaks when expo is hoisted to root node_modules. Intercept and redirect.
 const defaultResolveRequest = config.resolver.resolveRequest;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-  // When AppEntry.js tries to import '../../App', redirect to our App.tsx
-  if (
-    moduleName === '../../App' &&
-    context.originModulePath &&
-    context.originModulePath.includes('expo/AppEntry')
-  ) {
+  // When AppEntry.js tries to import '../../App', redirect to our App.tsx.
+  // This happens because expo is hoisted to the monorepo root node_modules.
+  if (moduleName === '../../App') {
     return {
       filePath: path.resolve(projectRoot, 'App.tsx'),
       type: 'sourceFile',
     };
   }
+
+  // react-native-webrtc imports 'event-target-shim/index' but the package's
+  // "exports" map only exposes ".".  Rewrite to the bare specifier so Metro
+  // can resolve it through the normal "." export.
+  if (moduleName === 'event-target-shim/index') {
+    return context.resolveRequest(context, 'event-target-shim', platform);
+  }
+
+  // Stub react-native-webrtc ONLY when the real package isn't installed.
+  // When installed (dev client / EAS build), Metro uses the real module.
+  // The getWebRTC() guard in useVoiceChat.ts prevents runtime evaluation
+  // in Expo Go even though the module is in the bundle.
+  if (moduleName === 'react-native-webrtc') {
+    try {
+      // Check if the real module resolves; if so, let Metro use it.
+      require.resolve('react-native-webrtc');
+    } catch {
+      return {
+        filePath: path.resolve(projectRoot, 'src/stubs/react-native-webrtc.js'),
+        type: 'sourceFile',
+      };
+    }
+  }
+
   if (defaultResolveRequest) {
     return defaultResolveRequest(context, moduleName, platform);
   }

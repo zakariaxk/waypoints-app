@@ -5,6 +5,7 @@ import type { Server } from 'http';
 import { v4 as uuid } from 'uuid';
 import { dispatch } from './dispatcher.js';
 import { sessionStore } from '../state/session-store.js';
+import { cleanupVoiceMember } from './voice.js';
 
 /** Map of connId → { ws, sessionId, participantId } */
 export interface ConnState {
@@ -77,6 +78,9 @@ export function setupWebSocket(server: Server): WebSocketServer {
 
 function handleDisconnect(conn: ConnState): void {
   if (!conn.sessionId || !conn.participantId) return;
+
+  // Remove from voice chat if active
+  cleanupVoiceMember(conn.sessionId, conn.participantId);
 
   const participant = sessionStore.getParticipant(conn.sessionId, conn.participantId);
   if (participant && participant.connId === conn.connId) {
