@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
+  Keyboard,
 } from 'react-native';
 import { useSessionStore, type ChatMessage } from '../state/session-store';
 import { sendChatMessage } from '../services/ws-client';
@@ -31,11 +32,28 @@ export default function ChatPanel({ currentParticipantId }: ChatPanelProps) {
     }
   }, [chatMessages.length]);
 
+  // Scroll to bottom when keyboard opens
+  useEffect(() => {
+    const sub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => {
+        setTimeout(() => {
+          flatListRef.current?.scrollToEnd({ animated: true });
+        }, 150);
+      },
+    );
+    return () => sub.remove();
+  }, []);
+
   const handleSend = () => {
     const trimmed = text.trim();
     if (!trimmed) return;
     sendChatMessage(trimmed);
     setText('');
+    // Scroll after sending
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true });
+    }, 100);
   };
 
   const formatTime = (ts: number) => {
@@ -63,8 +81,8 @@ export default function ChatPanel({ currentParticipantId }: ChatPanelProps) {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 120 : 0}
     >
       {chatMessages.length === 0 ? (
         <View style={styles.emptyContainer}>
@@ -79,6 +97,10 @@ export default function ChatPanel({ currentParticipantId }: ChatPanelProps) {
           renderItem={renderMessage}
           contentContainerStyle={styles.messageList}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          onContentSizeChange={() => {
+            flatListRef.current?.scrollToEnd({ animated: false });
+          }}
         />
       )}
 
@@ -93,6 +115,11 @@ export default function ChatPanel({ currentParticipantId }: ChatPanelProps) {
           returnKeyType="send"
           maxLength={500}
           multiline={false}
+          onFocus={() => {
+            setTimeout(() => {
+              flatListRef.current?.scrollToEnd({ animated: true });
+            }, 300);
+          }}
         />
         <TouchableOpacity
           style={[styles.sendButton, !text.trim() && styles.sendButtonDisabled]}

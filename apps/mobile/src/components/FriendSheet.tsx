@@ -12,6 +12,7 @@ import {
   Pressable,
   Platform,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import type { Participant } from '../state/session-store';
 import { formatDuration, type ParticipantETA } from '../hooks/useParticipantETAs';
 import { colors, spacing, fontSize, borderRadius, shadow } from '../utils/theme';
@@ -115,6 +116,7 @@ export default function FriendSheet({
             activeOpacity={0.7}
             disabled={!hasLocation}
             onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               onFocusOnMap(participant);
               onClose();
             }}
@@ -130,6 +132,7 @@ export default function FriendSheet({
             activeOpacity={0.7}
             disabled={!hasLocation || !isHost}
             onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
               onSetAsDestination(participant);
               onClose();
             }}

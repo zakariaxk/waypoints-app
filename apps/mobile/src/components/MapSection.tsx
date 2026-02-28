@@ -1,6 +1,6 @@
 import { useRef, useEffect, useMemo, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Platform, TouchableOpacity } from 'react-native';
-import MapView, { Marker, Polyline, Callout, Region, PROVIDER_DEFAULT } from 'react-native-maps';
+import MapView, { Marker, Polyline, Callout, Region, PROVIDER_DEFAULT, MapType } from 'react-native-maps';
 import { useSessionStore, type Participant, type Destination } from '../state/session-store';
 import { fetchRoute, type RouteCoord } from '../utils/routing';
 import { haversineDistance } from '../utils/geo';
@@ -31,6 +31,7 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
 
   // Route polyline state
   const [routeCoords, setRouteCoords] = useState<RouteCoord[]>([]);
+  const [mapType, setMapType] = useState<MapType>('standard');
   const lastRouteFetchRef = useRef<{ lat: number; lng: number; destLat: number; destLng: number; time: number } | null>(null);
 
   // Expose map ref to parent
@@ -196,6 +197,7 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
         style={styles.map}
         provider={PROVIDER_DEFAULT}
         initialRegion={initialRegion}
+        mapType={mapType}
         showsUserLocation={false}
         showsMyLocationButton={false}
         showsCompass={true}
@@ -212,6 +214,8 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
           const isMe = p.participantId === currentParticipantId;
           const markerColor = isMe ? colors.markerSelf : (STATUS_MARKER_COLORS[p.status] || colors.markerOffline);
           const loc = p.lastLocation!;
+          const heading = loc.heading;
+          const hasHeading = heading != null && heading >= 0 && (loc.speed ?? 0) > 0.5;
 
           return (
             <Marker
@@ -220,15 +224,23 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
               pinColor={markerColor}
               title={p.displayName || p.participantId.slice(0, 8)}
               description={isMe ? 'You' : p.status}
+              anchor={{ x: 0.5, y: 1 }}
             >
               {/* Custom marker view */}
-              <View style={[styles.markerContainer, { borderColor: markerColor }]}>
-                <View style={[styles.markerDot, { backgroundColor: markerColor }]} />
-                <Text style={[styles.markerLabel, isMe && styles.markerLabelBold]} numberOfLines={1}>
-                  {isMe ? 'You' : (p.displayName || p.participantId.slice(0, 6))}
-                </Text>
+              <View style={styles.markerWrapper}>
+                {hasHeading && (
+                  <View style={[styles.headingArrow, { transform: [{ rotate: `${heading}deg` }] }]}>
+                    <View style={[styles.headingTriangle, { borderBottomColor: markerColor }]} />
+                  </View>
+                )}
+                <View style={[styles.markerContainer, { borderColor: markerColor }]}>
+                  <View style={[styles.markerDot, { backgroundColor: markerColor }]} />
+                  <Text style={[styles.markerLabel, isMe && styles.markerLabelBold]} numberOfLines={1}>
+                    {isMe ? 'You' : (p.displayName || p.participantId.slice(0, 6))}
+                  </Text>
+                </View>
+                <View style={[styles.markerArrow, { borderTopColor: markerColor }]} />
               </View>
-              <View style={[styles.markerArrow, { borderTopColor: markerColor }]} />
             </Marker>
           );
         })}
@@ -284,6 +296,23 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
         <Text style={styles.centerButtonText}>◎</Text>
       </TouchableOpacity>
 
+      {/* Map type toggle */}
+      <TouchableOpacity
+        style={styles.mapTypeButton}
+        onPress={() => {
+          setMapType((prev) => {
+            if (prev === 'standard') return 'satellite';
+            if (prev === 'satellite') return 'hybrid';
+            return 'standard';
+          });
+        }}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.mapTypeButtonText}>
+          {mapType === 'standard' ? '🗺' : mapType === 'satellite' ? '🛰' : '🌐'}
+        </Text>
+      </TouchableOpacity>
+
       {/* Participant count overlay */}
       <View style={styles.overlay}>
         <Text style={styles.overlayText}>
@@ -321,6 +350,24 @@ const styles = StyleSheet.create({
         elevation: 4,
       },
     }),
+  },
+  markerWrapper: {
+    alignItems: 'center',
+  },
+  headingArrow: {
+    position: 'absolute',
+    top: -14,
+    alignSelf: 'center',
+    zIndex: 10,
+  },
+  headingTriangle: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderBottomWidth: 10,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
   },
   markerDot: {
     width: 8,
@@ -390,6 +437,31 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: colors.primary,
     fontWeight: '700',
+  },
+  mapTypeButton: {
+    position: 'absolute',
+    bottom: spacing.sm,
+    left: spacing.sm + 48,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  mapTypeButtonText: {
+    fontSize: 18,
   },
   overlay: {
     position: 'absolute',

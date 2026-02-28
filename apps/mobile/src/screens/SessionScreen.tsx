@@ -9,6 +9,7 @@ import {
   Platform,
   StatusBar,
   ToastAndroid,
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useSessionStore, type Participant } from '../state/session-store';
 import {
@@ -25,9 +26,13 @@ import {
   startLocationUpdates,
   stopLocationUpdates,
 } from '../services/location';
+import * as Haptics from 'expo-haptics';
+import * as Clipboard from 'expo-clipboard';
 import { updateSessionActivity, removeSessionFromHistory } from '../utils/storage';
 import { makeJoinLink } from '../utils/deeplink';
 import { useParticipantETAs } from '../hooks/useParticipantETAs';
+import { useArrivalAlert } from '../hooks/useArrivalAlert';
+import { useSessionTimer } from '../hooks/useSessionTimer';
 import MapSection from '../components/MapSection';
 import PresenceList from '../components/PresenceList';
 import ChatPanel from '../components/ChatPanel';
@@ -68,12 +73,26 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
   // Per-participant ETAs
   const participantETAs = useParticipantETAs(participants, destination);
 
+  // Session duration timer
+  const sessionTimer = useSessionTimer();
+
   // My location for distance calculation
   const myLocation = useMemo(() => {
     if (!participantId) return null;
     const me = participants.get(participantId);
     return me?.lastLocation ?? null;
   }, [participants, participantId]);
+
+  // Arrival proximity alert
+  const handleArrival = useCallback(() => {
+    if (Platform.OS === 'android') {
+      ToastAndroid.show('🎉 You arrived at the destination!', ToastAndroid.LONG);
+    } else {
+      setToastMessage('🎉 You arrived at the destination!');
+      setTimeout(() => setToastMessage(null), 3000);
+    }
+  }, []);
+  useArrivalAlert(myLocation, destination, handleArrival);
 
   // Track unread chat when on people tab
   const prevChatLenRef = useRef(chatMessages.length);
@@ -189,6 +208,18 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
     }
   }, [joinCode]);
 
+  const handleCopyCode = useCallback(async () => {
+    if (!joinCode) return;
+    await Clipboard.setStringAsync(joinCode);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (Platform.OS === 'android') {
+      ToastAndroid.show('Code copied!', ToastAndroid.SHORT);
+    } else {
+      setToastMessage('Code copied!');
+      setTimeout(() => setToastMessage(null), 1500);
+    }
+  }, [joinCode]);
+
   const handleMapLongPress = useCallback(
     (lat: number, lng: number) => {
       if (!isHost) {
@@ -285,9 +316,13 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
         </TouchableOpacity>
 
         <View style={styles.headerCenter}>
-          <TouchableOpacity onPress={handleShare} style={styles.codeContainer}>
+          <TouchableOpacity
+            onPress={handleShare}
+            onLongPress={handleCopyCode}
+            style={styles.codeContainer}
+          >
             <Text style={styles.codeText}>{joinCode || '------'}</Text>
-            <Text style={styles.shareHint}>tap to share</Text>
+            <Text style={styles.shareHint}>tap share · hold copy</Text>
           </TouchableOpacity>
         </View>
 
@@ -298,13 +333,16 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
               connected ? styles.dotConnected : styles.dotDisconnected,
             ]}
           />
-          <Text style={styles.connectionText}>
-            {connected
-              ? `${onlineCount} online`
-              : reconnectCount > 0
-                ? `Retry #${reconnectCount}...`
-                : 'Connecting...'}
-          </Text>
+          <View>
+            <Text style={styles.connectionText}>
+              {connected
+                ? `${onlineCount} online`
+                : reconnectCount > 0
+                  ? `Retry #${reconnectCount}...`
+                  : 'Connecting...'}
+            </Text>
+            <Text style={styles.timerText}>⏱ {sessionTimer}</Text>
+          </View>
         </View>
       </View>
 
@@ -382,8 +420,12 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
         </TouchableOpacity>
       </View>
 
-      {/* Tab Content */}
-      <View style={styles.tabContent}>
+      {/* Tab Content — wrapped in KeyboardAvoidingView for chat input */}
+      <KeyboardAvoidingView
+        style={styles.tabContent}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      >
         {activeTab === 'people' ? (
           <PresenceList
             participants={participantList}
@@ -396,7 +438,7 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
         ) : (
           <ChatPanel currentParticipantId={participantId} />
         )}
-      </View>
+      </KeyboardAvoidingView>
 
       {/* iOS toast banner */}
       {toastMessage && (
@@ -485,6 +527,11 @@ const styles = StyleSheet.create({
   connectionText: {
     fontSize: fontSize.xs,
     color: colors.textSecondary,
+  },
+  timerText: {
+    fontSize: fontSize.xs - 1,
+    color: colors.textTertiary,
+    marginTop: 1,
   },
   hostBadge: {
     backgroundColor: colors.destinationBg,
