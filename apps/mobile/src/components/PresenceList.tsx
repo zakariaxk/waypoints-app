@@ -1,6 +1,7 @@
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import type { Participant } from '../state/session-store';
 import { haversineDistance, formatDistance } from '../utils/geo';
+import { formatDuration, type ParticipantETA } from '../hooks/useParticipantETAs';
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme';
 
 interface PresenceListProps {
@@ -8,6 +9,7 @@ interface PresenceListProps {
   currentParticipantId: string | null;
   hostParticipantId?: string | null;
   myLocation?: { lat: number; lng: number } | null;
+  etas?: Map<string, ParticipantETA>;
   onParticipantPress?: (participant: Participant) => void;
 }
 
@@ -32,7 +34,7 @@ function timeAgo(ts: number): string {
   return `${Math.floor(minutes / 60)}h ago`;
 }
 
-export default function PresenceList({ participants, currentParticipantId, hostParticipantId, myLocation, onParticipantPress }: PresenceListProps) {
+export default function PresenceList({ participants, currentParticipantId, hostParticipantId, myLocation, etas, onParticipantPress }: PresenceListProps) {
   // Sort: online first, then stale, then offline
   const sorted = [...participants].sort((a, b) => {
     const order: Record<string, number> = { online: 0, stale: 1, offline: 2 };
@@ -74,6 +76,11 @@ export default function PresenceList({ participants, currentParticipantId, hostP
                     ? ' · Your location'
                     : ' · No location'}
               </Text>
+              {etas?.get(item.participantId) && (
+                <Text style={styles.etaText}>
+                  🕐 ETA {formatDuration(etas.get(item.participantId)!.durationSec)}
+                </Text>
+              )}
             </View>
             <Text style={styles.time}>{timeAgo(item.lastSeenTs)}</Text>
           </TouchableOpacity>
@@ -134,6 +141,12 @@ const styles = StyleSheet.create({
   detail: {
     fontSize: fontSize.xs,
     color: colors.textSecondary,
+    marginTop: 1,
+  },
+  etaText: {
+    fontSize: fontSize.xs,
+    color: colors.primary,
+    fontWeight: '600',
     marginTop: 1,
   },
   time: {

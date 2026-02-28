@@ -27,10 +27,12 @@ import {
 } from '../services/location';
 import { updateSessionActivity, removeSessionFromHistory } from '../utils/storage';
 import { makeJoinLink } from '../utils/deeplink';
+import { useParticipantETAs } from '../hooks/useParticipantETAs';
 import MapSection from '../components/MapSection';
 import PresenceList from '../components/PresenceList';
 import ChatPanel from '../components/ChatPanel';
 import DestinationPanel from '../components/DestinationPanel';
+import FriendSheet from '../components/FriendSheet';
 import { colors, spacing, fontSize, borderRadius, shadow } from '../utils/theme';
 
 type Tab = 'people' | 'chat';
@@ -59,6 +61,12 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
   const [focusLocation, setFocusLocation] = useState<{ lat: number; lng: number; _key: number } | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const focusKeyRef = useRef(0);
+
+  // Friend bottom sheet
+  const [selectedFriend, setSelectedFriend] = useState<Participant | null>(null);
+
+  // Per-participant ETAs
+  const participantETAs = useParticipantETAs(participants, destination);
 
   // My location for distance calculation
   const myLocation = useMemo(() => {
@@ -188,9 +196,9 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
         return;
       }
 
-      // @ts-expect-error — Alert.prompt exists on iOS but not in types
+      // @ts-ignore — Alert.prompt exists on iOS but not in types
       if (Platform.OS === 'ios' && Alert.prompt) {
-        // @ts-expect-error
+        // @ts-ignore
         Alert.prompt(
           'Set Destination',
           'Enter a label for the destination (optional)',
@@ -233,8 +241,11 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
 
   // ─── Participant focus ───
   const handleParticipantPress = useCallback((p: Participant) => {
+    setSelectedFriend(p);
+  }, []);
+
+  const handleFocusOnMap = useCallback((p: Participant) => {
     if (!p.lastLocation) {
-      // Show toast/banner
       if (Platform.OS === 'android') {
         ToastAndroid.show('No location yet', ToastAndroid.SHORT);
       } else {
@@ -243,10 +254,22 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
       }
       return;
     }
-    // Set a new object reference so the effect fires even if same coords
     focusKeyRef.current += 1;
     setFocusLocation({ lat: p.lastLocation.lat, lng: p.lastLocation.lng, _key: focusKeyRef.current });
   }, []);
+
+  const handleSetFriendAsDestination = useCallback((p: Participant) => {
+    if (!p.lastLocation) return;
+    if (!isHost) {
+      Alert.alert('Host Only', 'Only the session host can set the destination.');
+      return;
+    }
+    sendSetDestination(
+      p.lastLocation.lat,
+      p.lastLocation.lng,
+      p.displayName ? `${p.displayName}'s location` : null,
+    );
+  }, [isHost]);
 
   const participantList = Array.from(participants.values());
   const onlineCount = participantList.filter((p) => p.status === 'online').length;
@@ -328,6 +351,7 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
       <DestinationPanel
         destination={destination}
         myLocation={myLocation}
+        myETA={participantId ? participantETAs.get(participantId) ?? null : null}
         isHost={isHost}
         onClear={handleClearDestination}
       />
@@ -366,6 +390,7 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
             currentParticipantId={participantId}
             hostParticipantId={useSessionStore.getState().hostParticipantId}
             myLocation={myLocation}
+            etas={participantETAs}
             onParticipantPress={handleParticipantPress}
           />
         ) : (
@@ -379,6 +404,16 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
           <Text style={styles.toastText}>{toastMessage}</Text>
         </View>
       )}
+
+      {/* Friend bottom sheet */}
+      <FriendSheet
+        participant={selectedFriend}
+        eta={selectedFriend ? participantETAs.get(selectedFriend.participantId) ?? null : null}
+        isHost={isHost}
+        onFocusOnMap={handleFocusOnMap}
+        onSetAsDestination={handleSetFriendAsDestination}
+        onClose={() => setSelectedFriend(null)}
+      />
     </View>
   );
 }

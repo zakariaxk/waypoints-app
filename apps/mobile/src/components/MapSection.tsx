@@ -117,9 +117,9 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
       time: now,
     };
 
-    const coords = await fetchRoute(myLoc, destination);
-    if (coords) {
-      setRouteCoords(coords);
+    const result = await fetchRoute(myLoc, destination);
+    if (result) {
+      setRouteCoords(result.coords);
     }
     // On failure, keep existing route (or empty) — destination marker still shows
   }, [myLoc, destination]);
@@ -253,8 +253,10 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
           <Polyline
             coordinates={routeCoords}
             strokeColor={colors.route}
-            strokeWidth={4}
-            lineDashPattern={[0]}
+            strokeWidth={5}
+            lineJoin="round"
+            lineCap="round"
+            geodesic={true}
           />
         )}
       </MapView>

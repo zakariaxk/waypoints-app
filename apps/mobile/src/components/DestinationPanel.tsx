@@ -1,11 +1,13 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import type { Destination, Participant } from '../state/session-store';
-import { haversineDistance, formatDistance, estimateETA } from '../utils/geo';
+import { haversineDistance, formatDistance } from '../utils/geo';
+import { formatDuration, type ParticipantETA } from '../hooks/useParticipantETAs';
 import { colors, spacing, fontSize } from '../utils/theme';
 
 interface DestinationPanelProps {
   destination: Destination | null;
   myLocation?: { lat: number; lng: number; speed?: number | null } | null;
+  myETA?: ParticipantETA | null;
   isHost?: boolean;
   onClear?: () => void;
 }
@@ -13,6 +15,7 @@ interface DestinationPanelProps {
 export default function DestinationPanel({
   destination,
   myLocation,
+  myETA,
   isHost,
   onClear,
 }: DestinationPanelProps) {
@@ -21,7 +24,11 @@ export default function DestinationPanel({
   let distanceText: string | null = null;
   let etaText: string | null = null;
 
-  if (myLocation) {
+  if (myETA) {
+    // Prefer OSRM-based ETA (driving distance/time)
+    distanceText = formatDistance(myETA.distanceM / 1000);
+    etaText = formatDuration(myETA.durationSec);
+  } else if (myLocation) {
     const dist = haversineDistance(
       myLocation.lat,
       myLocation.lng,
@@ -29,7 +36,6 @@ export default function DestinationPanel({
       destination.lng,
     );
     distanceText = formatDistance(dist);
-    etaText = estimateETA(dist, myLocation.speed ?? null);
   }
 
   return (
