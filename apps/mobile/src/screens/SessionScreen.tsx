@@ -371,15 +371,15 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   hostBadge: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: colors.destinationBg,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     borderBottomWidth: 1,
-    borderBottomColor: '#FDE68A',
+    borderBottomColor: colors.destinationBorder,
   },
   hostBadgeText: {
     fontSize: fontSize.xs,
-    color: '#92400E',
+    color: colors.destinationText,
     textAlign: 'center',
     fontWeight: '500',
   },

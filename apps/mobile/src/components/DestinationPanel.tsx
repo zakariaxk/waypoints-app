@@ -64,9 +64,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
-    backgroundColor: '#FEF3C7',
+    backgroundColor: colors.destinationBg,
     borderTopWidth: 1,
-    borderTopColor: '#FDE68A',
+    borderTopColor: colors.destinationBorder,
   },
   icon: {
     fontSize: 18,
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   stat: {
     fontSize: fontSize.xs,
     fontWeight: '600',
-    color: '#92400E',
+    color: colors.destinationText,
   },
   coords: {
     fontSize: fontSize.xs,

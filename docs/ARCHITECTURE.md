@@ -241,3 +241,46 @@ npm run lint                   # eslint across all workspaces
 **New dependencies:**
 - `@fastify/cors@^9.0.0` (backend CORS)
 - `@react-native-async-storage/async-storage@^2.1.0` (mobile persistence)
+
+## Batches 10-15 – App Store Readiness
+
+### Build Infrastructure (Batch 10)
+- Converted `app.json` → `app.config.ts` with dynamic config (dev/preview/production bundle IDs)
+- Created `eas.json` with three build profiles: development (simulator), preview (TestFlight), production
+- Created `metro.config.js` for npm workspace monorepo symlink resolution
+- Created `babel.config.js` with `babel-preset-expo`
+- Bundle identifiers: `com.waypoints.app` (prod), `.dev` (dev), `.preview` (preview)
+- iOS `buildNumber` and Android `versionCode` management, `usesNonExemptEncryption: false`
+- Installed: `expo-dev-client`, `expo-splash-screen`, `expo-haptics`, `expo-status-bar`, `expo-constants`
+
+### App Assets (Batch 11)
+- Generated app icon (1024x1024), splash screen (1284x2778), adaptive icon (1024x1024), favicon (48x48)
+- SVG→PNG pipeline via sharp (`scripts/generate-assets.js`)
+- Indigo-to-violet gradient icon with map pin + "WAYPOINTS" text
+- Splash screen: branded indigo background with centered pin icon
+
+### UI Polish (Batch 12)
+- Added theme colors: `destinationBg`, `destinationBorder`, `destinationText`, `danger`, `dangerLight`
+- Replaced all hardcoded hex colors with theme references
+- Added AbortController-based 10-second timeouts to all HTTP fetch calls
+- Dynamic map initial region based on user's location (fallback: center of US)
+- Added `expo-status-bar` component in App.tsx
+- Android safe area padding
+
+### Production Deployment (Batch 13)
+- Multi-stage Dockerfile: Node 20 Alpine, builds shared + API, production-only deps in final image
+- `fly.toml` config: IAD region, 256MB VM, shared CPU, auto-stop/auto-start, HTTPS-forced
+- `.dockerignore` excluding mobile app, docs, and dev files
+- Health check endpoint used for container health monitoring
+
+### App Store Prep (Batch 14)
+- Privacy policy (`docs/PRIVACY_POLICY.md`): covers location data, retention, children's privacy
+- App Store metadata (`docs/APP_STORE_METADATA.md`): description, keywords, category, age rating, screenshots guide, review notes
+- Manual actions guide (`docs/MANUAL_ACTIONS.md`): step-by-step for Apple Developer, EAS, Fly.io, App Store Connect
+
+### Final State
+- **Backend**: 10 source files, 6 test files, 44 tests passing, production-ready Docker image
+- **Mobile**: 14 source files, Expo SDK 52, EAS build-ready with 3 profiles
+- **Shared**: 4 source files, full WS protocol types + validators
+- **Docs**: PRD, Architecture, WS Protocol, Privacy Policy, App Store Metadata, Manual Actions
+- **Total**: ~50 source files, ~6,500 lines of code

@@ -62,12 +62,36 @@ export default function MapSection({ currentParticipantId, onLongPress }: MapSec
     }
   }, [participantsWithLocation.length, destination?.lat, destination?.lng]);
 
-  const initialRegion: Region = {
-    latitude: 37.78,
-    longitude: -122.42,
-    latitudeDelta: 0.05,
-    longitudeDelta: 0.05,
-  };
+  // Use current user's location or a sensible default
+  const initialRegion: Region = useMemo(() => {
+    if (currentParticipantId) {
+      const me = participants.get(currentParticipantId);
+      if (me?.lastLocation) {
+        return {
+          latitude: me.lastLocation.lat,
+          longitude: me.lastLocation.lng,
+          latitudeDelta: 0.02,
+          longitudeDelta: 0.02,
+        };
+      }
+    }
+    for (const p of participants.values()) {
+      if (p.lastLocation) {
+        return {
+          latitude: p.lastLocation.lat,
+          longitude: p.lastLocation.lng,
+          latitudeDelta: 0.02,
+          longitudeDelta: 0.02,
+        };
+      }
+    }
+    return {
+      latitude: 39.8283,
+      longitude: -98.5795,
+      latitudeDelta: 40,
+      longitudeDelta: 40,
+    };
+  }, []);
 
   return (
     <View style={styles.container}>

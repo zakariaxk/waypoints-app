@@ -37,6 +37,15 @@ export const colors = {
   white: '#FFFFFF',
   black: '#000000',
   overlay: 'rgba(0,0,0,0.3)',
+
+  // Destination / host badge
+  destinationBg: '#FEF3C7',
+  destinationBorder: '#FDE68A',
+  destinationText: '#92400E',
+
+  // Danger
+  danger: '#DC2626',
+  dangerLight: '#FEE2E2',
 } as const;
 
 export const spacing = {

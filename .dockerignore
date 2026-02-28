@@ -1,0 +1,16 @@
+node_modules
+.expo
+dist
+*.tgz
+.env
+.env.*
+!.env.example
+apps/mobile
+docs
+tasks
+scripts
+*.md
+.git
+.gitignore
+.eslintrc.json
+.prettierrc

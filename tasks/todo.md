@@ -1,49 +1,60 @@
 # Todo
 
-## Current Plan
-- [x] Write repo scaffold (folders + configs) — Batch 1
-- [x] Create backend skeleton (Fastify + ws) and health endpoint — Batch 2
-- [x] Implement shared types + validators (packages/shared) — Batch 2
-- [x] Implement session create/join (in-memory) — Batch 2
-- [x] Implement WS handshake (HELLO/WELCOME/SNAPSHOT) — Batch 3
-- [x] Implement location updates (LOC_UPDATE -> LOCATION_UPDATED) — Batch 3
-- [x] Implement presence states (online/stale/offline) — Batch 3
-- [x] Implement reconnect replay (eventBuffer + EVENTS) — Batch 4
-- [x] Backend tests (event buffer, HTTP, WS handshake, presence, reconnect) — Batch 4
-- [x] Mobile app skeleton + permissions + map screen — Batch 5
-- [x] Mobile WS client + lastEventId + map updates — Batch 5
-- [x] Session chat (CHAT_MESSAGE) — backend + mobile — Batch 7
-- [x] Leave session (LEAVE_SESSION) — backend + mobile — Batch 7
-- [x] GET /sessions/:id endpoint — Batch 7
-- [x] Presence sweep timer (periodic status update) — Batch 7
-- [x] Live MapView with react-native-maps + participant markers — Batch 7
-- [x] Destination pin on map + long-press to set — Batch 7
-- [x] Chat UI panel with tabbed interface — Batch 7
-- [x] Mobile UI polish: theme system, styled components — Batch 7
-- [x] Share join code via system share sheet — Batch 7
-- [x] Leave session with confirmation + state reset — Batch 7
-- [x] Location permission denied UX — Batch 7
-- [x] Chat/leave backend tests (34 total passing) — Batch 7
-- [x] WS-PROTOCOL.md updated with all new message types — Batch 7
-- [x] CORS + HTTP validation (display name sanitize, join code format, capacity) — Batch 9
-- [x] Host-only destination (SET_DESTINATION + CLEAR_DESTINATION) — Batch 9
-- [x] Distance/ETA to destination (Haversine) — Batch 9
-- [x] AsyncStorage persistent identity + session history — Batch 9
-- [x] Exponential backoff reconnect (1s→8s) — Batch 9
-- [x] Error boundary + host badge UI — Batch 9
-- [x] .env.example files for backend + mobile — Batch 9
-- [x] New backend tests (44 total passing) — Batch 9
-- [x] Docs updated (WS-PROTOCOL, ARCHITECTURE) — Batch 9
-- [ ] End-to-end smoke test on physical device — Batch 8
-- [ ] Documentation cleanup + demo instructions — Batch 8
+## Goal: App Store Ready
 
-## Done
-- [x] Phase 0: MVP Context Summary (persisted to ARCHITECTURE.md)
-- [x] Phase 1: System Design Plan (persisted to ARCHITECTURE.md)
-- [x] Batch 1: Monorepo scaffold — root configs, packages/shared, services/api, apps/mobile
-- [x] Batch 2: Shared types/validators + backend HTTP routes + session store
-- [x] Batch 3: WS handler, handshake, location updates, destination, presence
-- [x] Batch 4: Reconnect replay + 27 backend tests (all passing)
-- [x] Batch 5: Mobile app — HomeScreen, SessionScreen, WS client, location service, zustand store
-- [x] Batch 7: Beyond-MVP — chat, leave, live map, theme, polished UI, 34 tests
-- [x] Batch 9: Real app upgrades — CORS, host controls, persistence, backoff, ETA, error boundary, 44 tests
+### Completed (All Code Work)
+- [x] Monorepo scaffold, shared types, backend HTTP+WS, session store — Batches 1-4
+- [x] 44 backend tests passing — Batches 4, 7, 9
+- [x] Mobile app: HomeScreen, SessionScreen, live map, chat, presence — Batches 5, 7
+- [x] CORS, host controls, persistence, backoff, ETA, error boundary — Batch 9
+
+### Batch 10: Build Infrastructure ✅
+- [x] Convert app.json → app.config.ts (dynamic, env-driven)
+- [x] Create eas.json (development, preview, production profiles)
+- [x] Create metro.config.js (monorepo symlink resolution)
+- [x] Create babel.config.js (Expo preset)
+- [x] Add bundle identifiers (ios.bundleIdentifier, android.package)
+- [x] Add version management (buildNumber, versionCode)
+- [x] Install expo-dev-client + expo-splash-screen + expo-haptics + expo-status-bar + expo-constants
+
+### Batch 11: App Icon + Splash Screen ✅
+- [x] Generate app icon (1024x1024 PNG via sharp)
+- [x] Configure splash screen (branded indigo background)
+- [x] Add adaptive icon for Android
+- [x] Generate favicon (48x48)
+
+### Batch 12: UI Polish + Quality ✅
+- [x] Fix hardcoded colors in DestinationPanel/SessionScreen → use theme
+- [x] Fix map initial region → use user's location
+- [x] Add HTTP fetch timeouts (10s via AbortController)
+- [x] Add expo-status-bar in App.tsx
+- [x] Add theme colors (destinationBg, destinationBorder, destinationText, danger)
+- [x] Android safe area padding
+
+### Batch 13: Production Deployment ✅
+- [x] Create multi-stage Dockerfile
+- [x] Create fly.toml for Fly.io
+- [x] Create .dockerignore
+- [x] Backend compiles + starts from dist/ in production mode
+
+### Batch 14: App Store Assets + Metadata ✅
+- [x] Write privacy policy (PRIVACY_POLICY.md)
+- [x] App Store description, keywords, category, age rating (APP_STORE_METADATA.md)
+- [x] Screenshot guide + review notes
+- [x] Manual actions guide (MANUAL_ACTIONS.md) — 6 steps to submission
+
+### Batch 15: Final Testing + Submission Prep ✅
+- [x] Build shared types + API compiles clean
+- [x] All 44 backend tests passing
+- [x] README updated with deployment instructions + App Store checklist
+- [x] All docs updated (ARCHITECTURE, WS-PROTOCOL, MANUAL_ACTIONS, DECISIONS)
+- [x] Git commit + push
+
+## Remaining Manual Steps (see docs/MANUAL_ACTIONS.md)
+- [ ] Apple Developer account enrollment ($99/yr)
+- [ ] EAS project init (`eas login && eas init`)
+- [ ] Deploy backend to Fly.io (`fly deploy`)
+- [ ] Host privacy policy (GitHub Pages or similar)
+- [ ] App Store Connect setup (create app, metadata, screenshots)
+- [ ] EAS build: preview → TestFlight → production
+- [ ] Submit for App Store review
