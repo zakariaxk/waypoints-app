@@ -1,7 +1,18 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  StatusBar,
+} from 'react-native';
 import { createSession, joinSession } from '../services/api';
 import { useSessionStore } from '../state/session-store';
+import { colors, spacing, fontSize, borderRadius, shadow } from '../utils/theme';
 
 interface HomeScreenProps {
   onSessionReady: () => void;
@@ -26,6 +37,7 @@ export default function HomeScreen({ onSessionReady }: HomeScreenProps) {
         participantId: result.participantId,
         token: result.token,
         joinCode: result.joinCode,
+        displayName: displayName.trim(),
       });
       onSessionReady();
     } catch (err) {
@@ -51,6 +63,7 @@ export default function HomeScreen({ onSessionReady }: HomeScreenProps) {
         sessionId: result.sessionId,
         participantId: result.participantId,
         token: result.token,
+        displayName: displayName.trim(),
       });
       onSessionReady();
     } catch (err) {
@@ -61,103 +74,177 @@ export default function HomeScreen({ onSessionReady }: HomeScreenProps) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Waypoints</Text>
-      <Text style={styles.subtitle}>Real-time location sharing</Text>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <StatusBar barStyle="dark-content" />
+      <View style={styles.inner}>
+        {/* Logo area */}
+        <View style={styles.logoArea}>
+          <Text style={styles.logoEmoji}>📍</Text>
+          <Text style={styles.title}>Waypoints</Text>
+          <Text style={styles.subtitle}>Real-time location sharing</Text>
+        </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Your display name"
-        value={displayName}
-        onChangeText={setDisplayName}
-        autoCapitalize="words"
-      />
+        {/* Form */}
+        <View style={styles.formCard}>
+          <Text style={styles.label}>Your Name</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your display name"
+            placeholderTextColor={colors.textTertiary}
+            value={displayName}
+            onChangeText={setDisplayName}
+            autoCapitalize="words"
+            autoComplete="name"
+          />
 
-      <TouchableOpacity style={styles.button} onPress={handleCreate} disabled={loading}>
-        <Text style={styles.buttonText}>Create Session</Text>
-      </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button, styles.createButton, loading && styles.buttonDisabled]}
+            onPress={handleCreate}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? 'Creating...' : 'Create Session'}
+            </Text>
+          </TouchableOpacity>
 
-      <View style={styles.divider}>
-        <View style={styles.dividerLine} />
-        <Text style={styles.dividerText}>or join</Text>
-        <View style={styles.dividerLine} />
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or join existing</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <Text style={styles.label}>Join Code</Text>
+          <TextInput
+            style={[styles.input, styles.codeInput]}
+            placeholder="ABC123"
+            placeholderTextColor={colors.textTertiary}
+            value={joinCode}
+            onChangeText={(t) => setJoinCode(t.toUpperCase())}
+            autoCapitalize="characters"
+            maxLength={6}
+          />
+
+          <TouchableOpacity
+            style={[styles.button, styles.joinButton, loading && styles.buttonDisabled]}
+            onPress={handleJoin}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? 'Joining...' : 'Join Session'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.footer}>Share location with your group in real time</Text>
       </View>
-
-      <TextInput
-        style={styles.input}
-        placeholder="Enter join code"
-        value={joinCode}
-        onChangeText={(t) => setJoinCode(t.toUpperCase())}
-        autoCapitalize="characters"
-        maxLength={6}
-      />
-
-      <TouchableOpacity
-        style={[styles.button, styles.joinButton]}
-        onPress={handleJoin}
-        disabled={loading}
-      >
-        <Text style={styles.buttonText}>Join Session</Text>
-      </TouchableOpacity>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
+    backgroundColor: colors.surface,
+  },
+  inner: {
+    flex: 1,
+    padding: spacing.xl,
     justifyContent: 'center',
-    backgroundColor: '#fff',
+  },
+  // ─── Logo ───
+  logoArea: {
+    alignItems: 'center',
+    marginBottom: spacing.xxl,
+  },
+  logoEmoji: {
+    fontSize: 56,
+    marginBottom: spacing.sm,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 4,
+    fontSize: fontSize.title,
+    fontWeight: '800',
+    color: colors.text,
+    letterSpacing: -1,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 32,
+    fontSize: fontSize.md,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
+  },
+  // ─── Form ───
+  formCard: {
+    backgroundColor: colors.white,
+    borderRadius: borderRadius.lg,
+    padding: spacing.xl,
+    ...shadow.md,
+  },
+  label: {
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+    color: colors.textSecondary,
+    marginBottom: spacing.xs,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    marginBottom: 12,
+    borderColor: colors.border,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    fontSize: fontSize.md,
+    color: colors.text,
+    backgroundColor: colors.surface,
+    marginBottom: spacing.md,
+  },
+  codeInput: {
+    letterSpacing: 6,
+    fontSize: fontSize.xl,
+    fontWeight: '700',
+    textAlign: 'center',
+    color: colors.primary,
   },
   button: {
-    backgroundColor: '#007AFF',
-    padding: 14,
-    borderRadius: 8,
+    paddingVertical: 14,
+    borderRadius: borderRadius.md,
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: spacing.sm,
+  },
+  createButton: {
+    backgroundColor: colors.primary,
   },
   joinButton: {
-    backgroundColor: '#34C759',
+    backgroundColor: colors.online,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: colors.textInverse,
+    fontSize: fontSize.md,
+    fontWeight: '700',
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 16,
+    marginVertical: spacing.lg,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#ddd',
+    backgroundColor: colors.border,
   },
   dividerText: {
-    marginHorizontal: 12,
-    color: '#999',
-    fontSize: 14,
+    marginHorizontal: spacing.md,
+    color: colors.textTertiary,
+    fontSize: fontSize.sm,
+  },
+  footer: {
+    textAlign: 'center',
+    color: colors.textTertiary,
+    fontSize: fontSize.sm,
+    marginTop: spacing.xl,
   },
 });

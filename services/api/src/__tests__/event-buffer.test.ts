@@ -7,7 +7,7 @@ function makeEvent(eventId: number): SessionEvent {
     eventId,
     ts: Date.now(),
     kind: 'PARTICIPANT_JOINED',
-    data: { participantId: `p-${eventId}` },
+    data: { participantId: `p-${eventId}`, displayName: null },
   } as ParticipantJoinedEvent;
 }
 

@@ -5,7 +5,14 @@ import { create } from 'zustand';
 export interface Participant {
   participantId: string;
   displayName: string | null;
-  lastLocation: { lat: number; lng: number; speed?: number | null; heading?: number | null; accuracy?: number | null; ts?: number } | null;
+  lastLocation: {
+    lat: number;
+    lng: number;
+    speed?: number | null;
+    heading?: number | null;
+    accuracy?: number | null;
+    ts?: number;
+  } | null;
   status: string;
   lastSeenTs: number;
 }
@@ -16,12 +23,21 @@ export interface Destination {
   label: string | null;
 }
 
+export interface ChatMessage {
+  eventId: number;
+  participantId: string;
+  displayName: string | null;
+  text: string;
+  ts: number;
+}
+
 interface SessionState {
   // Auth / identity
   sessionId: string | null;
   participantId: string | null;
   token: string | null;
   joinCode: string | null;
+  displayName: string | null;
 
   // Connection
   connected: boolean;
@@ -30,16 +46,30 @@ interface SessionState {
   // Session data
   participants: Map<string, Participant>;
   destination: Destination | null;
+  chatMessages: ChatMessage[];
+  hostParticipantId: string | null;
 
   // Actions
-  setSession: (s: { sessionId: string; participantId: string; token: string; joinCode?: string }) => void;
+  setSession: (s: {
+    sessionId: string;
+    participantId: string;
+    token: string;
+    joinCode?: string;
+    displayName?: string;
+    hostParticipantId?: string;
+  }) => void;
   setConnected: (c: boolean) => void;
   applySnapshot: (snapshot: {
     latestEventId: number;
     destination: Destination | null;
     participants: Array<Participant>;
   }) => void;
-  applyEvent: (event: { eventId: number; kind: string; data: Record<string, unknown>; ts: number }) => void;
+  applyEvent: (event: {
+    eventId: number;
+    kind: string;
+    data: Record<string, unknown>;
+    ts: number;
+  }) => void;
   reset: () => void;
 }
 
@@ -48,10 +78,13 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   participantId: null,
   token: null,
   joinCode: null,
+  displayName: null,
   connected: false,
   lastEventId: 0,
   participants: new Map(),
   destination: null,
+  chatMessages: [],
+  hostParticipantId: null,
 
   setSession: (s) =>
     set({
@@ -59,6 +92,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       participantId: s.participantId,
       token: s.token,
       joinCode: s.joinCode ?? null,
+      displayName: s.displayName ?? null,
+      hostParticipantId: s.hostParticipantId ?? null,
     }),
 
   setConnected: (c) => set({ connected: c }),
@@ -86,10 +121,13 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     switch (event.kind) {
       case 'PARTICIPANT_JOINED': {
         const pid = data.participantId as string;
-        if (!participants.has(pid)) {
+        const existing = participants.get(pid);
+        if (existing) {
+          participants.set(pid, { ...existing, status: 'online', lastSeenTs: event.ts });
+        } else {
           participants.set(pid, {
             participantId: pid,
-            displayName: null,
+            displayName: (data.displayName as string | null) ?? null,
             lastLocation: null,
             status: 'online',
             lastSeenTs: event.ts,
@@ -135,6 +173,22 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         });
         break;
       }
+      case 'CHAT_MESSAGE': {
+        const chatMessages = [...state.chatMessages];
+        chatMessages.push({
+          eventId: event.eventId,
+          participantId: data.participantId as string,
+          displayName: (data.displayName as string | null) ?? null,
+          text: data.text as string,
+          ts: event.ts,
+        });
+        // Keep last 200 messages in memory
+        if (chatMessages.length > 200) {
+          chatMessages.splice(0, chatMessages.length - 200);
+        }
+        set({ chatMessages });
+        break;
+      }
     }
 
     set({ participants, lastEventId: event.eventId });
@@ -146,9 +200,12 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       participantId: null,
       token: null,
       joinCode: null,
+      displayName: null,
       connected: false,
       lastEventId: 0,
       participants: new Map(),
       destination: null,
+      chatMessages: [],
+      hostParticipantId: null,
     }),
 }));

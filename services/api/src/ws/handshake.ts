@@ -71,7 +71,10 @@ export function handleHello(conn: ConnState, payload: ValidatedHelloPayload): vo
   }
 
   // 4. Broadcast PARTICIPANT_JOINED event to all in session
-  const event = sessionStore.pushEvent(sessionId, 'PARTICIPANT_JOINED', { participantId });
+  const event = sessionStore.pushEvent(sessionId, 'PARTICIPANT_JOINED', {
+    participantId,
+    displayName: participant.displayName,
+  });
   if (event) {
     broadcastToSession(sessionId, { type: 'EVENT', payload: event });
   }

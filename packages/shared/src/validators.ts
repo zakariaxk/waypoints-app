@@ -28,6 +28,12 @@ export const setDestinationPayloadSchema = z.object({
   label: z.string().nullable(),
 });
 
+export const chatMessagePayloadSchema = z.object({
+  text: z.string().min(1).max(500),
+});
+
+export const leaveSessionPayloadSchema = z.object({});
+
 // ─── Discriminated union for all client messages ───
 
 export const helloMessageSchema = z.object({
@@ -45,10 +51,22 @@ export const setDestinationMessageSchema = z.object({
   payload: setDestinationPayloadSchema,
 });
 
+export const chatMessageMessageSchema = z.object({
+  type: z.literal('CHAT_MESSAGE'),
+  payload: chatMessagePayloadSchema,
+});
+
+export const leaveSessionMessageSchema = z.object({
+  type: z.literal('LEAVE_SESSION'),
+  payload: leaveSessionPayloadSchema,
+});
+
 export const clientMessageSchema = z.discriminatedUnion('type', [
   helloMessageSchema,
   locUpdateMessageSchema,
   setDestinationMessageSchema,
+  chatMessageMessageSchema,
+  leaveSessionMessageSchema,
 ]);
 
 // ─── Type inference helpers ───
@@ -56,4 +74,5 @@ export const clientMessageSchema = z.discriminatedUnion('type', [
 export type ValidatedHelloPayload = z.infer<typeof helloPayloadSchema>;
 export type ValidatedLocUpdatePayload = z.infer<typeof locUpdatePayloadSchema>;
 export type ValidatedSetDestinationPayload = z.infer<typeof setDestinationPayloadSchema>;
+export type ValidatedChatMessagePayload = z.infer<typeof chatMessagePayloadSchema>;
 export type ValidatedClientMessage = z.infer<typeof clientMessageSchema>;

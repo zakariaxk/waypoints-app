@@ -17,6 +17,11 @@ async function main() {
   const server = app.server;
   setupWebSocket(server);
 
+  // Periodic presence sweep (update stale/offline statuses)
+  const presenceTimer = setInterval(() => {
+    sessionStore.sweepPresence();
+  }, 5000);
+
   // Periodic session cleanup
   const cleanupTimer = setInterval(() => {
     const removed = sessionStore.cleanup();
@@ -28,6 +33,7 @@ async function main() {
   // Graceful shutdown
   const shutdown = async () => {
     clearInterval(cleanupTimer);
+    clearInterval(presenceTimer);
     await app.close();
     process.exit(0);
   };

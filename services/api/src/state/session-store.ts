@@ -11,6 +11,7 @@ import type {
   SessionSnapshot,
 } from '@waypoints/shared';
 import { EventBuffer } from './event-buffer.js';
+import { updatePresenceForSession } from './presence.js';
 import { config } from '../config.js';
 
 export interface FullSessionState extends SessionState {
@@ -194,6 +195,27 @@ class SessionStore {
   /** Total sessions (for diagnostics). */
   get sessionCount(): number {
     return this.sessions.size;
+  }
+
+  /** Run presence sweep across all sessions. */
+  sweepPresence(): void {
+    for (const session of this.sessions.values()) {
+      updatePresenceForSession(session);
+    }
+  }
+
+  /** Get session by join code. */
+  getSessionByJoinCode(joinCode: string): FullSessionState | undefined {
+    const sessionId = this.joinCodeIndex.get(joinCode.toUpperCase());
+    if (!sessionId) return undefined;
+    return this.sessions.get(sessionId);
+  }
+
+  /** Remove a participant from a session entirely. */
+  removeParticipant(sessionId: string, participantId: string): boolean {
+    const session = this.sessions.get(sessionId);
+    if (!session) return false;
+    return session.participants.delete(participantId);
   }
 }
 

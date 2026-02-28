@@ -37,7 +37,24 @@ export interface SetDestinationMessage {
   };
 }
 
-export type ClientMessage = HelloMessage | LocUpdateMessage | SetDestinationMessage;
+export interface ChatMessageMessage {
+  type: 'CHAT_MESSAGE';
+  payload: {
+    text: string;
+  };
+}
+
+export interface LeaveSessionMessage {
+  type: 'LEAVE_SESSION';
+  payload: Record<string, never>;
+}
+
+export type ClientMessage =
+  | HelloMessage
+  | LocUpdateMessage
+  | SetDestinationMessage
+  | ChatMessageMessage
+  | LeaveSessionMessage;
 
 // ─── Server → Client ───
 
@@ -85,7 +102,8 @@ export type EventKind =
   | 'PARTICIPANT_JOINED'
   | 'PARTICIPANT_LEFT'
   | 'LOCATION_UPDATED'
-  | 'DESTINATION_SET';
+  | 'DESTINATION_SET'
+  | 'CHAT_MESSAGE';
 
 export interface BaseEvent {
   eventId: number;
@@ -95,7 +113,7 @@ export interface BaseEvent {
 
 export interface ParticipantJoinedEvent extends BaseEvent {
   kind: 'PARTICIPANT_JOINED';
-  data: { participantId: string };
+  data: { participantId: string; displayName: string | null };
 }
 
 export interface ParticipantLeftEvent extends BaseEvent {
@@ -125,11 +143,21 @@ export interface DestinationSetEvent extends BaseEvent {
   };
 }
 
+export interface ChatMessageEvent extends BaseEvent {
+  kind: 'CHAT_MESSAGE';
+  data: {
+    participantId: string;
+    displayName: string | null;
+    text: string;
+  };
+}
+
 export type SessionEvent =
   | ParticipantJoinedEvent
   | ParticipantLeftEvent
   | LocationUpdatedEvent
-  | DestinationSetEvent;
+  | DestinationSetEvent
+  | ChatMessageEvent;
 
 // ─── Error codes ───
 

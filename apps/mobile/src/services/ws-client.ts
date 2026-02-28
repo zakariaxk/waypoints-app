@@ -7,6 +7,8 @@ type MessageHandler = (msg: unknown) => void;
 
 let ws: WebSocket | null = null;
 let messageHandlers: MessageHandler[] = [];
+let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+let intentionalClose = false;
 
 export function connectWs(
   sessionId: string,
@@ -15,9 +17,11 @@ export function connectWs(
   lastEventId: number | null,
 ): void {
   if (ws) {
+    intentionalClose = true;
     ws.close();
   }
 
+  intentionalClose = false;
   ws = new WebSocket(WS_URL);
 
   ws.onopen = () => {
@@ -42,13 +46,18 @@ export function connectWs(
 
   ws.onclose = () => {
     useSessionStore.getState().setConnected(false);
-    // Auto-reconnect after 2s
-    setTimeout(() => {
-      const store = useSessionStore.getState();
-      if (store.sessionId && store.participantId && store.token) {
-        connectWs(store.sessionId, store.participantId, store.token, store.lastEventId);
-      }
-    }, 2000);
+    ws = null;
+
+    // Auto-reconnect unless intentionally closed
+    if (!intentionalClose) {
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      reconnectTimer = setTimeout(() => {
+        const store = useSessionStore.getState();
+        if (store.sessionId && store.participantId && store.token) {
+          connectWs(store.sessionId, store.participantId, store.token, store.lastEventId);
+        }
+      }, 2000);
+    }
   };
 
   ws.onerror = () => {
@@ -57,6 +66,11 @@ export function connectWs(
 }
 
 export function disconnectWs(): void {
+  intentionalClose = true;
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
   if (ws) {
     ws.close();
     ws = null;
@@ -83,6 +97,16 @@ export function sendLocUpdate(payload: {
 
 export function sendSetDestination(lat: number, lng: number, label: string | null): void {
   sendJson({ type: 'SET_DESTINATION', payload: { lat, lng, label } });
+}
+
+export function sendChatMessage(text: string): void {
+  sendJson({ type: 'CHAT_MESSAGE', payload: { text } });
+}
+
+export function sendLeaveSession(): void {
+  sendJson({ type: 'LEAVE_SESSION', payload: {} });
+  // Don't wait for server close — disconnect immediately
+  disconnectWs();
 }
 
 export function onMessage(handler: MessageHandler): () => void {
