@@ -7,10 +7,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY packages/shared/package.json packages/shared/
 COPY services/api/package.json services/api/
-COPY apps/mobile/package.json apps/mobile/
 
-# Install all dependencies (including devDependencies for build)
-RUN npm ci
+# Install dependencies (workspace-filtered; typescript now in each workspace)
+RUN npm ci --workspace=packages/shared --workspace=services/api
 
 # Copy source code
 COPY tsconfig.base.json ./
