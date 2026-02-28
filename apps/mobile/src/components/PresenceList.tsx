@@ -1,4 +1,4 @@
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import type { Participant } from '../state/session-store';
 import { haversineDistance, formatDistance } from '../utils/geo';
 import { colors, spacing, fontSize, borderRadius } from '../utils/theme';
@@ -8,6 +8,7 @@ interface PresenceListProps {
   currentParticipantId: string | null;
   hostParticipantId?: string | null;
   myLocation?: { lat: number; lng: number } | null;
+  onParticipantPress?: (participant: Participant) => void;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -31,7 +32,7 @@ function timeAgo(ts: number): string {
   return `${Math.floor(minutes / 60)}h ago`;
 }
 
-export default function PresenceList({ participants, currentParticipantId, hostParticipantId, myLocation }: PresenceListProps) {
+export default function PresenceList({ participants, currentParticipantId, hostParticipantId, myLocation, onParticipantPress }: PresenceListProps) {
   // Sort: online first, then stale, then offline
   const sorted = [...participants].sort((a, b) => {
     const order: Record<string, number> = { online: 0, stale: 1, offline: 2 };
@@ -47,7 +48,11 @@ export default function PresenceList({ participants, currentParticipantId, hostP
         const isMe = item.participantId === currentParticipantId;
         const isHost = item.participantId === hostParticipantId;
         return (
-          <View style={styles.row}>
+          <TouchableOpacity
+            style={styles.row}
+            activeOpacity={0.6}
+            onPress={() => onParticipantPress?.(item)}
+          >
             <View style={[styles.avatar, { backgroundColor: STATUS_COLORS[item.status] || colors.border }]}>
               <Text style={styles.avatarText}>
                 {(item.displayName || '?')[0].toUpperCase()}
@@ -71,7 +76,7 @@ export default function PresenceList({ participants, currentParticipantId, hostP
               </Text>
             </View>
             <Text style={styles.time}>{timeAgo(item.lastSeenTs)}</Text>
-          </View>
+          </TouchableOpacity>
         );
       }}
       ListEmptyComponent={

@@ -8,8 +8,9 @@ import {
   Share,
   Platform,
   StatusBar,
+  ToastAndroid,
 } from 'react-native';
-import { useSessionStore } from '../state/session-store';
+import { useSessionStore, type Participant } from '../state/session-store';
 import {
   connectWs,
   disconnectWs,
@@ -55,6 +56,9 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
   const [locationGranted, setLocationGranted] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('people');
   const [unreadChat, setUnreadChat] = useState(0);
+  const [focusLocation, setFocusLocation] = useState<{ lat: number; lng: number; _key: number } | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const focusKeyRef = useRef(0);
 
   // My location for distance calculation
   const myLocation = useMemo(() => {
@@ -227,6 +231,23 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
     ]);
   }, []);
 
+  // ─── Participant focus ───
+  const handleParticipantPress = useCallback((p: Participant) => {
+    if (!p.lastLocation) {
+      // Show toast/banner
+      if (Platform.OS === 'android') {
+        ToastAndroid.show('No location yet', ToastAndroid.SHORT);
+      } else {
+        setToastMessage('No location yet');
+        setTimeout(() => setToastMessage(null), 2000);
+      }
+      return;
+    }
+    // Set a new object reference so the effect fires even if same coords
+    focusKeyRef.current += 1;
+    setFocusLocation({ lat: p.lastLocation.lat, lng: p.lastLocation.lng, _key: focusKeyRef.current });
+  }, []);
+
   const participantList = Array.from(participants.values());
   const onlineCount = participantList.filter((p) => p.status === 'online').length;
 
@@ -290,6 +311,7 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
           <MapSection
             currentParticipantId={participantId}
             onLongPress={handleMapLongPress}
+            focusLocation={focusLocation}
           />
         ) : (
           <View style={styles.noLocationContainer}>
@@ -344,11 +366,19 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
             currentParticipantId={participantId}
             hostParticipantId={useSessionStore.getState().hostParticipantId}
             myLocation={myLocation}
+            onParticipantPress={handleParticipantPress}
           />
         ) : (
           <ChatPanel currentParticipantId={participantId} />
         )}
       </View>
+
+      {/* iOS toast banner */}
+      {toastMessage && (
+        <View style={styles.toast}>
+          <Text style={styles.toastText}>{toastMessage}</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -507,5 +537,19 @@ const styles = StyleSheet.create({
     flex: 2,
     minHeight: 120,
     backgroundColor: colors.white,
+  },
+  toast: {
+    position: 'absolute',
+    bottom: 100,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0,0,0,0.75)',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.full,
+  },
+  toastText: {
+    color: colors.white,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
   },
 });

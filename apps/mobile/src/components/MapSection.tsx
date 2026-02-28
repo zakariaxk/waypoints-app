@@ -1,7 +1,9 @@
-import { useRef, useEffect, useMemo } from 'react';
+import { useRef, useEffect, useMemo, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Platform, TouchableOpacity } from 'react-native';
-import MapView, { Marker, Callout, Region, PROVIDER_DEFAULT } from 'react-native-maps';
+import MapView, { Marker, Polyline, Callout, Region, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useSessionStore, type Participant, type Destination } from '../state/session-store';
+import { fetchRoute, type RouteCoord } from '../utils/routing';
+import { haversineDistance } from '../utils/geo';
 import { colors, fontSize, spacing, borderRadius } from '../utils/theme';
 
 const STATUS_MARKER_COLORS: Record<string, string> = {
@@ -13,12 +15,29 @@ const STATUS_MARKER_COLORS: Record<string, string> = {
 interface MapSectionProps {
   currentParticipantId: string | null;
   onLongPress?: (lat: number, lng: number) => void;
+  focusLocation?: { lat: number; lng: number } | null;
+  onMapRef?: (ref: MapView | null) => void;
 }
 
-export default function MapSection({ currentParticipantId, onLongPress }: MapSectionProps) {
+/** Distance threshold (km) before re-fetching route */
+const ROUTE_RETHRESH_KM = 0.05; // 50 meters
+/** Time-based route refresh interval */
+const ROUTE_REFRESH_MS = 10_000; // 10 seconds
+
+export default function MapSection({ currentParticipantId, onLongPress, focusLocation, onMapRef }: MapSectionProps) {
   const mapRef = useRef<MapView>(null);
   const participants = useSessionStore((s) => s.participants);
   const destination = useSessionStore((s) => s.destination);
+
+  // Route polyline state
+  const [routeCoords, setRouteCoords] = useState<RouteCoord[]>([]);
+  const lastRouteFetchRef = useRef<{ lat: number; lng: number; destLat: number; destLng: number; time: number } | null>(null);
+
+  // Expose map ref to parent
+  useEffect(() => {
+    onMapRef?.(mapRef.current);
+    return () => onMapRef?.(null);
+  }, [onMapRef]);
 
   const participantsWithLocation = useMemo(() => {
     const result: Participant[] = [];
@@ -61,6 +80,83 @@ export default function MapSection({ currentParticipantId, onLongPress }: MapSec
       );
     }
   }, [participantsWithLocation.length, destination?.lat, destination?.lng]);
+
+  // ─── Route polyline fetching ───
+  const myLoc = useMemo(() => {
+    if (!currentParticipantId) return null;
+    const me = participants.get(currentParticipantId);
+    return me?.lastLocation ?? null;
+  }, [participants, currentParticipantId]);
+
+  const fetchRouteIfNeeded = useCallback(async () => {
+    if (!myLoc || !destination) {
+      setRouteCoords([]);
+      lastRouteFetchRef.current = null;
+      return;
+    }
+
+    const last = lastRouteFetchRef.current;
+    const now = Date.now();
+
+    if (last) {
+      const movedKm = haversineDistance(myLoc.lat, myLoc.lng, last.lat, last.lng);
+      const destChanged = last.destLat !== destination.lat || last.destLng !== destination.lng;
+      const timeElapsed = now - last.time;
+
+      // Only re-fetch if moved >50m OR destination changed OR 10s elapsed
+      if (!destChanged && movedKm < ROUTE_RETHRESH_KM && timeElapsed < ROUTE_REFRESH_MS) {
+        return;
+      }
+    }
+
+    lastRouteFetchRef.current = {
+      lat: myLoc.lat,
+      lng: myLoc.lng,
+      destLat: destination.lat,
+      destLng: destination.lng,
+      time: now,
+    };
+
+    const coords = await fetchRoute(myLoc, destination);
+    if (coords) {
+      setRouteCoords(coords);
+    }
+    // On failure, keep existing route (or empty) — destination marker still shows
+  }, [myLoc, destination]);
+
+  // Fetch route on location/destination change
+  useEffect(() => {
+    fetchRouteIfNeeded();
+  }, [fetchRouteIfNeeded]);
+
+  // Timer-based route refresh every 10s
+  useEffect(() => {
+    if (!myLoc || !destination) return;
+    const timer = setInterval(fetchRouteIfNeeded, ROUTE_REFRESH_MS);
+    return () => clearInterval(timer);
+  }, [myLoc, destination, fetchRouteIfNeeded]);
+
+  // Clear route when destination is removed
+  useEffect(() => {
+    if (!destination) {
+      setRouteCoords([]);
+      lastRouteFetchRef.current = null;
+    }
+  }, [destination]);
+
+  // ─── Participant focus: animate to target ───
+  useEffect(() => {
+    if (!focusLocation || !mapRef.current) return;
+    mapRef.current.animateToRegion(
+      {
+        latitude: focusLocation.lat,
+        longitude: focusLocation.lng,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      },
+      600,
+    );
+  }, [focusLocation]);
 
   // Use current user's location or a sensible default
   const initialRegion: Region = useMemo(() => {
@@ -150,6 +246,16 @@ export default function MapSection({ currentParticipantId, onLongPress }: MapSec
               </Text>
             </View>
           </Marker>
+        )}
+
+        {/* Route polyline from user to destination */}
+        {routeCoords.length > 1 && (
+          <Polyline
+            coordinates={routeCoords}
+            strokeColor={colors.route}
+            strokeWidth={4}
+            lineDashPattern={[0]}
+          />
         )}
       </MapView>
 

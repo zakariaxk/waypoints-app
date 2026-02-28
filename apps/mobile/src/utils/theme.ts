@@ -37,6 +37,7 @@ export const colors = {
   white: '#FFFFFF',
   black: '#000000',
   overlay: 'rgba(0,0,0,0.3)',
+  route: '#4F46E5', // accent color for route polyline
 
   // Destination / host badge
   destinationBg: '#FEF3C7',
