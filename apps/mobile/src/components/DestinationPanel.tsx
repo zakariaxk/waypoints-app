@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import type { Destination, Participant } from '../state/session-store';
 import { haversineDistance, formatDistance } from '../utils/geo';
 import { formatDuration, type ParticipantETA } from '../hooks/useParticipantETAs';
-import { colors, spacing, fontSize } from '../utils/theme';
+import { spacing, fontSize, type ThemeColors } from '../utils/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface DestinationPanelProps {
   destination: Destination | null;
@@ -19,6 +21,9 @@ export default function DestinationPanel({
   isHost,
   onClear,
 }: DestinationPanelProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   if (!destination) return null;
 
   let distanceText: string | null = null;
@@ -64,55 +69,56 @@ export default function DestinationPanel({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.destinationBg,
-    borderTopWidth: 1,
-    borderTopColor: colors.destinationBorder,
-  },
-  icon: {
-    fontSize: 18,
-    marginRight: spacing.sm,
-  },
-  info: {
-    flex: 1,
-  },
-  name: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 1,
-  },
-  stat: {
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.destinationText,
-  },
-  coords: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-    marginTop: 1,
-  },
-  clearButton: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(0,0,0,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: spacing.sm,
-  },
-  clearText: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    fontWeight: '700',
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      backgroundColor: colors.destinationBg,
+      borderTopWidth: 1,
+      borderTopColor: colors.destinationBorder,
+    },
+    icon: {
+      fontSize: 18,
+      marginRight: spacing.sm,
+    },
+    info: {
+      flex: 1,
+    },
+    name: {
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    statsRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 1,
+    },
+    stat: {
+      fontSize: fontSize.xs,
+      fontWeight: '600',
+      color: colors.destinationText,
+    },
+    coords: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+      marginTop: 1,
+    },
+    clearButton: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: colors.surfaceHover,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginLeft: spacing.sm,
+    },
+    clearText: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+      fontWeight: '700',
+    },
+  });

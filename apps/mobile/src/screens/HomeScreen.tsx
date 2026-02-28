@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -22,7 +22,8 @@ import {
   type SessionHistoryEntry,
 } from '../utils/storage';
 import SessionHistory from '../components/SessionHistory';
-import { colors, spacing, fontSize, borderRadius, shadow } from '../utils/theme';
+import { spacing, fontSize, borderRadius, shadow, type ThemeColors } from '../utils/theme';
+import { useTheme, type ThemeMode } from '../contexts/ThemeContext';
 
 interface HomeScreenProps {
   onSessionReady: () => void;
@@ -30,6 +31,8 @@ interface HomeScreenProps {
 }
 
 export default function HomeScreen({ onSessionReady, initialJoinCode }: HomeScreenProps) {
+  const { colors, mode, isDark, setMode } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [displayName, setDisplayName] = useState('');
   const [joinCode, setJoinCode] = useState('');
   const [loading, setLoading] = useState(false);
@@ -161,12 +164,27 @@ export default function HomeScreen({ onSessionReady, initialJoinCode }: HomeScre
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <ScrollView
         contentContainerStyle={styles.inner}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        {/* Theme toggle */}
+        <View style={styles.themeToggleRow}>
+          {(['system', 'light', 'dark'] as ThemeMode[]).map((m) => (
+            <TouchableOpacity
+              key={m}
+              style={[styles.themeChip, mode === m && styles.themeChipActive]}
+              onPress={() => setMode(m)}
+            >
+              <Text style={[styles.themeChipText, mode === m && styles.themeChipTextActive]}>
+                {m === 'system' ? '⚙ Auto' : m === 'light' ? '☀ Light' : '🌙 Dark'}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
         {/* Logo area */}
         <View style={styles.logoArea}>
           <Text style={styles.logoEmoji}>📍</Text>
@@ -245,107 +263,137 @@ export default function HomeScreen({ onSessionReady, initialJoinCode }: HomeScre
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
-  inner: {
-    flexGrow: 1,
-    padding: spacing.xl,
-    justifyContent: 'center',
-  },
-  // ─── Logo ───
-  logoArea: {
-    alignItems: 'center',
-    marginBottom: spacing.xxl,
-  },
-  logoEmoji: {
-    fontSize: 56,
-    marginBottom: spacing.sm,
-  },
-  title: {
-    fontSize: fontSize.title,
-    fontWeight: '800',
-    color: colors.text,
-    letterSpacing: -1,
-  },
-  subtitle: {
-    fontSize: fontSize.md,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  // ─── Form ───
-  formCard: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.lg,
-    padding: spacing.xl,
-    ...shadow.md,
-  },
-  label: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    marginBottom: spacing.xs,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    fontSize: fontSize.md,
-    color: colors.text,
-    backgroundColor: colors.surface,
-    marginBottom: spacing.md,
-  },
-  codeInput: {
-    letterSpacing: 6,
-    fontSize: fontSize.xl,
-    fontWeight: '700',
-    textAlign: 'center',
-    color: colors.primary,
-  },
-  button: {
-    paddingVertical: 14,
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  createButton: {
-    backgroundColor: colors.primary,
-  },
-  joinButton: {
-    backgroundColor: colors.online,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: colors.textInverse,
-    fontSize: fontSize.md,
-    fontWeight: '700',
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: spacing.lg,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.border,
-  },
-  dividerText: {
-    marginHorizontal: spacing.md,
-    color: colors.textTertiary,
-    fontSize: fontSize.sm,
-  },
-  footer: {
-    textAlign: 'center',
-    color: colors.textTertiary,
-    fontSize: fontSize.sm,
-    marginTop: spacing.xl,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    inner: {
+      flexGrow: 1,
+      padding: spacing.xl,
+      justifyContent: 'center',
+    },
+    // ─── Theme toggle ───
+    themeToggleRow: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      gap: spacing.sm,
+      marginBottom: spacing.xl,
+    },
+    themeChip: {
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs + 2,
+      borderRadius: borderRadius.full,
+      backgroundColor: colors.surfaceAlt,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    themeChipActive: {
+      backgroundColor: colors.accentSoft,
+      borderColor: colors.accent,
+    },
+    themeChipText: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+      fontWeight: '600',
+    },
+    themeChipTextActive: {
+      color: colors.accent,
+    },
+    // ─── Logo ───
+    logoArea: {
+      alignItems: 'center',
+      marginBottom: spacing.xxl,
+    },
+    logoEmoji: {
+      fontSize: 56,
+      marginBottom: spacing.sm,
+    },
+    title: {
+      fontSize: fontSize.title,
+      fontWeight: '800',
+      color: colors.text,
+      letterSpacing: -1,
+    },
+    subtitle: {
+      fontSize: fontSize.md,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+    },
+    // ─── Form ───
+    formCard: {
+      backgroundColor: colors.card,
+      borderRadius: borderRadius.lg,
+      padding: spacing.xl,
+      borderWidth: 1,
+      borderColor: colors.border,
+      ...shadow.md,
+    },
+    label: {
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      marginBottom: spacing.xs,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: borderRadius.md,
+      padding: spacing.md,
+      fontSize: fontSize.md,
+      color: colors.text,
+      backgroundColor: colors.surfaceAlt,
+      marginBottom: spacing.md,
+    },
+    codeInput: {
+      letterSpacing: 6,
+      fontSize: fontSize.xl,
+      fontWeight: '700',
+      textAlign: 'center',
+      color: colors.accent,
+    },
+    button: {
+      paddingVertical: 14,
+      borderRadius: borderRadius.md,
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    createButton: {
+      backgroundColor: colors.accent,
+    },
+    joinButton: {
+      backgroundColor: colors.online,
+    },
+    buttonDisabled: {
+      opacity: 0.6,
+    },
+    buttonText: {
+      color: colors.textInverse,
+      fontSize: fontSize.md,
+      fontWeight: '700',
+    },
+    divider: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: spacing.lg,
+    },
+    dividerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.border,
+    },
+    dividerText: {
+      marginHorizontal: spacing.md,
+      color: colors.textTertiary,
+      fontSize: fontSize.sm,
+    },
+    footer: {
+      textAlign: 'center',
+      color: colors.textTertiary,
+      fontSize: fontSize.sm,
+      marginTop: spacing.xl,
+    },
+  });

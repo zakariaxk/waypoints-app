@@ -1,53 +1,177 @@
-// Design system: colors, typography, spacing.
+// Futuristic design system — dark-first aesthetic with electric teal accent.
+// Avoids generic purple. Uses cyan/teal primary with coral secondary.
 
-export const colors = {
-  // Primary
-  primary: '#4F46E5',
-  primaryLight: '#818CF8',
-  primaryDark: '#3730A3',
+// ─── Color Type ───
 
-  // Status
-  online: '#10B981',
-  stale: '#F59E0B',
-  offline: '#EF4444',
+export interface ThemeColors {
+  // Accent system
+  accent: string;
+  accentMuted: string;
+  accentSoft: string;
+  accentGlow: string;
+  secondary: string;
+  secondarySoft: string;
 
   // Surfaces
-  background: '#FFFFFF',
-  surface: '#F9FAFB',
-  surfaceAlt: '#F3F4F6',
-  card: '#FFFFFF',
+  background: string;
+  surface: string;
+  surfaceAlt: string;
+  surfaceHover: string;
+  card: string;
 
   // Text
-  text: '#111827',
-  textSecondary: '#6B7280',
-  textTertiary: '#9CA3AF',
-  textInverse: '#FFFFFF',
+  text: string;
+  textSecondary: string;
+  textTertiary: string;
+  textInverse: string;
 
   // Borders
-  border: '#E5E7EB',
-  borderLight: '#F3F4F6',
+  border: string;
+  borderLight: string;
+  borderAccent: string;
+
+  // Status
+  online: string;
+  stale: string;
+  offline: string;
 
   // Map markers
-  markerSelf: '#4F46E5',
-  markerOther: '#10B981',
-  markerOffline: '#9CA3AF',
-  markerDestination: '#EF4444',
+  markerSelf: string;
+  markerOther: string;
+  markerOffline: string;
+  markerDestination: string;
 
-  // Misc
-  white: '#FFFFFF',
-  black: '#000000',
-  overlay: 'rgba(0,0,0,0.3)',
-  route: '#4F46E5', // accent color for route polyline
+  // Core
+  white: string;
+  black: string;
+  overlay: string;
 
-  // Destination / host badge
-  destinationBg: '#FEF3C7',
-  destinationBorder: '#FDE68A',
-  destinationText: '#92400E',
+  // Destination badge
+  destinationBg: string;
+  destinationBorder: string;
+  destinationText: string;
 
   // Danger
+  danger: string;
+  dangerLight: string;
+
+  // Route polyline
+  route: string;
+
+  // Gradient endpoints
+  gradientStart: string;
+  gradientEnd: string;
+
+  // Map controls
+  mapControlBg: string;
+  mapControlText: string;
+}
+
+/** Dark palette — primary default. Deep navy base, electric cyan accent. */
+export const darkColors: ThemeColors = {
+  accent: '#22D1EE',
+  accentMuted: '#0EA5C7',
+  accentSoft: 'rgba(34,209,238,0.12)',
+  accentGlow: 'rgba(34,209,238,0.25)',
+  secondary: '#FF6B6B',
+  secondarySoft: 'rgba(255,107,107,0.12)',
+
+  background: '#0B0F19',
+  surface: '#141B2D',
+  surfaceAlt: '#1C2541',
+  surfaceHover: '#243051',
+  card: '#141B2D',
+
+  text: '#E8ECF1',
+  textSecondary: '#8B95A5',
+  textTertiary: '#5A6578',
+  textInverse: '#0B0F19',
+
+  border: '#1C2541',
+  borderLight: '#243051',
+  borderAccent: 'rgba(34,209,238,0.30)',
+
+  online: '#00E68A',
+  stale: '#FFB800',
+  offline: '#FF4D6A',
+
+  markerSelf: '#22D1EE',
+  markerOther: '#00E68A',
+  markerOffline: '#5A6578',
+  markerDestination: '#FF6B6B',
+
+  white: '#FFFFFF',
+  black: '#000000',
+  overlay: 'rgba(0,0,0,0.65)',
+
+  destinationBg: 'rgba(255,107,107,0.12)',
+  destinationBorder: 'rgba(255,107,107,0.30)',
+  destinationText: '#FF8A8A',
+
+  danger: '#FF4D6A',
+  dangerLight: 'rgba(255,77,106,0.15)',
+
+  route: '#22D1EE',
+  gradientStart: '#22D1EE',
+  gradientEnd: '#6366F1',
+
+  mapControlBg: '#141B2D',
+  mapControlText: '#22D1EE',
+};
+
+/** Light palette — clean modern with deeper teal accents for readability. */
+export const lightColors: ThemeColors = {
+  accent: '#0891B2',
+  accentMuted: '#06B6D4',
+  accentSoft: 'rgba(8,145,178,0.08)',
+  accentGlow: 'rgba(8,145,178,0.15)',
+  secondary: '#E11D48',
+  secondarySoft: 'rgba(225,29,72,0.08)',
+
+  background: '#F5F7FA',
+  surface: '#FFFFFF',
+  surfaceAlt: '#EDF0F5',
+  surfaceHover: '#DEE3EB',
+  card: '#FFFFFF',
+
+  text: '#1A2038',
+  textSecondary: '#4A556B',
+  textTertiary: '#8B95A5',
+  textInverse: '#FFFFFF',
+
+  border: '#DEE3EB',
+  borderLight: '#EDF0F5',
+  borderAccent: 'rgba(8,145,178,0.20)',
+
+  online: '#059669',
+  stale: '#D97706',
+  offline: '#DC2626',
+
+  markerSelf: '#0891B2',
+  markerOther: '#059669',
+  markerOffline: '#8B95A5',
+  markerDestination: '#E11D48',
+
+  white: '#FFFFFF',
+  black: '#000000',
+  overlay: 'rgba(0,0,0,0.35)',
+
+  destinationBg: '#FFF0F1',
+  destinationBorder: '#FECDD3',
+  destinationText: '#9F1239',
+
   danger: '#DC2626',
   dangerLight: '#FEE2E2',
-} as const;
+
+  route: '#0891B2',
+  gradientStart: '#0891B2',
+  gradientEnd: '#6D28D9',
+
+  mapControlBg: '#FFFFFF',
+  mapControlText: '#0891B2',
+};
+
+// ─── Static Tokens (shared across themes) ───
 
 export const spacing = {
   xs: 4,
@@ -100,34 +224,33 @@ export const shadow = {
   },
 } as const;
 
-export const STATUS_COLORS: Record<string, string> = {
-  online: colors.online,
-  stale: colors.stale,
-  offline: colors.offline,
-};
+// ─── Status Colors ───
 
-/**
- * Distinct color palette for per-user route/marker coloring.
- * Ordered to maximize visual contrast between adjacent indices.
- */
+export function getStatusColors(c: ThemeColors): Record<string, string> {
+  return { online: c.online, stale: c.stale, offline: c.offline };
+}
+
+// ─── Participant Colors ───
+
+/** Distinct palette for per-user route/marker coloring (high saturation). */
 export const PARTICIPANT_COLORS = [
-  '#4F46E5', // indigo (self / primary)
-  '#10B981', // emerald
-  '#F59E0B', // amber
-  '#EC4899', // pink
-  '#8B5CF6', // violet
-  '#06B6D4', // cyan
-  '#F97316', // orange
-  '#14B8A6', // teal
-  '#E11D48', // rose
-  '#6366F1', // blue-indigo
+  '#22D1EE', // cyan (self / primary)
+  '#00E68A', // emerald
+  '#FFB800', // amber
+  '#FF6B6B', // coral
+  '#A78BFA', // violet
+  '#06B6D4', // teal
+  '#FF8F3F', // orange
+  '#14B8A6', // seafoam
+  '#F472B6', // pink
+  '#60A5FA', // sky blue
   '#84CC16', // lime
-  '#A855F7', // purple
+  '#C084FC', // purple
 ] as const;
 
 /**
  * Get a deterministic color for a participant based on a sorted index.
- * The current user always gets PARTICIPANT_COLORS[0] (primary indigo).
+ * The current user always gets PARTICIPANT_COLORS[0] (primary cyan).
  */
 export function getParticipantColor(
   participantId: string,
@@ -135,11 +258,9 @@ export function getParticipantColor(
   currentParticipantId: string | null,
 ): string {
   if (participantId === currentParticipantId) return PARTICIPANT_COLORS[0];
-  // Sort all non-self IDs for stable ordering
   const others = allParticipantIds
     .filter((id) => id !== currentParticipantId)
     .sort();
   const idx = others.indexOf(participantId);
-  // +1 because index 0 is reserved for self
   return PARTICIPANT_COLORS[(idx + 1) % PARTICIPANT_COLORS.length];
 }

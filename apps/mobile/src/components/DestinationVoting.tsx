@@ -12,7 +12,8 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { colors, spacing, fontSize, borderRadius, getParticipantColor } from '../utils/theme';
+import { spacing, fontSize, borderRadius, getParticipantColor, type ThemeColors } from '../utils/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 export interface DestinationProposal {
   id: string;
@@ -45,6 +46,9 @@ export default function DestinationVoting({
   onAccept,
   onDismiss,
 }: DestinationVotingProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   // Sort by votes (descending), then by time (newest first)
   const sorted = useMemo(
     () =>
@@ -126,135 +130,140 @@ export default function DestinationVoting({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.lg,
-    maxHeight: 300,
-    overflow: 'hidden',
-  },
-  emptyContainer: {
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.lg,
-    padding: spacing.xl,
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: fontSize.md,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: spacing.xs,
-  },
-  emptyHint: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: spacing.md,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
-  },
-  title: {
-    fontSize: fontSize.md,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  closeIcon: {
-    fontSize: fontSize.lg,
-    color: colors.textSecondary,
-    fontWeight: '700',
-    padding: spacing.xs,
-  },
-  listContent: {
-    padding: spacing.sm,
-  },
-  proposalRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.sm,
-    marginBottom: spacing.xs,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.sm,
-  },
-  proposalColor: {
-    width: 4,
-    height: 32,
-    borderRadius: 2,
-    marginRight: spacing.sm,
-  },
-  proposalInfo: {
-    flex: 1,
-  },
-  proposalLabel: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  proposalMeta: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-    marginTop: 1,
-  },
-  proposalActions: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-    marginLeft: spacing.sm,
-  },
-  voteButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.surfaceAlt,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  votedButton: {
-    backgroundColor: colors.primary + '20',
-    borderColor: colors.primary,
-  },
-  voteText: {
-    fontSize: fontSize.sm,
-  },
-  votedText: {
-    color: colors.primary,
-    fontWeight: '700',
-  },
-  acceptButton: {
-    paddingHorizontal: spacing.sm,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  acceptText: {
-    color: colors.white,
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-  },
-  closeButton: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: borderRadius.md,
-  },
-  closeText: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  hostNote: {
-    fontSize: fontSize.xs,
-    color: colors.textTertiary,
-    textAlign: 'center',
-    paddingVertical: spacing.sm,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      backgroundColor: colors.card,
+      borderRadius: borderRadius.lg,
+      maxHeight: 300,
+      overflow: 'hidden',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    emptyContainer: {
+      backgroundColor: colors.card,
+      borderRadius: borderRadius.lg,
+      padding: spacing.xl,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    emptyText: {
+      fontSize: fontSize.md,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: spacing.xs,
+    },
+    emptyHint: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: spacing.md,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: spacing.md,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    title: {
+      fontSize: fontSize.md,
+      fontWeight: '700',
+      color: colors.text,
+    },
+    closeIcon: {
+      fontSize: fontSize.lg,
+      color: colors.textSecondary,
+      fontWeight: '700',
+      padding: spacing.xs,
+    },
+    listContent: {
+      padding: spacing.sm,
+    },
+    proposalRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.sm,
+      marginBottom: spacing.xs,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: borderRadius.sm,
+    },
+    proposalColor: {
+      width: 4,
+      height: 32,
+      borderRadius: 2,
+      marginRight: spacing.sm,
+    },
+    proposalInfo: {
+      flex: 1,
+    },
+    proposalLabel: {
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    proposalMeta: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+      marginTop: 1,
+    },
+    proposalActions: {
+      flexDirection: 'row',
+      gap: spacing.xs,
+      marginLeft: spacing.sm,
+    },
+    voteButton: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: colors.surfaceHover,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    votedButton: {
+      backgroundColor: colors.accentSoft,
+      borderColor: colors.accent,
+    },
+    voteText: {
+      fontSize: fontSize.sm,
+    },
+    votedText: {
+      color: colors.accent,
+      fontWeight: '700',
+    },
+    acceptButton: {
+      paddingHorizontal: spacing.sm,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: colors.accent,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    acceptText: {
+      color: colors.textInverse,
+      fontSize: fontSize.xs,
+      fontWeight: '700',
+    },
+    closeButton: {
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: borderRadius.md,
+    },
+    closeText: {
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+      color: colors.textSecondary,
+    },
+    hostNote: {
+      fontSize: fontSize.xs,
+      color: colors.textTertiary,
+      textAlign: 'center',
+      paddingVertical: spacing.sm,
+    },
+  });

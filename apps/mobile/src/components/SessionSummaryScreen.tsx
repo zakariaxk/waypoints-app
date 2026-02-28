@@ -1,8 +1,10 @@
 // Session Summary Screen — shown after leaving a session.
 // Displays stats: duration, arrival order, distances.
 
+import { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, ScrollView } from 'react-native';
-import { colors, spacing, fontSize, borderRadius, shadow } from '../utils/theme';
+import { spacing, fontSize, borderRadius, shadow, type ThemeColors } from '../utils/theme';
+import { useTheme } from '../contexts/ThemeContext';
 import { formatDistance } from '../utils/geo';
 import { formatDuration } from '../hooks/useParticipantETAs';
 
@@ -28,6 +30,8 @@ interface SessionSummaryScreenProps {
 }
 
 export default function SessionSummaryScreen({ data, onDismiss }: SessionSummaryScreenProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const arrived = data.participantSummaries.filter((p) => p.arrived);
   const notArrived = data.participantSummaries.filter((p) => !p.arrived);
 
@@ -114,129 +118,132 @@ export default function SessionSummaryScreen({ data, onDismiss }: SessionSummary
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.lg,
-  },
-  card: {
-    width: '100%',
-    maxHeight: '85%',
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.xl,
-    padding: spacing.xl,
-    ...Platform.select({
-      ios: shadow.lg,
-      android: { elevation: 8 } as any,
-    }),
-  },
-  title: {
-    fontSize: fontSize.xl,
-    fontWeight: '700',
-    color: colors.text,
-    textAlign: 'center',
-    marginBottom: spacing.lg,
-  },
-  statRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.md,
-  },
-  stat: {
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  statLabel: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
-  destLabel: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: spacing.md,
-  },
-  listContainer: {
-    maxHeight: 300,
-  },
-  listContent: {
-    paddingBottom: spacing.md,
-  },
-  sectionHeader: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.text,
-    marginTop: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  participantRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.sm,
-    marginBottom: spacing.xs,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.sm,
-  },
-  badge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.sm,
-  },
-  arrivedBadge: {
-    backgroundColor: '#22C55E',
-  },
-  enRouteBadge: {
-    backgroundColor: colors.stale,
-  },
-  badgeText: {
-    color: colors.white,
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-  },
-  participantInfo: {
-    flex: 1,
-  },
-  participantName: {
-    fontSize: fontSize.md,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  participantDetail: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-    marginTop: 1,
-  },
-  arrivedIcon: {
-    fontSize: fontSize.lg,
-    color: '#22C55E',
-    fontWeight: '700',
-    marginLeft: spacing.sm,
-  },
-  dismissButton: {
-    marginTop: spacing.lg,
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.md,
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-  },
-  dismissText: {
-    color: colors.white,
-    fontSize: fontSize.md,
-    fontWeight: '700',
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.overlay,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: spacing.lg,
+    },
+    card: {
+      width: '100%',
+      maxHeight: '85%',
+      backgroundColor: colors.card,
+      borderRadius: borderRadius.xl,
+      padding: spacing.xl,
+      borderWidth: 1,
+      borderColor: colors.borderAccent,
+      ...Platform.select({
+        ios: shadow.lg,
+        android: { elevation: 8 } as any,
+      }),
+    },
+    title: {
+      fontSize: fontSize.xl,
+      fontWeight: '700',
+      color: colors.text,
+      textAlign: 'center',
+      marginBottom: spacing.lg,
+    },
+    statRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      marginBottom: spacing.lg,
+      paddingVertical: spacing.md,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: borderRadius.md,
+    },
+    stat: {
+      alignItems: 'center',
+    },
+    statValue: {
+      fontSize: fontSize.lg,
+      fontWeight: '700',
+      color: colors.accent,
+    },
+    statLabel: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+      marginTop: 2,
+    },
+    destLabel: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      marginBottom: spacing.md,
+    },
+    listContainer: {
+      maxHeight: 300,
+    },
+    listContent: {
+      paddingBottom: spacing.md,
+    },
+    sectionHeader: {
+      fontSize: fontSize.sm,
+      fontWeight: '700',
+      color: colors.text,
+      marginTop: spacing.md,
+      marginBottom: spacing.sm,
+    },
+    participantRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.sm,
+      marginBottom: spacing.xs,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: borderRadius.sm,
+    },
+    badge: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: spacing.sm,
+    },
+    arrivedBadge: {
+      backgroundColor: colors.online,
+    },
+    enRouteBadge: {
+      backgroundColor: colors.stale,
+    },
+    badgeText: {
+      color: colors.white,
+      fontSize: fontSize.xs,
+      fontWeight: '700',
+    },
+    participantInfo: {
+      flex: 1,
+    },
+    participantName: {
+      fontSize: fontSize.md,
+      fontWeight: '600',
+      color: colors.text,
+    },
+    participantDetail: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+      marginTop: 1,
+    },
+    arrivedIcon: {
+      fontSize: fontSize.lg,
+      color: colors.online,
+      fontWeight: '700',
+      marginLeft: spacing.sm,
+    },
+    dismissButton: {
+      marginTop: spacing.lg,
+      backgroundColor: colors.accent,
+      paddingVertical: spacing.md,
+      borderRadius: borderRadius.md,
+      alignItems: 'center',
+    },
+    dismissText: {
+      color: colors.textInverse,
+      fontSize: fontSize.md,
+      fontWeight: '700',
+    },
+  });

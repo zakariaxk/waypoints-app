@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import type { Participant, Destination } from '../state/session-store';
-import { haversineDistance, formatDistance } from '../utils/geo';
+import { haversineDistance, formatDistance, formatSpeed } from '../utils/geo';
 import { formatDuration, type ParticipantETA } from '../hooks/useParticipantETAs';
-import { colors, spacing, fontSize, borderRadius, getParticipantColor } from '../utils/theme';
+import { spacing, fontSize, borderRadius, getParticipantColor, type ThemeColors } from '../utils/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface PresenceListProps {
   participants: Participant[];
@@ -32,6 +34,8 @@ function timeAgo(ts: number): string {
 }
 
 export default function PresenceList({ participants, currentParticipantId, hostParticipantId, myLocation, destination, etas, onParticipantPress }: PresenceListProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const allIds = participants.map((p) => p.participantId);
 
   // Sort: arrived first, then online, then stale, then offline
@@ -66,7 +70,11 @@ export default function PresenceList({ participants, currentParticipantId, hostP
         // Movement status from speed
         const speed = item.lastLocation?.speed ?? 0;
         const movementIcon = speed > 5 ? '🚗' : speed > 1 ? '🚶' : '📍';
-        const movementLabel = speed > 5 ? 'Driving' : speed > 1 ? 'Walking' : 'Stationary';
+        const movementLabel = speed > 5
+          ? `Driving · ${formatSpeed(item.lastLocation?.speed)}`
+          : speed > 1
+            ? `Walking · ${formatSpeed(item.lastLocation?.speed)}`
+            : 'Stationary';
 
         const avatarBg = item.status === 'offline' ? colors.markerOffline : isArrived ? '#22C55E' : pColor;
         const rowOpacity = item.status === 'offline' ? 0.5 : 1;
@@ -125,71 +133,74 @@ export default function PresenceList({ participants, currentParticipantId, hostP
   );
 }
 
-const styles = StyleSheet.create({
-  list: {
-    padding: spacing.md,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.sm,
-    marginBottom: spacing.xs,
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.md,
-  },
-  avatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  avatarText: {
-    color: colors.white,
-    fontSize: fontSize.md,
-    fontWeight: '700',
-  },
-  info: {
-    flex: 1,
-  },
-  nameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  name: {
-    fontSize: fontSize.md,
-    fontWeight: '600',
-    color: colors.text,
-    flexShrink: 1,
-  },
-  hostTag: {
-    fontSize: fontSize.md,
-    marginLeft: 2,
-  },
-  detail: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-    marginTop: 1,
-  },
-  etaText: {
-    fontSize: fontSize.xs,
-    color: colors.primary,
-    fontWeight: '600',
-    marginTop: 1,
-  },
-  time: {
-    fontSize: fontSize.xs,
-    color: colors.textTertiary,
-    marginLeft: spacing.sm,
-  },
-  empty: {
-    alignItems: 'center',
-    paddingVertical: spacing.xl,
-  },
-  emptyText: {
-    fontSize: fontSize.sm,
-    color: colors.textTertiary,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    list: {
+      padding: spacing.md,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.sm,
+      marginBottom: spacing.xs,
+      backgroundColor: colors.surface,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    avatar: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: spacing.md,
+    },
+    avatarText: {
+      color: colors.white,
+      fontSize: fontSize.md,
+      fontWeight: '700',
+    },
+    info: {
+      flex: 1,
+    },
+    nameRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    name: {
+      fontSize: fontSize.md,
+      fontWeight: '600',
+      color: colors.text,
+      flexShrink: 1,
+    },
+    hostTag: {
+      fontSize: fontSize.md,
+      marginLeft: 2,
+    },
+    detail: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+      marginTop: 1,
+    },
+    etaText: {
+      fontSize: fontSize.xs,
+      color: colors.accent,
+      fontWeight: '600',
+      marginTop: 1,
+    },
+    time: {
+      fontSize: fontSize.xs,
+      color: colors.textTertiary,
+      marginLeft: spacing.sm,
+    },
+    empty: {
+      alignItems: 'center',
+      paddingVertical: spacing.xl,
+    },
+    emptyText: {
+      fontSize: fontSize.sm,
+      color: colors.textTertiary,
+    },
+  });

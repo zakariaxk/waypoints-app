@@ -3,8 +3,9 @@ import { View, Text, StyleSheet, Platform, TouchableOpacity } from 'react-native
 import MapView, { Marker, Polyline, Callout, Region, PROVIDER_DEFAULT, MapType } from 'react-native-maps';
 import { useSessionStore, type Participant, type Destination } from '../state/session-store';
 import { fetchRoute, type RouteCoord } from '../utils/routing';
-import { haversineDistance } from '../utils/geo';
-import { colors, fontSize, spacing, borderRadius, getParticipantColor } from '../utils/theme';
+import { haversineDistance, formatSpeed } from '../utils/geo';
+import { fontSize, spacing, borderRadius, getParticipantColor, type ThemeColors } from '../utils/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 const ARRIVAL_THRESHOLD_KM = 0.05; // 50 meters
 
@@ -23,6 +24,8 @@ const ROUTE_RETHRESH_KM = 0.05; // 50 meters
 const ROUTE_REFRESH_MS = 10_000; // 10 seconds
 
 export default function MapSection({ currentParticipantId, onLongPress, focusLocation, followTargetId, onFollowEnd, onMapRef }: MapSectionProps) {
+  const { colors, isDark } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const mapRef = useRef<MapView>(null);
   const participants = useSessionStore((s) => s.participants);
   const destination = useSessionStore((s) => s.destination);
@@ -291,6 +294,7 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
           // Movement status
           const speed = loc.speed ?? 0;
           const movementIcon = speed > 5 ? '🚗' : speed > 1 ? '🚶' : '';
+          const speedLabel = speed > 1 ? ` ${formatSpeed(loc.speed)}` : '';
 
           // Grey out offline participants
           const markerColor = p.status === 'offline' ? colors.markerOffline : isArrived ? '#22C55E' : pColor;
@@ -317,6 +321,7 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
                   <Text style={[styles.markerLabel, isMe && styles.markerLabelBold]} numberOfLines={1}>
                     {isArrived ? '✓ ' : movementIcon ? `${movementIcon} ` : ''}
                     {isMe ? 'You' : (p.displayName || p.participantId.slice(0, 6))}
+                    {speedLabel}
                   </Text>
                 </View>
                 <View style={[styles.markerArrow, { borderTopColor: markerColor }]} />
@@ -397,7 +402,7 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
         style={styles.mapTypeButton}
         onPress={() => {
           setMapType((prev) => {
-            if (prev === 'standard') return 'satellite';
+            if (prev === 'standard') return isDark ? 'mutedStandard' as MapType : 'satellite';
             if (prev === 'satellite') return 'hybrid';
             return 'standard';
           });
@@ -419,161 +424,168 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    position: 'relative',
-  },
-  map: {
-    flex: 1,
-  },
-  markerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.white,
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: borderRadius.lg,
-    borderWidth: 2,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
-  },
-  markerWrapper: {
-    alignItems: 'center',
-  },
-  headingArrow: {
-    position: 'absolute',
-    top: -14,
-    alignSelf: 'center',
-    zIndex: 10,
-  },
-  headingTriangle: {
-    width: 0,
-    height: 0,
-    borderLeftWidth: 6,
-    borderRightWidth: 6,
-    borderBottomWidth: 10,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-  },
-  markerDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 4,
-  },
-  markerLabel: {
-    fontSize: fontSize.xs,
-    color: colors.text,
-    maxWidth: 60,
-  },
-  markerLabelBold: {
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  markerArrow: {
-    width: 0,
-    height: 0,
-    borderLeftWidth: 5,
-    borderRightWidth: 5,
-    borderTopWidth: 6,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    alignSelf: 'center',
-  },
-  destMarkerContainer: {
-    alignItems: 'center',
-  },
-  destMarkerText: {
-    fontSize: 28,
-  },
-  destMarkerLabel: {
-    fontSize: fontSize.xs,
-    color: colors.markerDestination,
-    fontWeight: '600',
-    backgroundColor: 'rgba(255,255,255,0.85)',
-    paddingHorizontal: 4,
-    paddingVertical: 1,
-    borderRadius: 4,
-    overflow: 'hidden',
-    maxWidth: 80,
-  },
-  centerButton: {
-    position: 'absolute',
-    bottom: spacing.sm,
-    left: spacing.sm,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
-  },
-  centerButtonText: {
-    fontSize: 22,
-    color: colors.primary,
-    fontWeight: '700',
-  },
-  followActive: {
-    color: colors.online,
-  },
-  mapTypeButton: {
-    position: 'absolute',
-    bottom: spacing.sm,
-    left: spacing.sm + 48,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
-  },
-  mapTypeButtonText: {
-    fontSize: 18,
-  },
-  overlay: {
-    position: 'absolute',
-    bottom: spacing.sm,
-    right: spacing.sm,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.full,
-  },
-  overlayText: {
-    color: colors.white,
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      position: 'relative',
+    },
+    map: {
+      flex: 1,
+    },
+    markerContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      paddingHorizontal: 6,
+      paddingVertical: 3,
+      borderRadius: borderRadius.lg,
+      borderWidth: 2,
+      ...Platform.select({
+        ios: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.2,
+          shadowRadius: 3,
+        },
+        android: {
+          elevation: 4,
+        },
+      }),
+    },
+    markerWrapper: {
+      alignItems: 'center',
+    },
+    headingArrow: {
+      position: 'absolute',
+      top: -14,
+      alignSelf: 'center',
+      zIndex: 10,
+    },
+    headingTriangle: {
+      width: 0,
+      height: 0,
+      borderLeftWidth: 6,
+      borderRightWidth: 6,
+      borderBottomWidth: 10,
+      borderLeftColor: 'transparent',
+      borderRightColor: 'transparent',
+    },
+    markerDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      marginRight: 4,
+    },
+    markerLabel: {
+      fontSize: fontSize.xs,
+      color: colors.text,
+      maxWidth: 80,
+    },
+    markerLabelBold: {
+      fontWeight: '700',
+      color: colors.accent,
+    },
+    markerArrow: {
+      width: 0,
+      height: 0,
+      borderLeftWidth: 5,
+      borderRightWidth: 5,
+      borderTopWidth: 6,
+      borderLeftColor: 'transparent',
+      borderRightColor: 'transparent',
+      alignSelf: 'center',
+    },
+    destMarkerContainer: {
+      alignItems: 'center',
+    },
+    destMarkerText: {
+      fontSize: 28,
+    },
+    destMarkerLabel: {
+      fontSize: fontSize.xs,
+      color: colors.markerDestination,
+      fontWeight: '600',
+      backgroundColor: colors.card + 'D9',
+      paddingHorizontal: 4,
+      paddingVertical: 1,
+      borderRadius: 4,
+      overflow: 'hidden',
+      maxWidth: 80,
+    },
+    centerButton: {
+      position: 'absolute',
+      bottom: spacing.sm,
+      left: spacing.sm,
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.mapControlBg,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: colors.borderAccent,
+      ...Platform.select({
+        ios: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.2,
+          shadowRadius: 3,
+        },
+        android: {
+          elevation: 4,
+        },
+      }),
+    },
+    centerButtonText: {
+      fontSize: 22,
+      color: colors.mapControlText,
+      fontWeight: '700',
+    },
+    followActive: {
+      color: colors.online,
+    },
+    mapTypeButton: {
+      position: 'absolute',
+      bottom: spacing.sm,
+      left: spacing.sm + 48,
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: colors.mapControlBg,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 1,
+      borderColor: colors.borderAccent,
+      ...Platform.select({
+        ios: {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.2,
+          shadowRadius: 3,
+        },
+        android: {
+          elevation: 4,
+        },
+      }),
+    },
+    mapTypeButtonText: {
+      fontSize: 18,
+    },
+    overlay: {
+      position: 'absolute',
+      bottom: spacing.sm,
+      right: spacing.sm,
+      backgroundColor: colors.surface + 'CC',
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.full,
+      borderWidth: 1,
+      borderColor: colors.borderAccent,
+    },
+    overlayText: {
+      color: colors.accent,
+      fontSize: fontSize.xs,
+      fontWeight: '600',
+    },
+  });

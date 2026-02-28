@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,13 +12,16 @@ import {
 } from 'react-native';
 import { useSessionStore, type ChatMessage } from '../state/session-store';
 import { sendChatMessage } from '../services/ws-client';
-import { colors, spacing, fontSize, borderRadius } from '../utils/theme';
+import { spacing, fontSize, borderRadius, type ThemeColors } from '../utils/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface ChatPanelProps {
   currentParticipantId: string | null;
 }
 
 export default function ChatPanel({ currentParticipantId }: ChatPanelProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [text, setText] = useState('');
   const flatListRef = useRef<FlatList>(null);
   const chatMessages = useSessionStore((s) => s.chatMessages);
@@ -133,104 +136,105 @@ export default function ChatPanel({ currentParticipantId }: ChatPanelProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  emptyContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.xl,
-  },
-  emptyText: {
-    fontSize: fontSize.md,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  emptySubtext: {
-    fontSize: fontSize.sm,
-    color: colors.textTertiary,
-    marginTop: spacing.xs,
-  },
-  messageList: {
-    padding: spacing.md,
-    paddingBottom: spacing.xs,
-  },
-  messageBubble: {
-    maxWidth: '80%',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.lg,
-    marginBottom: spacing.sm,
-  },
-  myMessage: {
-    alignSelf: 'flex-end',
-    backgroundColor: colors.primary,
-    borderBottomRightRadius: borderRadius.sm,
-  },
-  otherMessage: {
-    alignSelf: 'flex-start',
-    backgroundColor: colors.surfaceAlt,
-    borderBottomLeftRadius: borderRadius.sm,
-  },
-  senderName: {
-    fontSize: fontSize.xs,
-    fontWeight: '600',
-    color: colors.primary,
-    marginBottom: 2,
-  },
-  messageText: {
-    fontSize: fontSize.md,
-    color: colors.text,
-    lineHeight: 20,
-  },
-  myMessageText: {
-    color: colors.textInverse,
-  },
-  messageTime: {
-    fontSize: fontSize.xs - 1,
-    color: colors.textTertiary,
-    marginTop: 2,
-    alignSelf: 'flex-end',
-  },
-  myMessageTime: {
-    color: 'rgba(255,255,255,0.7)',
-  },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    backgroundColor: colors.white,
-  },
-  input: {
-    flex: 1,
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: borderRadius.xl,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: Platform.OS === 'ios' ? spacing.sm : spacing.xs,
-    fontSize: fontSize.md,
-    color: colors.text,
-    maxHeight: 80,
-  },
-  sendButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: spacing.sm,
-  },
-  sendButtonDisabled: {
-    backgroundColor: colors.border,
-  },
-  sendButtonText: {
-    color: colors.white,
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    emptyContainer: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.xl,
+    },
+    emptyText: {
+      fontSize: fontSize.md,
+      color: colors.textSecondary,
+      fontWeight: '500',
+    },
+    emptySubtext: {
+      fontSize: fontSize.sm,
+      color: colors.textTertiary,
+      marginTop: spacing.xs,
+    },
+    messageList: {
+      padding: spacing.md,
+      paddingBottom: spacing.xs,
+    },
+    messageBubble: {
+      maxWidth: '80%',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: borderRadius.lg,
+      marginBottom: spacing.sm,
+    },
+    myMessage: {
+      alignSelf: 'flex-end',
+      backgroundColor: colors.accent,
+      borderBottomRightRadius: borderRadius.sm,
+    },
+    otherMessage: {
+      alignSelf: 'flex-start',
+      backgroundColor: colors.surfaceAlt,
+      borderBottomLeftRadius: borderRadius.sm,
+    },
+    senderName: {
+      fontSize: fontSize.xs,
+      fontWeight: '600',
+      color: colors.accent,
+      marginBottom: 2,
+    },
+    messageText: {
+      fontSize: fontSize.md,
+      color: colors.text,
+      lineHeight: 20,
+    },
+    myMessageText: {
+      color: colors.textInverse,
+    },
+    messageTime: {
+      fontSize: fontSize.xs - 1,
+      color: colors.textTertiary,
+      marginTop: 2,
+      alignSelf: 'flex-end',
+    },
+    myMessageTime: {
+      color: 'rgba(255,255,255,0.7)',
+    },
+    inputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    input: {
+      flex: 1,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: borderRadius.xl,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: Platform.OS === 'ios' ? spacing.sm : spacing.xs,
+      fontSize: fontSize.md,
+      color: colors.text,
+      maxHeight: 80,
+    },
+    sendButton: {
+      width: 34,
+      height: 34,
+      borderRadius: 17,
+      backgroundColor: colors.accent,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginLeft: spacing.sm,
+    },
+    sendButtonDisabled: {
+      backgroundColor: colors.border,
+    },
+    sendButtonText: {
+      color: colors.textInverse,
+      fontSize: fontSize.lg,
+      fontWeight: '700',
+    },
+  });

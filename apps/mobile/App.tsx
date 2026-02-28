@@ -6,8 +6,10 @@ import HomeScreen from './src/screens/HomeScreen';
 import SessionScreen from './src/screens/SessionScreen';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import { getInitialJoinCode, onDeepLink } from './src/utils/deeplink';
+import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 
-export default function App() {
+function AppContent() {
+  const { isDark, colors } = useTheme();
   const [inSession, setInSession] = useState(false);
   const [pendingJoinCode, setPendingJoinCode] = useState<string | null>(null);
 
@@ -17,14 +19,12 @@ export default function App() {
 
   // Handle deep links (cold start + warm start)
   useEffect(() => {
-    // Cold start: app opened via deep link
     getInitialJoinCode().then((code) => {
       if (code && !inSession) {
         setPendingJoinCode(code);
       }
     });
 
-    // Warm start: app already open, link tapped
     const unsub = onDeepLink((code) => {
       if (!inSession) {
         setPendingJoinCode(code);
@@ -39,20 +39,30 @@ export default function App() {
   }, []);
 
   return (
+    <>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        {inSession ? (
+          <SessionScreen onLeave={handleLeave} />
+        ) : (
+          <HomeScreen
+            onSessionReady={handleSessionReady}
+            initialJoinCode={pendingJoinCode}
+          />
+        )}
+      </SafeAreaView>
+    </>
+  );
+}
+
+export default function App() {
+  return (
     <SafeAreaProvider>
-      <ErrorBoundary>
-        <StatusBar style="dark" />
-        <SafeAreaView style={styles.container}>
-          {inSession ? (
-            <SessionScreen onLeave={handleLeave} />
-          ) : (
-            <HomeScreen
-              onSessionReady={handleSessionReady}
-              initialJoinCode={pendingJoinCode}
-            />
-          )}
-        </SafeAreaView>
-      </ErrorBoundary>
+      <ThemeProvider>
+        <ErrorBoundary>
+          <AppContent />
+        </ErrorBoundary>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }
@@ -60,7 +70,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     paddingTop: Platform.OS === 'android' ? 25 : 0,
   },
 });

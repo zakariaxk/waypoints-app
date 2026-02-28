@@ -1,9 +1,11 @@
 // Recent sessions list — allows rejoining previous sessions.
 
+import { useMemo } from 'react';
 import { View, Text, TouchableOpacity, FlatList, StyleSheet, Alert } from 'react-native';
 import type { SessionHistoryEntry } from '../utils/storage';
 import { removeSessionFromHistory } from '../utils/storage';
-import { colors, spacing, fontSize, borderRadius, shadow } from '../utils/theme';
+import { spacing, fontSize, borderRadius, shadow, type ThemeColors } from '../utils/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface SessionHistoryProps {
   sessions: SessionHistoryEntry[];
@@ -23,6 +25,9 @@ function timeAgo(ms: number): string {
 }
 
 export default function SessionHistory({ sessions, onRejoin, onRefresh }: SessionHistoryProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   if (sessions.length === 0) return null;
 
   const handleLongPress = (entry: SessionHistoryEntry) => {
@@ -70,57 +75,60 @@ export default function SessionHistory({ sessions, onRejoin, onRefresh }: Sessio
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    marginTop: spacing.lg,
-  },
-  heading: {
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-    color: colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: spacing.sm,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.white,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.md,
-    borderRadius: borderRadius.md,
-    marginBottom: spacing.xs,
-    ...shadow.sm,
-  },
-  codeBox: {
-    backgroundColor: colors.surfaceAlt,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.sm,
-    marginRight: spacing.md,
-  },
-  code: {
-    fontSize: fontSize.sm,
-    fontWeight: '700',
-    color: colors.primary,
-    letterSpacing: 2,
-  },
-  meta: {
-    flex: 1,
-  },
-  name: {
-    fontSize: fontSize.md,
-    fontWeight: '500',
-    color: colors.text,
-  },
-  time: {
-    fontSize: fontSize.xs,
-    color: colors.textTertiary,
-    marginTop: 1,
-  },
-  arrow: {
-    fontSize: fontSize.lg,
-    color: colors.textTertiary,
-    marginLeft: spacing.sm,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      marginTop: spacing.lg,
+    },
+    heading: {
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+      marginBottom: spacing.sm,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.card,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.md,
+      borderRadius: borderRadius.md,
+      marginBottom: spacing.xs,
+      borderWidth: 1,
+      borderColor: colors.border,
+      ...shadow.sm,
+    },
+    codeBox: {
+      backgroundColor: colors.surfaceAlt,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: borderRadius.sm,
+      marginRight: spacing.md,
+    },
+    code: {
+      fontSize: fontSize.sm,
+      fontWeight: '700',
+      color: colors.accent,
+      letterSpacing: 2,
+    },
+    meta: {
+      flex: 1,
+    },
+    name: {
+      fontSize: fontSize.md,
+      fontWeight: '500',
+      color: colors.text,
+    },
+    time: {
+      fontSize: fontSize.xs,
+      color: colors.textTertiary,
+      marginTop: 1,
+    },
+    arrow: {
+      fontSize: fontSize.lg,
+      color: colors.textTertiary,
+      marginLeft: spacing.sm,
+    },
+  });

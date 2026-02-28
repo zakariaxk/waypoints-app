@@ -2,7 +2,11 @@
 
 import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { colors, spacing, fontSize, borderRadius } from '../utils/theme';
+import { spacing, fontSize, borderRadius, darkColors } from '../utils/theme';
+
+// ErrorBoundary is a class component and cannot use hooks.
+// We use darkColors as default (the app is dark-first).
+const c = darkColors;
 
 interface Props {
   children: ReactNode;
@@ -62,7 +66,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: spacing.xl,
-    backgroundColor: colors.surface,
+    backgroundColor: c.background,
   },
   emoji: {
     fontSize: 48,
@@ -71,24 +75,24 @@ const styles = StyleSheet.create({
   title: {
     fontSize: fontSize.xl,
     fontWeight: '700',
-    color: colors.text,
+    color: c.text,
     marginBottom: spacing.sm,
   },
   message: {
     fontSize: fontSize.sm,
-    color: colors.textSecondary,
+    color: c.textSecondary,
     textAlign: 'center',
     marginBottom: spacing.xl,
     lineHeight: 20,
   },
   button: {
-    backgroundColor: colors.primary,
+    backgroundColor: c.accent,
     paddingHorizontal: spacing.xl,
     paddingVertical: spacing.md,
     borderRadius: borderRadius.md,
   },
   buttonText: {
-    color: colors.textInverse,
+    color: c.textInverse,
     fontSize: fontSize.md,
     fontWeight: '600',
   },

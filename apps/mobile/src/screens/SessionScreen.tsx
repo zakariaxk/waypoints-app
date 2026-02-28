@@ -41,7 +41,8 @@ import FriendSheet from '../components/FriendSheet';
 import GroupETASummary from '../components/GroupETASummary';
 import SessionSummaryScreen, { type SessionSummaryData, type ParticipantSummary } from '../components/SessionSummaryScreen';
 import DestinationVoting, { type DestinationProposal } from '../components/DestinationVoting';
-import { colors, spacing, fontSize, borderRadius, shadow } from '../utils/theme';
+import { spacing, fontSize, borderRadius, shadow, type ThemeColors } from '../utils/theme';
+import { useTheme } from '../contexts/ThemeContext';
 import { haversineDistance, formatDistance } from '../utils/geo';
 
 type Tab = 'people' | 'chat';
@@ -51,6 +52,8 @@ interface SessionScreenProps {
 }
 
 export default function SessionScreen({ onLeave }: SessionScreenProps) {
+  const { colors, isDark } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const {
     sessionId,
     participantId,
@@ -425,7 +428,7 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
 
       {/* Header */}
       <View style={styles.header}>
@@ -643,185 +646,190 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingTop: Platform.OS === 'ios' ? 50 : spacing.lg,
-    paddingBottom: spacing.sm,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    ...shadow.sm,
-  },
-  headerButton: {
-    paddingVertical: spacing.xs,
-    paddingRight: spacing.sm,
-  },
-  leaveText: {
-    fontSize: fontSize.md,
-    color: colors.offline,
-    fontWeight: '600',
-  },
-  headerCenter: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  codeContainer: {
-    alignItems: 'center',
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: borderRadius.md,
-  },
-  codeText: {
-    fontSize: fontSize.lg,
-    fontWeight: '700',
-    color: colors.primary,
-    letterSpacing: 3,
-  },
-  shareHint: {
-    fontSize: fontSize.xs - 1,
-    color: colors.textTertiary,
-    marginTop: 1,
-  },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: spacing.sm,
-  },
-  connectionDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: spacing.xs,
-  },
-  dotConnected: {
-    backgroundColor: colors.online,
-  },
-  dotDisconnected: {
-    backgroundColor: colors.offline,
-  },
-  connectionText: {
-    fontSize: fontSize.xs,
-    color: colors.textSecondary,
-  },
-  timerText: {
-    fontSize: fontSize.xs - 1,
-    color: colors.textTertiary,
-    marginTop: 1,
-  },
-  hostBadge: {
-    backgroundColor: colors.destinationBg,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.destinationBorder,
-  },
-  hostBadgeText: {
-    fontSize: fontSize.xs,
-    color: colors.destinationText,
-    textAlign: 'center',
-    fontWeight: '500',
-  },
-  votingToggle: {
-    fontSize: fontSize.xs,
-    color: colors.primary,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginTop: spacing.xs,
-  },
-  offlineBanner: {
-    backgroundColor: colors.dangerLight,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: '#FECACA',
-  },
-  offlineBannerText: {
-    fontSize: fontSize.xs,
-    color: colors.danger,
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  mapContainer: {
-    flex: 3,
-    minHeight: 200,
-  },
-  noLocationContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surfaceAlt,
-    padding: spacing.xl,
-  },
-  noLocationEmoji: {
-    fontSize: 48,
-    marginBottom: spacing.md,
-  },
-  noLocationTitle: {
-    fontSize: fontSize.lg,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: spacing.sm,
-  },
-  noLocationText: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  tabBar: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    backgroundColor: colors.white,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  activeTab: {
-    borderBottomColor: colors.primary,
-  },
-  tabText: {
-    fontSize: fontSize.sm,
-    fontWeight: '500',
-    color: colors.textSecondary,
-  },
-  activeTabText: {
-    color: colors.primary,
-    fontWeight: '600',
-  },
-  badge: {
-    color: colors.offline,
-    fontWeight: '700',
-  },
-  tabContent: {
-    flex: 2,
-    minHeight: 120,
-    backgroundColor: colors.white,
-  },
-  toast: {
-    position: 'absolute',
-    bottom: 100,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(0,0,0,0.75)',
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderRadius: borderRadius.full,
-  },
-  toastText: {
-    color: colors.white,
-    fontSize: fontSize.sm,
-    fontWeight: '600',
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingTop: Platform.OS === 'ios' ? 50 : spacing.lg,
+      paddingBottom: spacing.sm,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      ...shadow.sm,
+    },
+    headerButton: {
+      paddingVertical: spacing.xs,
+      paddingRight: spacing.sm,
+    },
+    leaveText: {
+      fontSize: fontSize.md,
+      color: colors.offline,
+      fontWeight: '600',
+    },
+    headerCenter: {
+      flex: 1,
+      alignItems: 'center',
+    },
+    codeContainer: {
+      alignItems: 'center',
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.md,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.borderAccent,
+    },
+    codeText: {
+      fontSize: fontSize.lg,
+      fontWeight: '700',
+      color: colors.accent,
+      letterSpacing: 3,
+    },
+    shareHint: {
+      fontSize: fontSize.xs - 1,
+      color: colors.textTertiary,
+      marginTop: 1,
+    },
+    headerRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingLeft: spacing.sm,
+    },
+    connectionDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      marginRight: spacing.xs,
+    },
+    dotConnected: {
+      backgroundColor: colors.online,
+    },
+    dotDisconnected: {
+      backgroundColor: colors.offline,
+    },
+    connectionText: {
+      fontSize: fontSize.xs,
+      color: colors.textSecondary,
+    },
+    timerText: {
+      fontSize: fontSize.xs - 1,
+      color: colors.textTertiary,
+      marginTop: 1,
+    },
+    hostBadge: {
+      backgroundColor: colors.destinationBg,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.destinationBorder,
+    },
+    hostBadgeText: {
+      fontSize: fontSize.xs,
+      color: colors.destinationText,
+      textAlign: 'center',
+      fontWeight: '500',
+    },
+    votingToggle: {
+      fontSize: fontSize.xs,
+      color: colors.accent,
+      fontWeight: '700',
+      textAlign: 'center',
+      marginTop: spacing.xs,
+    },
+    offlineBanner: {
+      backgroundColor: colors.dangerLight,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.danger + '40',
+    },
+    offlineBannerText: {
+      fontSize: fontSize.xs,
+      color: colors.danger,
+      textAlign: 'center',
+      fontWeight: '600',
+    },
+    mapContainer: {
+      flex: 3,
+      minHeight: 200,
+    },
+    noLocationContainer: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.surfaceAlt,
+      padding: spacing.xl,
+    },
+    noLocationEmoji: {
+      fontSize: 48,
+      marginBottom: spacing.md,
+    },
+    noLocationTitle: {
+      fontSize: fontSize.lg,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: spacing.sm,
+    },
+    noLocationText: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+      textAlign: 'center',
+      lineHeight: 20,
+    },
+    tabBar: {
+      flexDirection: 'row',
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      backgroundColor: colors.surface,
+    },
+    tab: {
+      flex: 1,
+      paddingVertical: spacing.sm,
+      alignItems: 'center',
+      borderBottomWidth: 2,
+      borderBottomColor: 'transparent',
+    },
+    activeTab: {
+      borderBottomColor: colors.accent,
+    },
+    tabText: {
+      fontSize: fontSize.sm,
+      fontWeight: '500',
+      color: colors.textSecondary,
+    },
+    activeTabText: {
+      color: colors.accent,
+      fontWeight: '600',
+    },
+    badge: {
+      color: colors.secondary,
+      fontWeight: '700',
+    },
+    tabContent: {
+      flex: 2,
+      minHeight: 120,
+      backgroundColor: colors.surface,
+    },
+    toast: {
+      position: 'absolute',
+      bottom: 100,
+      alignSelf: 'center',
+      backgroundColor: colors.surface,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      borderRadius: borderRadius.full,
+      borderWidth: 1,
+      borderColor: colors.borderAccent,
+    },
+    toastText: {
+      color: colors.text,
+      fontSize: fontSize.sm,
+      fontWeight: '600',
+    },
+  });

@@ -1,8 +1,10 @@
 // Group ETA Summary component — shows fastest, longest, and average ETA at a glance.
 
+import { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { formatDuration, type ParticipantETA } from '../hooks/useParticipantETAs';
-import { colors, spacing, fontSize, borderRadius } from '../utils/theme';
+import { spacing, fontSize, borderRadius, type ThemeColors } from '../utils/theme';
+import { useTheme } from '../contexts/ThemeContext';
 
 interface GroupETASummaryProps {
   etas: Map<string, ParticipantETA>;
@@ -10,6 +12,9 @@ interface GroupETASummaryProps {
 }
 
 export default function GroupETASummary({ etas, participantNames }: GroupETASummaryProps) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
   if (etas.size === 0) return null;
 
   const entries = Array.from(etas.entries());
@@ -59,40 +64,41 @@ export default function GroupETASummary({ etas, participantNames }: GroupETASumm
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.borderLight,
-    gap: spacing.xs,
-  },
-  pill: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.xs,
-    backgroundColor: colors.white,
-    borderRadius: borderRadius.sm,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-  },
-  pillAvg: {
-    backgroundColor: colors.primaryLight + '15',
-    borderColor: colors.primaryLight + '40',
-  },
-  label: {
-    fontSize: fontSize.xs - 1,
-    color: colors.textTertiary,
-    fontWeight: '600',
-    marginBottom: 1,
-  },
-  value: {
-    fontSize: fontSize.xs,
-    fontWeight: '700',
-    color: colors.text,
-    maxWidth: 90,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      backgroundColor: colors.surface,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      gap: spacing.xs,
+    },
+    pill: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.xs,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: borderRadius.sm,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    pillAvg: {
+      backgroundColor: colors.accentSoft,
+      borderColor: colors.borderAccent,
+    },
+    label: {
+      fontSize: fontSize.xs - 1,
+      color: colors.textTertiary,
+      fontWeight: '600',
+      marginBottom: 1,
+    },
+    value: {
+      fontSize: fontSize.xs,
+      fontWeight: '700',
+      color: colors.text,
+      maxWidth: 90,
+    },
+  });
