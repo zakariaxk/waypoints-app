@@ -3,6 +3,7 @@
 import type { ConnState } from './handler.js';
 import { sendJson, broadcastToSession } from './handler.js';
 import { sessionStore } from '../state/session-store.js';
+import { cleanupVoiceMember } from './voice.js';
 
 export function handleLeaveSession(conn: ConnState): void {
   const { sessionId, participantId } = conn;
@@ -10,6 +11,9 @@ export function handleLeaveSession(conn: ConnState): void {
 
   const participant = sessionStore.getParticipant(sessionId, participantId);
   if (!participant) return;
+
+  // Remove from voice chat if active
+  cleanupVoiceMember(sessionId, participantId);
 
   // Mark participant as offline and clear connection
   participant.connId = null;

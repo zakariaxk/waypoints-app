@@ -45,6 +45,8 @@ import DestinationVoting, { type DestinationProposal } from '../components/Desti
 import { spacing, fontSize, borderRadius, shadow, glow, type ThemeColors } from '../ui/theme';
 import { useTheme } from '../ui/theme';
 import { haversineDistance, formatDistance } from '../utils/geo';
+import { joinVoice, leaveVoice } from '../services/voice';
+import { useVoiceChat } from '../hooks/useVoiceChat';
 
 type Tab = 'people' | 'chat';
 
@@ -95,6 +97,12 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
   // Destination voting
   const [proposals, setProposals] = useState<DestinationProposal[]>([]);
   const [showVoting, setShowVoting] = useState(false);
+
+  // Voice chat
+  const voiceMembers = useSessionStore((s) => s.voiceMembers);
+  const voiceChat = useVoiceChat(sessionId);
+  const isInVoice = voiceChat.joined;
+  const voiceCount = voiceMembers.size;
 
   // Per-participant ETAs
   const participantETAs = useParticipantETAs(participants, destination);
@@ -361,6 +369,14 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
     ]);
   }, []);
 
+  const handleToggleVoice = useCallback(() => {
+    if (isInVoice) {
+      voiceChat.leave();
+    } else {
+      voiceChat.join();
+    }
+  }, [isInVoice, voiceChat]);
+
   // Voting handlers
   const handleVote = useCallback((proposalId: string) => {
     if (!participantId) return;
@@ -564,6 +580,54 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
           etas={participantETAs}
           participantNames={new Map(participantList.map((p) => [p.participantId, p.displayName || p.participantId.slice(0, 6)]))}
         />
+      )}
+
+      {/* Voice (beta) bar — only visible when native WebRTC module is available (EAS dev client) */}
+      {voiceChat.available && (
+      <View style={styles.voiceBar}>
+        <TouchableOpacity
+          style={[styles.voiceToggle, isInVoice && styles.voiceToggleActive]}
+          onPress={handleToggleVoice}
+          disabled={voiceChat.connecting}
+        >
+          <Text style={[styles.voiceToggleText, isInVoice && styles.voiceToggleTextActive]}>
+            {voiceChat.connecting ? '⏳ Joining...' : isInVoice ? '🎙 Leave Voice' : '🎙 Join Voice (beta)'}
+          </Text>
+        </TouchableOpacity>
+        {isInVoice && (
+          <>
+            <TouchableOpacity
+              style={[styles.voiceSmallBtn, voiceChat.muted && styles.voiceSmallBtnActive]}
+              onPress={voiceChat.toggleMute}
+            >
+              <Text style={styles.voiceSmallBtnText}>
+                {voiceChat.muted ? '🔇' : '🔊'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.voiceSmallBtn, voiceChat.pushToTalkEnabled && styles.voiceSmallBtnActive]}
+              onPress={voiceChat.togglePushToTalk}
+            >
+              <Text style={styles.voiceSmallBtnText}>PTT</Text>
+            </TouchableOpacity>
+            {voiceChat.pushToTalkEnabled && (
+              <TouchableOpacity
+                style={styles.voicePttBtn}
+                onPressIn={voiceChat.pttPress}
+                onPressOut={voiceChat.pttRelease}
+                activeOpacity={0.6}
+              >
+                <Text style={styles.voicePttBtnText}>🗣 TALK</Text>
+              </TouchableOpacity>
+            )}
+          </>
+        )}
+        {voiceCount > 0 && (
+          <Text style={styles.voiceCount}>
+            {voiceChat.peerCount}/{voiceCount} connected
+          </Text>
+        )}
+      </View>
       )}
 
       {/* Tab Bar */}
@@ -844,5 +908,73 @@ const createStyles = (colors: ThemeColors) =>
       color: colors.text,
       fontSize: fontSize.sm,
       fontWeight: '600',
+    },
+    voiceBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.md,
+      backgroundColor: colors.panel,
+      borderTopWidth: 1,
+      borderTopColor: colors.panelBorder,
+      gap: spacing.sm,
+    },
+    voiceToggle: {
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.md,
+      borderRadius: borderRadius.md,
+      borderWidth: 1,
+      borderColor: colors.textTertiary,
+      backgroundColor: 'transparent',
+    },
+    voiceToggleActive: {
+      borderColor: colors.accent,
+      backgroundColor: colors.accent + '20',
+    },
+    voiceToggleText: {
+      fontSize: fontSize.xs,
+      fontWeight: '600',
+      color: colors.textSecondary,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    voiceToggleTextActive: {
+      color: colors.accent,
+    },
+    voiceCount: {
+      fontSize: fontSize.xs,
+      color: colors.textTertiary,
+    },
+    voiceSmallBtn: {
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.sm,
+      borderRadius: borderRadius.sm,
+      borderWidth: 1,
+      borderColor: colors.textTertiary,
+      backgroundColor: 'transparent',
+    },
+    voiceSmallBtnActive: {
+      borderColor: colors.accent,
+      backgroundColor: colors.accent + '20',
+    },
+    voiceSmallBtnText: {
+      fontSize: fontSize.xs,
+      color: colors.text,
+      fontWeight: '600',
+    },
+    voicePttBtn: {
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.md,
+      borderRadius: borderRadius.md,
+      backgroundColor: colors.secondary + '40',
+      borderWidth: 1,
+      borderColor: colors.secondary,
+    },
+    voicePttBtnText: {
+      fontSize: fontSize.xs,
+      fontWeight: '700',
+      color: colors.secondary,
+      textTransform: 'uppercase',
     },
   });

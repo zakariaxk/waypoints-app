@@ -9,6 +9,7 @@ import { handleLocUpdate } from './location.js';
 import { handleSetDestination, handleClearDestination } from './destination.js';
 import { handleChatMessage } from './chat.js';
 import { handleLeaveSession } from './leave.js';
+import { handleVoiceJoin, handleVoiceLeave, handleVoiceSignal } from './voice.js';
 
 export function dispatch(conn: ConnState, raw: Buffer | string): void {
   // 1. Parse JSON
@@ -58,6 +59,15 @@ export function dispatch(conn: ConnState, raw: Buffer | string): void {
       break;
     case 'LEAVE_SESSION':
       handleLeaveSession(conn);
+      break;
+    case 'VOICE_JOIN':
+      handleVoiceJoin(conn);
+      break;
+    case 'VOICE_LEAVE':
+      handleVoiceLeave(conn);
+      break;
+    case 'VOICE_SIGNAL':
+      handleVoiceSignal(conn, message.payload);
       break;
     default:
       sendError(conn, 'BAD_MESSAGE', `Unknown message type`);

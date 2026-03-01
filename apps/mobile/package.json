@@ -19,10 +19,12 @@
     "@expo/ngrok": "^4.1.0",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@waypoints/shared": "*",
+    "event-target-shim": "^6.0.2",
     "expo": "~54.0.0",
     "expo-blur": "~15.0.8",
     "expo-clipboard": "~8.0.8",
     "expo-constants": "~18.0.13",
+    "expo-dev-client": "~6.0.20",
     "expo-font": "~14.0.11",
     "expo-haptics": "~15.0.8",
     "expo-linear-gradient": "~15.0.8",
@@ -37,6 +39,7 @@
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-svg": "15.12.1",
+    "react-native-webrtc": "^124.0.4",
     "zustand": "^4.5.0"
   },
   "devDependencies": {

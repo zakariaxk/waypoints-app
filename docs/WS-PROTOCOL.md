@@ -193,7 +193,75 @@ All events are delivered as:
 3. Server sends WELCOME → SNAPSHOT → EVENTS (for missed range) → PARTICIPANT_JOINED broadcast.
 4. Client applies EVENTS in order; state after replay must match server.
 5. If the event gap is too large (events evicted from ring buffer), client uses SNAPSHOT only.
+6. **Voice is ephemeral**: VOICE_* messages are NOT emitted as type EVENT, NOT stored in the event ring buffer, and NOT replayed on reconnect. After reconnect, clients must re-join voice by sending `VOICE_JOIN` after receiving WELCOME/SNAPSHOT.
 
 ## Validation
 All client messages are validated with Zod schemas on the server.
 Invalid messages receive an ERROR response with code `BAD_MESSAGE` and details.
+
+## Voice Chat Messages (Phase 2 — Ephemeral)
+
+Voice signaling messages are **not** part of the ordered event stream. They are ephemeral peer-to-peer signaling relayed through the server. Voice membership is tracked in-memory per session via a `voiceMembers` set.
+
+**Important**: Voice messages are NEVER emitted as `EVENT`, NEVER assigned an `eventId`, and NEVER stored in the replay ring buffer. On reconnect, clients must re-join voice by sending `VOICE_JOIN` after the WELCOME/SNAPSHOT sequence completes.
+
+### Client → Server: VOICE_JOIN
+```json
+{
+  "type": "VOICE_JOIN",
+  "payload": {}
+}
+```
+Adds sender to `voiceMembers` set. Broadcasts `VOICE_STATE` with `state: "joined"` to all session participants.
+
+### Client → Server: VOICE_LEAVE
+```json
+{
+  "type": "VOICE_LEAVE",
+  "payload": {}
+}
+```
+Removes sender from `voiceMembers` set. Broadcasts `VOICE_STATE` with `state: "left"` to all session participants. Also triggered automatically on disconnect or LEAVE_SESSION.
+
+### Client → Server: VOICE_SIGNAL
+```json
+{
+  "type": "VOICE_SIGNAL",
+  "payload": {
+    "toParticipantId": "string",
+    "signalType": "offer | answer | ice",
+    "data": { "..." }
+  }
+}
+```
+Relays WebRTC signaling data to a specific participant. Requirements:
+- Sender must be in `voiceMembers` (must have sent VOICE_JOIN).
+- `toParticipantId` must exist in the same session AND be in `voiceMembers`.
+- SDP payloads (offer/answer) must be ≤ 40KB.
+- ICE candidate payloads must be ≤ 8KB.
+- SDP/ICE contents are NOT logged by the server.
+
+### Server → Client: VOICE_SIGNAL
+```json
+{
+  "type": "VOICE_SIGNAL",
+  "payload": {
+    "fromParticipantId": "string",
+    "signalType": "offer | answer | ice",
+    "data": { "..." }
+  }
+}
+```
+Forwarded to only the intended recipient. `fromParticipantId` is set by the server (sender's participantId).
+
+### Server → Client: VOICE_STATE
+```json
+{
+  "type": "VOICE_STATE",
+  "payload": {
+    "participantId": "string",
+    "state": "joined | left"
+  }
+}
+```
+Broadcast to all session participants when a participant joins or leaves voice chat (including on disconnect/leave cleanup).

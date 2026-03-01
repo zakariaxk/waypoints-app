@@ -98,6 +98,31 @@ Dependencies added: expo-linear-gradient, react-native-reanimated, react-native-
 - [x] Fix chat keyboard overlap (removed double KeyboardAvoidingView, dynamic offset)
 - [x] Git commit
 
+### Batch 18: Voice Chat (Phase 2) — Feature Branch `feature/voice-chat`
+
+#### Phase A0 — Signaling + Voice Presence (no audio)
+- [x] Shared: Add VOICE_* TS types + Zod schemas in packages/shared
+- [x] Backend: Add voiceMembers Set to session state
+- [x] Backend: Create services/api/src/ws/voice.ts (VOICE_JOIN/LEAVE/SIGNAL handlers)
+- [x] Backend: Wire VOICE_* into dispatcher.ts
+- [x] Backend: Cleanup voiceMembers on leave/disconnect
+- [x] Backend: Add services/api/src/__tests__/voice.test.ts (all required tests)
+- [x] Docs: Update WS-PROTOCOL.md with VOICE_* messages + ephemeral rules
+- [x] Docs: Add decision to DECISIONS.md (voice events not replayed)
+- [x] Docs: Add "Phase 2: Voice Chat" to PRD.md (don't change MVP non-goals)
+- [x] Docs: Append voice summary to ARCHITECTURE.md
+- [x] Mobile A0: Extend ws-client for VOICE_SIGNAL + VOICE_STATE
+- [x] Mobile A0: Create services/voice.ts (joinVoice/leaveVoice/sendSignal)
+- [x] Mobile A0: Add "Voice (beta)" toggle + status indicator in SessionScreen
+
+#### Phase A1 — Mobile WebRTC Audio Integration + UI
+- [x] Mobile: Add react-native-webrtc dependency (document justification)
+- [x] Mobile: Create hooks/useVoiceChat.ts (WebRTC peer connections, mic, PTT)
+- [x] Mobile: Add Voice UI components (Join/Leave, Mute, PTT, peer count)
+- [x] Mobile: Handle mic permissions (platform-correct)
+- [x] Docs: Append MANUAL_ACTIONS.md if EAS dev client / native module needed
+- [x] Run tests, verify passing (58/58 tests pass)
+
 ## Remaining Manual Steps (see docs/MANUAL_ACTIONS.md)
 - [ ] Apple Developer account enrollment ($99/yr)
 - [ ] EAS project init (`eas login && eas init`)

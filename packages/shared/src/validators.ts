@@ -36,6 +36,18 @@ export const leaveSessionPayloadSchema = z.object({});
 
 export const clearDestinationPayloadSchema = z.object({});
 
+// ─── Voice message schemas (Phase 2) ───
+
+export const voiceJoinPayloadSchema = z.object({});
+
+export const voiceLeavePayloadSchema = z.object({});
+
+export const voiceSignalPayloadSchema = z.object({
+  toParticipantId: z.string().min(1),
+  signalType: z.enum(['offer', 'answer', 'ice']),
+  data: z.record(z.unknown()),
+});
+
 // ─── Discriminated union for all client messages ───
 
 export const helloMessageSchema = z.object({
@@ -68,6 +80,21 @@ export const clearDestinationMessageSchema = z.object({
   payload: clearDestinationPayloadSchema,
 });
 
+export const voiceJoinMessageSchema = z.object({
+  type: z.literal('VOICE_JOIN'),
+  payload: voiceJoinPayloadSchema,
+});
+
+export const voiceLeaveMessageSchema = z.object({
+  type: z.literal('VOICE_LEAVE'),
+  payload: voiceLeavePayloadSchema,
+});
+
+export const voiceSignalMessageSchema = z.object({
+  type: z.literal('VOICE_SIGNAL'),
+  payload: voiceSignalPayloadSchema,
+});
+
 export const clientMessageSchema = z.discriminatedUnion('type', [
   helloMessageSchema,
   locUpdateMessageSchema,
@@ -75,6 +102,9 @@ export const clientMessageSchema = z.discriminatedUnion('type', [
   clearDestinationMessageSchema,
   chatMessageMessageSchema,
   leaveSessionMessageSchema,
+  voiceJoinMessageSchema,
+  voiceLeaveMessageSchema,
+  voiceSignalMessageSchema,
 ]);
 
 // ─── Type inference helpers ───
@@ -83,4 +113,5 @@ export type ValidatedHelloPayload = z.infer<typeof helloPayloadSchema>;
 export type ValidatedLocUpdatePayload = z.infer<typeof locUpdatePayloadSchema>;
 export type ValidatedSetDestinationPayload = z.infer<typeof setDestinationPayloadSchema>;
 export type ValidatedChatMessagePayload = z.infer<typeof chatMessagePayloadSchema>;
+export type ValidatedVoiceSignalPayload = z.infer<typeof voiceSignalPayloadSchema>;
 export type ValidatedClientMessage = z.infer<typeof clientMessageSchema>;

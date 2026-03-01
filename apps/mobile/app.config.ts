@@ -38,6 +38,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     infoPlist: {
       NSLocationWhenInUseUsageDescription:
         'Waypoints needs your location to share it with your session group in real time.',
+      NSMicrophoneUsageDescription:
+        'Waypoints needs microphone access for voice chat with your session group.',
       CFBundleAllowMixedLocalizations: true,
     },
     config: {
@@ -51,18 +53,23 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     package: getUniqueIdentifier(),
     versionCode: 1,
-    permissions: ['ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION'],
+    permissions: ['ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION', 'RECORD_AUDIO'],
+    config: {
+      googleMaps: {
+        apiKey: process.env.GOOGLE_MAPS_API_KEY || '',
+      },
+    },
   },
-  plugins: ['expo-location', 'expo-font'],
+  plugins: ['expo-location', 'expo-font', 'expo-dev-client'],
   extra: {
     eas: {
-      projectId: process.env.EAS_PROJECT_ID || '',
+      projectId: process.env.EAS_PROJECT_ID || '35842cb3-59e9-49f3-aad5-9fc026c50d07',
     },
   },
   updates: {
-    url: `https://u.expo.dev/${process.env.EAS_PROJECT_ID || ''}`,
+    url: `https://u.expo.dev/${process.env.EAS_PROJECT_ID || '35842cb3-59e9-49f3-aad5-9fc026c50d07'}`,
   },
   runtimeVersion: {
-    policy: 'appVersion',
+    policy: 'fingerprint',
   },
 });

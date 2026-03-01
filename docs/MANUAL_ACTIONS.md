@@ -92,3 +92,50 @@ The agent must append requests here and pause execution if required.
 ## Completed Actions
 
 _None_
+
+---
+
+## Pending Actions — Voice Chat (Phase 2)
+
+### 7. react-native-webrtc Native Module Setup (EAS Dev Client)
+- **Service**: EAS Build / Expo Dev Client
+- **Why**: `react-native-webrtc` is a native module that cannot run in Expo Go. It requires a custom dev client built via EAS Build or local prebuild.
+- **Dependency justification**: `react-native-webrtc` is the only mature, maintained WebRTC library for React Native. It provides `RTCPeerConnection`, `mediaDevices.getUserMedia`, and ICE/SDP handling — all required for peer-to-peer audio.
+- **Steps**:
+  1. Install the dependency:
+     ```bash
+     cd apps/mobile
+     npm install react-native-webrtc@^124.0.4
+     ```
+  2. The Expo config plugin is already added to `app.config.ts` → `plugins: ['react-native-webrtc']`
+  3. Microphone permissions are already configured:
+     - iOS: `NSMicrophoneUsageDescription` in `infoPlist`
+     - Android: `RECORD_AUDIO` in `permissions`
+  4. Build a development client:
+     ```bash
+     cd apps/mobile
+     eas build --platform ios --profile development
+     # or for Android:
+     eas build --platform android --profile development
+     ```
+  5. Install the dev client on your device/simulator
+  6. Start the app with `npx expo start --dev-client`
+- **Where result goes**: The dev client build enables `react-native-webrtc` native module at runtime.
+- **Note**: Voice chat UI will render in Expo Go but WebRTC calls will fail at runtime. A dev client is required for actual audio functionality.
+
+### 8. TURN Server (Optional, for NAT Traversal)
+- **Service**: Any TURN server provider (Twilio, Xirsys, coturn self-hosted)
+- **Why**: The current implementation uses STUN-only (Google's free STUN servers). This works for ~80% of connections but may fail for users behind symmetric NATs or restrictive firewalls. A TURN server provides relay fallback.
+- **Steps** (if needed):
+  1. Set up a TURN server (e.g., coturn on a VPS, or use Twilio Network Traversal)
+  2. Get the TURN server URL, username, and credential
+  3. Update `ICE_SERVERS` in `apps/mobile/src/hooks/useVoiceChat.ts` to include TURN:
+     ```typescript
+     const ICE_SERVERS = [
+       { urls: 'stun:stun.l.google.com:19302' },
+       { urls: 'turn:your-turn-server.com:3478', username: 'user', credential: 'pass' },
+     ];
+     ```
+  4. Consider using environment variables for TURN credentials
+- **Where result goes**: `apps/mobile/src/hooks/useVoiceChat.ts` → `ICE_SERVERS` array
+- **Note**: Not required for initial testing on the same network. Only needed if users report connection failures.

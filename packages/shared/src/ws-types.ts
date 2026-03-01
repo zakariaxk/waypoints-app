@@ -54,13 +54,37 @@ export interface ClearDestinationMessage {
   payload: Record<string, never>;
 }
 
+// ─── Voice messages (Phase 2 — ephemeral, NOT replayed via EVENT) ───
+
+export interface VoiceJoinMessage {
+  type: 'VOICE_JOIN';
+  payload: Record<string, never>;
+}
+
+export interface VoiceLeaveMessage {
+  type: 'VOICE_LEAVE';
+  payload: Record<string, never>;
+}
+
+export interface VoiceSignalMessage {
+  type: 'VOICE_SIGNAL';
+  payload: {
+    toParticipantId: string;
+    signalType: 'offer' | 'answer' | 'ice';
+    data: Record<string, unknown>;
+  };
+}
+
 export type ClientMessage =
   | HelloMessage
   | LocUpdateMessage
   | SetDestinationMessage
   | ClearDestinationMessage
   | ChatMessageMessage
-  | LeaveSessionMessage;
+  | LeaveSessionMessage
+  | VoiceJoinMessage
+  | VoiceLeaveMessage
+  | VoiceSignalMessage;
 
 // ─── Server → Client ───
 
@@ -101,7 +125,32 @@ export interface ErrorMessage {
   };
 }
 
-export type ServerMessage = WelcomeMessage | SnapshotMessage | EventsMessage | ErrorMessage;
+// ─── Server → Client voice messages (ephemeral, NOT replayed) ───
+
+export interface ServerVoiceSignalMessage {
+  type: 'VOICE_SIGNAL';
+  payload: {
+    fromParticipantId: string;
+    signalType: 'offer' | 'answer' | 'ice';
+    data: Record<string, unknown>;
+  };
+}
+
+export interface VoiceStateMessage {
+  type: 'VOICE_STATE';
+  payload: {
+    participantId: string;
+    state: 'joined' | 'left';
+  };
+}
+
+export type ServerMessage =
+  | WelcomeMessage
+  | SnapshotMessage
+  | EventsMessage
+  | ErrorMessage
+  | ServerVoiceSignalMessage
+  | VoiceStateMessage;
 
 // ─── Event types (broadcast) ───
 

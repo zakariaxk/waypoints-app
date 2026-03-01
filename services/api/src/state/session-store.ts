@@ -17,6 +17,8 @@ import { config } from '../config.js';
 export interface FullSessionState extends SessionState {
   participants: Map<string, FullParticipantState>;
   eventBuffer: EventBuffer;
+  /** Participant IDs currently in voice chat (ephemeral, not replayed). */
+  voiceMembers: Set<string>;
 }
 
 export interface FullParticipantState extends ParticipantState {
@@ -60,6 +62,7 @@ class SessionStore {
       createdAt: Date.now(),
       participants: new Map(),
       eventBuffer: new EventBuffer(config.eventBufferCapacity),
+      voiceMembers: new Set(),
     };
 
     const participant: FullParticipantState = {
