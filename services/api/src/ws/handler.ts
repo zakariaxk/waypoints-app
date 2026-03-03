@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid';
 import { dispatch } from './dispatcher.js';
 import { sessionStore } from '../state/session-store.js';
 import { cleanupVoiceMember } from './voice.js';
+import { cleanupMusicMember } from './music.js';
 
 /** Map of connId → { ws, sessionId, participantId } */
 export interface ConnState {
@@ -81,6 +82,8 @@ function handleDisconnect(conn: ConnState): void {
 
   // Remove from voice chat if active
   cleanupVoiceMember(conn.sessionId, conn.participantId);
+  // Remove from music if active (stops broadcast if they were DJ)
+  cleanupMusicMember(conn.sessionId, conn.participantId);
 
   const participant = sessionStore.getParticipant(conn.sessionId, conn.participantId);
   if (participant && participant.connId === conn.connId) {

@@ -10,6 +10,13 @@ import { handleSetDestination, handleClearDestination } from './destination.js';
 import { handleChatMessage } from './chat.js';
 import { handleLeaveSession } from './leave.js';
 import { handleVoiceJoin, handleVoiceLeave, handleVoiceSignal } from './voice.js';
+import {
+  handleMusicBroadcastStart,
+  handleMusicSync,
+  handleMusicBroadcastStop,
+  handleMusicListenerJoin,
+  handleMusicListenerLeave,
+} from './music.js';
 
 export function dispatch(conn: ConnState, raw: Buffer | string): void {
   // 1. Parse JSON
@@ -68,6 +75,21 @@ export function dispatch(conn: ConnState, raw: Buffer | string): void {
       break;
     case 'VOICE_SIGNAL':
       handleVoiceSignal(conn, message.payload);
+      break;
+    case 'MUSIC_BROADCAST_START':
+      handleMusicBroadcastStart(conn, message.payload);
+      break;
+    case 'MUSIC_SYNC':
+      handleMusicSync(conn, message.payload);
+      break;
+    case 'MUSIC_BROADCAST_STOP':
+      handleMusicBroadcastStop(conn);
+      break;
+    case 'MUSIC_LISTENER_JOIN':
+      handleMusicListenerJoin(conn);
+      break;
+    case 'MUSIC_LISTENER_LEAVE':
+      handleMusicListenerLeave(conn);
       break;
     default:
       sendError(conn, 'BAD_MESSAGE', `Unknown message type`);

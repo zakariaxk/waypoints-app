@@ -4,6 +4,7 @@ import type { ConnState } from './handler.js';
 import { sendJson, broadcastToSession } from './handler.js';
 import { sessionStore } from '../state/session-store.js';
 import { cleanupVoiceMember } from './voice.js';
+import { cleanupMusicMember } from './music.js';
 
 export function handleLeaveSession(conn: ConnState): void {
   const { sessionId, participantId } = conn;
@@ -14,6 +15,8 @@ export function handleLeaveSession(conn: ConnState): void {
 
   // Remove from voice chat if active
   cleanupVoiceMember(sessionId, participantId);
+  // Remove from music if active (stops broadcast if they were DJ)
+  cleanupMusicMember(sessionId, participantId);
 
   // Mark participant as offline and clear connection
   participant.connId = null;

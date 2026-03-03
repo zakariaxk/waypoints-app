@@ -5,8 +5,8 @@
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "build:dev": "eas build --platform ios --profile development",
     "build:preview": "eas build --platform ios --profile preview",
     "build:prod": "eas build --platform ios --profile production",
@@ -14,6 +14,8 @@
     "lint": "eslint src --ext .ts,.tsx"
   },
   "dependencies": {
+    "@capacitor/cli": "^8.1.0",
+    "@capacitor/core": "^8.1.0",
     "@expo-google-fonts/orbitron": "^0.4.2",
     "@expo-google-fonts/rajdhani": "^0.4.1",
     "@expo/ngrok": "^4.1.0",
