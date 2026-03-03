@@ -48,6 +48,37 @@ export const voiceSignalPayloadSchema = z.object({
   data: z.record(z.unknown()),
 });
 
+// ─── Music Listen-Along schemas ───
+
+export const musicPlatformSchema = z.enum(['spotify', 'apple_music', 'soundcloud']);
+
+export const musicTrackSchema = z.object({
+  trackId: z.string().min(1),
+  title: z.string().min(1).max(200),
+  artist: z.string().min(1).max(200),
+  albumArt: z.string().url().nullable(),
+  durationMs: z.number().int().positive(),
+});
+
+export const musicBroadcastStartPayloadSchema = z.object({
+  platform: musicPlatformSchema,
+  track: musicTrackSchema,
+  positionMs: z.number().int().nonnegative(),
+  isPlaying: z.boolean(),
+});
+
+export const musicSyncPayloadSchema = z.object({
+  track: musicTrackSchema,
+  positionMs: z.number().int().nonnegative(),
+  isPlaying: z.boolean(),
+});
+
+export const musicBroadcastStopPayloadSchema = z.object({});
+
+export const musicListenerJoinPayloadSchema = z.object({});
+
+export const musicListenerLeavePayloadSchema = z.object({});
+
 // ─── Discriminated union for all client messages ───
 
 export const helloMessageSchema = z.object({
@@ -95,6 +126,31 @@ export const voiceSignalMessageSchema = z.object({
   payload: voiceSignalPayloadSchema,
 });
 
+export const musicBroadcastStartMessageSchema = z.object({
+  type: z.literal('MUSIC_BROADCAST_START'),
+  payload: musicBroadcastStartPayloadSchema,
+});
+
+export const musicSyncMessageSchema = z.object({
+  type: z.literal('MUSIC_SYNC'),
+  payload: musicSyncPayloadSchema,
+});
+
+export const musicBroadcastStopMessageSchema = z.object({
+  type: z.literal('MUSIC_BROADCAST_STOP'),
+  payload: musicBroadcastStopPayloadSchema,
+});
+
+export const musicListenerJoinMessageSchema = z.object({
+  type: z.literal('MUSIC_LISTENER_JOIN'),
+  payload: musicListenerJoinPayloadSchema,
+});
+
+export const musicListenerLeaveMessageSchema = z.object({
+  type: z.literal('MUSIC_LISTENER_LEAVE'),
+  payload: musicListenerLeavePayloadSchema,
+});
+
 export const clientMessageSchema = z.discriminatedUnion('type', [
   helloMessageSchema,
   locUpdateMessageSchema,
@@ -105,6 +161,11 @@ export const clientMessageSchema = z.discriminatedUnion('type', [
   voiceJoinMessageSchema,
   voiceLeaveMessageSchema,
   voiceSignalMessageSchema,
+  musicBroadcastStartMessageSchema,
+  musicSyncMessageSchema,
+  musicBroadcastStopMessageSchema,
+  musicListenerJoinMessageSchema,
+  musicListenerLeaveMessageSchema,
 ]);
 
 // ─── Type inference helpers ───
@@ -114,4 +175,6 @@ export type ValidatedLocUpdatePayload = z.infer<typeof locUpdatePayloadSchema>;
 export type ValidatedSetDestinationPayload = z.infer<typeof setDestinationPayloadSchema>;
 export type ValidatedChatMessagePayload = z.infer<typeof chatMessagePayloadSchema>;
 export type ValidatedVoiceSignalPayload = z.infer<typeof voiceSignalPayloadSchema>;
+export type ValidatedMusicBroadcastStartPayload = z.infer<typeof musicBroadcastStartPayloadSchema>;
+export type ValidatedMusicSyncPayload = z.infer<typeof musicSyncPayloadSchema>;
 export type ValidatedClientMessage = z.infer<typeof clientMessageSchema>;

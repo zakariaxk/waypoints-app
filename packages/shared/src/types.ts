@@ -50,3 +50,24 @@ export interface SessionState {
   lastEventId: number;
   createdAt: number;
 }
+
+// ─── Music Listen-Along Types ───
+
+export type MusicPlatform = 'spotify' | 'apple_music' | 'soundcloud';
+
+export interface MusicTrack {
+  trackId: string; // platform-specific ID (e.g., spotify:track:xxx)
+  title: string;
+  artist: string;
+  albumArt: string | null; // URL
+  durationMs: number;
+}
+
+export interface MusicBroadcast {
+  broadcasterId: string; // participantId of the DJ
+  platform: MusicPlatform;
+  track: MusicTrack;
+  positionMs: number;
+  isPlaying: boolean;
+  updatedAt: number; // server timestamp
+}

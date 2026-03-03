@@ -265,3 +265,106 @@ Forwarded to only the intended recipient. `fromParticipantId` is set by the serv
 }
 ```
 Broadcast to all session participants when a participant joins or leaves voice chat (including on disconnect/leave cleanup).
+
+## Music Listen-Along Messages (Ephemeral)
+
+Music listen-along allows one participant to broadcast their current music playback state (platform, track, position, play/pause) so others can sync their local player. Like voice, these messages are **ephemeral** — NOT emitted as `EVENT`, NOT stored in the replay ring buffer, and NOT replayed on reconnect. On reconnect, listeners must re-join via `MUSIC_LISTENER_JOIN` if a broadcast is active.
+
+**Key rules:**
+- Only one broadcast per session at a time.
+- Broadcaster is automatically added as a listener.
+- When the broadcaster disconnects or leaves, the broadcast ends and all listeners are cleared.
+- The `platform` field indicates which music app is needed (spotify, apple_music, soundcloud).
+
+### Client → Server: MUSIC_BROADCAST_START
+```json
+{
+  "type": "MUSIC_BROADCAST_START",
+  "payload": {
+    "platform": "spotify | apple_music | soundcloud",
+    "track": {
+      "trackId": "string (platform-specific ID)",
+      "title": "string",
+      "artist": "string",
+      "albumArt": "string (URL) | null",
+      "durationMs": "number"
+    },
+    "positionMs": "number",
+    "isPlaying": "boolean"
+  }
+}
+```
+Starts a music broadcast. Fails with `FORBIDDEN` if another user is already broadcasting.
+
+### Client → Server: MUSIC_SYNC
+```json
+{
+  "type": "MUSIC_SYNC",
+  "payload": {
+    "track": { "trackId", "title", "artist", "albumArt", "durationMs" },
+    "positionMs": "number",
+    "isPlaying": "boolean"
+  }
+}
+```
+Sends playback sync update to listeners. **Only the current broadcaster can send this.** Updates track, position, and play/pause state.
+
+### Client → Server: MUSIC_BROADCAST_STOP
+```json
+{
+  "type": "MUSIC_BROADCAST_STOP",
+  "payload": {}
+}
+```
+Stops the broadcast. **Only the broadcaster can send this.** Clears `musicBroadcast` and removes all listeners.
+
+### Client → Server: MUSIC_LISTENER_JOIN
+```json
+{
+  "type": "MUSIC_LISTENER_JOIN",
+  "payload": {}
+}
+```
+Joins as a listener to the current broadcast. Fails with `BAD_MESSAGE` if no active broadcast.
+
+### Client → Server: MUSIC_LISTENER_LEAVE
+```json
+{
+  "type": "MUSIC_LISTENER_LEAVE",
+  "payload": {}
+}
+```
+Leaves as a listener. If the broadcaster calls this, it ends the broadcast entirely.
+
+### Server → Client: MUSIC_STATE
+```json
+{
+  "type": "MUSIC_STATE",
+  "payload": {
+    "broadcast": {
+      "broadcasterId": "string (participantId)",
+      "platform": "spotify | apple_music | soundcloud",
+      "track": { "trackId", "title", "artist", "albumArt", "durationMs" },
+      "positionMs": "number",
+      "isPlaying": "boolean",
+      "updatedAt": "number (server timestamp)"
+    } | null,
+    "listeners": ["participantId", "..."]
+  }
+}
+```
+Broadcast to all session participants when: broadcast starts, stops, or listener list changes. `broadcast` is `null` when no one is broadcasting.
+
+### Server → Client: MUSIC_SYNC_BROADCAST
+```json
+{
+  "type": "MUSIC_SYNC_BROADCAST",
+  "payload": {
+    "track": { "trackId", "title", "artist", "albumArt", "durationMs" },
+    "positionMs": "number",
+    "isPlaying": "boolean",
+    "updatedAt": "number (server timestamp)"
+  }
+}
+```
+Broadcast to all session participants when the broadcaster sends `MUSIC_SYNC`. Clients use this to update their local player position.

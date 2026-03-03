@@ -31,6 +31,25 @@ export interface ChatMessage {
   ts: number;
 }
 
+export type MusicPlatform = 'spotify' | 'apple_music' | 'soundcloud';
+
+export interface MusicTrack {
+  trackId: string;
+  title: string;
+  artist: string;
+  albumArt: string | null;
+  durationMs: number;
+}
+
+export interface MusicBroadcast {
+  broadcasterId: string;
+  platform: MusicPlatform;
+  track: MusicTrack;
+  positionMs: number;
+  isPlaying: boolean;
+  updatedAt: number;
+}
+
 interface SessionState {
   // Auth / identity
   sessionId: string | null;
@@ -53,6 +72,10 @@ interface SessionState {
 
   // Voice chat (Phase 2)
   voiceMembers: Set<string>;
+
+  // Music listen-along
+  musicBroadcast: MusicBroadcast | null;
+  musicListeners: Set<string>;
 
   // Actions
   setSession: (s: {
@@ -79,6 +102,8 @@ interface SessionState {
   }) => void;
   addVoiceMember: (participantId: string) => void;
   removeVoiceMember: (participantId: string) => void;
+  setMusicState: (broadcast: MusicBroadcast | null, listeners: string[]) => void;
+  updateMusicSync: (track: MusicTrack, positionMs: number, isPlaying: boolean, updatedAt: number) => void;
   reset: () => void;
 }
 
@@ -97,6 +122,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   hostParticipantId: null,
   isHost: false,
   voiceMembers: new Set(),
+  musicBroadcast: null,
+  musicListeners: new Set(),
 
   setSession: (s) => {
     const isHost = s.hostParticipantId ? s.participantId === s.hostParticipantId : false;
@@ -235,6 +262,27 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     set({ voiceMembers });
   },
 
+  setMusicState: (broadcast, listeners) => {
+    set({
+      musicBroadcast: broadcast,
+      musicListeners: new Set(listeners),
+    });
+  },
+
+  updateMusicSync: (track, positionMs, isPlaying, updatedAt) => {
+    const current = get().musicBroadcast;
+    if (!current) return;
+    set({
+      musicBroadcast: {
+        ...current,
+        track,
+        positionMs,
+        isPlaying,
+        updatedAt,
+      },
+    });
+  },
+
   reset: () =>
     set({
       sessionId: null,
@@ -251,5 +299,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       hostParticipantId: null,
       isHost: false,
       voiceMembers: new Set(),
+      musicBroadcast: null,
+      musicListeners: new Set(),
     }),
 }));

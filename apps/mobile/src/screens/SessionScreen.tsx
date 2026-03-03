@@ -47,6 +47,9 @@ import { useTheme } from '../ui/theme';
 import { haversineDistance, formatDistance } from '../utils/geo';
 import { joinVoice, leaveVoice } from '../services/voice';
 import { useVoiceChat } from '../hooks/useVoiceChat';
+import ListenAlongPanel from '../components/ListenAlongPanel';
+import { startBroadcast } from '../services/music';
+import type { MusicPlatform } from '../state/session-store';
 
 type Tab = 'people' | 'chat';
 
@@ -443,6 +446,49 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
     );
   }, [isHost]);
 
+  // Music broadcast handler
+  const handleStartBroadcast = useCallback(() => {
+    Alert.alert(
+      'Start Music Share',
+      'Select your music platform:',
+      [
+        {
+          text: 'Spotify',
+          onPress: () => startBroadcastWithPlatform('spotify'),
+        },
+        {
+          text: 'Apple Music',
+          onPress: () => startBroadcastWithPlatform('apple_music'),
+        },
+        {
+          text: 'SoundCloud',
+          onPress: () => startBroadcastWithPlatform('soundcloud'),
+        },
+        { text: 'Cancel', style: 'cancel' },
+      ],
+    );
+  }, []);
+
+  const startBroadcastWithPlatform = useCallback((platform: MusicPlatform) => {
+    // For now, use placeholder track data - in production, this would
+    // integrate with Spotify/Apple Music SDK to get the current playing track
+    const mockTrack = {
+      trackId: `${platform}:track:demo123`,
+      title: 'Demo Track',
+      artist: 'Demo Artist',
+      albumArt: 'https://via.placeholder.com/300',
+      durationMs: 210000, // 3:30
+    };
+    startBroadcast(platform, mockTrack, 0, true);
+    
+    if (Platform.OS === 'android') {
+      ToastAndroid.show('Started music broadcast!', ToastAndroid.SHORT);
+    } else {
+      setToastMessage('Started music broadcast!');
+      setTimeout(() => setToastMessage(null), 2000);
+    }
+  }, []);
+
   const participantList = Array.from(participants.values());
   const onlineCount = participantList.filter((p) => p.status === 'online').length;
 
@@ -581,6 +627,11 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
           participantNames={new Map(participantList.map((p) => [p.participantId, p.displayName || p.participantId.slice(0, 6)]))}
         />
       )}
+
+      {/* Music Listen-Along Panel */}
+      <View style={styles.listenAlongContainer}>
+        <ListenAlongPanel sessionId={sessionId} onStartBroadcast={handleStartBroadcast} />
+      </View>
 
       {/* Voice (beta) bar — only visible when native WebRTC module is available (EAS dev client) */}
       {voiceChat.available && (
@@ -976,5 +1027,8 @@ const createStyles = (colors: ThemeColors) =>
       fontWeight: '700',
       color: colors.secondary,
       textTransform: 'uppercase',
+    },
+    listenAlongContainer: {
+      paddingHorizontal: spacing.md,
     },
   });

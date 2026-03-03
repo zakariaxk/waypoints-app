@@ -1,7 +1,7 @@
 // WebSocket message types matching docs/WS-PROTOCOL.md exactly.
 // Discriminated unions keyed on "type".
 
-import type { Destination, Location, ParticipantSnapshot } from './types.js';
+import type { Destination, Location, ParticipantSnapshot, MusicPlatform, MusicTrack, MusicBroadcast } from './types.js';
 
 // ─── Client → Server ───
 
@@ -75,6 +75,42 @@ export interface VoiceSignalMessage {
   };
 }
 
+// ─── Music Listen-Along messages (ephemeral, NOT replayed via EVENT) ───
+
+export interface MusicBroadcastStartMessage {
+  type: 'MUSIC_BROADCAST_START';
+  payload: {
+    platform: MusicPlatform;
+    track: MusicTrack;
+    positionMs: number;
+    isPlaying: boolean;
+  };
+}
+
+export interface MusicSyncMessage {
+  type: 'MUSIC_SYNC';
+  payload: {
+    track: MusicTrack;
+    positionMs: number;
+    isPlaying: boolean;
+  };
+}
+
+export interface MusicBroadcastStopMessage {
+  type: 'MUSIC_BROADCAST_STOP';
+  payload: Record<string, never>;
+}
+
+export interface MusicListenerJoinMessage {
+  type: 'MUSIC_LISTENER_JOIN';
+  payload: Record<string, never>;
+}
+
+export interface MusicListenerLeaveMessage {
+  type: 'MUSIC_LISTENER_LEAVE';
+  payload: Record<string, never>;
+}
+
 export type ClientMessage =
   | HelloMessage
   | LocUpdateMessage
@@ -84,7 +120,12 @@ export type ClientMessage =
   | LeaveSessionMessage
   | VoiceJoinMessage
   | VoiceLeaveMessage
-  | VoiceSignalMessage;
+  | VoiceSignalMessage
+  | MusicBroadcastStartMessage
+  | MusicSyncMessage
+  | MusicBroadcastStopMessage
+  | MusicListenerJoinMessage
+  | MusicListenerLeaveMessage;
 
 // ─── Server → Client ───
 
@@ -144,13 +185,35 @@ export interface VoiceStateMessage {
   };
 }
 
+// ─── Server → Client music messages (ephemeral, NOT replayed) ───
+
+export interface MusicStateMessage {
+  type: 'MUSIC_STATE';
+  payload: {
+    broadcast: MusicBroadcast | null;
+    listeners: string[]; // participantIds
+  };
+}
+
+export interface MusicSyncBroadcastMessage {
+  type: 'MUSIC_SYNC_BROADCAST';
+  payload: {
+    track: MusicTrack;
+    positionMs: number;
+    isPlaying: boolean;
+    updatedAt: number;
+  };
+}
+
 export type ServerMessage =
   | WelcomeMessage
   | SnapshotMessage
   | EventsMessage
   | ErrorMessage
   | ServerVoiceSignalMessage
-  | VoiceStateMessage;
+  | VoiceStateMessage
+  | MusicStateMessage
+  | MusicSyncBroadcastMessage;
 
 // ─── Event types (broadcast) ───
 

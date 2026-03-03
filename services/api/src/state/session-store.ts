@@ -9,6 +9,7 @@ import type {
   SessionEvent,
   ParticipantSnapshot,
   SessionSnapshot,
+  MusicBroadcast,
 } from '@waypoints/shared';
 import { EventBuffer } from './event-buffer.js';
 import { updatePresenceForSession } from './presence.js';
@@ -19,6 +20,10 @@ export interface FullSessionState extends SessionState {
   eventBuffer: EventBuffer;
   /** Participant IDs currently in voice chat (ephemeral, not replayed). */
   voiceMembers: Set<string>;
+  /** Current music broadcast (ephemeral, not replayed). */
+  musicBroadcast: MusicBroadcast | null;
+  /** Participant IDs currently listening to music (ephemeral, not replayed). */
+  musicListeners: Set<string>;
 }
 
 export interface FullParticipantState extends ParticipantState {
@@ -63,6 +68,8 @@ class SessionStore {
       participants: new Map(),
       eventBuffer: new EventBuffer(config.eventBufferCapacity),
       voiceMembers: new Set(),
+      musicBroadcast: null,
+      musicListeners: new Set(),
     };
 
     const participant: FullParticipantState = {
