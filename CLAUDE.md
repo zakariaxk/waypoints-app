@@ -74,6 +74,13 @@ TypeScript everywhere. Small functions, clear names, no magic constants. Validat
 messages with structured `ERROR` responses. Match surrounding code style. Prefer RN's built-in `Animated` over
 reanimated for simple animations (see lessons.md).
 
+## Skills
+
+The vendored caveman skill pack lives in `.agents/skills/` (pinned in `skills-lock.json`) and is exposed to
+Claude Code via the `.claude/skills` → `../.agents/skills` symlink. Available: `caveman` (compressed output),
+`caveman-commit`, `caveman-review`, `caveman-compress`, `caveman-stats`, `caveman-help`, `cavecrew`. Update the
+pack in `.agents/skills`; the symlink and lock keep it in sync.
+
 ## Shipping
 
 Commit + push finished work and open a PR against `main` (see the user's memory). PRs follow
