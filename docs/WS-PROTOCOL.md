@@ -68,12 +68,26 @@ Sent right after WELCOME.
         "displayName": "string | null",
         "lastLocation": "{ lat, lng, speed, heading, accuracy, ts } | null",
         "lastSeenTs": "number",
-        "status": "online | stale | offline"
+        "status": "online | stale | offline",
+        "battery": "number (0..1) | null",
+        "charging": "boolean | null",
+        "arrived": "boolean",
+        "sos": "{ note: string | null, ts: number } | null"
+      }
+    ],
+    "activeSos": [
+      {
+        "participantId": "string",
+        "note": "string | null",
+        "lat": "number | null",
+        "lng": "number | null",
+        "ts": "number"
       }
     ]
   }
 }
 ```
+`activeSos` and per-row `sos`/`arrived`/`battery`/`charging` make safety state replayable on reconnect (Phase 3).
 
 ### Server -> Client: EVENTS
 If `lastEventId` is behind, server sends missed events.
@@ -102,11 +116,14 @@ Client must apply events in order and ignore duplicates by eventId.
     "speed": "number | null",
     "heading": "number | null",
     "accuracy": "number | null",
-    "ts": "number (client epoch ms)"
+    "ts": "number (client epoch ms)",
+    "battery": "number (0..1) | null  (optional, Phase 3)",
+    "charging": "boolean | null  (optional, Phase 3)"
   }
 }
 ```
 Server rate limits per participant (900ms min interval). Excess updates silently dropped.
+`battery`/`charging` are presence enrichment — stored on participant state, echoed in `SNAPSHOT` rows and `LOCATION_UPDATED` data. They are **not** a durable event kind (see DECISIONS: battery-not-an-event).
 
 ### SET_DESTINATION
 ```json
@@ -141,6 +158,35 @@ Server rate limits per participant (900ms min interval). Excess updates silently
 ```
 Server broadcasts with participantId and displayName attached.
 
+### RAISE_SOS
+```json
+{
+  "type": "RAISE_SOS",
+  "payload": {
+    "note": "string (≤140 chars, optional)"
+  }
+}
+```
+**Any participant.** Server sources the sender's last known location (does not trust a client-supplied position), assigns an `eventId`, records active SOS on session state, and broadcasts `SOS_RAISED`. Durable/replayable; included in `SNAPSHOT.activeSos`.
+
+### CLEAR_SOS
+```json
+{
+  "type": "CLEAR_SOS",
+  "payload": {}
+}
+```
+Clears **only the sender's own** SOS. Broadcasts `SOS_CLEARED`.
+
+### ARRIVAL_PING
+```json
+{
+  "type": "ARRIVAL_PING",
+  "payload": {}
+}
+```
+Server validates the sender is within `ARRIVAL_RADIUS_M` (default 50m) of the destination; if outside, replies `ERROR` with code `NOT_ARRIVED`. On success, marks arrival in session state and broadcasts `ARRIVAL_PINGED`.
+
 ### LEAVE_SESSION
 ```json
 {
@@ -172,7 +218,7 @@ All events are delivered as:
 `data: { participantId: string }`
 
 ### LOCATION_UPDATED
-`data: { participantId, lat, lng, speed, heading, accuracy, ts }`
+`data: { participantId, lat, lng, speed, heading, accuracy, ts, battery: number|null, charging: boolean|null }`
 
 ### DESTINATION_SET
 `data: { lat, lng, label, setBy: participantId }`
@@ -183,18 +229,31 @@ All events are delivered as:
 ### CHAT_MESSAGE
 `data: { participantId: string, displayName: string | null, text: string }`
 
+### SOS_RAISED
+`data: { participantId: string, note: string | null, lat: number | null, lng: number | null, ts: number }`
+Durable/replayable. `lat`/`lng` are the sender's last server-known location, or `null` if none yet (no camera-snap in that case). Active SOS is reflected in `SNAPSHOT.activeSos` + the participant row `sos`.
+
+### SOS_CLEARED
+`data: { participantId: string }`
+Only the SOS owner can clear their own.
+
+### ARRIVAL_PINGED
+`data: { participantId: string, ts: number }`
+Marks the participant as arrived (durable in `SNAPSHOT` row `arrived: true`); feeds Session Summary arrival order.
+
 ## Error Handling
 ```json
 {
   "type": "ERROR",
   "payload": {
-    "code": "BAD_MESSAGE | UNAUTHORIZED | NOT_IN_SESSION | RATE_LIMITED | FORBIDDEN | AUTH_EXPIRED",
+    "code": "BAD_MESSAGE | UNAUTHORIZED | NOT_IN_SESSION | RATE_LIMITED | FORBIDDEN | AUTH_EXPIRED | NOT_ARRIVED",
     "message": "string"
   }
 }
 ```
 - `FORBIDDEN` — returned when a non-host attempts a host-only action (e.g., SET_DESTINATION, CLEAR_DESTINATION).
 - `AUTH_EXPIRED` — returned when the JWT token has expired. Client should refresh the token via Supabase Auth and reconnect.
+- `NOT_ARRIVED` — returned when `ARRIVAL_PING` is sent from outside the arrival radius (dedicated code, not `BAD_MESSAGE` — see DECISIONS).
 - Client should show a friendly error and attempt reconnect if appropriate.
 
 ## Authentication (Phase 3 — Supabase JWT)

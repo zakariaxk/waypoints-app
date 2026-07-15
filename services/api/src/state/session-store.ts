@@ -7,6 +7,7 @@ import type {
   SessionEvent,
   ParticipantSnapshot,
   SessionSnapshot,
+  ActiveSos,
 } from '@waypoints/shared';
 import { EventBuffer } from './event-buffer.js';
 import { updatePresenceForSession } from './presence.js';
@@ -61,6 +62,8 @@ class SessionStore {
       participants: new Map(),
       eventBuffer: new EventBuffer(config.eventBufferCapacity),
       voiceMembers: new Set(),
+      sosActive: new Map(),
+      arrived: new Set(),
     };
 
     const participant: FullParticipantState = {
@@ -72,6 +75,8 @@ class SessionStore {
       lastSeenTs: Date.now(),
       connId: null,
       lastLocUpdateTs: 0,
+      battery: null,
+      charging: null,
     };
 
     session.participants.set(participantId, participant);
@@ -103,6 +108,8 @@ class SessionStore {
       lastSeenTs: Date.now(),
       connId: null,
       lastLocUpdateTs: 0,
+      battery: null,
+      charging: null,
     };
 
     session.participants.set(participantId, participant);
@@ -145,12 +152,29 @@ class SessionStore {
 
     const participants: ParticipantSnapshot[] = [];
     for (const p of session.participants.values()) {
+      const sos = session.sosActive.get(p.participantId) ?? null;
       participants.push({
         participantId: p.participantId,
         displayName: p.displayName,
         lastLocation: p.lastLocation,
         lastSeenTs: p.lastSeenTs,
         status: p.status,
+        battery: p.battery,
+        charging: p.charging,
+        arrived: session.arrived.has(p.participantId),
+        sos: sos ? { note: sos.note, ts: sos.ts } : null,
+      });
+    }
+
+    const activeSos: ActiveSos[] = [];
+    for (const [participantId, sos] of session.sosActive) {
+      const loc = session.participants.get(participantId)?.lastLocation ?? null;
+      activeSos.push({
+        participantId,
+        note: sos.note,
+        lat: loc?.lat ?? null,
+        lng: loc?.lng ?? null,
+        ts: sos.ts,
       });
     }
 
@@ -158,6 +182,7 @@ class SessionStore {
       latestEventId: session.lastEventId,
       destination: session.destination,
       participants,
+      activeSos,
     };
   }
 

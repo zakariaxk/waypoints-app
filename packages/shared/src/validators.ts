@@ -20,6 +20,8 @@ export const locUpdatePayloadSchema = z.object({
   heading: z.number().nullable(),
   accuracy: z.number().nullable(),
   ts: z.number().positive(),
+  battery: z.number().min(0).max(1).nullable().optional(),
+  charging: z.boolean().nullable().optional(),
 });
 
 export const setDestinationPayloadSchema = z.object({
@@ -35,6 +37,16 @@ export const chatMessagePayloadSchema = z.object({
 export const leaveSessionPayloadSchema = z.object({});
 
 export const clearDestinationPayloadSchema = z.object({});
+
+// ─── Safety message schemas (Phase 3) ───
+
+export const raiseSosPayloadSchema = z.object({
+  note: z.string().max(140).optional(),
+});
+
+export const clearSosPayloadSchema = z.object({});
+
+export const arrivalPingPayloadSchema = z.object({});
 
 // ─── Voice message schemas (Phase 2) ───
 
@@ -80,6 +92,21 @@ export const clearDestinationMessageSchema = z.object({
   payload: clearDestinationPayloadSchema,
 });
 
+export const raiseSosMessageSchema = z.object({
+  type: z.literal('RAISE_SOS'),
+  payload: raiseSosPayloadSchema,
+});
+
+export const clearSosMessageSchema = z.object({
+  type: z.literal('CLEAR_SOS'),
+  payload: clearSosPayloadSchema,
+});
+
+export const arrivalPingMessageSchema = z.object({
+  type: z.literal('ARRIVAL_PING'),
+  payload: arrivalPingPayloadSchema,
+});
+
 export const voiceJoinMessageSchema = z.object({
   type: z.literal('VOICE_JOIN'),
   payload: voiceJoinPayloadSchema,
@@ -102,6 +129,9 @@ export const clientMessageSchema = z.discriminatedUnion('type', [
   clearDestinationMessageSchema,
   chatMessageMessageSchema,
   leaveSessionMessageSchema,
+  raiseSosMessageSchema,
+  clearSosMessageSchema,
+  arrivalPingMessageSchema,
   voiceJoinMessageSchema,
   voiceLeaveMessageSchema,
   voiceSignalMessageSchema,
@@ -113,5 +143,6 @@ export type ValidatedHelloPayload = z.infer<typeof helloPayloadSchema>;
 export type ValidatedLocUpdatePayload = z.infer<typeof locUpdatePayloadSchema>;
 export type ValidatedSetDestinationPayload = z.infer<typeof setDestinationPayloadSchema>;
 export type ValidatedChatMessagePayload = z.infer<typeof chatMessagePayloadSchema>;
+export type ValidatedRaiseSosPayload = z.infer<typeof raiseSosPayloadSchema>;
 export type ValidatedVoiceSignalPayload = z.infer<typeof voiceSignalPayloadSchema>;
 export type ValidatedClientMessage = z.infer<typeof clientMessageSchema>;

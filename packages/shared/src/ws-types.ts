@@ -1,7 +1,7 @@
 // WebSocket message types matching docs/WS-PROTOCOL.md exactly.
 // Discriminated unions keyed on "type".
 
-import type { Destination, ParticipantSnapshot } from './types.js';
+import type { ActiveSos, Destination, ParticipantSnapshot } from './types.js';
 
 // ─── Client → Server ───
 
@@ -25,7 +25,28 @@ export interface LocUpdateMessage {
     heading: number | null;
     accuracy: number | null;
     ts: number;
+    battery?: number | null; // 0..1, presence enrichment (Phase 3)
+    charging?: boolean | null;
   };
+}
+
+// ─── Safety messages (Phase 3 — durable, replayable via EVENT) ───
+
+export interface RaiseSosMessage {
+  type: 'RAISE_SOS';
+  payload: {
+    note?: string; // ≤140 chars
+  };
+}
+
+export interface ClearSosMessage {
+  type: 'CLEAR_SOS';
+  payload: Record<string, never>;
+}
+
+export interface ArrivalPingMessage {
+  type: 'ARRIVAL_PING';
+  payload: Record<string, never>;
 }
 
 export interface SetDestinationMessage {
@@ -82,6 +103,9 @@ export type ClientMessage =
   | ClearDestinationMessage
   | ChatMessageMessage
   | LeaveSessionMessage
+  | RaiseSosMessage
+  | ClearSosMessage
+  | ArrivalPingMessage
   | VoiceJoinMessage
   | VoiceLeaveMessage
   | VoiceSignalMessage;
@@ -105,6 +129,7 @@ export interface SnapshotMessage {
     latestEventId: number;
     destination: Destination | null;
     participants: ParticipantSnapshot[];
+    activeSos: ActiveSos[];
   };
 }
 
@@ -160,7 +185,10 @@ export type EventKind =
   | 'LOCATION_UPDATED'
   | 'DESTINATION_SET'
   | 'DESTINATION_CLEARED'
-  | 'CHAT_MESSAGE';
+  | 'CHAT_MESSAGE'
+  | 'SOS_RAISED'
+  | 'SOS_CLEARED'
+  | 'ARRIVAL_PINGED';
 
 export interface BaseEvent {
   eventId: number;
@@ -188,6 +216,8 @@ export interface LocationUpdatedEvent extends BaseEvent {
     heading: number | null;
     accuracy: number | null;
     ts: number;
+    battery: number | null; // 0..1, presence enrichment (Phase 3)
+    charging: boolean | null;
   };
 }
 
@@ -217,14 +247,51 @@ export interface ChatMessageEvent extends BaseEvent {
   };
 }
 
+// ─── Safety events (Phase 3 — durable, replayable, in SNAPSHOT) ───
+
+export interface SosRaisedEvent extends BaseEvent {
+  kind: 'SOS_RAISED';
+  data: {
+    participantId: string;
+    note: string | null;
+    lat: number | null; // sender's last known location (server-sourced); null if unknown
+    lng: number | null;
+    ts: number;
+  };
+}
+
+export interface SosClearedEvent extends BaseEvent {
+  kind: 'SOS_CLEARED';
+  data: {
+    participantId: string;
+  };
+}
+
+export interface ArrivalPingedEvent extends BaseEvent {
+  kind: 'ARRIVAL_PINGED';
+  data: {
+    participantId: string;
+    ts: number;
+  };
+}
+
 export type SessionEvent =
   | ParticipantJoinedEvent
   | ParticipantLeftEvent
   | LocationUpdatedEvent
   | DestinationSetEvent
   | DestinationClearedEvent
-  | ChatMessageEvent;
+  | ChatMessageEvent
+  | SosRaisedEvent
+  | SosClearedEvent
+  | ArrivalPingedEvent;
 
 // ─── Error codes ───
 
-export type ErrorCode = 'BAD_MESSAGE' | 'UNAUTHORIZED' | 'NOT_IN_SESSION' | 'RATE_LIMITED' | 'FORBIDDEN';
+export type ErrorCode =
+  | 'BAD_MESSAGE'
+  | 'UNAUTHORIZED'
+  | 'NOT_IN_SESSION'
+  | 'RATE_LIMITED'
+  | 'FORBIDDEN'
+  | 'NOT_ARRIVED';
