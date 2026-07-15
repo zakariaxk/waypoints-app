@@ -123,6 +123,17 @@ Dependencies added: expo-linear-gradient, react-native-reanimated, react-native-
 - [x] Docs: Append MANUAL_ACTIONS.md if EAS dev client / native module needed
 - [x] Run tests, verify passing (58/58 tests pass)
 
+### Batch 19 (Phase 3) — P3-01 · Protocol contract (ZAK-5)
+Contract-only, no behavior. Blocks all other Phase 3 tickets (02–09).
+- [x] Shared types: RAISE_SOS/CLEAR_SOS/ARRIVAL_PING client msgs; LOC_UPDATE += battery/charging
+- [x] Shared types: SOS_RAISED/SOS_CLEARED/ARRIVAL_PINGED events; LOCATION_UPDATED += battery/charging
+- [x] Shared types: SNAPSHOT participants += battery/charging/arrived/sos, + activeSos[]; ErrorCode += NOT_ARRIVED
+- [x] State types: ParticipantState += battery/charging; SessionState += sosActive Map, arrived Set
+- [x] Zod validators + discriminated union for new inbound; battery range 0..1, note ≤140 enforced
+- [x] Docs: WS-PROTOCOL.md tables; DECISIONS.md (SOS-replayable, battery-not-an-event, NOT_ARRIVED)
+- [x] `npm run build:shared` + `npm run lint` clean; Zod accept/reject verified
+- Downstream: backend (02–05) will fill required SessionState/ParticipantState fields; api typecheck stays red until then (expected, contract-first).
+
 ## Remaining Manual Steps (see docs/MANUAL_ACTIONS.md)
 - [ ] Apple Developer account enrollment ($99/yr)
 - [ ] EAS project init (`eas login && eas init`)

@@ -73,3 +73,15 @@
 - Dropping failed batches is acceptable because this is history/analytics data, not critical state.
 
 **Rule**: Cap flush buffer at 500 events per session. If DB is down, buffer overflows silently drop oldest events.
+
+## 2026-07-15 — Phase 3 safety contract: SOS replayable, battery not an event, dedicated NOT_ARRIVED
+
+**Context**: Phase 3 (Batch 19+) adds SOS, arrival pings, and battery broadcast. P3-01 (ZAK-5) locks the wire contract in `packages/shared` before any backend/mobile work.
+
+**Decision 1 — SOS + arrival are durable, replayable `EVENT`s.** `SOS_RAISED`/`SOS_CLEARED`/`ARRIVAL_PINGED` get monotonic `eventId`s, sit in the replay ring buffer, and are reflected in `SNAPSHOT` (`activeSos[]`, per-row `sos`/`arrived`). Unlike voice, *missing* a safety message matters — a reconnecting participant must learn an SOS is still active.
+
+**Decision 2 — Battery is presence enrichment, NOT an event.** `LOC_UPDATE` gains optional `battery` (0..1) / `charging`; they ride `ParticipantState`, echo into `LOCATION_UPDATED.data` and `SNAPSHOT` rows. No `BATTERY_LOW` event kind. Rationale: battery is high-frequency and low-value-on-replay (like location); a dedicated event would just add event-stream noise. The low-battery badge (`battery < 0.15 && !charging`) is derived client-side.
+
+**Decision 3 — Dedicated `NOT_ARRIVED` error, not `BAD_MESSAGE`.** An `ARRIVAL_PING` from outside `ARRIVAL_RADIUS_M` is a well-formed message failing a business rule, not a malformed one. A distinct code lets the client show a precise "you're not there yet" message and keeps `BAD_MESSAGE` meaning "protocol/schema violation" only.
+
+**Server sources SOS location.** `SOS_RAISED` lat/lng come from the sender's last server-known location, never a client-supplied position; `null` when unknown (no camera-snap). SOS **persists** across the sender's disconnect — only `CLEAR_SOS` (owner-only) or session end removes it.
