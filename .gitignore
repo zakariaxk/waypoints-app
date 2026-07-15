@@ -23,8 +23,9 @@ dist/
 .DS_Store
 Thumbs.db
 
-# IDE
+# IDE / agent
 .idea/
+.claude/settings.local.json
 *.swp
 *.swo
 *~
