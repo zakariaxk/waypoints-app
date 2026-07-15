@@ -1,5 +1,8 @@
 # Lessons
 
+Durable engineering lessons for agents working in this repo. When corrected, append a dated entry
+(mistake + rule) so it isn't repeated. See `CLAUDE.md` for the full workflow.
+
 ## Rules to avoid repeated mistakes
 - Always read docs/PRD.md + docs/WS-PROTOCOL.md before implementing real-time logic.
 - Never mark a task done without running tests or providing a manual verification checklist.
