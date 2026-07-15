@@ -78,7 +78,8 @@ reanimated for simple animations (see lessons.md).
 
 The vendored caveman skill pack lives in `.agents/skills/` (pinned in `skills-lock.json`) and is exposed to
 Claude Code via the `.claude/skills` → `../.agents/skills` symlink. Available: `caveman` (compressed output),
-`caveman-commit`, `caveman-review`, `caveman-compress`, `caveman-stats`, `caveman-help`, `cavecrew`. Update the
+`caveman-commit`, `caveman-review`, `caveman-compress`, `caveman-stats`, `caveman-help`, `cavecrew`, and
+`taste-skill` (anti-slop frontend design, from `leonxlnx/taste-skill`). Update the
 pack in `.agents/skills`; the symlink and lock keep it in sync.
 
 ## Shipping
