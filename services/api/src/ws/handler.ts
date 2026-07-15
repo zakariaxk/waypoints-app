@@ -2,17 +2,21 @@
 
 import { WebSocketServer, WebSocket } from 'ws';
 import type { Server } from 'http';
+import type { Logger } from 'pino';
 import { v4 as uuid } from 'uuid';
 import { dispatch } from './dispatcher.js';
 import { sessionStore } from '../state/session-store.js';
 import { cleanupVoiceMember } from './voice.js';
+import { logger as rootLogger } from '../logging.js';
 
-/** Map of connId → { ws, sessionId, participantId } */
+/** Per-connection state. `log` is a child logger bound with this connId. */
 export interface ConnState {
   ws: WebSocket;
   sessionId: string | null;
   participantId: string | null;
   connId: string;
+  /** Child logger bound with { connId } — grep by connId reconstructs the timeline. */
+  log: Logger;
 }
 
 const connections = new Map<string, ConnState>();
@@ -55,8 +59,15 @@ export function setupWebSocket(server: Server): WebSocketServer {
 
   wss.on('connection', (ws: WebSocket) => {
     const connId = uuid();
-    const conn: ConnState = { ws, sessionId: null, participantId: null, connId };
+    const conn: ConnState = {
+      ws,
+      sessionId: null,
+      participantId: null,
+      connId,
+      log: rootLogger.child({ connId }),
+    };
     connections.set(connId, conn);
+    conn.log.debug('ws connection opened');
 
     ws.on('message', (raw: Buffer | string) => {
       dispatch(conn, raw);
@@ -65,9 +76,11 @@ export function setupWebSocket(server: Server): WebSocketServer {
     ws.on('close', () => {
       handleDisconnect(conn);
       connections.delete(connId);
+      conn.log.debug('ws connection closed');
     });
 
-    ws.on('error', () => {
+    ws.on('error', (err) => {
+      conn.log.warn({ err }, 'ws connection error');
       handleDisconnect(conn);
       connections.delete(connId);
     });

@@ -1,7 +1,7 @@
 // LEAVE_SESSION handler: mark participant offline, broadcast, close connection.
 
 import type { ConnState } from './handler.js';
-import { sendJson, broadcastToSession } from './handler.js';
+import { broadcastToSession } from './handler.js';
 import { sessionStore } from '../state/session-store.js';
 import { cleanupVoiceMember } from './voice.js';
 

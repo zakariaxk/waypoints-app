@@ -139,3 +139,106 @@ _None_
   4. Consider using environment variables for TURN credentials
 - **Where result goes**: `apps/mobile/src/hooks/useVoiceChat.ts` → `ICE_SERVERS` array
 - **Note**: Not required for initial testing on the same network. Only needed if users report connection failures.
+
+---
+
+## Pending Actions — Supabase Architecture Upgrade (Phase 3)
+
+### 9. Create Supabase Project
+- **Service**: Supabase (https://supabase.com)
+- **Why**: Required for user authentication, Postgres database, and RLS-secured data persistence.
+- **Steps**:
+  1. Go to https://supabase.com/dashboard and sign in (or create an account)
+  2. Click "New Project"
+  3. Choose an organization (or create one)
+  4. Project name: `waypoints` (or similar)
+  5. Database password: generate a strong password and save it securely
+  6. Region: choose the closest to your Fly.io deployment (e.g., US East if using IAD)
+  7. Click "Create new project" — wait for provisioning (~2 minutes)
+  8. Once created, go to **Settings → API**:
+     - Copy **Project URL** (e.g., `https://xxxxx.supabase.co`)
+     - Copy **anon/public key** (starts with `eyJ...`)
+     - Copy **service_role key** (starts with `eyJ...` — keep this SECRET)
+  9. Go to **Settings → API → JWT Settings**:
+     - Copy the **JWT Secret** (used to verify JWTs locally on the backend)
+- **Where results go**:
+  - Backend `.env` file (create if it doesn't exist):
+    ```
+    SUPABASE_URL=https://xxxxx.supabase.co
+    SUPABASE_ANON_KEY=eyJ...
+    SUPABASE_SERVICE_ROLE_KEY=eyJ...
+    SUPABASE_JWT_SECRET=your-jwt-secret-here
+    ```
+  - Mobile environment / app config:
+    ```
+    EXPO_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+    EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+    ```
+  - **NEVER** expose the service_role key or JWT secret in mobile/client code
+
+### 10. Run Database Migrations
+- **Service**: Supabase SQL Editor (or Supabase CLI)
+- **Why**: Creates the required tables (profiles, friendships, sessions, session_participants, session_events) with RLS policies.
+- **Steps**:
+  1. After creating the Supabase project, go to **SQL Editor** in the dashboard
+  2. Run the migration SQL from `services/api/src/db/migrations/001_initial_schema.sql` (will be created during implementation)
+  3. Verify tables were created: go to **Table Editor** and confirm `profiles`, `friendships`, `sessions`, `session_participants`, `session_events` all exist
+  4. Verify RLS is enabled: each table should show "RLS enabled" in the Table Editor
+  5. Verify the `on_auth_user_created` trigger exists: go to **Database → Triggers**
+- **Alternative**: Use Supabase CLI for automated migrations:
+  ```bash
+  npx supabase init
+  npx supabase db push
+  ```
+- **Where result goes**: Database is ready for the backend to connect
+
+### 11. Configure Supabase Auth Settings
+- **Service**: Supabase Dashboard → Authentication
+- **Why**: Configure authentication providers and settings.
+- **Steps**:
+  1. Go to **Authentication → Providers**
+  2. Ensure **Email** provider is enabled (it's enabled by default)
+  3. Optionally disable "Confirm email" for development (Authentication → Settings → toggle off "Enable email confirmations")
+  4. Set **Site URL** to your mobile app's deep link scheme (e.g., `waypoints://`) or a redirect URL
+  5. Optionally configure rate limits under Authentication → Rate Limits
+  6. Under **Authentication → URL Configuration**, add any redirect URLs needed for OAuth (future)
+- **Where result goes**: Supabase Auth is configured and ready for signup/login
+
+### 12. Update Fly.io Environment Variables
+- **Service**: Fly.io
+- **Why**: The deployed backend needs Supabase credentials.
+- **Steps**:
+  1. Set secrets on Fly.io:
+     ```bash
+     fly secrets set SUPABASE_URL=https://xxxxx.supabase.co
+     fly secrets set SUPABASE_ANON_KEY=eyJ...
+     fly secrets set SUPABASE_SERVICE_ROLE_KEY=eyJ...
+     fly secrets set SUPABASE_JWT_SECRET=your-jwt-secret-here
+     ```
+  2. Redeploy: `fly deploy`
+  3. Verify health: `curl https://waypoints-api.fly.dev/health`
+- **Where result goes**: Backend running on Fly.io can now connect to Supabase
+
+---
+
+## Pending Actions — Engineering Foundation (Epic A)
+
+### 13. Configure branch protection on `main` (WP-102)
+- **Service**: GitHub → repository **Settings → Branches → Branch protection rules**
+- **Why**: The CI workflow (`.github/workflows/ci.yml`, WP-101) only guards merges if
+  GitHub is configured to require it. Branch protection makes a green CI run and a review
+  mandatory, and forbids direct/force pushes to `main`. This cannot be set from code — it
+  is a repository setting.
+- **Steps**:
+  1. Go to **Settings → Branches → Add branch protection rule**.
+  2. Branch name pattern: `main`.
+  3. Enable **Require a pull request before merging** (with **Require approvals: 1** — for
+     solo development, a self-review against the PR checklist satisfies this).
+  4. Enable **Require status checks to pass before merging**, then select the CI check
+     **`build · typecheck · lint · test`** (it appears in the list after CI has run once).
+  5. Enable **Require branches to be up to date before merging**.
+  6. Enable **Do not allow bypassing the above settings** and leave **Allow force pushes**
+     and **Allow deletions** **off**.
+  7. Save.
+- **Where result goes**: Direct and force pushes to `main` are rejected by GitHub; every
+  change lands via a CI-green PR. See `CONTRIBUTING.md` for the day-to-day flow.

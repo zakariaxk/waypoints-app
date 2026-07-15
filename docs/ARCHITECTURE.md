@@ -157,11 +157,11 @@ Waypoints/
 
 **packages/shared**: zod (runtime validation + type inference).
 
-**services/api**: fastify, ws, @types/ws, uuid, tsx (dev), vitest (dev).
+**services/api**: fastify, ws, @types/ws, uuid, zod (boot config validation, WP-105), pino-pretty (dev-friendly log formatting, WP-104 — Pino itself ships with Fastify), tsx (dev), vitest (dev), @vitest/coverage-v8 (dev — coverage floor, WP-103).
 
 **apps/mobile**: expo, expo-location, react-native-maps, react, react-native, zustand.
 
-Total: 11 production + 5 dev. No ORMs, no Express, no Socket.IO, no Redis.
+No ORMs, no Express, no Socket.IO, no Redis.
 
 ### Shared Types Strategy
 
@@ -332,3 +332,445 @@ npm run lint                   # eslint across all workspaces
 - Consider SFU architecture if voice groups regularly exceed 8 participants
 - Add visual audio level indicators
 - Add spatial/proximity audio (tie volume to map distance)
+
+---
+
+## Phase 3 – Supabase Architecture Upgrade (Phase 0: Design)
+
+### Overview
+
+Major architecture upgrade introducing Supabase for persistent user accounts, friends, settings, session metadata, and session event history. Live session state remains ephemeral and in-memory. No Redis, no multi-instance, single backend.
+
+### Goals
+
+1. **User accounts**: Register, login, logout via Supabase Auth (email/password, extensible to OAuth later)
+2. **Persistent auth**: JWT-based authentication for all REST and WebSocket endpoints
+3. **Persistent friends list**: Send/accept/reject/remove friend requests; query friends
+4. **Persistent user settings**: Display name, avatar, preferences stored in Postgres
+5. **Persistent session metadata**: Who created what session, when, with what join code
+6. **Persistent session event history**: Meaningful events (joins, leaves, chat, destination changes) logged to Postgres for post-session review
+
+### Architectural Constraints (Unchanged)
+
+| Constraint | Detail |
+|---|---|
+| Single backend instance | Node.js, Fastify for HTTP, `ws` for WebSockets |
+| No Redis | Not introduced |
+| No multi-instance | No horizontal scaling |
+| No Docker changes | Existing Dockerfile untouched |
+| TypeScript everywhere | Backend, mobile, shared types |
+| Backend validates all input | Zod schemas, JWT verification |
+| No high-frequency location in DB | Only meaningful events persisted |
+| Rate limiting in-memory | Per-participant timestamp check stays |
+
+### What Remains In-Memory
+
+| Component | Rationale |
+|---|---|
+| `Map<sessionId, SessionState>` | Live session state must be low-latency; DB round-trips unacceptable for real-time |
+| Participant locations | 1/sec/user — too high-frequency for DB writes |
+| Presence status (online/stale/offline) | Derived from connection + timing, ephemeral |
+| Voice membership (`voiceMembers`) | Connection-scoped, ephemeral |
+| Event ring buffer (`EventBuffer`) | For WS reconnect replay; DB too slow for this path |
+| Rate limiting timestamps | Per-connection, sub-second granularity |
+| WebSocket connection map | Connection ↔ participant binding |
+
+### What Moves to Supabase
+
+| Component | Table | Notes |
+|---|---|---|
+| User accounts | `auth.users` (Supabase managed) | Email/password, JWT issuance |
+| User profiles | `profiles` | Display name, avatar, settings |
+| Friend relationships | `friendships` | Request/accept/reject/block model |
+| Session metadata | `sessions` | Creation record, join code, host, status |
+| Session participants | `session_participants` | Who joined which session |
+| Meaningful session events | `session_events` | Joins, leaves, chat, destination — NOT locations |
+
+### Postgres Schema
+
+```sql
+-- ============================================================
+-- profiles: extends Supabase auth.users with app-specific data
+-- ============================================================
+CREATE TABLE profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  display_name TEXT CHECK (char_length(display_name) <= 30),
+  avatar_url TEXT,
+  settings JSONB NOT NULL DEFAULT '{}',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Auto-create profile on signup via Supabase trigger
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, display_name)
+  VALUES (NEW.id, NEW.raw_user_meta_data->>'display_name');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- ============================================================
+-- friendships: bidirectional, single-row per relationship
+-- ============================================================
+CREATE TABLE friendships (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  requester_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  addressee_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (status IN ('pending', 'accepted', 'blocked')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (requester_id, addressee_id),
+  CHECK (requester_id <> addressee_id)
+);
+
+CREATE INDEX idx_friendships_addressee ON friendships(addressee_id, status);
+CREATE INDEX idx_friendships_requester ON friendships(requester_id, status);
+
+-- ============================================================
+-- sessions: persistent session metadata
+-- ============================================================
+CREATE TABLE sessions (
+  id UUID PRIMARY KEY,
+  join_code TEXT NOT NULL UNIQUE,
+  host_user_id UUID NOT NULL REFERENCES profiles(id),
+  status TEXT NOT NULL DEFAULT 'active'
+    CHECK (status IN ('active', 'ended')),
+  destination JSONB,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  ended_at TIMESTAMPTZ
+);
+
+CREATE INDEX idx_sessions_join_code ON sessions(join_code);
+CREATE INDEX idx_sessions_host ON sessions(host_user_id);
+
+-- ============================================================
+-- session_participants: who joined which session
+-- ============================================================
+CREATE TABLE session_participants (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  participant_id UUID NOT NULL,
+  display_name TEXT,
+  joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  left_at TIMESTAMPTZ,
+  UNIQUE (session_id, user_id)
+);
+
+CREATE INDEX idx_session_participants_session ON session_participants(session_id);
+CREATE INDEX idx_session_participants_user ON session_participants(user_id);
+
+-- ============================================================
+-- session_events: meaningful events only (NOT location updates)
+-- ============================================================
+CREATE TABLE session_events (
+  id BIGSERIAL PRIMARY KEY,
+  session_id UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+  event_id INTEGER NOT NULL,
+  kind TEXT NOT NULL,
+  data JSONB NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_session_events_session ON session_events(session_id, event_id);
+```
+
+### RLS Policies
+
+```sql
+-- ── Profiles ──
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can view profiles"
+  ON profiles FOR SELECT USING (true);
+
+CREATE POLICY "Users can insert own profile"
+  ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Users can update own profile"
+  ON profiles FOR UPDATE USING (auth.uid() = id);
+
+-- ── Friendships ──
+ALTER TABLE friendships ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own friendships"
+  ON friendships FOR SELECT
+  USING (auth.uid() = requester_id OR auth.uid() = addressee_id);
+
+CREATE POLICY "Users can send friend requests"
+  ON friendships FOR INSERT
+  WITH CHECK (auth.uid() = requester_id);
+
+CREATE POLICY "Users can update friendships they received"
+  ON friendships FOR UPDATE
+  USING (auth.uid() = addressee_id);
+
+CREATE POLICY "Users can delete own friendships"
+  ON friendships FOR DELETE
+  USING (auth.uid() = requester_id OR auth.uid() = addressee_id);
+
+-- ── Sessions ──
+ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Participants can view their sessions"
+  ON sessions FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM session_participants sp
+      WHERE sp.session_id = sessions.id AND sp.user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Authenticated users can create sessions"
+  ON sessions FOR INSERT
+  WITH CHECK (auth.uid() = host_user_id);
+
+CREATE POLICY "Host can update own sessions"
+  ON sessions FOR UPDATE
+  USING (auth.uid() = host_user_id);
+
+-- ── Session Participants ──
+ALTER TABLE session_participants ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Participants can view co-participants"
+  ON session_participants FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM session_participants sp
+      WHERE sp.session_id = session_participants.session_id
+        AND sp.user_id = auth.uid()
+    )
+  );
+
+-- ── Session Events ──
+ALTER TABLE session_events ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Participants can view session events"
+  ON session_events FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM session_participants sp
+      WHERE sp.session_id = session_events.session_id
+        AND sp.user_id = auth.uid()
+    )
+  );
+```
+
+### JWT Verification Flow
+
+#### REST Endpoints
+
+```
+Client request:
+  Authorization: Bearer <supabase_jwt>
+      │
+      ▼
+Fastify preHandler hook:
+  1. Extract token from Authorization header
+  2. Verify JWT signature using SUPABASE_JWT_SECRET (local, no network call)
+  3. Decode payload → extract `sub` claim (userId)
+  4. Check token expiry (`exp` claim)
+  5. Attach userId to request context: request.userId = sub
+  6. If invalid/expired → 401 Unauthorized
+      │
+      ▼
+Route handler executes with authenticated userId
+```
+
+**Implementation**: Use `jsonwebtoken` library for local verification. No network call to Supabase for every request. The JWT secret is a static env var from the Supabase dashboard.
+
+#### WebSocket Handshake
+
+```
+Client sends HELLO:
+  { type: "HELLO", payload: { sessionId, token: <jwt>, lastEventId } }
+      │
+      ▼
+Server HELLO handler:
+  1. Verify JWT signature using SUPABASE_JWT_SECRET
+  2. Check token expiry
+  3. Extract userId from `sub` claim
+  4. Look up session by sessionId
+  5. Find participant in session where participant.userId === userId
+  6. If no match → ERROR { code: "UNAUTHORIZED" }
+  7. Bind connection: conn.userId = userId, conn.participantId = found participant
+  8. Proceed with WELCOME → SNAPSHOT → EVENTS
+```
+
+**Key change**: The server resolves `participantId` from `userId + sessionId` instead of the client sending it. This is more secure (client can't impersonate another participant) and simpler for reconnect (client only needs JWT + sessionId).
+
+#### Dual-Mode Auth (Migration Period)
+
+During migration, both auth modes are supported:
+1. **JWT mode**: `token` is a valid JWT → extract userId, resolve participant
+2. **Legacy mode**: `token` is a UUID → match against stored random token (existing behavior)
+
+Detection: attempt JWT verification first. If it fails (not a valid JWT format), fall back to legacy token matching.
+
+### Friend Relationship Model
+
+Single-row bidirectional model:
+
+```
+User A sends request to User B:
+  INSERT friendships (requester_id=A, addressee_id=B, status='pending')
+
+User B accepts:
+  UPDATE friendships SET status='accepted' WHERE requester_id=A AND addressee_id=B
+
+Query "my friends":
+  SELECT * FROM friendships
+  WHERE (requester_id = me OR addressee_id = me) AND status = 'accepted'
+
+User A or B removes friendship:
+  DELETE FROM friendships WHERE id = ...
+```
+
+**REST endpoints:**
+- `GET /friends` — list accepted friends + pending requests
+- `POST /friends/request` — send friend request (body: `{ userId }`)
+- `POST /friends/accept` — accept request (body: `{ friendshipId }`)
+- `POST /friends/reject` — reject request (body: `{ friendshipId }`)
+- `DELETE /friends/:friendshipId` — remove friendship
+
+### Session Metadata & Participant Storage
+
+**On session create (`POST /sessions`):**
+1. Create in-memory `SessionState` (as today)
+2. INSERT into `sessions` table (async, non-blocking)
+3. INSERT into `session_participants` (host as first participant, async)
+
+**On session join (`POST /sessions/join`):**
+1. Add participant to in-memory session (as today)
+2. INSERT into `session_participants` (async)
+
+**On session end (cleanup):**
+1. Remove from in-memory map (as today)
+2. UPDATE `sessions` SET `status = 'ended'`, `ended_at = now()` (async)
+
+**Schema notes:**
+- `session_participants.participant_id` stores the ephemeral in-session ID for event correlation
+- `session_participants.user_id` links to the authenticated user
+- `sessions.id` matches the in-memory `sessionId` (UUID generated at create time)
+
+### Session Event Logging Strategy
+
+**Problem**: Writing every event to the DB synchronously would kill performance.
+
+**Solution**: Async batched inserts.
+
+```
+Event occurs in session
+    │
+    ▼
+Is it a meaningful event? (not LOCATION_UPDATED)
+    │ yes
+    ▼
+Add to in-memory event flush buffer (per session)
+    │
+    ▼
+Flush triggers (whichever comes first):
+  • Buffer size ≥ 50 events
+  • Timer fires (every 5 seconds)
+  • Session ends / cleanup
+    │
+    ▼
+Batch INSERT into session_events (async, fire-and-forget)
+    │
+    ▼
+On failure: log warning, drop batch (session state is authoritative in-memory)
+```
+
+**Events persisted:**
+- `PARTICIPANT_JOINED`
+- `PARTICIPANT_LEFT`
+- `DESTINATION_SET`
+- `DESTINATION_CLEARED`
+- `CHAT_MESSAGE`
+
+**Events NOT persisted:**
+- `LOCATION_UPDATED` — too high frequency, no historical value per PRD
+- `VOICE_*` — ephemeral by design
+
+### ConnState Extension
+
+```typescript
+// Before
+interface ConnState {
+  ws: WebSocket;
+  sessionId: string | null;
+  participantId: string | null;
+  connId: string;
+}
+
+// After
+interface ConnState {
+  ws: WebSocket;
+  sessionId: string | null;
+  participantId: string | null;
+  userId: string | null;  // NEW: Supabase auth user ID
+  connId: string;
+}
+```
+
+### Reconnect-Safe eventId Model (Unchanged)
+
+The eventId model is **completely preserved**:
+1. Events are still monotonically numbered per session (in-memory)
+2. Ring buffer still holds last K events for replay
+3. HELLO still sends `lastEventId`; server replies with SNAPSHOT + EVENTS
+4. DB event logging is async and has no bearing on the reconnect path
+5. If a client reconnects, the in-memory ring buffer serves the replay — never the DB
+6. The DB `session_events.event_id` column stores the same IDs for correlation/history, but is never queried during reconnect
+
+### WS-PROTOCOL Changes Required
+
+1. **HELLO payload**: `participantId` removed (server resolves from JWT userId + sessionId). `token` now carries a Supabase JWT (or legacy UUID during migration).
+2. **New error code**: `AUTH_EXPIRED` — sent when JWT has expired; client should refresh token and reconnect.
+3. **HTTP endpoints**: All mutating endpoints require `Authorization: Bearer <jwt>` header.
+4. **No other protocol changes**: WELCOME, SNAPSHOT, EVENTS, EVENT, all message types remain identical.
+
+### Migration Plan: Anonymous → Authenticated Sessions
+
+| Phase | Scope | Backward Compatible |
+|---|---|---|
+| **M1: Backend infra** | Add Supabase client, JWT verifier, DB service, schema migration. REST endpoints support both auth modes. WS HELLO supports dual token detection. | Yes — legacy anonymous flow still works |
+| **M2: Persistence layer** | Session create/join writes to DB. Event flush buffer active. Friends API endpoints added. Profile endpoints added. | Yes — in-memory state unchanged |
+| **M3: Mobile auth** | Add Supabase Auth to mobile. Login/register screens. HTTP calls include JWT. WS HELLO sends JWT. | Yes — can still use legacy flow on old clients |
+| **M4: Mobile features** | Friends list UI, profile/settings UI, session history UI. | Yes |
+| **M5: Cleanup** | Remove legacy anonymous token support. All endpoints require JWT. Remove `token` from `ParticipantState`. Update all tests. | No — breaking change, requires app update |
+
+### Environment Variables (New)
+
+| Variable | Description | Where |
+|---|---|---|
+| `SUPABASE_URL` | Supabase project URL (`https://xxx.supabase.co`) | Backend `.env` |
+| `SUPABASE_ANON_KEY` | Supabase anon/public key (safe for client-side) | Mobile `.env` / app config |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-side only, bypasses RLS) | Backend `.env` |
+| `SUPABASE_JWT_SECRET` | JWT signing secret (for local verification) | Backend `.env` |
+
+### New Dependencies
+
+| Package | Where | Justification |
+|---|---|---|
+| `@supabase/supabase-js` | Backend + Mobile | Official Supabase client for DB operations and mobile auth |
+| `jsonwebtoken` | Backend | Local JWT verification without network calls (fast path for WS handshake) |
+| `@types/jsonwebtoken` | Backend (dev) | TypeScript types for jsonwebtoken |
+
+### Risk Assessment
+
+| Risk | Impact | Mitigation |
+|---|---|---|
+| Supabase latency on DB writes | Slow session create/join | All DB writes are async fire-and-forget; in-memory is authoritative |
+| JWT expiry during long session | User disconnected | Client monitors token expiry, refreshes proactively before expiry |
+| Supabase downtime | Auth fails, DB writes fail | Auth: cached JWT still valid until expiry. DB: session continues in-memory |
+| Migration period complexity | Two auth paths to maintain | Clear dual-mode detection; remove legacy in M5 |
+| Event flush buffer memory | Unbounded growth if DB is down | Cap buffer at 500 events per session; drop oldest on overflow |
+| Profile creation race | Signup trigger might fail | Upsert pattern in profile creation; client retries |

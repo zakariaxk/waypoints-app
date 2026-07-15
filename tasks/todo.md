@@ -131,3 +131,151 @@ Dependencies added: expo-linear-gradient, react-native-reanimated, react-native-
 - [ ] App Store Connect setup (create app, metadata, screenshots)
 - [ ] EAS build: preview → TestFlight → production
 - [ ] Submit for App Store review
+- [ ] Create Supabase project (get URL, keys, JWT secret)
+- [ ] Run database migrations in Supabase SQL Editor
+- [ ] Configure Supabase Auth settings
+- [ ] Update Fly.io environment variables with Supabase credentials
+
+---
+
+## Phase 3: Supabase Architecture Upgrade
+
+### MANUAL PREREQUISITE: Supabase Project Setup
+- [ ] Complete Manual Action #9 — Create Supabase project, obtain credentials
+- [ ] Complete Manual Action #11 — Configure Supabase Auth settings
+- [ ] Create `.env` file in `services/api/` with SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_JWT_SECRET
+
+### Batch 19: Backend Auth Infrastructure
+- [ ] Install backend deps: `@supabase/supabase-js`, `jsonwebtoken`, `@types/jsonwebtoken`, `dotenv`
+- [ ] Add Supabase env vars to `services/api/src/config.ts`
+- [ ] Create `services/api/src/db/supabase.ts` — Supabase client singleton (service role key)
+- [ ] Create `services/api/src/auth/jwt.ts` — JWT verification utility (`verifySupabaseJwt(token) → { userId } | null`)
+- [ ] Create `services/api/src/auth/fastify-auth-hook.ts` — Fastify `preHandler` hook for REST JWT auth
+- [ ] Add `userId: string | null` to `ConnState` in `ws/handler.ts`
+- [ ] Update `ws/handshake.ts` — dual-mode HELLO: JWT auth (resolve participant by userId) OR legacy token auth
+- [ ] Add `AUTH_EXPIRED` error code to shared `ErrorCode` type
+- [ ] Update `helloPayloadSchema` — make `participantId` optional
+- [ ] Write tests: JWT verification, dual-mode handshake, AUTH_EXPIRED error
+- [ ] Verify all 58 existing tests still pass (legacy path unchanged)
+
+### Batch 20: Database Schema & Migration
+- [ ] Create `services/api/src/db/migrations/001_initial_schema.sql` — full schema (profiles, friendships, sessions, session_participants, session_events, triggers, RLS policies, indexes)
+- [ ] Complete Manual Action #10 — Run migration in Supabase SQL Editor
+- [ ] Create `services/api/src/db/db-service.ts` — typed DB operations module:
+  - `upsertProfile(userId, displayName)`
+  - `getProfile(userId)`
+  - `updateProfile(userId, updates)`
+  - `createSessionRecord(sessionId, joinCode, hostUserId)`
+  - `addSessionParticipant(sessionId, userId, participantId, displayName)`
+  - `endSession(sessionId)`
+  - `markParticipantLeft(sessionId, userId)`
+  - `batchInsertEvents(sessionId, events[])`
+  - `getUserSessions(userId)`
+  - `getSessionEvents(sessionId)`
+- [ ] Write tests: DB service operations (mocked Supabase client)
+
+### Batch 21: Session Persistence Layer
+- [ ] Create `services/api/src/db/event-flush.ts` — async batched event flush buffer:
+  - Per-session in-memory buffer
+  - Flush on: buffer ≥ 50 events, timer (5s interval), session end
+  - Cap at 500 events per session (drop oldest on overflow)
+  - Fire-and-forget with error logging
+- [ ] Update `http/routes.ts` — add Fastify auth hook to `POST /sessions` and `POST /sessions/join`
+  - Extract `userId` from verified JWT
+  - Pass `userId` to session create/join
+  - Async persist to Supabase after in-memory write
+- [ ] Update `state/session-store.ts`:
+  - Add `userId` field to `FullParticipantState`
+  - `createSession(userId, displayName)` — accepts userId
+  - `joinSession(joinCode, userId, displayName)` — accepts userId
+  - Add `findParticipantByUserId(sessionId, userId)` method
+- [ ] Wire event flush into event handlers (dispatcher or individual handlers):
+  - On PARTICIPANT_JOINED, PARTICIPANT_LEFT, DESTINATION_SET, DESTINATION_CLEARED, CHAT_MESSAGE → push to flush buffer
+  - On LOCATION_UPDATED → do NOT push (explicitly skip)
+- [ ] Wire session end into cleanup sweep → call `endSession()` + flush remaining events
+- [ ] Write tests: event flush buffer logic, session persistence integration
+
+### Batch 22: User Profile & Friends API
+- [ ] Create `services/api/src/http/profile-routes.ts`:
+  - `GET /profile` — get own profile (authenticated)
+  - `PUT /profile` — update display_name, avatar_url, settings (authenticated)
+  - `GET /profile/:userId` — get another user's public profile
+- [ ] Create `services/api/src/http/friends-routes.ts`:
+  - `GET /friends` — list accepted friends + pending incoming requests (authenticated)
+  - `POST /friends/request` — send friend request `{ userId }` (authenticated)
+  - `POST /friends/:friendshipId/accept` — accept incoming request (authenticated)
+  - `POST /friends/:friendshipId/reject` — reject incoming request (authenticated)
+  - `DELETE /friends/:friendshipId` — remove friendship (authenticated)
+  - `GET /friends/search?q=` — search users by display name (authenticated)
+- [ ] Register profile + friends routes in `index.ts`
+- [ ] Write tests: profile CRUD, friend request lifecycle, authorization checks
+
+### Batch 23: Session History API
+- [ ] Create `services/api/src/http/history-routes.ts`:
+  - `GET /sessions/history` — list user's past sessions (authenticated, paginated)
+  - `GET /sessions/:sessionId/events` — get event log for a past session (authenticated, must be participant)
+  - `GET /sessions/:sessionId/summary` — get session summary (participants, duration, event counts)
+- [ ] Register history routes in `index.ts`
+- [ ] Write tests: history endpoints, authorization (only session participants can view)
+
+### Batch 24: Mobile Auth Foundation
+- [ ] Install mobile dep: `@supabase/supabase-js`
+- [ ] Create `apps/mobile/src/services/supabase.ts` — Supabase client with AsyncStorage session persistence
+- [ ] Create `apps/mobile/src/services/auth.ts` — auth service:
+  - `register(email, password, displayName)`
+  - `login(email, password)`
+  - `logout()`
+  - `getCurrentUser()`
+  - `getAccessToken()` — returns current JWT (auto-refreshed)
+  - `onAuthStateChange(callback)`
+- [ ] Create `apps/mobile/src/state/auth-store.ts` — Zustand auth store:
+  - `user: User | null`
+  - `session: Session | null`
+  - `isAuthenticated: boolean`
+  - `isLoading: boolean`
+- [ ] Create `apps/mobile/src/screens/LoginScreen.tsx` — email/password login
+- [ ] Create `apps/mobile/src/screens/RegisterScreen.tsx` — email/password registration
+- [ ] Update `App.tsx` — auth gate: show Login/Register if not authenticated, HomeScreen if authenticated
+- [ ] Add logout button to HomeScreen or profile area
+
+### Batch 25: Mobile API + WS Auth Integration
+- [ ] Update `apps/mobile/src/services/api.ts`:
+  - All HTTP calls include `Authorization: Bearer <jwt>` header
+  - `createSession` and `joinSession` use JWT auth (no longer store random token)
+  - Response no longer includes `token` field (or it's ignored)
+- [ ] Update `apps/mobile/src/services/ws-client.ts`:
+  - HELLO sends JWT as `token` (from Supabase session)
+  - Remove `participantId` from HELLO payload (server resolves from JWT)
+  - Handle `AUTH_EXPIRED` error → refresh token → reconnect
+- [ ] Update `apps/mobile/src/state/session-store.ts`:
+  - Remove `token` from stored session state (JWT is the token now)
+  - `participantId` comes from WELCOME response
+- [ ] Test full flow: register → login → create session → join session → WS handshake with JWT
+
+### Batch 26: Mobile Friends & Profile UI
+- [ ] Create `apps/mobile/src/screens/ProfileScreen.tsx` — view/edit own profile (display name, avatar)
+- [ ] Create `apps/mobile/src/screens/FriendsScreen.tsx` — friends list, pending requests, search/add
+- [ ] Create `apps/mobile/src/components/FriendRequestCard.tsx` — accept/reject UI
+- [ ] Update navigation — add Profile and Friends tabs/screens
+- [ ] Wire friend API calls to UI
+- [ ] Wire profile API calls to UI
+
+### Batch 27: Mobile Session History UI
+- [ ] Create `apps/mobile/src/screens/SessionHistoryScreen.tsx` — list past sessions (from Supabase, not AsyncStorage)
+- [ ] Create `apps/mobile/src/screens/SessionDetailScreen.tsx` — view event log of a past session
+- [ ] Update HomeScreen — show session history from API instead of local AsyncStorage
+- [ ] Wire history API calls to UI
+
+### Batch 28: Migration Cleanup & Final Testing
+- [ ] Remove legacy anonymous token support from backend:
+  - `handshake.ts`: remove legacy token path
+  - `session-store.ts`: remove `token` from `ParticipantState`
+  - `routes.ts`: require auth on all mutating endpoints
+  - Shared `HelloMessage`: remove optional `participantId`
+- [ ] Update ALL existing tests to use JWT auth flow
+- [ ] Run full test suite — ensure all pass
+- [ ] Update `packages/shared/src/types.ts` — remove `token` from `ParticipantState`
+- [ ] Update `packages/shared/src/validators.ts` — update `helloPayloadSchema`
+- [ ] Final documentation review: ARCHITECTURE.md, WS-PROTOCOL.md, PRD.md, DECISIONS.md
+- [ ] Complete Manual Action #12 — Update Fly.io env vars
+- [ ] Git commit + push

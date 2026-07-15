@@ -11,6 +11,7 @@
     "build:preview": "eas build --platform ios --profile preview",
     "build:prod": "eas build --platform ios --profile production",
     "submit": "eas submit --platform ios --profile production",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx"
   },
   "dependencies": {

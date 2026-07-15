@@ -4,6 +4,7 @@ import type { ErrorMessage } from '@waypoints/shared';
 import { clientMessageSchema } from '@waypoints/shared';
 import type { ConnState } from './handler.js';
 import { sendJson } from './handler.js';
+import { logInboundMessage, logClientError } from '../logging.js';
 import { handleHello } from './handshake.js';
 import { handleLocUpdate } from './location.js';
 import { handleSetDestination, handleClearDestination } from './destination.js';
@@ -30,6 +31,9 @@ export function dispatch(conn: ConnState, raw: Buffer | string): void {
   }
 
   const message = result.data;
+
+  // Log routing metadata only — never the payload (no coordinates/chat text).
+  logInboundMessage(conn.log, conn, message);
 
   // 3. HELLO is allowed before handshake; others require it
   if (message.type === 'HELLO') {
@@ -75,5 +79,6 @@ export function dispatch(conn: ConnState, raw: Buffer | string): void {
 }
 
 function sendError(conn: ConnState, code: ErrorMessage['payload']['code'], message: string): void {
+  logClientError(conn.log, conn, code, message);
   sendJson(conn.ws, { type: 'ERROR', payload: { code, message } });
 }

@@ -1,7 +1,7 @@
 // WebSocket message types matching docs/WS-PROTOCOL.md exactly.
 // Discriminated unions keyed on "type".
 
-import type { Destination, Location, ParticipantSnapshot } from './types.js';
+import type { Destination, ParticipantSnapshot } from './types.js';
 
 // ─── Client → Server ───
 
