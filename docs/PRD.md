@@ -110,3 +110,71 @@ Real-time voice communication between session participants using WebRTC peer-to-
 ### Implementation Phases
 - **Phase A0**: Signaling + voice presence (server-side VOICE_JOIN/LEAVE/SIGNAL handlers, mobile ws-client integration, UI stub)
 - **Phase A1**: Mobile WebRTC audio integration (react-native-webrtc, microphone capture, peer connection management, full voice UI)
+
+---
+
+## Phase 3: Supabase Architecture Upgrade — User Accounts & Persistence
+
+### Overview
+Major architecture upgrade introducing Supabase for persistent user accounts, friends, settings, session metadata, and session event history. This fundamentally changes Waypoints from an anonymous, ephemeral app to one with full user identity and persistence — while preserving the real-time, in-memory session model.
+
+### Scope Change from MVP
+The following MVP non-goals are now in-scope:
+- ~~No auth providers~~ → Supabase Auth (email/password, JWT)
+- ~~No external databases~~ → Supabase Postgres for persistence
+- ~~No long-term location history~~ → Still no location history, but session metadata + meaningful events are persisted
+
+The following remain out of scope:
+- Voice calls / proximity chat persistence
+- Background location (always-on)
+- Multi-stop route editing
+- Payments, subscriptions
+- Public feed / social network features
+- Redis, multi-instance scaling
+- Storing high-frequency location updates in DB
+
+### Goals
+1. **User accounts**: Register and login with email/password via Supabase Auth
+2. **Persistent auth**: JWT-based authentication across REST and WebSocket
+3. **User profiles**: Display name, avatar, and user preferences stored in Postgres
+4. **Friends list**: Send, accept, reject, and remove friend requests; see friends' online status
+5. **Session metadata**: Persistent record of who created what session, when, and who joined
+6. **Session event history**: Post-session review of meaningful events (joins, leaves, chat, destinations)
+
+### Non-Goals (Phase 3)
+- OAuth providers (Google, Apple Sign-In) — extensible but not implemented now
+- Real-time friend presence outside sessions (e.g., "Online now" in friends list)
+- Friend-only session invites / private sessions (future feature)
+- Full-text search of chat history
+- Analytics dashboard
+
+### User Stories
+1. As a new user, I can register with email and password.
+2. As a returning user, I can log in and see my profile, friends, and past sessions.
+3. As a user, I can update my display name and avatar.
+4. As a user, I can send a friend request to another user.
+5. As a user, I can accept or reject incoming friend requests.
+6. As a user, I can view my friends list and remove friends.
+7. As a user, my session history is saved and I can review past sessions.
+8. As a user, I can see the event log (chat, join/leave, destinations) of a past session I participated in.
+9. As a user, sessions I create or join are associated with my authenticated account.
+10. As a user, if I lose my device or reinstall the app, I can log in and recover my data.
+
+### Technical Approach
+- **Auth**: Supabase Auth (email/password). JWT issued by Supabase, verified locally on the backend using `SUPABASE_JWT_SECRET`.
+- **Database**: Supabase Postgres with RLS policies. Tables: `profiles`, `friendships`, `sessions`, `session_participants`, `session_events`.
+- **Live state**: Unchanged — `Map<sessionId, SessionState>` in-memory. Supabase is never on the real-time hot path.
+- **Event persistence**: Async batched inserts of meaningful events. Location updates never persisted.
+- **Migration**: Dual-mode auth (JWT + legacy token) during transition, then legacy removed.
+- **Protocol**: See [docs/WS-PROTOCOL.md](./WS-PROTOCOL.md) for auth changes to HELLO handshake.
+- **Architecture**: See [docs/ARCHITECTURE.md](./ARCHITECTURE.md) for the Phase 3 design.
+
+### Acceptance Criteria
+- User can register, login, logout, and have their session persist across app restarts.
+- JWT is verified on all authenticated REST endpoints and WS handshake.
+- Friend requests can be sent, accepted, rejected, and friendships removed.
+- Session create/join is recorded in Postgres with user association.
+- Meaningful events (PARTICIPANT_JOINED, PARTICIPANT_LEFT, DESTINATION_SET, DESTINATION_CLEARED, CHAT_MESSAGE) are persisted.
+- Location updates are NOT written to the database.
+- Live session performance is unchanged (no added latency from DB on the real-time path).
+- All data protected by RLS — users can only see their own data and sessions they participated in.

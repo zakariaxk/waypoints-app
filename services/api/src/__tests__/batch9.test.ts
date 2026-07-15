@@ -1,22 +1,27 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
-import { WebSocket } from 'ws';
+import { WebSocket, type WebSocketServer } from 'ws';
 import { registerRoutes } from '../http/routes.js';
 import { setupWebSocket } from '../ws/handler.js';
 
 let app: FastifyInstance;
 let port: number;
+let wss: WebSocketServer | undefined;
 
 async function startServer(): Promise<void> {
   app = Fastify({ logger: false });
   await registerRoutes(app);
   await app.listen({ port: 0, host: '127.0.0.1' });
-  setupWebSocket(app.server);
+  wss = setupWebSocket(app.server);
   const addr = app.server.address();
   port = typeof addr === 'object' && addr ? addr.port : 0;
 }
 
 async function stopServer(): Promise<void> {
+  // Terminate lingering WS clients and close the WS server first, otherwise
+  // app.close() blocks on open sockets until the OS times them out.
+  for (const client of wss?.clients ?? []) client.terminate();
+  await new Promise<void>((resolve) => (wss ? wss.close(() => resolve()) : resolve()));
   await app?.close();
 }
 

@@ -1,0 +1,65 @@
+name: CI
+
+# Runs on every PR and on pushes to main. This is the mechanical safety net the
+# engineering roadmap (Epic A / WP-101) requires before any further work: a red
+# check here blocks merge. Target wall-clock: < 5 minutes.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Cancel superseded runs on the same ref to save CI minutes.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: build · typecheck · lint · test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Every workspace imports @waypoints/shared from its built dist/, so it
+      # must be compiled before anything else is typechecked.
+      - name: Build shared
+        run: npm run build:shared
+
+      - name: Typecheck — shared
+        run: npm run typecheck -w packages/shared
+
+      - name: Typecheck — api
+        run: npm run typecheck -w services/api
+
+      - name: Typecheck — mobile
+        run: npm run typecheck -w apps/mobile
+
+      # Strict lint gate: api and shared must be clean (fails the build).
+      - name: Lint — api + shared (strict)
+        run: npx eslint services/api/src packages/shared/src --ext .ts
+
+      # Mobile carries a documented pre-existing lint backlog (see
+      # CONTRIBUTING.md). Reported for visibility but non-blocking until a
+      # dedicated cleanup ticket clears it; new mobile code should still be clean.
+      - name: Lint — mobile (non-blocking, informational)
+        continue-on-error: true
+        run: npm run lint -w apps/mobile
+
+      # Config schema (src/config.ts) and .env.example must not drift (WP-105).
+      - name: Check env schema / .env.example sync
+        run: npm run check:env -w services/api
+
+      # Backend test suite + coverage floor (WP-103). Coverage summary prints to
+      # the log; the run fails if coverage drops below the pinned thresholds.
+      - name: Test + coverage — api
+        run: npm run test:coverage -w services/api

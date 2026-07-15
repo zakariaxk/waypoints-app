@@ -1,22 +1,27 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Fastify, { type FastifyInstance } from 'fastify';
-import { WebSocket } from 'ws';
+import { WebSocket, type WebSocketServer } from 'ws';
 import { registerRoutes } from '../http/routes.js';
 import { setupWebSocket } from '../ws/handler.js';
 
 let app: FastifyInstance;
 let port: number;
+let wss: WebSocketServer | undefined;
 
 async function startServer(): Promise<void> {
   app = Fastify({ logger: false });
   await registerRoutes(app);
   await app.listen({ port: 0, host: '127.0.0.1' });
-  setupWebSocket(app.server);
+  wss = setupWebSocket(app.server);
   const addr = app.server.address();
   port = typeof addr === 'object' && addr ? addr.port : 0;
 }
 
 async function stopServer(): Promise<void> {
+  // Terminate lingering WS clients and close the WS server first, otherwise
+  // app.close() blocks on open sockets until the OS times them out.
+  for (const client of wss?.clients ?? []) client.terminate();
+  await new Promise<void>((resolve) => (wss ? wss.close(() => resolve()) : resolve()));
   await app?.close();
 }
 
@@ -210,19 +215,22 @@ describe('LEAVE_SESSION', () => {
     await doHello(wsAlice, alice.sessionId, alice.participantId, alice.token);
 
     const wsBob = await connectWs();
+
+    // Attach Alice's collector for BOTH broadcasts (Bob's PARTICIPANT_JOINED,
+    // then PARTICIPANT_LEFT) BEFORE Bob acts — otherwise a message emitted in
+    // the gap between awaits is dropped (EventEmitter doesn't buffer) and the
+    // test hangs until timeout.
+    const aliceEvents = collectMessages(wsAlice, 2);
+
     await doHello(wsBob, bob.sessionId, bob.participantId, bob.token);
-
-    // Consume Bob's PARTICIPANT_JOINED on Alice's side
-    await receiveJson(wsAlice);
-
     // Bob leaves
     wsBob.send(JSON.stringify({ type: 'LEAVE_SESSION', payload: {} }));
 
-    // Alice should receive PARTICIPANT_LEFT
-    const leftMsg = (await receiveJson(wsAlice)) as {
-      type: string;
-      payload: { kind: string; data: { participantId: string } };
-    };
+    // Second event on Alice's socket is Bob's PARTICIPANT_LEFT.
+    const [, leftMsg] = (await aliceEvents) as [
+      unknown,
+      { type: string; payload: { kind: string; data: { participantId: string } } },
+    ];
     expect(leftMsg.type).toBe('EVENT');
     expect(leftMsg.payload.kind).toBe('PARTICIPANT_LEFT');
     expect(leftMsg.payload.data.participantId).toBe(bob.participantId);

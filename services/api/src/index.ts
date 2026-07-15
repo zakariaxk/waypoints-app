@@ -1,12 +1,16 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { config } from './config.js';
+import { buildLoggerOptions } from './logging.js';
 import { registerRoutes } from './http/routes.js';
 import { setupWebSocket } from './ws/handler.js';
 import { sessionStore } from './state/session-store.js';
 
 async function main() {
-  const app = Fastify({ logger: true });
+  // Fastify builds its own Pino from these options and binds a `reqId` per
+  // request. The WS server derives per-connection children bound with `connId`
+  // from the standalone logger in logging.ts, built from the same options.
+  const app = Fastify({ logger: buildLoggerOptions() });
 
   // CORS — allow all origins in dev, restrict in production
   await app.register(cors, {

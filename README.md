@@ -1,5 +1,7 @@
 # Waypoints
 
+[![CI](https://github.com/zakariaxk/waypoints-app/actions/workflows/ci.yml/badge.svg)](https://github.com/zakariaxk/waypoints-app/actions/workflows/ci.yml)
+
 Real-time location sharing app — create a session, share the code, see everyone on a live map. 
 
 ## Features
