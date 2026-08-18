@@ -1,7 +1,7 @@
 import { useRef, useEffect, useMemo, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Platform, TouchableOpacity } from 'react-native';
-import MapView, { Marker, Polyline, Callout, Region, PROVIDER_DEFAULT, MapType } from 'react-native-maps';
-import { useSessionStore, type Participant, type Destination } from '../state/session-store';
+import MapView, { Marker, Polyline, Region, PROVIDER_DEFAULT, MapType } from 'react-native-maps';
+import { useSessionStore, type Participant } from '../state/session-store';
 import { fetchRoute, type RouteCoord } from '../utils/routing';
 import { haversineDistance, formatSpeed } from '../utils/geo';
 import { fontSize, spacing, borderRadius, getParticipantColor, glow, type ThemeColors, useTheme } from '../ui/theme';
@@ -23,7 +23,7 @@ const ROUTE_RETHRESH_KM = 0.05; // 50 meters
 const ROUTE_REFRESH_MS = 10_000; // 10 seconds
 
 export default function MapSection({ currentParticipantId, onLongPress, focusLocation, followTargetId, onFollowEnd, onMapRef }: MapSectionProps) {
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const mapRef = useRef<MapView>(null);
   const participants = useSessionStore((s) => s.participants);
@@ -95,11 +95,6 @@ export default function MapSection({ currentParticipantId, onLongPress, focusLoc
   }, [participantsWithLocation.length, destination?.lat, destination?.lng]);
 
   // ─── Route polyline fetching for ALL participants ───
-  const myLoc = useMemo(() => {
-    if (!currentParticipantId) return null;
-    const me = participants.get(currentParticipantId);
-    return me?.lastLocation ?? null;
-  }, [participants, currentParticipantId]);
 
   const fetchAllRoutes = useCallback(async () => {
     if (!destination) {

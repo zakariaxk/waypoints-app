@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
-import { useTheme, gradients, borderRadius, spacing, fontSize, fontFamily, glow } from '../theme';
+import { useTheme, gradients, borderRadius, fontSize, fontFamily, glow } from '../theme';
 
 type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg';

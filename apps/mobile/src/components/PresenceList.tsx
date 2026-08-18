@@ -4,6 +4,7 @@ import type { Participant, Destination } from '../state/session-store';
 import { haversineDistance, formatDistance, formatSpeed } from '../utils/geo';
 import { formatDuration, type ParticipantETA } from '../hooks/useParticipantETAs';
 import { spacing, fontSize, borderRadius, getParticipantColor, type ThemeColors, useTheme } from '../ui/theme';
+import { LOW_BATTERY_THRESHOLD } from '../utils/constants';
 
 interface PresenceListProps {
   participants: Participant[];
@@ -12,6 +13,8 @@ interface PresenceListProps {
   myLocation?: { lat: number; lng: number } | null;
   destination?: Destination | null;
   etas?: Map<string, ParticipantETA>;
+  /** Participants with an active SOS, from the server's replayable state. */
+  sosParticipantIds?: Set<string>;
   onParticipantPress?: (participant: Participant) => void;
 }
 
@@ -32,7 +35,7 @@ function timeAgo(ts: number): string {
   return `${Math.floor(minutes / 60)}h ago`;
 }
 
-export default function PresenceList({ participants, currentParticipantId, hostParticipantId, myLocation, destination, etas, onParticipantPress }: PresenceListProps) {
+export default function PresenceList({ participants, currentParticipantId, hostParticipantId, myLocation, destination, etas, sosParticipantIds, onParticipantPress }: PresenceListProps) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const allIds = participants.map((p) => p.participantId);
@@ -61,10 +64,17 @@ export default function PresenceList({ participants, currentParticipantId, hostP
         const pColor = getParticipantColor(item.participantId, allIds, currentParticipantId);
         const eta = etas?.get(item.participantId);
 
-        // Arrival detection
-        const isArrived = destination && item.lastLocation
+        // Arrival: the server's confirmed flag wins. The local geometric
+        // estimate is only a fallback for participants who have not pinged yet.
+        const isArrived = item.arrived === true || (destination && item.lastLocation
           ? haversineDistance(item.lastLocation.lat, item.lastLocation.lng, destination.lat, destination.lng) < ARRIVAL_THRESHOLD_KM
-          : false;
+          : false);
+
+        const hasSos = sosParticipantIds?.has(item.participantId) ?? false;
+        const lowBattery =
+          typeof item.battery === 'number' &&
+          item.battery < LOW_BATTERY_THRESHOLD &&
+          item.charging !== true;
 
         // Movement status from speed
         const speed = item.lastLocation?.speed ?? 0;
@@ -96,6 +106,12 @@ export default function PresenceList({ participants, currentParticipantId, hostP
                   {isMe ? ' (you)' : ''}
                 </Text>
                 {isHost && <Text style={styles.hostTag}> 👑</Text>}
+                {hasSos && <Text style={styles.sosTag}> 🆘</Text>}
+                {lowBattery && (
+                  <Text style={styles.batteryTag}>
+                    {' '}🔋 {Math.round((item.battery ?? 0) * 100)}%
+                  </Text>
+                )}
               </View>
               <Text style={styles.detail}>
                 {isArrived ? (
@@ -174,7 +190,15 @@ const createStyles = (colors: ThemeColors) =>
       color: colors.text,
       flexShrink: 1,
     },
-    hostTag: {
+    sosTag: {
+    fontSize: fontSize.sm,
+  },
+  batteryTag: {
+    fontSize: fontSize.xs,
+    color: '#F59E0B',
+    fontWeight: '600',
+  },
+  hostTag: {
       fontSize: fontSize.md,
       marginLeft: 2,
     },

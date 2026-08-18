@@ -12,7 +12,9 @@
     "build:prod": "eas build --platform ios --profile production",
     "submit": "eas submit --platform ios --profile production",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src --ext .ts,.tsx"
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@expo-google-fonts/orbitron": "^0.4.2",
@@ -21,15 +23,16 @@
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@waypoints/shared": "*",
     "event-target-shim": "^6.0.2",
-    "expo": "~54.0.0",
+    "expo": "~54.0.37",
+    "expo-battery": "~10.0.8",
     "expo-blur": "~15.0.8",
     "expo-clipboard": "~8.0.8",
     "expo-constants": "~18.0.13",
-    "expo-dev-client": "~6.0.20",
+    "expo-dev-client": "~6.0.21",
     "expo-font": "~14.0.11",
     "expo-haptics": "~15.0.8",
     "expo-linear-gradient": "~15.0.8",
-    "expo-linking": "~8.0.11",
+    "expo-linking": "~8.0.12",
     "expo-location": "~19.0.8",
     "expo-splash-screen": "~31.0.13",
     "expo-status-bar": "~3.0.9",
@@ -45,6 +48,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.1"
   }
 }

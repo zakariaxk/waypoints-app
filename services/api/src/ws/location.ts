@@ -32,6 +32,13 @@ export function handleLocUpdate(conn: ConnState, payload: ValidatedLocUpdatePayl
   participant.lastLocUpdateTs = now;
   participant.status = 'online';
 
+  // Battery is presence enrichment, not its own event kind: it is
+  // high-frequency and worthless on replay, so it rides the location stream
+  // and lives on participant state (DECISIONS: battery-not-an-event).
+  // Absent fields leave the last known value in place rather than clearing it.
+  if (payload.battery !== undefined) participant.battery = payload.battery;
+  if (payload.charging !== undefined) participant.charging = payload.charging;
+
   // Push event and broadcast
   const event = sessionStore.pushEvent(sessionId, 'LOCATION_UPDATED', {
     participantId,
@@ -41,6 +48,8 @@ export function handleLocUpdate(conn: ConnState, payload: ValidatedLocUpdatePayl
     heading: payload.heading,
     accuracy: payload.accuracy,
     ts: payload.ts,
+    battery: participant.battery ?? null,
+    charging: participant.charging ?? null,
   });
 
   if (event) {

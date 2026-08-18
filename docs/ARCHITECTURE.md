@@ -283,7 +283,7 @@ npm run lint                   # eslint across all workspaces
 - **Mobile**: 14 source files, Expo SDK 52, EAS build-ready with 3 profiles
 - **Shared**: 4 source files, full WS protocol types + validators
 - **Docs**: PRD, Architecture, WS Protocol, Privacy Policy, App Store Metadata, Manual Actions
-- **Total**: ~50 source files, ~6,500 lines of code
+- **Total**: ~60 source files, ~11,000 lines of code (excluding tests)
 
 ## Phase 2 – Voice Chat (Batch 18)
 
@@ -774,3 +774,32 @@ The eventId model is **completely preserved**:
 | Migration period complexity | Two auth paths to maintain | Clear dual-mode detection; remove legacy in M5 |
 | Event flush buffer memory | Unbounded growth if DB is down | Cap buffer at 500 events per session; drop oldest on overflow |
 | Profile creation race | Signup trigger might fail | Upsert pattern in profile creation; client retries |
+
+---
+
+## Phase 3 — Safety layer (implemented)
+
+`RAISE_SOS` / `CLEAR_SOS` / `ARRIVAL_PING` are handled in `services/api/src/ws/safety.ts`.
+State lives on the existing session map: `sosActive: Map<participantId, {note, ts}>`
+and `arrived: Set<participantId>`, both surfaced in `SNAPSHOT`. Battery and
+charging live on `ParticipantState` and ride the `LOC_UPDATE` stream.
+
+Unlike voice, these are durable: they are pushed to the ordered event stream,
+buffered for replay, and included in the snapshot. A participant reconnecting
+mid-emergency must learn that an SOS is still active — this is the first
+feature where *missing* a message is a safety failure rather than a cosmetic one.
+
+New dependency: `expo-battery` (~10.0.8), mobile only, read foreground-only
+alongside the existing location watcher. No background access is added.
+
+### Connection liveness
+
+`ws/handler.ts` runs a ping/pong sweep at `WS_HEARTBEAT_INTERVAL_MS` (default
+15s) and terminates connections that miss two consecutive sweeps. Before this,
+a half-open TCP connection left a participant `online` indefinitely: presence
+only forces `offline` when `connId === null`, and `connId` is cleared by the
+close event that a half-open socket never delivers.
+
+`ws/handler.ts` also maintains a `sessionId → Set<ConnState>` index so that
+broadcast cost is O(session participants) rather than O(all connections on the
+process). Measured results: `docs/CAPACITY.md`.

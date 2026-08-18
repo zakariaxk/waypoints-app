@@ -8,17 +8,14 @@ import {
   StyleSheet,
   TouchableOpacity,
   Animated,
-  Dimensions,
   Pressable,
-  Platform,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import type { Participant, Destination } from '../state/session-store';
+import type { Participant } from '../state/session-store';
 import { formatDuration, type ParticipantETA } from '../hooks/useParticipantETAs';
 import { formatDistance } from '../utils/geo';
-import { spacing, fontSize, borderRadius, shadow, getParticipantColor, glow, type ThemeColors, useTheme } from '../ui/theme';
+import { spacing, fontSize, borderRadius, getParticipantColor, glow, type ThemeColors, useTheme } from '../ui/theme';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SHEET_HEIGHT = 280;
 
 interface FriendSheetProps {

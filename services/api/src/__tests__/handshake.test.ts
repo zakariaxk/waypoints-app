@@ -3,6 +3,11 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import { WebSocket, type WebSocketServer } from 'ws';
 import { registerRoutes } from '../http/routes.js';
 import { setupWebSocket } from '../ws/handler.js';
+import {
+  connectWs as sharedConnectWs,
+  receiveJson as sharedReceiveJson,
+  collectMessages as sharedCollectMessages,
+} from './helpers/ws-test-client.js';
 
 let app: FastifyInstance;
 let port: number;
@@ -26,34 +31,16 @@ async function stopServer(): Promise<void> {
 }
 
 function connectWs(): Promise<WebSocket> {
-  return new Promise((resolve, reject) => {
-    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
-    ws.on('open', () => resolve(ws));
-    ws.on('error', reject);
-  });
+  return sharedConnectWs(port);
 }
 
 function receiveJson(ws: WebSocket): Promise<unknown> {
-  return new Promise((resolve) => {
-    ws.once('message', (data) => {
-      resolve(JSON.parse(data.toString()));
-    });
-  });
+  return sharedReceiveJson(ws);
 }
 
 /** Collect N messages from WS */
 function collectMessages(ws: WebSocket, count: number): Promise<unknown[]> {
-  return new Promise((resolve) => {
-    const msgs: unknown[] = [];
-    const handler = (data: Buffer | string) => {
-      msgs.push(JSON.parse(data.toString()));
-      if (msgs.length >= count) {
-        ws.off('message', handler);
-        resolve(msgs);
-      }
-    };
-    ws.on('message', handler);
-  });
+  return sharedCollectMessages(ws, count);
 }
 
 async function createAndJoin(): Promise<{
@@ -297,8 +284,10 @@ describe('Reconnect Replay', () => {
       }),
     );
 
-    // Should get WELCOME, SNAPSHOT, EVENTS (with missed events), then PARTICIPANT_JOINED
-    const reconnectMsgs = await collectMessages(ws2, 4);
+    // WELCOME, SNAPSHOT, EVENTS — and no PARTICIPANT_JOINED, because a
+    // reconnect is not a join. Re-emitting it on every reconnect burns event
+    // ids and renders a spurious "X joined" on a flaky connection.
+    const reconnectMsgs = await collectMessages(ws2, 3);
     const types = (reconnectMsgs as { type: string }[]).map((m) => m.type);
 
     expect(types[0]).toBe('WELCOME');
@@ -309,6 +298,7 @@ describe('Reconnect Replay', () => {
       payload: { events: { kind: string }[] };
     };
     expect(eventsMsg.payload.events.length).toBeGreaterThan(0);
+    expect(types).not.toContain('EVENT');
 
     ws2.close();
   });

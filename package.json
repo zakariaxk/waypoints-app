@@ -11,9 +11,11 @@
     "build:shared": "npm run build -w packages/shared",
     "dev:api": "npm run dev -w services/api",
     "dev:mobile": "npm run start -w apps/mobile",
-    "test": "npm run test -w services/api",
+    "test": "npm run test -w services/api && npm run test -w apps/mobile",
     "lint": "eslint . --ext .ts,.tsx",
-    "format": "prettier --write \"**/*.{ts,tsx,json,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "test:api": "npm run test -w services/api",
+    "test:mobile": "npm run test -w apps/mobile"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.0.0",

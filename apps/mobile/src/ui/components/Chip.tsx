@@ -5,8 +5,8 @@
  */
 
 import React from 'react';
-import { View, StyleSheet, type ViewStyle, type TextStyle } from 'react-native';
-import { useTheme, borderRadius, spacing, fontSize, fontFamily } from '../theme';
+import { View, StyleSheet, type ViewStyle } from 'react-native';
+import { useTheme, borderRadius, spacing, fontSize } from '../theme';
 import NeonText from './NeonText';
 
 type ChipVariant = 'info' | 'success' | 'warn' | 'danger' | 'default' | 'accent';

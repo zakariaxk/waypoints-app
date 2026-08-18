@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import type { Destination, Participant } from '../state/session-store';
+import type { Destination } from '../state/session-store';
 import { haversineDistance, formatDistance } from '../utils/geo';
 import { formatDuration, type ParticipantETA } from '../hooks/useParticipantETAs';
 import { spacing, fontSize, borderRadius, type ThemeColors, useTheme } from '../ui/theme';

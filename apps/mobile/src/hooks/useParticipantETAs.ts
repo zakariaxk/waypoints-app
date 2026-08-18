@@ -120,7 +120,6 @@ export function useParticipantETAs(
       return;
     }
     fetchAll();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [destination?.lat, destination?.lng, participants]);
 
   // Periodic refresh

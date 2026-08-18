@@ -3,6 +3,11 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import { WebSocket, type WebSocketServer } from 'ws';
 import { registerRoutes } from '../http/routes.js';
 import { setupWebSocket } from '../ws/handler.js';
+import {
+  connectWs as sharedConnectWs,
+  receiveJson as sharedReceiveJson,
+  collectMessagesWithTimeout as sharedCollectWithTimeout,
+} from './helpers/ws-test-client.js';
 
 let app: FastifyInstance;
 let port: number;
@@ -26,38 +31,15 @@ async function stopServer(): Promise<void> {
 }
 
 function connectWs(): Promise<WebSocket> {
-  return new Promise((resolve, reject) => {
-    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
-    ws.on('open', () => resolve(ws));
-    ws.on('error', reject);
-  });
+  return sharedConnectWs(port);
 }
 
 function receiveJson(ws: WebSocket): Promise<unknown> {
-  return new Promise((resolve) => {
-    ws.once('message', (data) => {
-      resolve(JSON.parse(data.toString()));
-    });
-  });
+  return sharedReceiveJson(ws);
 }
 
 function collectMessages(ws: WebSocket, count: number, timeoutMs = 2000): Promise<unknown[]> {
-  return new Promise((resolve, _reject) => {
-    const msgs: unknown[] = [];
-    const timer = setTimeout(() => {
-      ws.off('message', handler);
-      resolve(msgs); // return whatever we have
-    }, timeoutMs);
-    const handler = (data: Buffer | string) => {
-      msgs.push(JSON.parse(data.toString()));
-      if (msgs.length >= count) {
-        clearTimeout(timer);
-        ws.off('message', handler);
-        resolve(msgs);
-      }
-    };
-    ws.on('message', handler);
-  });
+  return sharedCollectWithTimeout(ws, count, timeoutMs);
 }
 
 async function createAndJoin(displayName = 'TestUser'): Promise<{

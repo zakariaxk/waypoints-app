@@ -105,7 +105,14 @@
 
 ---
 
-## Epic B — Identity & Persistence (WP-201 … WP-210)
+## Epic B — Identity & Persistence (WP-201 … WP-210) — **DEFERRED, OUT OF SCOPE**
+
+> These ten tickets (Supabase auth, Postgres persistence, friends graph, RLS
+> suite) describe a product this project has decided not to be. They conflict
+> with the hard constraints in `CLAUDE.md` ("In-memory only. No auth
+> provider.") and add no capability to the real-time story that is the actual
+> differentiator. Retained for history; not planned work. See
+> `docs/FINISHING_PLAN.md` §6.
 
 > This is the already-designed Phase 3 (Supabase). The design in `ARCHITECTURE.md` §Phase 3 and the batch breakdown in `tasks/todo.md` (Batches 19–28) are the detailed spec; the tickets below are the ordered, CI-gated slicing of that work. Where this document and `tasks/todo.md` disagree, this document wins.
 

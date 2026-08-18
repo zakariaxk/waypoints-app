@@ -19,8 +19,10 @@ import {
   sendSetDestination,
   sendClearDestination,
   sendLeaveSession,
-  isSessionInvalidated,
   onMessage,
+  sendRaiseSos,
+  sendClearSos,
+  sendArrivalPing,
 } from '../services/ws-client';
 import {
   requestLocationPermission,
@@ -36,16 +38,17 @@ import { useArrivalAlert } from '../hooks/useArrivalAlert';
 import { useSessionTimer } from '../hooks/useSessionTimer';
 import MapSection from '../components/MapSection';
 import PresenceList from '../components/PresenceList';
+import SafetyPanel from '../components/SafetyPanel';
 import ChatPanel from '../components/ChatPanel';
 import DestinationPanel from '../components/DestinationPanel';
 import FriendSheet from '../components/FriendSheet';
 import GroupETASummary from '../components/GroupETASummary';
 import SessionSummaryScreen, { type SessionSummaryData, type ParticipantSummary } from '../components/SessionSummaryScreen';
 import DestinationVoting, { type DestinationProposal } from '../components/DestinationVoting';
-import { spacing, fontSize, borderRadius, shadow, glow, type ThemeColors } from '../ui/theme';
+import { spacing, fontSize, borderRadius, glow, type ThemeColors } from '../ui/theme';
 import { useTheme } from '../ui/theme';
-import { haversineDistance, formatDistance } from '../utils/geo';
-import { joinVoice, leaveVoice } from '../services/voice';
+import { haversineDistance } from '../utils/geo';
+import { ARRIVAL_RADIUS_M } from '../utils/constants';
 import { useVoiceChat } from '../hooks/useVoiceChat';
 
 type Tab = 'people' | 'chat';
@@ -63,12 +66,14 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
     token,
     joinCode,
     connected,
+    sessionInvalid,
     reconnectCount,
     chatMessages,
     isHost,
   } = useSessionStore();
   const participants = useSessionStore((s) => s.participants);
   const destination = useSessionStore((s) => s.destination);
+  const activeSos = useSessionStore((s) => s.activeSos);
   const reset = useSessionStore((s) => s.reset);
   const [locationGranted, setLocationGranted] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('people');
@@ -126,6 +131,25 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
       setTimeout(() => setToastMessage(null), 3000);
     }
   }, []);
+  // Server-confirmed arrival for *me*; the manual button mirrors the
+  // auto-fire in services/location.ts and is subject to the same server-side
+  // radius check, so it can only ever be an optimistic UI hint.
+  const meParticipant = participantId ? participants.get(participantId) : undefined;
+  const hasArrived = meParticipant?.arrived === true;
+  const canPingArrival = useMemo(() => {
+    if (!destination || !myLocation || hasArrived) return false;
+    return haversineDistance(myLocation.lat, myLocation.lng, destination.lat, destination.lng) * 1000 <= ARRIVAL_RADIUS_M;
+  }, [destination, myLocation, hasArrived]);
+
+  const sosParticipantIds = useMemo(() => new Set(activeSos.keys()), [activeSos]);
+
+  const handleFocusParticipantId = useCallback((pid: string) => {
+    const p = useSessionStore.getState().participants.get(pid);
+    if (!p?.lastLocation) return;
+    focusKeyRef.current += 1;
+    setFocusLocation({ lat: p.lastLocation.lat, lng: p.lastLocation.lng, _key: focusKeyRef.current });
+  }, []);
+
   useArrivalAlert(myLocation, destination, handleArrival);
 
   // Track arrivals for all participants (for session summary)
@@ -305,9 +329,7 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
     (lat: number, lng: number) => {
       if (isHost) {
         // Host can set destination directly
-        // @ts-ignore — Alert.prompt exists on iOS but not in types
         if (Platform.OS === 'ios' && Alert.prompt) {
-          // @ts-ignore
           Alert.prompt(
             'Set Destination',
             'Enter a label for the destination (optional)',
@@ -476,19 +498,29 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
           />
           <View>
             <Text style={styles.connectionText}>
-              {connected
-                ? `${onlineCount} online`
-                : reconnectCount > 0
-                  ? `Retry #${reconnectCount}...`
-                  : 'Connecting...'}
+              {sessionInvalid
+                ? 'Session expired'
+                : connected
+                  ? `${onlineCount} online`
+                  : reconnectCount > 0
+                    ? `Retry #${reconnectCount}...`
+                    : 'Connecting...'}
             </Text>
             <Text style={styles.timerText}>⏱ {sessionTimer}</Text>
           </View>
         </View>
       </View>
 
-      {/* Offline / Connecting Banner */}
-      {!connected && (
+      {/* Connection state. Three distinguishable cases: a transient drop that
+          is being retried, an initial connect, and a session the server will
+          never accept again — the last needs an action, not a spinner. */}
+      {sessionInvalid ? (
+        <TouchableOpacity style={styles.invalidBanner} onPress={handleLeave}>
+          <Text style={styles.invalidBannerText}>
+            ⛔ This session is no longer available — tap to rejoin
+          </Text>
+        </TouchableOpacity>
+      ) : !connected ? (
         <View style={styles.offlineBanner}>
           <Text style={styles.offlineBannerText}>
             {reconnectCount > 0
@@ -496,7 +528,7 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
               : '⚠ Connecting to server...'}
           </Text>
         </View>
-      )}
+      ) : null}
 
       {/* Host badge */}
       {isHost && (
@@ -669,6 +701,20 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
           }
         }}
       >
+        <View style={{ paddingHorizontal: spacing.md, paddingBottom: spacing.sm }}>
+          <SafetyPanel
+            activeSos={activeSos}
+            participants={participants}
+            currentParticipantId={participantId}
+            canPingArrival={canPingArrival}
+            hasArrived={hasArrived}
+            onRaiseSos={sendRaiseSos}
+            onClearSos={sendClearSos}
+            onPingArrival={sendArrivalPing}
+            onFocusParticipant={handleFocusParticipantId}
+          />
+        </View>
+
         {activeTab === 'people' ? (
           <PresenceList
             participants={participantList}
@@ -677,6 +723,7 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
             myLocation={myLocation}
             destination={destination}
             etas={participantETAs}
+            sosParticipantIds={sosParticipantIds}
             onParticipantPress={handleParticipantPress}
           />
         ) : (
@@ -815,6 +862,17 @@ const createStyles = (colors: ThemeColors) =>
       fontWeight: '700',
       textAlign: 'center',
       marginTop: spacing.xs,
+    },
+    invalidBanner: {
+      backgroundColor: '#7F1D1D',
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      alignItems: 'center',
+    },
+    invalidBannerText: {
+      color: '#FEE2E2',
+      fontSize: fontSize.sm,
+      fontWeight: '700',
     },
     offlineBanner: {
       backgroundColor: colors.dangerLight,

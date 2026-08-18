@@ -85,3 +85,54 @@
 **Decision 3 — Dedicated `NOT_ARRIVED` error, not `BAD_MESSAGE`.** An `ARRIVAL_PING` from outside `ARRIVAL_RADIUS_M` is a well-formed message failing a business rule, not a malformed one. A distinct code lets the client show a precise "you're not there yet" message and keeps `BAD_MESSAGE` meaning "protocol/schema violation" only.
 
 **Server sources SOS location.** `SOS_RAISED` lat/lng come from the sender's last server-known location, never a client-supplied position; `null` when unknown (no camera-snap). SOS **persists** across the sender's disconnect — only `CLEAR_SOS` (owner-only) or session end removes it.
+
+
+## Battery is presence enrichment, not an event kind
+
+`LOC_UPDATE` carries optional `battery` / `charging`; the server stores them on
+`ParticipantState` and echoes them in `SNAPSHOT` rows and `LOCATION_UPDATED`
+data. There is no `BATTERY_LOW` event kind.
+
+Battery is high-frequency and worthless on replay — exactly like location.
+A dedicated event would add noise to the ordered stream that no client would
+ever want replayed. The low-battery badge is derived client-side from
+`battery < 0.15 && !charging`.
+
+## SOS is replayable; voice is not
+
+Voice messages are ephemeral by decision (see above). Safety events are the
+deliberate opposite: `SOS_RAISED`, `SOS_CLEARED`, and `ARRIVAL_PINGED` are
+assigned event ids, buffered, replayed on reconnect, and reflected in
+`SNAPSHOT`.
+
+The distinction is whether *missing* the message matters. Missing a voice
+packet costs a syllable. Missing an SOS means a reconnecting participant does
+not know someone needs help.
+
+## SOS location is server-sourced
+
+`SOS_RAISED.data.lat/lng` come from the sender's last known server-held
+location, never from the client's message. A panic signal is precisely the
+message you would not want a client to be able to attach an arbitrary position
+to. When the sender has no known location the event carries nulls and the
+client skips the camera-snap, rather than the server rejecting the SOS.
+
+## An explicit leave removes the participant; a disconnect does not
+
+`LEAVE_SESSION` deletes the participant from the session. A transport
+disconnect only marks them `offline`, so reconnect and replay still work.
+
+Before this, nothing ever removed participants, so `participants.size` never
+reached zero and the empty-session branch of `cleanup()` was unreachable —
+every session lived its full 2-hour TTL holding everyone who had ever joined.
+
+## Fly.io is the single deploy target
+
+`render.yaml` was removed. Session state is in-memory, so scale-to-zero
+destroys every live session; `fly.toml` therefore pins
+`min_machines_running = 1` and `auto_stop_machines = "off"`.
+
+`CORS_ORIGIN` is intentionally left unset in `fly.toml`. `config.ts` only
+treats it as "reflect the request origin" when unset or empty — the literal
+string `"true"` parsed as a one-entry allowlist containing the origin `true`,
+rejecting every real browser origin.

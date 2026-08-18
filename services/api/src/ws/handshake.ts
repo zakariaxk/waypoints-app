@@ -2,7 +2,7 @@
 
 import type { ValidatedHelloPayload } from '@waypoints/shared';
 import type { ConnState } from './handler.js';
-import { sendJson, broadcastToSession } from './handler.js';
+import { sendJson, broadcastToSession, bindConnectionToSession } from './handler.js';
 import { sessionStore } from '../state/session-store.js';
 
 export function handleHello(conn: ConnState, payload: ValidatedHelloPayload): void {
@@ -28,14 +28,19 @@ export function handleHello(conn: ConnState, payload: ValidatedHelloPayload): vo
     return;
   }
 
+  // A reconnect, not a first join. Decided before the flag is set below.
+  const isRejoin = participant.hasJoined;
+
   // Bind connection to session/participant
   conn.sessionId = sessionId;
   conn.participantId = participantId;
+  bindConnectionToSession(conn, sessionId);
 
   // Update participant state
   participant.connId = conn.connId;
   participant.status = 'online';
   participant.lastSeenTs = Date.now();
+  participant.hasJoined = true;
 
   // 1. Send WELCOME
   sendJson(conn.ws, {
@@ -71,12 +76,19 @@ export function handleHello(conn: ConnState, payload: ValidatedHelloPayload): vo
     // If missed is null, gap too large — client uses SNAPSHOT only
   }
 
-  // 4. Broadcast PARTICIPANT_JOINED event to all in session
-  const event = sessionStore.pushEvent(sessionId, 'PARTICIPANT_JOINED', {
-    participantId,
-    displayName: participant.displayName,
-  });
-  if (event) {
-    broadcastToSession(sessionId, { type: 'EVENT', payload: event });
+  // 4. Broadcast PARTICIPANT_JOINED — first join only.
+  //
+  // Re-emitting on every reconnect burns event ids and renders a spurious
+  // "X joined" in any UI that shows them, which on a flaky connection means
+  // one per backoff cycle. Presence already conveys the reconnect: the
+  // participant's status returns to `online` in the snapshot.
+  if (!isRejoin) {
+    const event = sessionStore.pushEvent(sessionId, 'PARTICIPANT_JOINED', {
+      participantId,
+      displayName: participant.displayName,
+    });
+    if (event) {
+      broadcastToSession(sessionId, { type: 'EVENT', payload: event });
+    }
   }
 }

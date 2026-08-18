@@ -40,6 +40,9 @@ function getWebRTC(): any {
   try {
     // Check if the native module exists before requiring the JS wrapper.
     // In Expo Go the native module is absent — bail out early.
+    // A runtime require, not a static import: importing react-native-webrtc at
+    // module scope crashes in Expo Go, where the native module is absent.
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { NativeModules } = require('react-native');
     if (!NativeModules.WebRTCModule) {
       return null;
@@ -77,7 +80,6 @@ export function useVoiceChat(sessionId: string | null) {
   const joinedRef = useRef(false);
   const mutedRef = useRef(true);
   const participantId = useSessionStore((s) => s.participantId);
-  const voiceMembers = useSessionStore((s) => s.voiceMembers);
 
   // Keep refs in sync
   useEffect(() => {
@@ -205,7 +207,7 @@ export function useVoiceChat(sessionId: string | null) {
 
   // Cleanup all peers and local stream
   const cleanupAll = useCallback(() => {
-    for (const [id, peer] of peersRef.current) {
+    for (const [, peer] of peersRef.current) {
       peer.pc.close();
     }
     peersRef.current.clear();

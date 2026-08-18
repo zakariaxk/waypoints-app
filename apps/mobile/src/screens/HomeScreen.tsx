@@ -9,9 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ActivityIndicator,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { createSession, joinSession } from '../services/api';
 import { useSessionStore } from '../state/session-store';
 import {
@@ -28,13 +26,9 @@ import {
   type ThemeColors,
   spacing,
   fontSize,
-  fontFamily,
   borderRadius,
-  gradients,
-  glow,
-  palette,
 } from '../ui/theme';
-import { NeonText, NeonButton, HudCard, NeonDivider, Chip } from '../ui/components';
+import { NeonText, NeonButton, HudCard, NeonDivider } from '../ui/components';
 import * as Haptics from 'expo-haptics';
 
 interface HomeScreenProps {
@@ -43,7 +37,7 @@ interface HomeScreenProps {
 }
 
 export default function HomeScreen({ onSessionReady, initialJoinCode }: HomeScreenProps) {
-  const { colors, mode, isDark, setMode } = useTheme();
+  const { colors, mode, setMode } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [displayName, setDisplayName] = useState('');
   const [joinCode, setJoinCode] = useState('');

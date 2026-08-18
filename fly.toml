@@ -1,5 +1,9 @@
 # Fly.io deployment configuration
 # Deploy: fly launch / fly deploy
+#
+# This is the single supported deploy target. Session state is in-memory by
+# design (see docs/ARCHITECTURE.md §4), so every machine restart drops all
+# live sessions. Two settings below exist specifically because of that.
 
 app = "waypoints-api"
 primary_region = "iad"
@@ -9,20 +13,37 @@ primary_region = "iad"
 [env]
   PORT = "8080"
   HOST = "0.0.0.0"
-  CORS_ORIGIN = "true"
+  NODE_ENV = "production"
+  # CORS_ORIGIN is intentionally NOT set here.
+  #
+  # config.ts only treats CORS_ORIGIN as "reflect the request origin" when it
+  # is unset or empty. The literal string "true" was parsed as a single-entry
+  # allowlist containing the origin `true`, which rejected every real browser
+  # origin. Leave it unset for a permissive dev/demo posture, or set a real
+  # comma-separated origin list — never the string "true".
 
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = "stop"
+  # Keep one machine warm. With auto_stop + min_machines_running = 0, an idle
+  # period silently destroyed every in-memory session, so a demo that sat for
+  # fifteen minutes came back with everything gone.
+  auto_stop_machines = "off"
   auto_start_machines = true
-  min_machines_running = 0
+  min_machines_running = 1
   processes = ["app"]
 
   [http_service.concurrency]
     type = "connections"
     hard_limit = 250
     soft_limit = 200
+
+[[http_service.checks]]
+  interval = "30s"
+  timeout = "5s"
+  grace_period = "10s"
+  method = "GET"
+  path = "/health"
 
 [[vm]]
   memory = "256mb"
