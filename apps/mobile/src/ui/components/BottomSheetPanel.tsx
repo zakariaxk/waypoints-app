@@ -6,10 +6,9 @@
  */
 
 import React, { useEffect, useRef, type ReactNode } from 'react';
-import { View, StyleSheet, Dimensions, Pressable, Animated, type ViewStyle } from 'react-native';
+import { View, StyleSheet, Pressable, Animated, type ViewStyle } from 'react-native';
 import { useTheme, borderRadius, spacing, glow } from '../theme';
 
-const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 interface BottomSheetPanelProps {
   visible: boolean;

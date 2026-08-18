@@ -48,11 +48,8 @@ jobs:
       - name: Lint — api + shared (strict)
         run: npx eslint services/api/src packages/shared/src --ext .ts
 
-      # Mobile carries a documented pre-existing lint backlog (see
-      # CONTRIBUTING.md). Reported for visibility but non-blocking until a
-      # dedicated cleanup ticket clears it; new mobile code should still be clean.
-      - name: Lint — mobile (non-blocking, informational)
-        continue-on-error: true
+      # The mobile lint backlog is cleared, so this gate is blocking now.
+      - name: Lint — mobile (strict)
         run: npm run lint -w apps/mobile
 
       # Config schema (src/config.ts) and .env.example must not drift (WP-105).
@@ -63,3 +60,8 @@ jobs:
       # the log; the run fails if coverage drops below the pinned thresholds.
       - name: Test + coverage — api
         run: npm run test:coverage -w services/api
+
+      # Pure-logic mobile tests: session-store event application (replay,
+      # dedup, gap detection) and the geo/routing math. No component rendering.
+      - name: Test — mobile
+        run: npm run test -w apps/mobile

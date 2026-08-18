@@ -5,7 +5,6 @@ import { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { spacing, fontSize, borderRadius, glow, type ThemeColors, useTheme } from '../ui/theme';
 import { formatDistance } from '../utils/geo';
-import { formatDuration } from '../hooks/useParticipantETAs';
 
 export interface SessionSummaryData {
   sessionDuration: string; // formatted time string

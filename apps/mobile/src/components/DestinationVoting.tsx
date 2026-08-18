@@ -2,15 +2,13 @@
 // Uses a local voting model visible to all via implicit polling of participant actions.
 // The host makes the final decision by accepting a proposal (sets it as destination).
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   FlatList,
-  Alert,
-  Platform,
 } from 'react-native';
 import { spacing, fontSize, borderRadius, getParticipantColor, glow, type ThemeColors, useTheme } from '../ui/theme';
 
