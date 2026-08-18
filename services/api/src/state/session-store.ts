@@ -23,6 +23,14 @@ export interface FullSessionState extends SessionState {
 export interface FullParticipantState extends ParticipantState {
   /** Timestamp of last LOC_UPDATE accepted (for rate limiting) */
   lastLocUpdateTs: number;
+  /**
+   * True once this participant has completed a HELLO. Distinguishes a first
+   * join (broadcast PARTICIPANT_JOINED) from a reconnect (do not).
+   */
+  hasJoined: boolean;
+  /** Chat rate-limit window: start timestamp and count within it. */
+  chatWindowStartTs: number;
+  chatWindowCount: number;
 }
 
 class SessionStore {
@@ -77,6 +85,9 @@ class SessionStore {
       lastLocUpdateTs: 0,
       battery: null,
       charging: null,
+      hasJoined: false,
+      chatWindowStartTs: 0,
+      chatWindowCount: 0,
     };
 
     session.participants.set(participantId, participant);
@@ -110,6 +121,9 @@ class SessionStore {
       lastLocUpdateTs: 0,
       battery: null,
       charging: null,
+      hasJoined: false,
+      chatWindowStartTs: 0,
+      chatWindowCount: 0,
     };
 
     session.participants.set(participantId, participant);
@@ -202,14 +216,60 @@ class SessionStore {
     return session.eventBuffer.getRange(lastEventId, session.lastEventId);
   }
 
-  /** Remove stale/empty sessions. Called periodically. */
+  /** Record an active SOS for a participant. Returns the stored entry. */
+  raiseSos(
+    sessionId: string,
+    participantId: string,
+    note: string | null,
+  ): { note: string | null; ts: number } | null {
+    const session = this.sessions.get(sessionId);
+    if (!session) return null;
+    const entry = { note, ts: Date.now() };
+    session.sosActive.set(participantId, entry);
+    return entry;
+  }
+
+  /** Clear a participant's own SOS. Returns true if one was active. */
+  clearSos(sessionId: string, participantId: string): boolean {
+    const session = this.sessions.get(sessionId);
+    if (!session) return false;
+    return session.sosActive.delete(participantId);
+  }
+
+  /** Mark a participant arrived. Returns false if already marked (idempotent). */
+  markArrived(sessionId: string, participantId: string): boolean {
+    const session = this.sessions.get(sessionId);
+    if (!session) return false;
+    if (session.arrived.has(participantId)) return false;
+    session.arrived.add(participantId);
+    return true;
+  }
+
+  /** Clear all arrival state. Called when the destination changes. */
+  clearArrivals(sessionId: string): void {
+    this.sessions.get(sessionId)?.arrived.clear();
+  }
+
+  /**
+   * Remove stale/empty sessions. Called periodically.
+   *
+   * The "empty" branch only became reachable once LEAVE_SESSION started
+   * actually removing participants. The abandoned branch covers the other
+   * real case: everyone dropped without an explicit leave, so the session
+   * holds only disconnected participants and no one is coming back.
+   */
   cleanup(): number {
     const now = Date.now();
     let removed = 0;
     for (const [sessionId, session] of this.sessions) {
       const isEmpty = session.participants.size === 0;
       const isExpired = now - session.createdAt > config.sessionTtlMs;
-      if (isEmpty || isExpired) {
+      const isAbandoned =
+        !isEmpty &&
+        [...session.participants.values()].every(
+          (p) => p.connId === null && now - p.lastSeenTs > config.sessionTtlMs,
+        );
+      if (isEmpty || isExpired || isAbandoned) {
         this.joinCodeIndex.delete(session.joinCode);
         this.sessions.delete(sessionId);
         removed++;

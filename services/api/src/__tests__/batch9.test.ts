@@ -3,6 +3,11 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import { WebSocket, type WebSocketServer } from 'ws';
 import { registerRoutes } from '../http/routes.js';
 import { setupWebSocket } from '../ws/handler.js';
+import {
+  connectWs as sharedConnectWs,
+  receiveJson as sharedReceiveJson,
+  collectMessages as sharedCollectMessages,
+} from './helpers/ws-test-client.js';
 
 let app: FastifyInstance;
 let port: number;
@@ -26,33 +31,15 @@ async function stopServer(): Promise<void> {
 }
 
 function connectWs(): Promise<WebSocket> {
-  return new Promise((resolve, reject) => {
-    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
-    ws.on('open', () => resolve(ws));
-    ws.on('error', reject);
-  });
+  return sharedConnectWs(port);
 }
 
 function receiveJson(ws: WebSocket): Promise<unknown> {
-  return new Promise((resolve) => {
-    ws.once('message', (data) => {
-      resolve(JSON.parse(data.toString()));
-    });
-  });
+  return sharedReceiveJson(ws);
 }
 
 function collectMessages(ws: WebSocket, count: number): Promise<unknown[]> {
-  return new Promise((resolve) => {
-    const msgs: unknown[] = [];
-    const handler = (data: Buffer | string) => {
-      msgs.push(JSON.parse(data.toString()));
-      if (msgs.length >= count) {
-        ws.off('message', handler);
-        resolve(msgs);
-      }
-    };
-    ws.on('message', handler);
-  });
+  return sharedCollectMessages(ws, count);
 }
 
 async function createSession(displayName = 'Host'): Promise<{
@@ -275,7 +262,9 @@ describe('Clear Destination', () => {
       },
     }));
 
-    const msgs = await collectMessages(ws2, 3);
+    // A reconnect yields WELCOME + SNAPSHOT only — no PARTICIPANT_JOINED,
+    // and no EVENTS because lastEventId is null (full-snapshot path).
+    const msgs = await collectMessages(ws2, 2);
     const snapshot = msgs[1] as { type: string; payload: { destination: unknown } };
     expect(snapshot.type).toBe('SNAPSHOT');
     expect(snapshot.payload.destination).toBeNull();
@@ -335,11 +324,12 @@ describe('HTTP Validation (Batch 9)', () => {
       url: '/sessions',
       payload: { displayName: 'Alice' },
     });
-    const { sessionId } = createRes.json();
+    const { sessionId, token } = createRes.json();
 
     const infoRes = await app.inject({
       method: 'GET',
       url: `/sessions/${sessionId}`,
+      headers: { authorization: `Bearer ${token}` },
     });
     expect(infoRes.statusCode).toBe(200);
     const body = infoRes.json();

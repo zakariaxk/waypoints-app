@@ -1,7 +1,7 @@
-// LEAVE_SESSION handler: mark participant offline, broadcast, close connection.
+// LEAVE_SESSION handler: remove participant, broadcast, close connection.
 
 import type { ConnState } from './handler.js';
-import { broadcastToSession } from './handler.js';
+import { broadcastToSession, releaseConnection } from './handler.js';
 import { sessionStore } from '../state/session-store.js';
 import { cleanupVoiceMember } from './voice.js';
 
@@ -14,6 +14,9 @@ export function handleLeaveSession(conn: ConnState): void {
 
   // Remove from voice chat if active
   cleanupVoiceMember(sessionId, participantId);
+
+  // Clear any SOS they had raised — leaving is an explicit "I'm fine, I'm out".
+  sessionStore.clearSos(sessionId, participantId);
 
   // Mark participant as offline and clear connection
   participant.connId = null;
@@ -28,7 +31,16 @@ export function handleLeaveSession(conn: ConnState): void {
     broadcastToSession(sessionId, { type: 'EVENT', payload: event });
   }
 
+  // An explicit leave is intentional and permanent, so the participant is
+  // removed outright — unlike a disconnect, which only marks them offline so
+  // reconnect + replay still works. Without this the store never sheds
+  // participants, `participants.size` never reaches zero, and cleanup()'s
+  // empty-session branch is unreachable: every session lives its full TTL
+  // holding everyone who ever joined.
+  sessionStore.removeParticipant(sessionId, participantId);
+
   // Unbind connection so handleDisconnect doesn't double-fire
+  releaseConnection(conn);
   conn.sessionId = null;
   conn.participantId = null;
 

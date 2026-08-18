@@ -33,6 +33,18 @@ export interface Config {
   maxParticipantsPerSession: number;
   /** Max display name length */
   maxDisplayNameLength: number;
+  /** Interval between WS heartbeat ping sweeps in ms */
+  wsHeartbeatIntervalMs: number;
+  /** Metres from the destination within which ARRIVAL_PING is accepted */
+  arrivalRadiusM: number;
+  /** Max chat messages per participant inside the chat rate window */
+  chatRateLimitCount: number;
+  /** Chat rate-limit window in ms */
+  chatRateLimitWindowMs: number;
+  /** Max POST /sessions/join attempts per IP inside the join rate window */
+  joinRateLimitCount: number;
+  /** Join rate-limit window in ms */
+  joinRateLimitWindowMs: number;
   /** Pino log level */
   logLevel: string;
   /** Node environment — drives pretty (dev) vs JSON (prod) logging */
@@ -81,6 +93,12 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().optional(),
   MAX_PARTICIPANTS: intVar(50, { min: 1 }),
   MAX_DISPLAY_NAME_LENGTH: intVar(30, { min: 1 }),
+  WS_HEARTBEAT_INTERVAL_MS: intVar(15_000, { min: 100 }),
+  ARRIVAL_RADIUS_M: intVar(50, { min: 1 }),
+  CHAT_RATE_LIMIT_COUNT: intVar(5, { min: 1 }),
+  CHAT_RATE_LIMIT_WINDOW_MS: intVar(5000, { min: 100 }),
+  JOIN_RATE_LIMIT_COUNT: intVar(20, { min: 1 }),
+  JOIN_RATE_LIMIT_WINDOW_MS: intVar(60_000, { min: 1000 }),
   LOG_LEVEL: z
     .preprocess(
       (v) => (v === undefined || v === '' ? 'info' : v),
@@ -136,6 +154,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     corsOrigin: parseCorsOrigin(v.CORS_ORIGIN),
     maxParticipantsPerSession: v.MAX_PARTICIPANTS,
     maxDisplayNameLength: v.MAX_DISPLAY_NAME_LENGTH,
+    wsHeartbeatIntervalMs: v.WS_HEARTBEAT_INTERVAL_MS,
+    arrivalRadiusM: v.ARRIVAL_RADIUS_M,
+    chatRateLimitCount: v.CHAT_RATE_LIMIT_COUNT,
+    chatRateLimitWindowMs: v.CHAT_RATE_LIMIT_WINDOW_MS,
+    joinRateLimitCount: v.JOIN_RATE_LIMIT_COUNT,
+    joinRateLimitWindowMs: v.JOIN_RATE_LIMIT_WINDOW_MS,
     logLevel: v.LOG_LEVEL,
     nodeEnv,
     isProduction: nodeEnv === 'production',

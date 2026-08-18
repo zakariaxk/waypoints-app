@@ -3,6 +3,11 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import { WebSocket, type WebSocketServer } from 'ws';
 import { registerRoutes } from '../http/routes.js';
 import { setupWebSocket } from '../ws/handler.js';
+import {
+  connectWs as sharedConnectWs,
+  receiveJson as sharedReceiveJson,
+  collectMessages as sharedCollectMessages,
+} from './helpers/ws-test-client.js';
 
 let app: FastifyInstance;
 let port: number;
@@ -26,33 +31,15 @@ async function stopServer(): Promise<void> {
 }
 
 function connectWs(): Promise<WebSocket> {
-  return new Promise((resolve, reject) => {
-    const ws = new WebSocket(`ws://127.0.0.1:${port}`);
-    ws.on('open', () => resolve(ws));
-    ws.on('error', reject);
-  });
+  return sharedConnectWs(port);
 }
 
 function receiveJson(ws: WebSocket): Promise<unknown> {
-  return new Promise((resolve) => {
-    ws.once('message', (data) => {
-      resolve(JSON.parse(data.toString()));
-    });
-  });
+  return sharedReceiveJson(ws);
 }
 
 function collectMessages(ws: WebSocket, count: number): Promise<unknown[]> {
-  return new Promise((resolve) => {
-    const msgs: unknown[] = [];
-    const handler = (data: Buffer | string) => {
-      msgs.push(JSON.parse(data.toString()));
-      if (msgs.length >= count) {
-        ws.off('message', handler);
-        resolve(msgs);
-      }
-    };
-    ws.on('message', handler);
-  });
+  return sharedCollectMessages(ws, count);
 }
 
 async function createAndJoin(displayName = 'TestUser'): Promise<{
@@ -257,11 +244,12 @@ describe('GET /sessions/:sessionId', () => {
   });
 
   it('returns session info', async () => {
-    const { sessionId, joinCode } = await createAndJoin('Alice');
+    const { sessionId, joinCode, token } = await createAndJoin('Alice');
 
     const res = await app.inject({
       method: 'GET',
       url: `/sessions/${sessionId}`,
+      headers: { authorization: `Bearer ${token}` },
     });
     expect(res.statusCode).toBe(200);
     const body = res.json();
@@ -270,6 +258,25 @@ describe('GET /sessions/:sessionId', () => {
     expect(body.participantCount).toBe(1);
     expect(body.participants).toHaveLength(1);
     expect(body.participants[0].displayName).toBe('Alice');
+  });
+
+  it('returns 404 without a participant token', async () => {
+    // The gate answers 404 rather than 401 so the endpoint does not confirm
+    // that a session id exists to a caller who cannot read it.
+    const { sessionId } = await createAndJoin('Alice');
+    const res = await app.inject({ method: 'GET', url: `/sessions/${sessionId}` });
+    expect(res.statusCode).toBe(404);
+  });
+
+  it('returns 404 with a token from a different session', async () => {
+    const { sessionId } = await createAndJoin('Alice');
+    const other = await createAndJoin('Mallory');
+    const res = await app.inject({
+      method: 'GET',
+      url: `/sessions/${sessionId}`,
+      headers: { authorization: `Bearer ${other.token}` },
+    });
+    expect(res.statusCode).toBe(404);
   });
 
   it('returns 404 for unknown session', async () => {

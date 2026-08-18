@@ -11,6 +11,7 @@ import { handleSetDestination, handleClearDestination } from './destination.js';
 import { handleChatMessage } from './chat.js';
 import { handleLeaveSession } from './leave.js';
 import { handleVoiceJoin, handleVoiceLeave, handleVoiceSignal } from './voice.js';
+import { handleRaiseSos, handleClearSos, handleArrivalPing } from './safety.js';
 
 export function dispatch(conn: ConnState, raw: Buffer | string): void {
   // 1. Parse JSON
@@ -63,6 +64,15 @@ export function dispatch(conn: ConnState, raw: Buffer | string): void {
       break;
     case 'LEAVE_SESSION':
       handleLeaveSession(conn);
+      break;
+    case 'RAISE_SOS':
+      handleRaiseSos(conn, message.payload);
+      break;
+    case 'CLEAR_SOS':
+      handleClearSos(conn);
+      break;
+    case 'ARRIVAL_PING':
+      handleArrivalPing(conn);
       break;
     case 'VOICE_JOIN':
       handleVoiceJoin(conn);

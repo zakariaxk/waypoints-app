@@ -37,6 +37,9 @@ export function handleSetDestination(
     label: payload.label,
   };
 
+  // A new destination invalidates everyone's arrival state.
+  sessionStore.clearArrivals(sessionId);
+
   // Push event and broadcast
   const event = sessionStore.pushEvent(sessionId, 'DESTINATION_SET', {
     lat: payload.lat,
@@ -67,6 +70,7 @@ export function handleClearDestination(conn: ConnState): void {
   }
 
   session.destination = null;
+  sessionStore.clearArrivals(sessionId);
 
   const event = sessionStore.pushEvent(sessionId, 'DESTINATION_CLEARED', {
     clearedBy: participantId,
