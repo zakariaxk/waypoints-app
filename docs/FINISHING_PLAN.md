@@ -3,10 +3,9 @@
 > **Status 2026-08-17:** W1–W8, W10–W16 are **implemented and merged to
 > `zakariakhan/finishing-plan-implementation`** (PR #7). Backend 73 → 91
 > tests, mobile 0 → 14, mobile lint 36 errors → 0, CI green.
-> Remaining: **W9** (reconnect UX states — the store and client expose
-> everything needed, the session screen does not surface all three yet),
-> **W17** (one-command demo script), **WF1** (spatial voice — blocked on
-> verifying per-peer gain support, see §5), **WF2** (trip replay).
+> **W1–W17 are all implemented.** Remaining: **WF1** (spatial voice —
+> blocked on verifying per-peer gain support on a device build, see §5) and
+> **WF2** (trip replay), both optional feature work.
 > Deployment is configured but **not executed** — needs Fly credentials.
 
 Audit date: 2026-08-17 · Repo @ `36cae65` (branch `zakariakhan/zak-5-p3-01-protocol-contract`)
