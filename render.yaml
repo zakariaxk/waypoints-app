@@ -1,0 +1,24 @@
+# Render deployment blueprint — free web service, Docker build.
+#
+# Free tier sleeps after ~15 min of no traffic and wakes on the next request
+# (~30-60s cold start). Sleep wipes all in-memory sessions — the same
+# consequence as any restart under the in-memory constraint (ARCHITECTURE.md §4),
+# just triggered by idle. An active session's heartbeat pings count as traffic
+# and keep the instance awake.
+#
+# Render injects PORT at runtime; config.ts binds process.env.PORT and HOST.
+services:
+  - type: web
+    name: waypoints-api
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      # CORS_ORIGIN intentionally unset — see fly.toml note. Never set to "true".
