@@ -35,7 +35,25 @@ The agent must append requests here and pause execution if required.
   - `apps/mobile/app.config.ts` → `extra.eas.projectId` and `updates.url`
   - Set env var `EAS_PROJECT_ID` or hardcode in app.config.ts
 
-### 3. Deploy Backend to Fly.io
+### 3. Deploy Backend to Render (chosen — no card, free)
+- **Service**: Render free web service (Docker), no credit card required
+- **Why**: Fly requires a card on file even for its free allowance; Render's
+  free tier needs no card. Trade-off: idle-sleeps after ~15min (wakes cold,
+  ~30-60s) and sleep wipes in-memory sessions — acceptable under the in-memory
+  constraint (ARCHITECTURE.md §4). Active-session heartbeat traffic keeps it awake.
+- **Steps**:
+  1. `render.yaml` blueprint is committed at repo root.
+  2. https://render.com → sign in with GitHub (`zakariaxk`).
+  3. New + → Blueprint → select repo `waypoints-app` → pick the deploy branch.
+  4. Render reads `render.yaml`, shows service `waypoints-api` (free) → Apply.
+  5. Note the URL: `https://waypoints-api.onrender.com`
+  6. Verify: `curl https://waypoints-api.onrender.com/health`
+- **Where result goes**:
+  - `apps/mobile/eas.json` → `EXPO_PUBLIC_API_URL` / `EXPO_PUBLIC_WS_URL`
+    (update from the `waypoints-api.fly.dev` placeholders to the Render host,
+    `wss://` for WS).
+
+### 3b. Deploy Backend to Fly.io (alternative — needs a card)
 - **Service**: Fly.io (free tier: 3 shared VMs, 256MB RAM)
 - **Why**: Mobile app needs a reachable backend (not localhost)
 - **Steps**:
