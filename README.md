@@ -13,7 +13,12 @@ Real-time location sharing app — create a session, share the code, see everyon
 - **Distance & ETA** — OSRM-powered driving distance and live ETA for each participant
 - **Presence tracking** — online / stale / offline status with faded offline markers
 - **Session chat** — in-app messaging within your group
-- **Reconnect-safe** — exponential backoff with event replay (no missed updates)
+- **Reconnect-safe** — exponential backoff with server-computed event replay, gap detection, and heartbeat-backed presence
+
+### Safety (Phase 3)
+- **SOS** — any participant can raise a durable, replayable alert; location is sourced server-side, never trusted from the client
+- **Arrival ping** — "I'm here" button plus auto-fire within 50m, validated against the destination server-side
+- **Battery presence** — level/charging ride the location stream; low-battery badge below 15% when not charging
 
 ### Enhanced
 - **Per-user route colors** — 8-color neon palette, unique per participant
@@ -40,8 +45,8 @@ Real-time location sharing app — create a session, share the code, see everyon
 | Workspace | Path | Description |
 |---|---|---|
 | `@waypoints/shared` | `packages/shared` | TypeScript types, WS messages, Zod validators |
-| `@waypoints/api` | `services/api` | Fastify HTTP + ws WebSocket backend (44 tests) |
-| `@waypoints/mobile` | `apps/mobile` | React Native (Expo SDK 54) client |
+| `@waypoints/api` | `services/api` | Fastify HTTP + ws WebSocket backend (90 tests) |
+| `@waypoints/mobile` | `apps/mobile` | React Native (Expo SDK 54) client (14 logic tests) |
 
 ## Tech Stack
 
