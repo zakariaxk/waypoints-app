@@ -62,6 +62,12 @@ interface SessionState {
 
   // Connection
   connected: boolean;
+  /**
+   * Set when the server rejects us in a way retrying cannot fix (bad token,
+   * session gone). Distinct from `connected: false`, which is transient —
+   * conflating them left a dead session showing "reconnecting..." forever.
+   */
+  sessionInvalid: boolean;
   lastEventId: number;
   reconnectCount: number;
 
@@ -88,6 +94,7 @@ interface SessionState {
     hostParticipantId?: string;
   }) => void;
   setConnected: (c: boolean) => void;
+  setSessionInvalid: (v: boolean) => void;
   setHostParticipantId: (id: string) => void;
   incrementReconnectCount: () => void;
   applySnapshot: (snapshot: {
@@ -124,6 +131,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   joinCode: null,
   displayName: null,
   connected: false,
+  sessionInvalid: false,
   lastEventId: 0,
   reconnectCount: 0,
   participants: new Map(),
@@ -148,6 +156,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   },
 
   setConnected: (c) => set({ connected: c }),
+
+  setSessionInvalid: (v) => set({ sessionInvalid: v }),
 
   setHostParticipantId: (id) => {
     const state = get();
@@ -230,6 +240,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       joinCode: null,
       displayName: null,
       connected: false,
+      sessionInvalid: false,
       lastEventId: 0,
       reconnectCount: 0,
       participants: new Map(),

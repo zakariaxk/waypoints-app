@@ -68,6 +68,7 @@ export function connectWs(
   intentionalClose = false;
   sessionInvalidated = false;
   helloCompleted = false;
+  useSessionStore.getState().setSessionInvalid(false);
   ws = new WebSocket(WS_URL);
 
   // A live event arriving out of sequence means we missed something the
@@ -272,6 +273,7 @@ function handleServerMessage(msg: { type: string; payload: Record<string, unknow
 
       if (isFatalError(payload.code)) {
         sessionInvalidated = true;
+        store.setSessionInvalid(true);
         disconnectWs();
       }
       break;

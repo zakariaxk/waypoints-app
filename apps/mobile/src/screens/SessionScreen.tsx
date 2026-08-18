@@ -66,6 +66,7 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
     token,
     joinCode,
     connected,
+    sessionInvalid,
     reconnectCount,
     chatMessages,
     isHost,
@@ -497,19 +498,29 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
           />
           <View>
             <Text style={styles.connectionText}>
-              {connected
-                ? `${onlineCount} online`
-                : reconnectCount > 0
-                  ? `Retry #${reconnectCount}...`
-                  : 'Connecting...'}
+              {sessionInvalid
+                ? 'Session expired'
+                : connected
+                  ? `${onlineCount} online`
+                  : reconnectCount > 0
+                    ? `Retry #${reconnectCount}...`
+                    : 'Connecting...'}
             </Text>
             <Text style={styles.timerText}>⏱ {sessionTimer}</Text>
           </View>
         </View>
       </View>
 
-      {/* Offline / Connecting Banner */}
-      {!connected && (
+      {/* Connection state. Three distinguishable cases: a transient drop that
+          is being retried, an initial connect, and a session the server will
+          never accept again — the last needs an action, not a spinner. */}
+      {sessionInvalid ? (
+        <TouchableOpacity style={styles.invalidBanner} onPress={handleLeave}>
+          <Text style={styles.invalidBannerText}>
+            ⛔ This session is no longer available — tap to rejoin
+          </Text>
+        </TouchableOpacity>
+      ) : !connected ? (
         <View style={styles.offlineBanner}>
           <Text style={styles.offlineBannerText}>
             {reconnectCount > 0
@@ -517,7 +528,7 @@ export default function SessionScreen({ onLeave }: SessionScreenProps) {
               : '⚠ Connecting to server...'}
           </Text>
         </View>
-      )}
+      ) : null}
 
       {/* Host badge */}
       {isHost && (
@@ -851,6 +862,17 @@ const createStyles = (colors: ThemeColors) =>
       fontWeight: '700',
       textAlign: 'center',
       marginTop: spacing.xs,
+    },
+    invalidBanner: {
+      backgroundColor: '#7F1D1D',
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.md,
+      alignItems: 'center',
+    },
+    invalidBannerText: {
+      color: '#FEE2E2',
+      fontSize: fontSize.sm,
+      fontWeight: '700',
     },
     offlineBanner: {
       backgroundColor: colors.dangerLight,
