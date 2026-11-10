@@ -72,6 +72,7 @@ public struct VehiclePicker: View {
     @State private var showVIN = false
     @State private var vin = ""
     @State private var vinError: String?
+    @State private var scanning = false
     @State private var tick = 0
 
     struct ManualTrim: Hashable { var trim = ""; var engine = ""; var drive = "" }
@@ -385,6 +386,9 @@ public struct VehiclePicker: View {
             VStack(spacing: Space.s16) {
                 Field("VIN", text: $vin, prompt: "17 characters", limit: 17,
                       error: vinError.map { Text(verbatim: $0) })
+                if VINScanner.isAvailable {
+                    SecondaryButton("Scan with the camera") { scanning = true }
+                }
                 PrimaryButton("Look up") {
                     Task {
                         do {
@@ -408,6 +412,16 @@ public struct VehiclePicker: View {
             .padding(Space.margin)
         }
         .presentationDetents([.medium])
+        .fullScreenCover(isPresented: $scanning) {
+            VINScanner { found in
+                vin = found
+                scanning = false
+            }
+            .ignoresSafeArea()
+            .overlay(alignment: .topLeading) {
+                IconButton(Symbol.close, label: "Close", style: .overMap) { scanning = false }.padding(Space.margin)
+            }
+        }
     }
 }
 
