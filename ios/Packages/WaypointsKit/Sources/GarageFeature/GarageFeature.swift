@@ -268,6 +268,10 @@ struct ProfileScreen: View {
         ForEach(byMake.prefix(5), id: \.key) { make, spots in
             Row(Text(verbatim: make), trailing: { Text(verbatim: "\(spots.count)").typeStyle(.readoutS) })
         }
+        NavigationLink { SpottedView(ctx: ctx, spots: model.spots) } label: {
+            Row(Text("See all"), showsDivider: false, trailing: { Disclosure() })
+        }
+        .buttonStyle(RowButtonStyle())
     }
 
     @ViewBuilder private var postsSection: some View {
@@ -348,5 +352,45 @@ struct PickerSheet: View {
         } catch {
             self.error = "Couldn't save the car. Check your connection and try again."
         }
+    }
+}
+
+/// The spotting collection (plan 10.3 M12): makes with counts, then models with photos.
+struct SpottedView: View {
+    let ctx: GarageContext
+    let spots: [Spot]
+
+    var body: some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(Dictionary(grouping: spots, by: \.make).sorted { $0.key < $1.key }, id: \.key) { make, list in
+                    NavigationLink { models(make, list) } label: {
+                        Row(Text(verbatim: make), subtitle: Text("\(Set(list.map(\.catalogModelID)).count) models"),
+                            trailing: { Text(verbatim: "\(list.count)").typeStyle(.readoutS) })
+                    }
+                    .buttonStyle(RowButtonStyle())
+                }
+            }
+        }
+        .background(Color.asphalt.ignoresSafeArea())
+        .navigationTitle("Spotted")
+    }
+
+    private func models(_ make: String, _ list: [Spot]) -> some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(Dictionary(grouping: list, by: \.model).sorted { $0.key < $1.key }, id: \.key) { model, shots in
+                    SectionLabel(verbatim: model.uppercased())
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Space.s2), count: 3), spacing: Space.s2) {
+                        ForEach(shots) { s in
+                            MediaView(url: ctx.url(.spots, s.photoPath), aspectRatio: 1, cornerRadius: 0,
+                                      label: Text(verbatim: "\(s.make) \(s.model), \(s.city)"))
+                        }
+                    }
+                }
+            }
+        }
+        .background(Color.asphalt.ignoresSafeArea())
+        .navigationTitle(make)
     }
 }
