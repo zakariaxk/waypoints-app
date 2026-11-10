@@ -15,6 +15,10 @@ struct MapScreen: View {
     @State private var showMarkerPicker = false
     @State private var addPoint: Coordinate?
     @State private var dragOffset: CGFloat = 0
+    @State private var passenger = false
+
+    /// Above 8 km/h the add button hides unless a passenger confirms (plan 10.3 M4).
+    private var moving: Bool { (model.me?.speed ?? 0) > 8 / 3.6 }
 
     enum Detent { case peek, medium, large }
 
@@ -36,6 +40,7 @@ struct MapScreen: View {
                 position = .userLocation(followsHeading: model.follow == .heading, fallback: .automatic)
             }
         }
+        .onChange(of: moving) { if !moving { passenger = false } }
         .onChange(of: model.selection) { if model.selection != nil { detent = .medium } }
     }
 
@@ -142,7 +147,11 @@ struct MapScreen: View {
             Spacer()
             HStack {
                 Spacer()
-                if !model.registry.mapActions.isEmpty {
+                if moving && !passenger && !model.registry.mapActions.isEmpty {
+                    QuietButton("I'm a passenger") { passenger = true }
+                        .padding(.horizontal, Space.s12)
+                        .overMapMaterial(in: Capsule())
+                } else if !model.registry.mapActions.isEmpty {
                     Menu {
                         ForEach(model.registry.mapActions, id: \.id) { action in
                             Button { action.perform(at: model.region.center, router: model.env.router) } label: {
