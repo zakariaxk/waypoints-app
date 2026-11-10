@@ -264,6 +264,8 @@ struct MeetDetail: View {
     @State private var addNote = false
     @State private var confirmCancel = false
     @State private var editing = false
+    @State private var showGoing = false
+    @State private var goingPeople: [Profile] = []
     @State private var done = 0
 
     var body: some View {
@@ -293,6 +295,22 @@ struct MeetDetail: View {
             Button("Cancel meet", role: .destructive) {
                 Task { try? await env.gateway.cancelMeet(meetID); await load() }
             }
+        }
+        .sheet(isPresented: $showGoing) {
+            Sheet(Text("Who's going")) {
+                ScrollView {
+                    ForEach(goingPeople) { p in
+                        let car = rsvps.first { $0.userID == p.userID }?.carID.flatMap { id in goingCars.first { $0.id == id } }
+                        Button { showGoing = false; env.router.open(.profile(p.userID)) } label: {
+                            Row(Text(verbatim: p.displayName), subtitle: car.map { Text(verbatim: $0.shortLabel) },
+                                leading: { Avatar(name: p.displayName, size: .s40) })
+                        }
+                        .buttonStyle(RowButtonStyle())
+                    }
+                }
+            }
+            .presentationDetents([.medium, .large])
+            .task { goingPeople = (try? await env.profiles.profiles(rsvps.filter { $0.status == .going }.map(\.userID))) ?? [] }
         }
         .sheet(isPresented: $addNote) { VenueNoteSheet(env: env, at: meet?.coordinate) { Task { await load() } } }
         .sheet(isPresented: $editing) { if let meet { CreateMeet(env: env, start: nil, editing: meet) } }
@@ -348,7 +366,9 @@ struct MeetDetail: View {
     @ViewBuilder private var going: some View {
         let count = rsvps.filter { $0.status == .going }.count
         if count > 0 {
-            Text("Who's going · \(count)").typeStyle(.label).foregroundStyle(Color.dust)
+            Button { showGoing = true } label: {
+                Text("Who's going · \(count)").typeStyle(.label).foregroundStyle(Color.dust)
+            }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: Space.s12) {
                     ForEach(goingCars) { car in
