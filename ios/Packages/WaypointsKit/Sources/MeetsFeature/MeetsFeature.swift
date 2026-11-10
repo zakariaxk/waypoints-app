@@ -127,6 +127,7 @@ struct CreateMeet: View {
     @State private var startsAt = Date.now
     @State private var endsAt = Date.now.addingTimeInterval(7200)
     @State private var visibility: MeetVisibility = .public
+    @State private var hostTeam: Team?
     @State private var details = ""
     @State private var showDetails = false
     @State private var saving = false
@@ -184,7 +185,8 @@ struct CreateMeet: View {
                     }
                     DatePicker("Ends", selection: $endsAt, in: startsAt...).tint(.sodium).foregroundStyle(Color.chalk)
                     Text("Who can see it").typeStyle(.foot).foregroundStyle(Color.dust)
-                    SegmentedSwitch(selection: $visibility, options: [(.public, "Everyone"), (.friends, "Friends")])
+                    SegmentedSwitch(selection: $visibility, options: [(.public, "Everyone"), (.friends, "Friends")]
+                                    + (hostTeam.map { [(MeetVisibility.team, LocalizedStringKey($0.tag))] } ?? []))
                     if showDetails {
                         Field("Details", text: $details, limit: 500, axis: .vertical)
                     } else {
@@ -204,6 +206,12 @@ struct CreateMeet: View {
             if editing == nil { startsAt = Self.tonight8; endsAt = Self.tonight8.addingTimeInterval(7200) }
             resolvePlace()
         }
+        .task {
+            // The first team where the user may host meets (plan 10.4 E1).
+            for team in (try? await env.teams.myTeams()) ?? [] {
+                if (try? await env.teams.myPermissions(in: team.id).contains(.hostMeets)) == true { hostTeam = team; break }
+            }
+        }
     }
 
     private func resolvePlace() {
@@ -218,7 +226,8 @@ struct CreateMeet: View {
         saving = true
         error = nil
         let draft = MeetDraft(title: title, kind: kind, coordinate: Coordinate(latitude: center.latitude, longitude: center.longitude),
-                              placeName: place, startsAt: startsAt, endsAt: endsAt, details: details, visibility: visibility)
+                              placeName: place, startsAt: startsAt, endsAt: endsAt, details: details, visibility: visibility,
+                              teamID: visibility == .team ? hostTeam?.id : nil)
         Task {
             do {
                 let meet = if let editing { try await env.gateway.updateMeet(editing.id, draft) } else { try await env.gateway.createMeet(draft) }
