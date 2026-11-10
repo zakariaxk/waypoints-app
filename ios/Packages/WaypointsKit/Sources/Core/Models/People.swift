@@ -137,4 +137,15 @@ public struct HomeZone: Identifiable, Hashable, Sendable, Codable {
     public static let maximumCount = 3
 }
 
+/// `notification_prefs` (S3). Every switch defaults on; "meets near me" also needs
+/// `PrivacySettings.notifyMeetsNearby`, which the gateway reads.
+public struct NotificationPrefs: Hashable, Sendable, Codable {
+    public var friendRequests = true
+    public var messages = true
+    public var mentions = true
+    public var convoyInvites = true
+    public var meetReminders = true
+    public init() {}
+}
+
 public enum APNsEnvironment: String, Sendable, Codable, Hashable { case sandbox, production }

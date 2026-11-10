@@ -19,6 +19,7 @@ enum CompositionRoot {
     static func makeEnvironment(router: any Router) -> AppEnvironment {
         let config = loadConfig()
         let backend = Backend.makeLive(config: config)
+        let location = LocationKit.makeLive(config: config)
         return AppEnvironment(
             auth: backend.auth,
             profiles: backend.profiles,
@@ -35,11 +36,11 @@ enum CompositionRoot {
             roads: backend.roads,
             progress: backend.progress,
             media: backend.media,
-            realtime: RealtimeClient.makeLive(config: config, auth: backend.auth),
-            location: LocationKit.makeLive(config: config),
+            realtime: RealtimeClient.makeLive(config: config, auth: backend.auth, location: location),
+            location: location,
             gateway: GatewayAPI.makeLive(config: config, auth: backend.auth),
             catalog: VehicleCatalog.makeLive(config: config),
-            safety: SafetyKit.makeLive(config: config),
+            safety: SafetyKit.makeLive(config: config, auth: backend.auth, profiles: backend.profiles),
             router: router
         )
     }

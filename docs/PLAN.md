@@ -345,14 +345,17 @@ public protocol FeatureModule: Sendable {
 
 // Navigation between features without importing each other
 public enum Route: Hashable, Sendable {
-    case profile(UserID), car(CarID), meet(MeetID), team(TeamID), channel(ChannelID), thread(ThreadID)
+    case profile(UserID), car(CarID), meet(MeetID), team(TeamID), channel(ChannelID), voice(ChannelID), thread(ThreadID)
     case listing(ListingID), post(PostID), report(ReportID), vehiclePicker(forCar: CarID?)
-    case modSim(CarID), race(CarID), reportContent(ContentRef), settingsPrivacy, createMeet(Coordinate?)
+    case modSim(CarID), race(CarID), reportContent(ContentRef), settings, settingsPrivacy, createMeet(Coordinate?)
+    case createReport(Coordinate)
     case navigate(to: Coordinate, name: String?)
     case joinTeam(code: String), joinConvoy(code: String)     // invite deep links (X3)
 }
 public protocol Router: Sendable { @MainActor func open(_ route: Route) }
 ```
+
+`settings` opens S1 (Garage's gear button), `createReport` opens M5 at a point (the Reports add-menu action), and `voice` opens T3 for a voice channel (Teams shows voice rows only when a handler exists). `joinConvoy(code: "")` opens the convoy start-or-join sheet. `ProfileRepository` also carries `notificationPrefs()` and `setNotificationPrefs(_:)` over the `notification_prefs` table (S3, migration W3-4). `SafetyKit.makeLive(config:auth:profiles:)` talks to PostgREST directly.
 
 Home zones reach the gateway without a feature in the loop: `RealtimeClient.makeLive(config:auth:location:)` takes the `LocationService`, subscribes to `homeZones()`, and sends `SetHomeZones` at every connect and on every change.
 

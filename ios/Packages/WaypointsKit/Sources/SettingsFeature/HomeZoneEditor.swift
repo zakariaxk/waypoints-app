@@ -1,0 +1,45 @@
+import Core
+import DesignSystem
+import MapKit
+import SwiftUI
+
+/// "Add a zone" (S2): tap the map to place a 300 m circle, name it, save.
+struct HomeZoneEditor: View {
+    let onSave: (HomeZone) -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var center: CLLocationCoordinate2D?
+    @State private var name = "Home"
+    @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
+
+    var body: some View {
+        Sheet(Text("Add a zone")) {
+            VStack(spacing: Space.s16) {
+                MapReader { proxy in
+                    Map(position: $position) {
+                        UserAnnotation()
+                        if let center {
+                            MapCircle(center: center, radius: CLLocationDistance(HomeZone.radius))
+                                .foregroundStyle(Color.sodium.opacity(0.2))
+                                .stroke(Color.sodium, lineWidth: Size.Marker.ring)
+                        }
+                    }
+                    .mapStyle(.standard(emphasis: .muted))
+                    .onTapGesture { point in center = proxy.convert(point, from: .local) }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: Radius.r20))
+                .environment(\.colorScheme, .dark)
+                Text(center == nil ? "Tap the map to place the zone." : "Tap again to move it.")
+                    .typeStyle(.foot).foregroundStyle(Color.dust)
+                Field("Name", text: $name, limit: 20)
+                PrimaryButton("Save zone") {
+                    guard let center else { return }
+                    onSave(HomeZone(name: name, center: Coordinate(latitude: center.latitude, longitude: center.longitude)))
+                    dismiss()
+                }
+                .disabled(center == nil || name.isEmpty)
+            }
+            .padding(Space.margin)
+        }
+        .presentationDetents([.large])
+    }
+}

@@ -42,6 +42,7 @@ public actor PreviewStore {
     var achievements: [Achievement]
     var raceResults: [RaceResult] = []
     var termsAccepted = true
+    var notificationPrefs = NotificationPrefs()
 
     var sessionBroadcast = Broadcast<AuthSession?>()
     var profileBroadcast = Broadcast<Profile>()

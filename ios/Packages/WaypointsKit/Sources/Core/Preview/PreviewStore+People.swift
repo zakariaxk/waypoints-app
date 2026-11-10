@@ -88,6 +88,8 @@ extension PreviewStore: ProfileRepository {
         profileChanged(profile)
     }
     public func myPrivacySettings() async throws -> PrivacySettings { privacy[try me()] ?? .defaults }
+    public func notificationPrefs() async throws -> NotificationPrefs { notificationPrefs }
+    public func setNotificationPrefs(_ prefs: NotificationPrefs) async throws { notificationPrefs = prefs }
     public func registerDeviceToken(_ apnsToken: String, environment: APNsEnvironment) async throws {
         deviceTokens[try me(), default: []].insert(apnsToken)
     }

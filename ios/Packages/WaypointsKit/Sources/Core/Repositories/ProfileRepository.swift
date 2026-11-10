@@ -15,6 +15,8 @@ public protocol ProfileRepository: Sendable {
     func myPrivacySettings() async throws -> PrivacySettings
     func registerDeviceToken(_ apnsToken: String, environment: APNsEnvironment) async throws
     func removeDeviceToken(_ apnsToken: String) async throws
+    func notificationPrefs() async throws -> NotificationPrefs
+    func setNotificationPrefs(_ prefs: NotificationPrefs) async throws
     /// Emits the signed-in user's profile whenever it changes.
     func myProfileChanges() async -> AsyncStream<Profile>
 }

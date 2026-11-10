@@ -18,6 +18,8 @@ public enum DeepLink {
         case "team": return TeamID(string: value).map(Route.team)
         case "listing": return ListingID(string: value).map(Route.listing)
         case "post": return PostID(string: value).map(Route.post)
+        case "thread": return ThreadID(string: value).map(Route.thread)
+        case "channel": return ChannelID(string: value).map(Route.channel)
         case "invite" where parts.count >= 3:
             switch value {
             case "team": return .joinTeam(code: parts[2])

@@ -90,6 +90,28 @@ struct LiveProfiles: ProfileRepository {
         await changes.send(profile)
     }
 
+    func notificationPrefs() async throws -> NotificationPrefs {
+        let me = try ctx.me()
+        return try await ctx.run {
+            let rows: [NotificationPrefs] = try await ctx.table("notification_prefs")
+                .select("friend_requests,messages,mentions,convoy_invites,meet_reminders")
+                .eq("user_id", value: me.key).limit(1).execute().value
+            return rows.first ?? NotificationPrefs()
+        }
+    }
+
+    func setNotificationPrefs(_ prefs: NotificationPrefs) async throws {
+        let me = try ctx.me()
+        struct Body: Encodable {
+            let userId: UUID; let friendRequests, messages, mentions, convoyInvites, meetReminders: Bool
+        }
+        let body = Body(userId: me.raw, friendRequests: prefs.friendRequests, messages: prefs.messages,
+                        mentions: prefs.mentions, convoyInvites: prefs.convoyInvites, meetReminders: prefs.meetReminders)
+        try await ctx.run {
+            _ = try await ctx.table("notification_prefs").upsert(body, onConflict: "user_id", returning: .minimal).execute()
+        }
+    }
+
     func myPrivacySettings() async throws -> PrivacySettings {
         let me = try ctx.me()
         return try await ctx.run {

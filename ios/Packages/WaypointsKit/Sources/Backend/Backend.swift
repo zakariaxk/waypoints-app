@@ -36,18 +36,23 @@ public enum Backend {
     public static func makeLive(config: AppConfig) -> Services {
         guard !config.supabaseAnonKey.isEmpty else { return makePreview() }
         let ctx = BackendContext(config: config)
-        let store = PreviewStore.shared
+        let profiles = LiveProfiles(ctx: ctx, changes: Fanout())
+        let garage = LiveGarage(ctx: ctx, changes: FanoutTable())
         return Services(
             auth: LiveAuth(ctx: ctx),
-            profiles: LiveProfiles(ctx: ctx, changes: Fanout()),
-            garage: LiveGarage(ctx: ctx, changes: FanoutTable()),
+            profiles: profiles,
+            garage: garage,
             friends: LiveFriends(ctx: ctx, changes: Fanout()),
             meets: LiveMeets(ctx: ctx),
             reports: LiveReports(ctx: ctx),
-            teams: store, messages: store, posts: store, showdown: store, market: store,
+            teams: LiveTeams(ctx: ctx),
+            messages: LiveMessages(ctx: ctx, unread: Fanout()),
+            posts: LivePosts(ctx: ctx),
+            showdown: LiveShowdown(ctx: ctx, garage: garage, profiles: profiles),
+            market: LiveMarket(ctx: ctx),
             spots: LiveSpots(ctx: ctx),
             roads: LiveRoads(ctx: ctx),
-            progress: store,
+            progress: LiveProgress(ctx: ctx),
             media: LiveMedia(ctx: ctx)
         )
     }
