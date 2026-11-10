@@ -6,12 +6,17 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"sync"
+	"time"
 )
 
 func main() {
@@ -20,6 +25,7 @@ func main() {
 	raw := flag.String("sqlite", "", "also keep the uncompressed SQLite here (default: <cache>/catalog.sqlite)")
 	version := flag.String("version", "", "catalog version stored in meta (default: today's date)")
 	fetchOnly := flag.Bool("fetch-only", false, "download sources into the cache and stop")
+	publishURL := flag.String("publish-url", "", "public URL the compressed catalog will be served from; writes manifest.json beside -out")
 	flag.Parse()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
@@ -59,6 +65,28 @@ func main() {
 		log.Fatal(err)
 	}
 	report(sqlitePath, *out)
+	if *publishURL != "" {
+		if err := writeManifest(*out, *publishURL, *version); err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+// writeManifest writes the {version, url, sha256, bytes} file the app checks daily
+// (plan 11.1). Upload both files to the catalog bucket.
+func writeManifest(out, url, version string) error {
+	data, err := os.ReadFile(out)
+	if err != nil {
+		return err
+	}
+	if version == "" {
+		version = time.Now().UTC().Format("2006.01.02")
+	}
+	sum := sha256.Sum256(data)
+	m, _ := json.MarshalIndent(map[string]any{"version": version, "url": url, "sha256": hex.EncodeToString(sum[:]), "bytes": len(data)}, "", "  ")
+	path := filepath.Join(filepath.Dir(out), "manifest.json")
+	log.Printf("manifest: %s", path)
+	return os.WriteFile(path, m, 0o644)
 }
 
 // fetchVPIC downloads every curated make concurrently; the fetcher's ticker keeps the
