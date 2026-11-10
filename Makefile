@@ -4,6 +4,7 @@
 #   make generate   regenerate ios/Waypoints.xcodeproj from ios/project.yml
 #   make run        build, install, and launch in the iPhone 16 simulator
 #   make proto      regenerate wire types (script arrives with W0-B)
+#   make bench-local  single-node benchmark (plan 8.3)
 
 SHELL := /bin/bash
 .SHELLFLAGS := -eu -o pipefail -c
@@ -15,7 +16,7 @@ SIMULATOR    ?= iPhone 16
 BUNDLE_ID    := app.waypoints.ios
 CONFIG       := ios/App/Config.xcconfig
 
-.PHONY: build go ios generate run proto clean
+.PHONY: build go ios generate run proto clean bench-local
 
 build: go ios
 
@@ -53,6 +54,10 @@ run: generate
 
 proto:
 	@if [ -x tools/proto.sh ]; then tools/proto.sh; else echo "tools/proto.sh not present yet (W0-B)"; exit 1; fi
+
+# Benchmark I on this machine (plan 8.3). Writes bench/results and docs/BENCHMARKS.md.
+bench-local:
+	bench/run-local.sh
 
 clean:
 	rm -rf '$(DERIVED_DATA)' ios/Waypoints.xcodeproj
