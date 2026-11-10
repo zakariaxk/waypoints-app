@@ -45,6 +45,8 @@
 		<string>audio</string>
 		<string>remote-notification</string>
 	</array>
+	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
+	<string>Adds meets you choose to your calendar.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>The camera reads your VIN and takes photos of your car and of cars you spot.</string>
 	<key>NSMicrophoneUsageDescription</key>

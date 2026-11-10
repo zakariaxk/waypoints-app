@@ -1,4 +1,5 @@
 import Core
+import EventKit
 import DesignSystem
 import MapKit
 import SwiftUI
@@ -304,6 +305,7 @@ struct MeetDetail: View {
                 Spacer()
                 Menu {
                     if let url = URL(string: "waypoints://meet/\(m.id)") { ShareLink("Share", item: url) }
+                    Button("Add to Calendar") { Task { await addToCalendar(m) } }
                     if m.hostID == me {
                         Button("Edit") { editing = true }
                         Button("Cancel meet", role: .destructive) { confirmCancel = true }
@@ -366,6 +368,21 @@ struct MeetDetail: View {
             }
         }
         QuietButton("Add what you know") { addNote = true }
+    }
+
+    /// Write-only calendar access is enough to add one event.
+    private func addToCalendar(_ m: Meet) async {
+        let store = EKEventStore()
+        guard (try? await store.requestWriteOnlyAccessToEvents()) == true else { return }
+        let event = EKEvent(eventStore: store)
+        event.title = m.title
+        event.startDate = m.startsAt
+        event.endDate = m.endsAt
+        event.location = m.placeName
+        event.url = URL(string: "waypoints://meet/\(m.id)")
+        event.calendar = store.defaultCalendarForNewEvents
+        try? store.save(event, span: .thisEvent)
+        done += 1
     }
 
     private func rsvp(_ status: RSVPStatus, car: CarID?) {
