@@ -199,7 +199,7 @@ struct ModSimView: View {
             }
         }
         .background(Color.asphalt.ignoresSafeArea())
-        .navigationTitle(model.car?.title ?? "Mod simulator")
+        .navigationTitle(model.car.map { $0.nickname ?? $0.shortLabel } ?? "Mod simulator")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if model.stock != nil {

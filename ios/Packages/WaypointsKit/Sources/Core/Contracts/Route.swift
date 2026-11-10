@@ -4,14 +4,14 @@ import Foundation
 public enum Route: Hashable, Sendable {
     case profile(UserID), car(CarID), meet(MeetID), team(TeamID), channel(ChannelID), voice(ChannelID), thread(ThreadID)
     case listing(ListingID), post(PostID), report(ReportID), vehiclePicker(forCar: CarID?)
-    case modSim(CarID), race(CarID), reportContent(ContentRef), settings, settingsPrivacy, createMeet(Coordinate?), createReport(Coordinate)
+    case modSim(CarID), race(CarID), reportContent(ContentRef), settings, settingsPrivacy, createMeet(Coordinate?), createReport(Coordinate), spotCar
     case navigate(to: Coordinate, name: String?)
     case joinTeam(code: String), joinConvoy(code: String)     // invite deep links (section 10.10, X3)
 
     /// The case without its payload, used to key route handlers in `FeatureRegistry`.
     public enum Kind: Hashable, Sendable, CaseIterable {
         case profile, car, meet, team, channel, voice, thread, listing, post, report, vehiclePicker
-        case modSim, race, reportContent, settings, settingsPrivacy, createMeet, createReport, navigate, joinTeam, joinConvoy
+        case modSim, race, reportContent, settings, settingsPrivacy, createMeet, createReport, spotCar, navigate, joinTeam, joinConvoy
     }
 
     public var kind: Kind {
@@ -34,6 +34,7 @@ public enum Route: Hashable, Sendable {
         case .settingsPrivacy: .settingsPrivacy
         case .createMeet: .createMeet
         case .createReport: .createReport
+        case .spotCar: .spotCar
         case .navigate: .navigate
         case .joinTeam: .joinTeam
         case .joinConvoy: .joinConvoy

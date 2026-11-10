@@ -39,6 +39,12 @@
 	<string>Your location puts you on the map for the people you choose, and finds meets and reports near you.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>With "Keep sharing when the app is closed" on, friends keep seeing you while Waypoints is in the background. Sharing stops after 5 minutes parked.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<string>audio</string>
+		<string>remote-notification</string>
+	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>The camera reads your VIN and takes photos of your car and of cars you spot.</string>
 	<key>NSMicrophoneUsageDescription</key>
