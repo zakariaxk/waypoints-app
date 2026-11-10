@@ -111,13 +111,13 @@ final class ConvoyStore {
         isLeader && state?.regroup == nil && (splitSince.map { Date.now.timeIntervalSince($0) > 60 } ?? false)
     }
 
-    func create(name: String) async throws {
-        let invite = try await env.gateway.createConvoy(name: name, destination: nil)
+    func create(name: String, destination: ConvoyDestination?) async throws {
+        let invite = try await env.gateway.createConvoy(name: name, destination: destination)
         code = invite.joinCode
         self.name = name
         UserDefaults.standard.set(invite.id.raw, forKey: "convoy.id")
         await env.realtime.joinConvoy(invite.id)
-        state = ConvoyState(id: invite.id, leaderUID: myUID ?? 0, memberUIDs: myUID.map { [$0] } ?? [])
+        state = ConvoyState(id: invite.id, leaderUID: myUID ?? 0, memberUIDs: myUID.map { [$0] } ?? [], destination: destination)
     }
 
     func join(code: String) async throws {
@@ -266,6 +266,8 @@ struct ConvoySheet: View {
     @State var code: String
     @Environment(\.dismiss) private var dismiss
     @State private var name = ""
+    @State private var place = ""
+    @State private var destination: ConvoyDestination?
     @State private var joining = false
     @State private var working = false
     @State private var error: String?
@@ -288,8 +290,13 @@ struct ConvoySheet: View {
                     .disabled(code.count != 6)
                 } else {
                     Field("Name", text: $name, limit: 40)
+                    Field("Destination", text: $place, prompt: "Optional: where you're headed")
+                        .onSubmit { findDestination() }
+                    if let destination {
+                        Text("Heading to \(destination.name)").typeStyle(.sub).foregroundStyle(Color.go)
+                    }
                     Text("Everyone in the convoy sees your exact location until you leave.").typeStyle(.sub).foregroundStyle(Color.dust)
-                    PrimaryButton("Start convoy", isLoading: working) { run { try await store.create(name: name) } }
+                    PrimaryButton("Start convoy", isLoading: working) { run { try await store.create(name: name, destination: destination) } }
                     QuietButton("Join with code") { joining = true }
                 }
                 if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
@@ -299,6 +306,21 @@ struct ConvoySheet: View {
         .presentationDetents([.medium])
         .task {
             if name.isEmpty, let p = try? await store.env.profiles.myProfile() { name = "\(p.displayName)'s convoy" }
+        }
+    }
+
+    /// Resolves the typed place into the convoy's destination (first local search hit).
+    private func findDestination() {
+        guard !place.isEmpty else { destination = nil; return }
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = place
+        MKLocalSearch(request: request).start { response, _ in
+            guard let item = response?.mapItems.first else { return }
+            let c = item.placemark.coordinate
+            let name = item.name ?? ""
+            MainActor.assumeIsolated {
+                destination = ConvoyDestination(coordinate: Coordinate(latitude: c.latitude, longitude: c.longitude), name: name)
+            }
         }
     }
 
