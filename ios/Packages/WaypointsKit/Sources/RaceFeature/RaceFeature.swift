@@ -217,7 +217,10 @@ final class RaceModel {
     }
 
     /// Fixed 240 Hz steps, decoupled from the display rate.
+    var paused = false
+
     func frame(_ now: Date) {
+        if paused { last = nil; return }
         guard let last else { self.last = now; return }
         acc += min(0.1, now.timeIntervalSince(last))
         self.last = now
@@ -273,10 +276,13 @@ struct RunView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var saved = false
     @State private var thud = 0
+    @State private var setup: (Car, VehicleSpec, Opponent)
+    @State private var run = 0
 
     init(env: AppEnvironment, car: Car, spec: VehicleSpec, opponent: Opponent) {
         self.env = env
         _model = State(initialValue: RaceModel(car: car, spec: spec, opponent: opponent))
+        _setup = State(initialValue: (car, spec, opponent))
     }
 
     var body: some View {
@@ -285,6 +291,19 @@ struct RunView: View {
                 TimeSlip(model: model, again: { dismiss() }, close: { dismiss() })
             } else {
                 scene.orientation(.landscape)
+                    .background { TwoFingerTap { model.paused = true } }
+                    .overlay {
+                        if model.paused {
+                            VStack(spacing: Space.s12) {
+                                PrimaryButton("Resume") { model.paused = false }
+                                SecondaryButton("Restart") { restart() }
+                                QuietButton("Quit") { dismiss() }
+                            }
+                            .frame(maxWidth: Size.row * 5)
+                            .padding(Space.s24)
+                            .background(Color.tarmac, in: RoundedRectangle(cornerRadius: Radius.r20))
+                        }
+                    }
             }
         }
         .background(Color.asphalt.ignoresSafeArea())
@@ -303,6 +322,13 @@ struct RunView: View {
                 }
             }
         }
+    }
+
+    private func restart() {
+        model.synth.stop()
+        model = RaceModel(car: setup.0, spec: setup.1, opponent: setup.2)
+        saved = false
+        model.start()
     }
 
     private var scene: some View {
@@ -428,5 +454,26 @@ struct TimeSlip: View {
             Text(verbatim: b).frame(maxWidth: .infinity, alignment: .trailing)
         }
         .typeStyle(.readoutM)
+    }
+}
+
+/// Two-finger tap, which SwiftUI has no gesture for.
+struct TwoFingerTap: UIViewRepresentable {
+    let action: () -> Void
+    func makeUIView(context: Context) -> UIView {
+        let v = UIView()
+        v.backgroundColor = .clear
+        let g = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.fire))
+        g.numberOfTouchesRequired = 2
+        g.cancelsTouchesInView = false
+        v.addGestureRecognizer(g)
+        return v
+    }
+    func updateUIView(_ uiView: UIView, context: Context) { context.coordinator.action = action }
+    func makeCoordinator() -> Coordinator { Coordinator(action: action) }
+    @MainActor final class Coordinator: NSObject {
+        var action: () -> Void
+        init(action: @escaping () -> Void) { self.action = action }
+        @objc func fire() { action() }
     }
 }
