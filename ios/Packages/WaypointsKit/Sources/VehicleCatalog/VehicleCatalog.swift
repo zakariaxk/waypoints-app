@@ -7,6 +7,8 @@ public enum VehicleCatalog {
     /// The bundled `catalog.sqlite.lzfse`, expanded to Application Support on first run. Without
     /// a bundled catalog (it is built by `tools/catalog`) the seed catalog is used.
     public static func makeLive(config: AppConfig) -> any VehicleCatalogService {
+        CatalogUpdater.swapInPending()
+        if !config.supabaseAnonKey.isEmpty { CatalogUpdater.checkInBackground(config: config) }
         if let url = SQLiteCatalog.installedURL() { return SQLiteCatalog(url: url) }
         return PreviewVehicleCatalogService()
     }
