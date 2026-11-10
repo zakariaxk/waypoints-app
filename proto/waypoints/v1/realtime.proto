@@ -1,0 +1,200 @@
+// Waypoints realtime wire contract. Normative source: docs/PLAN.md section 6.
+// Field numbers are part of the contract: never renumber or reuse them.
+// Coordinates are sfixed32 in units of 1e-7 degrees.
+syntax = "proto3";
+
+package waypoints.v1;
+
+option go_package = "waypoints/server/internal/wire";
+
+// ---------------------------------------------------------------- client to server
+
+message ClientFrame {
+  oneof body {
+    Hello hello = 1;
+    LocationUpdate location = 2;
+    SetViewport viewport = 3;
+    Ping ping = 4;
+    JoinConvoy join_convoy = 5;
+    LeaveConvoy leave_convoy = 6;
+    RefreshToken refresh_token = 7;
+    SetHomeZones home_zones = 8;
+  }
+}
+
+message Hello {
+  string access_token = 1;
+  uint32 protocol = 2;
+  string app_version = 3;
+}
+
+message LocationUpdate {
+  uint32 seq = 1;
+  sfixed32 lat_e7 = 2;
+  sfixed32 lng_e7 = 3;
+  uint32 heading_deg = 4; // 0-359; 360 = unknown
+  uint32 speed_cms = 5;   // used for server-side rate policy only; never fanned out
+  uint32 accuracy_m = 6;
+  uint64 client_ms = 7;
+}
+
+message SetViewport {
+  sfixed32 min_lat_e7 = 1;
+  sfixed32 min_lng_e7 = 2;
+  sfixed32 max_lat_e7 = 3;
+  sfixed32 max_lng_e7 = 4;
+}
+
+message Ping {
+  uint64 client_ms = 1;
+}
+
+message JoinConvoy {
+  string convoy_id = 1;
+}
+
+message LeaveConvoy {}
+
+message RefreshToken {
+  string access_token = 1;
+}
+
+message SetHomeZones {
+  repeated Zone zones = 1;
+}
+
+message Zone {
+  sfixed32 lat_e7 = 1;
+  sfixed32 lng_e7 = 2;
+  uint32 radius_m = 3;
+}
+
+// ---------------------------------------------------------------- server to client
+
+message ServerFrame {
+  oneof body {
+    Welcome welcome = 1;
+    Batch batch = 2;
+    Pong pong = 3;
+    Error error = 4;
+    ConvoyState convoy = 5;
+    MapEvent map_event = 6;
+  }
+}
+
+message Welcome {
+  uint64 uid = 1;
+  uint64 server_ms = 2;
+  uint32 tick_ms = 3;
+  string node = 4;
+}
+
+message Batch {
+  uint64 server_ms = 1;
+  repeated EntityUpdate updates = 2;
+  repeated uint64 gone = 3;               // uids that left view, went hidden, or went offline
+  repeated CellAggregate aggregates = 4;  // sent instead of updates when the viewport is too large
+}
+
+message EntityUpdate {
+  uint64 uid = 1;
+  sfixed32 lat_e7 = 2;
+  sfixed32 lng_e7 = 3;
+  uint32 heading_deg = 4;       // 360 when approximate
+  Tier tier = 5;
+  uint32 age_ds = 6;            // tenths of a second since the publisher's fix, at flush time
+  uint64 origin_ms = 7;         // publisher's client_ms; set only when the server runs with -bench
+  optional EntityInfo info = 8; // present on first appearance and when it changes
+}
+
+enum Tier {
+  TIER_UNSPECIFIED = 0;
+  PRECISE = 1;
+  APPROX = 2;
+}
+
+enum Relation {
+  RELATION_UNSPECIFIED = 0;
+  FRIEND = 1;
+  TEAMMATE = 2;
+  CONVOY = 3;
+  NEARBY = 4;
+}
+
+message EntityInfo {
+  Relation relation = 1;
+  string marker_icon = 2;
+  string marker_trail = 3;
+  uint32 paint_rgb = 4;
+  string display_name = 5; // empty for NEARBY
+  string car_label = 6;    // empty for NEARBY
+}
+
+message CellAggregate {
+  uint64 h3 = 1;
+  uint32 count = 2;
+}
+
+message Pong {
+  uint64 client_ms = 1;
+  uint64 server_ms = 2;
+}
+
+message Error {
+  Code code = 1;
+  string message = 2;
+
+  enum Code {
+    CODE_UNSPECIFIED = 0;
+    UNAUTHORIZED = 1;
+    BAD_FRAME = 2;
+    RATE_LIMITED = 3;
+    SLOW_CONSUMER = 4;
+    PROTOCOL_VERSION = 5;
+    SHUTTING_DOWN = 6;
+  }
+}
+
+message ConvoyState {
+  string convoy_id = 1;
+  uint64 leader_uid = 2;
+  repeated uint64 member_uids = 3;
+  optional Destination destination = 4;
+  bytes route_polyline = 5; // Google polyline, precision 5
+  optional Regroup regroup = 6;
+  bool ended = 7;
+}
+
+message Destination {
+  sfixed32 lat_e7 = 1;
+  sfixed32 lng_e7 = 2;
+  string name = 3;
+}
+
+message Regroup {
+  sfixed32 lat_e7 = 1;
+  sfixed32 lng_e7 = 2;
+  uint64 set_ms = 3;
+}
+
+message MapEvent {
+  Kind kind = 1;
+  string id = 2;
+  Op op = 3;
+  sfixed32 lat_e7 = 4;
+  sfixed32 lng_e7 = 5;
+  string subtype = 6;
+  string title = 7;
+
+  enum Kind {
+    KIND_UNSPECIFIED = 0;
+    REPORT = 1;
+    MEET = 2;
+  }
+
+  enum Op {
+    OP_UNSPECIFIED = 0;
+    UPSERT = 1;
+    REMOVE = 2;
+  }
+}
