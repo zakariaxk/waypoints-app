@@ -384,7 +384,7 @@ Postgres on Supabase with PostGIS. All tables have row-level security on. `uid()
 | `blocks` | `blocker_id`, `blocked_id`, pk on the pair | Owner only. |
 | `privacy_settings` | `user_id pk`, `friends_level`, `team_level`, `nearby_level` (each `precise`, `approx`, `hidden`; check `nearby_level <> 'precise'`), `ghost_until timestamptz`, `notify_meets_nearby bool`, `notify_radius_km int default 15` | Read: owner. Write: gateway service role only (so it can invalidate its cache). |
 | `user_presence_cell` | `user_id pk`, `h3_r7 bigint`, `updated_at` | Service role only. |
-| `device_tokens` | `user_id`, `apns_token text`, `environment` (`sandbox`, `production`), pk on (`user_id`, `apns_token`) | Insert and delete: owner. Read: service role. |
+| `device_tokens` | `user_id`, `apns_token text`, `environment` (`sandbox`, `production`), pk on (`user_id`, `apns_token`) | Insert, delete, and read own rows: owner (Postgres needs the read to delete by token). Read all: service role. |
 
 ### 5.2 Garage
 
@@ -411,7 +411,7 @@ Year, make, model, and trim are copied onto the row as text so a car still rende
 
 Report lifetimes: `police` 45 minutes, `hazard` 2 hours, `closure` 24 hours, extended by each "Still there". `speed_bump`, `steep_entrance`, `fuel_e85` are permanent. `pothole` and `rough_road` last 90 days. Two "Gone" votes with no later "Still there" remove a report.
 
-RPCs (security definer, `stable`): `reports_in_bbox(min_lng, min_lat, max_lng, max_lat)`, `meets_in_bbox(...)` (only meets ending in the future), `roads_in_bbox(...)`, `venue_notes_near(lng, lat, meters)`, `hazards_along(path geography, buffer_m int)` returning reports within the buffer of a route.
+RPCs (security definer, `stable`): `reports_in_bbox(min_lng, min_lat, max_lng, max_lat)`, `meets_in_bbox(...)` (only meets ending in the future), `roads_in_bbox(...)`, `venue_notes_near(lng, lat, meters)`, `hazards_along(path geography, buffer_m int)` returning reports within the buffer of a route. Rows carry `latitude` and `longitude` instead of raw geography (`roads_in_bbox` returns `path_geojson` plus rating averages; `meets_in_bbox` also excludes cancelled meets and returns `going_count`; `hazards_along` returns `along_m` and orders by it). `h3_*` columns are nullable and written by the gateway; Postgres has no H3 extension.
 
 ### 5.4 Teams and messaging
 
@@ -420,7 +420,7 @@ RPCs (security definer, `stable`): `reports_in_bbox(min_lng, min_lat, max_lng, m
 | `teams` | `id`, `owner_id`, `name text` (≤40), `tag text` (2–5 caps, unique), `about text` (≤300), `icon_path text`, `is_public bool`, `invite_code text unique` | Read: members, or anyone if public. Write: owner or role with `manage_team`. |
 | `team_roles` | `id`, `team_id`, `name text`, `color_hex text`, `rank int`, `permissions int` (bitset: `manage_team` 1, `manage_channels` 2, `manage_roles` 4, `kick` 8, `delete_messages` 16, `host_meets` 32) | Read: members. Write: `manage_roles`. |
 | `team_members` | `team_id`, `user_id`, `role_id uuid null`, `joined_at`, pk on the pair | Read: members. Insert: self for public teams or with a valid invite code (RPC `join_team(code)`). Delete: self, or `kick`. |
-| `channels` | `id`, `team_id`, `name text` (≤30, lowercase, hyphens), `kind` (`text`, `voice`), `sort int` | Read: members. Write: `manage_channels`. |
+| `channels` | `id`, `team_id`, `name text` (≤30; text channels lowercase with hyphens, voice channels free text), `kind` (`text`, `voice`), `sort int` | Read: members. Write: `manage_channels`. |
 | `threads` | `id`, `kind` (`dm`, `listing`), `listing_id uuid null`, `a_id uuid`, `b_id uuid`, unique on (`kind`, `listing_id`, `least(a,b)`, `greatest(a,b)`) | Read and insert: either party, and neither has blocked the other. |
 | `messages` | `id bigint identity pk`, `channel_id uuid null`, `thread_id uuid null` (exactly one set), `author_id`, `body text` (≤2000), `attachment_path text`, `deleted_at timestamptz` | Read: channel's team members or thread parties. Insert: same, as self. Soft-delete: author or `delete_messages`. |
 | `read_markers` | `user_id`, `channel_id null`, `thread_id null`, `last_read_message_id bigint` | Owner. |
