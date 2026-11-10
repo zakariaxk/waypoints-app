@@ -36,9 +36,12 @@ let infrastructure: [Target] = [
     .target(name: "SafetyKit", dependencies: ["Core", "DesignSystem"]),
 ]
 
-// LiveKit client-sdk-swift (plan 4.4) is added to VoiceFeature only, by W3-3. It ships a
-// large WebRTC binary, so it is left out until voice is actually built.
-let features: [Target] = featureNames.map { .target(name: $0, dependencies: featureDependencies) }
+// LiveKit client-sdk-swift (plan 4.4) goes to VoiceFeature only: it ships a large WebRTC binary.
+let features: [Target] = featureNames.map { name in
+    name == "VoiceFeature"
+        ? .target(name: name, dependencies: featureDependencies + [.product(name: "LiveKit", package: "client-sdk-swift")])
+        : .target(name: name, dependencies: featureDependencies)
+}
 
 // Layer 3
 let shell: Target = .target(
@@ -57,6 +60,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.28.0"),
         .package(url: "https://github.com/supabase/supabase-swift.git", from: "2.55.0"),
+        .package(url: "https://github.com/livekit/client-sdk-swift.git", exact: "2.19.0"),
     ],
     targets: allTargets,
     swiftLanguageModes: [.v6]

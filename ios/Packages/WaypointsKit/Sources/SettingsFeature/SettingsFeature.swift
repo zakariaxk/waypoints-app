@@ -2,6 +2,7 @@ import Core
 import DesignSystem
 import SafetyKit
 import SwiftUI
+import UserNotifications
 
 /// S1–S6 (plan 10.9) and the X1 report route.
 public enum SettingsFeature: FeatureModule {
@@ -16,6 +17,17 @@ public enum SettingsFeature: FeatureModule {
             let user = ref.kind == .user ? UserID(string: ref.id) : nil
             return AnyView(ReportSheet(target: ref, thing: ref.kind.rawValue, blockUser: user, safety: env.safety))
         }
+    }
+}
+
+/// Asks for notification permission once, at a moment that gives it a reason (plan 10.2).
+@MainActor
+func askForNotifications() {
+    let key = "notifications.asked"
+    guard !UserDefaults.standard.bool(forKey: key) else { return }
+    UserDefaults.standard.set(true, forKey: key)
+    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+        if granted { Task { @MainActor in UIApplication.shared.registerForRemoteNotifications() } }
     }
 }
 
@@ -260,6 +272,7 @@ struct NotificationsView: View {
             }
             toggle("Meets near me", Binding(get: { privacy.notifyMeetsNearby }, set: { v in
                 privacy.notifyMeetsNearby = v
+                if v { askForNotifications() }
                 let p = privacy
                 Task { try? await env.gateway.updatePrivacy(p) }
             }))

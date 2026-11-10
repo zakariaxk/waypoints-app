@@ -2,6 +2,7 @@ import Core
 import DesignSystem
 import MapKit
 import SwiftUI
+import UserNotifications
 
 /// Meets (plan 10.4): map layer, sheet section, "Start a meet", routes `meet` and `createMeet`.
 public enum MeetsFeature: FeatureModule {
@@ -21,6 +22,17 @@ public enum MeetsFeature: FeatureModule {
             guard case let .createMeet(c) = route else { return nil }
             return AnyView(CreateMeet(env: env, start: c))
         }
+    }
+}
+
+/// Asks for notification permission once, at a moment that gives it a reason (plan 10.2).
+@MainActor
+func askForNotifications() {
+    let key = "notifications.asked"
+    guard !UserDefaults.standard.bool(forKey: key) else { return }
+    UserDefaults.standard.set(true, forKey: key)
+    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+        if granted { Task { @MainActor in UIApplication.shared.registerForRemoteNotifications() } }
     }
 }
 
@@ -349,6 +361,7 @@ struct MeetDetail: View {
 
     private func rsvp(_ status: RSVPStatus, car: CarID?) {
         mine = status
+        if status == .going { askForNotifications() }
         Task {
             try? await env.meets.setRSVP(status, for: meetID, car: car)
             done += 1

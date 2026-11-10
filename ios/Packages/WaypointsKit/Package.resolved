@@ -1,6 +1,24 @@
 {
-  "originHash" : "563ad3e24196a9cc23d01da8c015468e80c76adc7b670f6ac52ea45746c149af",
+  "originHash" : "f623975a86d3d4821cfecaba7ae5684081e9dc705f4fef91808f07d12e0b238c",
   "pins" : [
+    {
+      "identity" : "client-sdk-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/livekit/client-sdk-swift.git",
+      "state" : {
+        "revision" : "43c1c0870e51eedbfd95b20b1b5c43a767886786",
+        "version" : "2.19.0"
+      }
+    },
+    {
+      "identity" : "livekit-ffi-xcframework",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/livekit/livekit-ffi-xcframework.git",
+      "state" : {
+        "revision" : "685cfd95e23edf734450125eb58bb3bb21b4133b",
+        "version" : "0.13.1"
+      }
+    },
     {
       "identity" : "opentelemetry-swift-core",
       "kind" : "remoteSourceControl",
@@ -80,6 +98,15 @@
       "state" : {
         "revision" : "3d537cb81aef272a03cb3be815439e9bf0eb3bd3",
         "version" : "1.39.0"
+      }
+    },
+    {
+      "identity" : "webrtc-xcframework",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/livekit/webrtc-xcframework.git",
+      "state" : {
+        "revision" : "f843fb1c12017bd17fde38e7293649c204548467",
+        "version" : "150.7871.4"
       }
     },
     {

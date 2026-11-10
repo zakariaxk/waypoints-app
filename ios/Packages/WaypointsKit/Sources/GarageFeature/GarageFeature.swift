@@ -3,6 +3,7 @@ import DesignSystem
 import PerformanceModel
 import PhotosUI
 import SwiftUI
+import UserNotifications
 import VehicleCatalog
 
 /// The Garage tab and routes `profile`, `car`, `vehiclePicker` (plan 10.8).
@@ -25,6 +26,17 @@ public enum GarageFeature: FeatureModule {
             guard case let .vehiclePicker(carID) = route else { return nil }
             return AnyView(PickerSheet(ctx: ctx, editing: carID))
         }
+    }
+}
+
+/// Asks for notification permission once, at a moment that gives it a reason (plan 10.2).
+@MainActor
+func askForNotifications() {
+    let key = "notifications.asked"
+    guard !UserDefaults.standard.bool(forKey: key) else { return }
+    UserDefaults.standard.set(true, forKey: key)
+    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
+        if granted { Task { @MainActor in UIApplication.shared.registerForRemoteNotifications() } }
     }
 }
 
@@ -206,7 +218,7 @@ struct ProfileScreen: View {
             }
             PrimaryButton(title) {
                 Task {
-                    if status == nil { try? await ctx.env.friends.sendRequest(to: p.userID) }
+                    if status == nil { askForNotifications(); try? await ctx.env.friends.sendRequest(to: p.userID) }
                     else if status?.status == .pending, status?.requesterID != model.me { try? await ctx.env.friends.acceptRequest(from: p.userID) }
                     model.friendship = try? await ctx.env.friends.friendship(with: p.userID)
                 }
