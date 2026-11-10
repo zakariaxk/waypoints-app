@@ -48,7 +48,49 @@ func Register(a *app.App) {
 	a.Mux.HandleFunc("POST /v1/meets", Authed(s.auth, s.createMeet))
 	a.Mux.HandleFunc("PATCH /v1/meets/{id}", Authed(s.auth, s.updateMeet))
 	a.Mux.HandleFunc("DELETE /v1/meets/{id}", Authed(s.auth, s.cancelMeet))
+	a.Go("meet-checkins", s.runCheckins)
 	app.Provide(a, s)
+}
+
+// runCheckins records a check-in for every Going RSVP within 200 m of a meet while it is on.
+// It reads positions only from this node's memory and writes no coordinates.
+func (s *Service) runCheckins(ctx context.Context) {
+	t := time.NewTicker(2 * time.Minute)
+	defer t.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
+		}
+		pool := s.store.Pool()
+		if pool == nil {
+			continue
+		}
+		rows, err := pool.Query(ctx, `select m.id::text, st_y(m.geom::geometry), st_x(m.geom::geometry), r.user_id::text
+			from public.meets m join public.meet_rsvps r on r.meet_id = m.id
+			where m.cancelled_at is null and m.starts_at <= now() and m.ends_at > now() and r.status = 'going'
+			  and not exists (select 1 from public.meet_checkins c where c.meet_id = m.id and c.user_id = r.user_id)`)
+		if err != nil {
+			continue
+		}
+		type hit struct{ meet, user string }
+		var hits []hit
+		for rows.Next() {
+			var meet, user string
+			var lat, lng float64
+			if rows.Scan(&meet, &lat, &lng, &user) != nil {
+				continue
+			}
+			if la, ln, ok := s.ws.LastFix(user); ok && geo.DistanceM(la, ln, geo.E7(lat), geo.E7(lng)) <= 200 {
+				hits = append(hits, hit{meet, user})
+			}
+		}
+		rows.Close()
+		for _, h := range hits {
+			_, _ = pool.Exec(ctx, `insert into public.meet_checkins (meet_id, user_id) values ($1, $2) on conflict do nothing`, h.meet, h.user)
+		}
+	}
 }
 
 // MARK: shared HTTP helpers, used by convoy and voice too.

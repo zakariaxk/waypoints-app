@@ -151,6 +151,25 @@ func (s *Server) SendToUID(uid uint64, f *wire.ServerFrame) {
 	}
 }
 
+// LastFix returns the newest position this node has for a user, for check-ins. It never
+// leaves the gateway.
+func (s *Server) LastFix(userID string) (lat, lng int32, ok bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	for c := range s.conns {
+		if c.userID != userID {
+			continue
+		}
+		c.mu.Lock()
+		lat, lng, ok = c.lastLat, c.lastLng, c.hasFix
+		c.mu.Unlock()
+		if ok {
+			return
+		}
+	}
+	return 0, 0, false
+}
+
 // DropFromConvoy detaches every connection of uid from convoyID (leave or end).
 func (s *Server) DropFromConvoy(convoyID string, uid uint64) {
 	s.mu.RLock()
