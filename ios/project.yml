@@ -1,0 +1,59 @@
+# XcodeGen spec. The .xcodeproj is generated (`make generate`) and not committed.
+name: Waypoints
+
+options:
+  bundleIdPrefix: app.waypoints
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+  developmentLanguage: en
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+
+packages:
+  WaypointsKit:
+    path: Packages/WaypointsKit
+
+targets:
+  Waypoints:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+        excludes:
+          - "*.xcconfig"
+    # Config.xcconfig is gitignored; `make` copies Config.example.xcconfig when it is missing.
+    configFiles:
+      Debug: App/Config.xcconfig
+      Release: App/Config.xcconfig
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.waypoints.ios
+        PRODUCT_NAME: Waypoints
+        INFOPLIST_FILE: App/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        CODE_SIGN_STYLE: Automatic
+    dependencies:
+      - package: WaypointsKit
+        product: WaypointsKit
+
+schemes:
+  Waypoints:
+    build:
+      targets:
+        Waypoints: all
+    run:
+      config: Debug
+    archive:
+      config: Release

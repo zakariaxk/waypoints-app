@@ -347,11 +347,12 @@ public enum Route: Hashable, Sendable {
     case listing(ListingID), post(PostID), report(ReportID), vehiclePicker(forCar: CarID?)
     case modSim(CarID), race(CarID), reportContent(ContentRef), settingsPrivacy, createMeet(Coordinate?)
     case navigate(to: Coordinate, name: String?)
+    case joinTeam(code: String), joinConvoy(code: String)     // invite deep links (X3)
 }
 public protocol Router: Sendable { @MainActor func open(_ route: Route) }
 ```
 
-`FeatureRegistry` lets a feature register: a tab (title, SF Symbol, root view), route handlers (`Route` case → view), map layer providers, map sheet sections, map actions, and feed modes.
+`FeatureRegistry` lets a feature register: a tab (title, SF Symbol, root view, optional reselect hook and badge count), route handlers (`Route` case → view, with push, sheet, or full-screen presentation), map layer providers, map sheet sections, map actions, feed modes, and the onboarding flow (the signed-out root, registered by `OnboardingFeature`).
 
 Repository protocols follow one shape: `async throws` functions returning `Sendable` models, plus `AsyncStream` where live updates exist. W0-A writes them all, one file per repository in `Core/Repositories/`, derived from section 5. `Core` also ships `PreviewEnvironment`, an in-memory implementation of every protocol with realistic seed data (real car names, plausible meets), so every feature can be built and previewed before `Backend` exists.
 

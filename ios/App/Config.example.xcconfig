@@ -1,0 +1,11 @@
+// Copy to Config.xcconfig (ignored by git) and fill in. `make` copies this file if
+// Config.xcconfig is missing, so a clean clone builds against local defaults.
+//
+// xcconfig treats "//" as a comment, so URLs are written with "/$()/".
+
+// `supabase start` prints these.
+SUPABASE_URL = http:/$()/127.0.0.1:54321
+SUPABASE_ANON_KEY =
+
+// `go run ./cmd/gateway` in server/.
+GATEWAY_URL = http:/$()/127.0.0.1:8080
