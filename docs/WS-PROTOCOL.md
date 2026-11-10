@@ -14,7 +14,8 @@
 - participantId: stable per user session (generated server-side at create/join)
 - connId: generated per websocket connection
 - eventId: server-assigned, monotonic per session (1,2,3...)
-- token: opaque auth token issued at create/join
+- token: opaque per-session capability issued at create/join (still required)
+- accessToken: Supabase Auth JWT bound to the participant's user identity; never log it
 
 ## Handshake
 
@@ -26,6 +27,7 @@
     "sessionId": "string",
     "participantId": "string",
     "token": "string",
+    "accessToken": "string (required when Supabase auth is configured)",
     "lastEventId": "number | null"
   }
 }
@@ -198,6 +200,12 @@ All events are delivered as:
 ## Validation
 All client messages are validated with Zod schemas on the server.
 Invalid messages receive an ERROR response with code `BAD_MESSAGE` and details.
+
+## Supabase Auth and persistence
+
+When `SUPABASE_URL` is configured, HTTP create/join calls require `Authorization: Bearer <Supabase access token>` and `HELLO` must include the same user's `accessToken`. The API verifies JWT signature, issuer, audience, expiry, and binds its `sub` to the participant; the opaque session token alone is insufficient.
+
+Only durable metadata and meaningful events are persisted asynchronously: profiles, friendships, session metadata/membership, and non-location session events. `LOCATION_UPDATED`, presence, snapshots/replay ring buffers, voice membership, and voice signaling remain memory-only and never enter the database queue.
 
 ## Voice Chat Messages (Phase 2 — Ephemeral)
 

@@ -21,6 +21,11 @@ export interface Config {
   maxParticipantsPerSession: number;
   /** Max display name length */
   maxDisplayNameLength: number;
+  supabaseUrl?: string;
+  supabaseServiceRoleKey?: string;
+  supabaseJwtSecret?: string;
+  persistenceBatchSize: number;
+  persistenceFlushMs: number;
 }
 
 function envInt(key: string, fallback: number): number {
@@ -42,4 +47,9 @@ export const config: Config = {
   corsOrigin: process.env.CORS_ORIGIN || true, // true = reflect request origin
   maxParticipantsPerSession: envInt('MAX_PARTICIPANTS', 50),
   maxDisplayNameLength: envInt('MAX_DISPLAY_NAME_LENGTH', 30),
+  supabaseUrl: process.env.SUPABASE_URL,
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  supabaseJwtSecret: process.env.SUPABASE_JWT_SECRET,
+  persistenceBatchSize: envInt('PERSISTENCE_BATCH_SIZE', 100),
+  persistenceFlushMs: envInt('PERSISTENCE_FLUSH_MS', 500),
 };

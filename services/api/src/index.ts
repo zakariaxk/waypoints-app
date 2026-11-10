@@ -4,6 +4,7 @@ import { config } from './config.js';
 import { registerRoutes } from './http/routes.js';
 import { setupWebSocket } from './ws/handler.js';
 import { sessionStore } from './state/session-store.js';
+import { persistenceQueue } from './persistence/index.js';
 
 async function main() {
   const app = Fastify({ logger: true });
@@ -41,6 +42,7 @@ async function main() {
   const shutdown = async () => {
     clearInterval(cleanupTimer);
     clearInterval(presenceTimer);
+    await persistenceQueue.close();
     await app.close();
     process.exit(0);
   };

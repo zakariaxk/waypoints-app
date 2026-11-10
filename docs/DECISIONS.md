@@ -5,6 +5,10 @@
 - Update rate: 1/sec per client
 - No Redis until scaling
 
+## 2026-08-31 — Supabase is a durable sidecar, not the real-time authority
+
+Supabase Auth supplies the user identity and the database stores profiles, friendships, session metadata/membership, and selected session event history behind RLS. The WebSocket process remains authoritative for locations, presence, replay, voice, and connection state. Persistence is batched asynchronously and is never awaited in fan-out or location handlers; `LOCATION_UPDATED` is explicitly excluded.
+
 ## 2026-02-28 — Voice events are ephemeral and not replayed
 
 **Context**: Adding Phase 2 Voice Chat with WebRTC signaling relayed through the WebSocket server.

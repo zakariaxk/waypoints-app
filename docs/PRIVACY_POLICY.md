@@ -19,8 +19,8 @@ Waypoints ("the App") is a real-time location sharing application that allows us
 - Display names are visible to other session participants.
 
 ### Session Data
-- Session data (join codes, participant lists, chat messages) exists only in server memory during the session lifetime.
-- **All session data is automatically deleted** when the session ends or when the server restarts. No data is persisted to any database.
+- Live session state (locations, presence, replay, and voice) exists only in server memory during the session lifetime.
+- When Supabase persistence is enabled, the service retains account profile data, friendship relationships, session metadata/membership, and non-location event history (such as chat and destination changes) behind row-level access controls. It never retains location history or voice/signaling content.
 
 ### Device Storage
 - The App stores your display name and a history of recent sessions locally on your device using AsyncStorage.
@@ -41,8 +41,8 @@ Waypoints ("the App") is a real-time location sharing application that allows us
 
 ## Data Retention
 
-- **Session data**: Automatically deleted when the session ends (all sessions are temporary).
-- **Server-side**: No persistent database. All data is in-memory and lost on server restart.
+- **Live session data**: Automatically deleted when the process ends (locations, presence, replay, and voice are temporary).
+- **Server-side metadata**: Supabase may retain the limited non-location metadata described above.
 - **Device-side**: Display name and session history stored locally. Delete the app to remove all local data.
 
 ## Security

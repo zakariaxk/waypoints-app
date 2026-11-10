@@ -11,6 +11,8 @@ export interface HelloMessage {
     sessionId: string;
     participantId: string;
     token: string;
+    /** Supabase access token; required when server Supabase auth is configured. */
+    accessToken?: string;
     lastEventId: number | null;
   };
 }

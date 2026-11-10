@@ -4,9 +4,13 @@ import type { ValidatedHelloPayload } from '@waypoints/shared';
 import type { ConnState } from './handler.js';
 import { sendJson, broadcastToSession } from './handler.js';
 import { sessionStore } from '../state/session-store.js';
+import { config } from '../config.js';
+import { SupabaseJwtVerifier } from '../auth/supabase-jwt.js';
+
+const jwtVerifier = new SupabaseJwtVerifier(config.supabaseUrl, config.supabaseJwtSecret);
 
 export function handleHello(conn: ConnState, payload: ValidatedHelloPayload): void {
-  const { sessionId, participantId, token, lastEventId } = payload;
+  const { sessionId, participantId, token, lastEventId, accessToken } = payload;
 
   // Validate session exists
   const session = sessionStore.getSession(sessionId);
@@ -27,6 +31,24 @@ export function handleHello(conn: ConnState, payload: ValidatedHelloPayload): vo
     });
     return;
   }
+  if (jwtVerifier.enabled) {
+    void jwtVerifier.verify(accessToken ?? '').then((identity) => {
+      if (!identity || identity.userId !== participant.userId) {
+        sendJson(conn.ws, { type: 'ERROR', payload: { code: 'UNAUTHORIZED', message: 'Invalid Supabase access token' } });
+        return;
+      }
+      conn.accessToken = accessToken ?? null;
+      completeHello(conn, sessionId, participantId, lastEventId);
+    });
+    return;
+  }
+  completeHello(conn, sessionId, participantId, lastEventId);
+}
+
+function completeHello(conn: ConnState, sessionId: string, participantId: string, lastEventId: number | null): void {
+  const session = sessionStore.getSession(sessionId);
+  const participant = session?.participants.get(participantId);
+  if (!session || !participant) return;
 
   // Bind connection to session/participant
   conn.sessionId = sessionId;

@@ -1,5 +1,12 @@
 # Todo
 
+## Supabase Persistence Phase
+- [x] Add JWT-authenticated identity boundary for HTTP and WebSocket handshakes
+- [x] Add RLS-protected Supabase schema for profiles, friends, session metadata, membership, and event history
+- [x] Add asynchronous batched durable-event persistence (excluding location/presence/replay/voice)
+- [x] Update protocol, architecture, privacy, and deployment documentation
+- [x] Add persistence/auth tests and fan-out benchmark; run full verification
+
 ## Goal: App Store Ready
 
 ### Completed (All Code Work)

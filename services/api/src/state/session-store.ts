@@ -13,6 +13,7 @@ import type {
 import { EventBuffer } from './event-buffer.js';
 import { updatePresenceForSession } from './presence.js';
 import { config } from '../config.js';
+import { persistenceQueue } from '../persistence/index.js';
 
 export interface FullSessionState extends SessionState {
   participants: Map<string, FullParticipantState>;
@@ -22,6 +23,8 @@ export interface FullSessionState extends SessionState {
 }
 
 export interface FullParticipantState extends ParticipantState {
+  /** Authenticated Supabase user; never sent to other participants. */
+  userId: string;
   /** Timestamp of last LOC_UPDATE accepted (for rate limiting) */
   lastLocUpdateTs: number;
 }
@@ -42,7 +45,7 @@ class SessionStore {
     return code;
   }
 
-  createSession(hostDisplayName: string | null): {
+  createSession(hostDisplayName: string | null, userId = uuid()): {
     sessionId: string;
     joinCode: string;
     participantId: string;
@@ -67,6 +70,7 @@ class SessionStore {
 
     const participant: FullParticipantState = {
       participantId,
+      userId,
       displayName: hostDisplayName,
       token,
       lastLocation: null,
@@ -79,13 +83,20 @@ class SessionStore {
     session.participants.set(participantId, participant);
     this.sessions.set(sessionId, session);
     this.joinCodeIndex.set(joinCode, sessionId);
+    persistenceQueue.enqueue({ table: 'profiles', values: { user_id: userId, display_name: hostDisplayName } });
+    persistenceQueue.enqueue({ table: 'session_metadata', values: {
+      session_id: sessionId, join_code: joinCode, host_user_id: userId, created_at: new Date(session.createdAt).toISOString(),
+    }});
+    persistenceQueue.enqueue({ table: 'session_memberships', values: {
+      session_id: sessionId, user_id: userId, participant_id: participantId, display_name: hostDisplayName,
+    }});
 
     return { sessionId, joinCode, participantId, token };
   }
 
   joinSession(
     joinCode: string,
-    displayName: string | null,
+    displayName: string | null, userId = uuid(),
   ): { sessionId: string; participantId: string; token: string } | null {
     const sessionId = this.joinCodeIndex.get(joinCode.toUpperCase());
     if (!sessionId) return null;
@@ -98,6 +109,7 @@ class SessionStore {
 
     const participant: FullParticipantState = {
       participantId,
+      userId,
       displayName,
       token,
       lastLocation: null,
@@ -108,6 +120,10 @@ class SessionStore {
     };
 
     session.participants.set(participantId, participant);
+    persistenceQueue.enqueue({ table: 'profiles', values: { user_id: userId, display_name: displayName } });
+    persistenceQueue.enqueue({ table: 'session_memberships', values: {
+      session_id: sessionId, user_id: userId, participant_id: participantId, display_name: displayName,
+    }});
     return { sessionId, participantId, token };
   }
 
@@ -137,6 +153,10 @@ class SessionStore {
     } as SessionEvent;
 
     session.eventBuffer.push(event);
+    const actorId = 'participantId' in event.data ? event.data.participantId :
+      ('setBy' in event.data ? event.data.setBy : ('clearedBy' in event.data ? event.data.clearedBy : null));
+    const actor = actorId ? session.participants.get(actorId) : undefined;
+    if (actor) persistenceQueue.recordEvent(sessionId, actor.userId, event);
     return event;
   }
 

@@ -14,6 +14,17 @@ The agent must append requests here and pause execution if required.
 
 ## Pending Actions
 
+### Supabase Persistence Setup
+- **Service**: Supabase Auth and Database
+- **Why**: Required for authenticated identities and RLS-protected durable metadata/event history.
+- **Steps**:
+  1. Create/select the Waypoints Supabase project and configure a mobile Auth provider.
+  2. Apply `supabase/migrations/20260831000000_persistence_auth_and_event_history.sql` through the Supabase CLI or SQL Editor.
+  3. Set server-only `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in the API deployment. Never expose the service key in Expo variables.
+  4. For legacy HS256 projects only, set server-only `SUPABASE_JWT_SECRET`; modern keys are verified through JWKS.
+  5. Configure the mobile auth client to pass its access token as the HTTP Bearer token and `HELLO.payload.accessToken`.
+- **Where result goes**: API deployment environment. No service role or JWT secret belongs in the mobile app.
+
 ### 1. Apple Developer Account
 - **Service**: Apple Developer Program
 - **Why**: Required to build for iOS devices and submit to App Store

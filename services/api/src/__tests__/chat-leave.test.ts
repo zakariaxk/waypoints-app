@@ -161,10 +161,11 @@ describe('CHAT_MESSAGE', () => {
     await doHello(wsAlice, alice.sessionId, alice.participantId, alice.token);
 
     const wsBob = await connectWs();
+    const aliceSawBobJoin = receiveJson(wsAlice);
     await doHello(wsBob, bob.sessionId, bob.participantId, bob.token);
 
     // Consume Bob's PARTICIPANT_JOINED on Alice's side
-    await receiveJson(wsAlice);
+    await aliceSawBobJoin;
 
     // Alice sends a chat message
     wsAlice.send(
@@ -210,10 +211,11 @@ describe('LEAVE_SESSION', () => {
     await doHello(wsAlice, alice.sessionId, alice.participantId, alice.token);
 
     const wsBob = await connectWs();
+    const aliceSawBobJoin = receiveJson(wsAlice);
     await doHello(wsBob, bob.sessionId, bob.participantId, bob.token);
 
     // Consume Bob's PARTICIPANT_JOINED on Alice's side
-    await receiveJson(wsAlice);
+    await aliceSawBobJoin;
 
     // Bob leaves
     wsBob.send(JSON.stringify({ type: 'LEAVE_SESSION', payload: {} }));

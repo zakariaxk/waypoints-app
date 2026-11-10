@@ -3,6 +3,9 @@
 import type { FastifyInstance } from 'fastify';
 import { sessionStore } from '../state/session-store.js';
 import { config } from '../config.js';
+import { SupabaseJwtVerifier, bearerToken, type AuthIdentity } from '../auth/supabase-jwt.js';
+
+export interface RouteDependencies { verifyIdentity?: (token: string) => Promise<AuthIdentity | null> }
 
 /** Sanitize and validate display name. Returns null if empty/invalid. */
 function sanitizeDisplayName(raw: unknown): string | null {
@@ -15,7 +18,13 @@ function sanitizeDisplayName(raw: unknown): string | null {
   return trimmed;
 }
 
-export async function registerRoutes(app: FastifyInstance): Promise<void> {
+export async function registerRoutes(app: FastifyInstance, dependencies: RouteDependencies = {}): Promise<void> {
+  const verifier = new SupabaseJwtVerifier(config.supabaseUrl, config.supabaseJwtSecret);
+  const identityFor = async (authorization: string | undefined): Promise<AuthIdentity | null> => {
+    if (!verifier.enabled) return { userId: 'development-user', email: null };
+    const token = bearerToken(authorization);
+    return token ? (dependencies.verifyIdentity?.(token) ?? verifier.verify(token)) : null;
+  };
   // Health check — includes session stats for monitoring
   app.get('/health', async () => ({
     status: 'ok',
@@ -59,8 +68,10 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   app.post<{
     Body: { displayName?: string };
   }>('/sessions', async (request, reply) => {
+    const identity = await identityFor(request.headers.authorization);
+    if (!identity) return reply.status(401).send({ error: 'Valid Supabase Bearer token required' });
     const displayName = sanitizeDisplayName(request.body?.displayName);
-    const result = sessionStore.createSession(displayName);
+    const result = sessionStore.createSession(displayName, identity.userId);
     return reply.status(201).send(result);
   });
 
@@ -68,6 +79,8 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
   app.post<{
     Body: { joinCode: string; displayName?: string };
   }>('/sessions/join', async (request, reply) => {
+    const identity = await identityFor(request.headers.authorization);
+    if (!identity) return reply.status(401).send({ error: 'Valid Supabase Bearer token required' });
     const { joinCode, displayName } = request.body ?? {};
 
     if (!joinCode || typeof joinCode !== 'string') {
@@ -85,7 +98,7 @@ export async function registerRoutes(app: FastifyInstance): Promise<void> {
       return reply.status(409).send({ error: 'Session is full' });
     }
 
-    const result = sessionStore.joinSession(cleanJoinCode, sanitizeDisplayName(displayName) ?? null);
+    const result = sessionStore.joinSession(cleanJoinCode, sanitizeDisplayName(displayName) ?? null, identity.userId);
     if (!result) {
       return reply.status(404).send({ error: 'Invalid join code' });
     }

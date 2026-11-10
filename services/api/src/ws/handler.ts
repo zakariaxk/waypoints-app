@@ -13,6 +13,7 @@ export interface ConnState {
   sessionId: string | null;
   participantId: string | null;
   connId: string;
+  accessToken: string | null;
 }
 
 const connections = new Map<string, ConnState>();
@@ -55,7 +56,7 @@ export function setupWebSocket(server: Server): WebSocketServer {
 
   wss.on('connection', (ws: WebSocket) => {
     const connId = uuid();
-    const conn: ConnState = { ws, sessionId: null, participantId: null, connId };
+    const conn: ConnState = { ws, sessionId: null, participantId: null, connId, accessToken: null };
     connections.set(connId, conn);
 
     ws.on('message', (raw: Buffer | string) => {

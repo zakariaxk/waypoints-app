@@ -9,6 +9,7 @@ export const helloPayloadSchema = z.object({
   sessionId: z.string().min(1),
   participantId: z.string().min(1),
   token: z.string().min(1),
+  accessToken: z.string().min(1).optional(),
   lastEventId: z.number().int().nonnegative().nullable(),
 });
 

@@ -332,3 +332,15 @@ npm run lint                   # eslint across all workspaces
 - Consider SFU architecture if voice groups regularly exceed 8 participants
 - Add visual audio level indicators
 - Add spatial/proximity audio (tie volume to map distance)
+
+## Supabase Persistence Phase
+
+Supabase is outside the real-time authority boundary. The API verifies Supabase JWTs on HTTP create/join and on `HELLO`, binding `auth.users.id` to the in-memory participant. A server-only service-role adapter queues profiles, session metadata/memberships, and meaningful event history in batches. Failed batches retry later; the real-time path never awaits a database request.
+
+| In memory only | Persisted with RLS |
+|---|---|
+| Current/last live locations and location history | Profiles and friendships |
+| Presence, WebSocket connections, voice and signaling | Session metadata and memberships |
+| Replay ring buffer and snapshots | Chat, destination, and join/leave event history |
+
+The migration at `supabase/migrations/20260831000000_persistence_auth_and_event_history.sql` enables RLS, revokes public access, grants only minimum authenticated operations, and keeps server writes service-role-only. No `LOCATION_UPDATED` event can be persisted by the queue or schema.
