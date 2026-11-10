@@ -15,6 +15,8 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // Level is a sharing level for one audience (section 2.5).
@@ -149,4 +151,14 @@ func wrap(op string, err error) error {
 		return err
 	}
 	return fmt.Errorf("store %s: %w", op, err)
+}
+
+// Pool returns the Postgres pool, or nil when the store runs in memory. Packages
+// with their own queries (api, convoy, push, voice) use it and degrade to 503
+// without it.
+func (s *Store) Pool() *pgxpool.Pool {
+	if pg, ok := s.b.(*pgBackend); ok {
+		return pg.pool
+	}
+	return nil
 }

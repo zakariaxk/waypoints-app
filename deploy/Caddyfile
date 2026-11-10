@@ -1,0 +1,7 @@
+# Replace the host with the gateway's domain; Caddy provisions TLS itself.
+gateway.example.com {
+	reverse_proxy gateway-a:8080 gateway-b:8080 {
+		lb_policy round_robin
+		health_uri /healthz
+	}
+}
