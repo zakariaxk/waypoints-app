@@ -332,6 +332,7 @@ struct SinglePost: View {
     let postID: PostID
     @State private var model: FeedModel
     @State private var pool = PlayerPool()
+    @State private var comments: Post?
 
     init(env: AppEnvironment, postID: PostID) {
         self.env = env; self.postID = postID
@@ -342,7 +343,7 @@ struct SinglePost: View {
         Group {
             if let p = model.posts.first {
                 VideoPage(model: model, post: p, player: pool.player(for: 0, url: env.media.publicURL(bucket: .posts, path: p.videoPath)),
-                          pool: pool, comments: {}, overflow: {})
+                          pool: pool, comments: { comments = p }, overflow: {})
                     .onAppear { pool.play(0) }
                     .onDisappear { pool.pauseAll() }
             } else {
@@ -350,6 +351,7 @@ struct SinglePost: View {
             }
         }
         .background(Color.asphalt.ignoresSafeArea())
+        .sheet(item: $comments) { Comments(env: env, post: $0) }
         .task {
             if let p = try? await env.posts.post(postID) {
                 model.posts = [p]
