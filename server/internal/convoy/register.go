@@ -19,6 +19,7 @@ import (
 	"waypoints/server/internal/app"
 	"waypoints/server/internal/auth"
 	"waypoints/server/internal/geo"
+	"waypoints/server/internal/push"
 	"waypoints/server/internal/store"
 	"waypoints/server/internal/wire"
 	"waypoints/server/internal/ws"
@@ -75,6 +76,7 @@ func (c *Convoy) wire() *wire.ConvoyState {
 type Service struct {
 	store *store.Store
 	ws    *ws.Server
+	push  *push.Service
 
 	mu     sync.Mutex
 	byID   map[string]*Convoy
@@ -89,6 +91,7 @@ func Register(a *app.App) {
 		byID:   map[string]*Convoy{},
 		byCode: map[string]string{},
 	}
+	s.push, _ = app.Lookup[*push.Service](a)
 	v := app.MustLookup[*auth.Verifier](a)
 	s.ws.SetConvoys(s)
 	a.Mux.HandleFunc("POST /v1/convoys", api.Authed(v, s.create))
@@ -96,6 +99,7 @@ func Register(a *app.App) {
 	a.Mux.HandleFunc("PUT /v1/convoys/{id}/destination", api.Authed(v, s.setDestination))
 	a.Mux.HandleFunc("PUT /v1/convoys/{id}/regroup", api.Authed(v, s.setRegroup))
 	a.Mux.HandleFunc("DELETE /v1/convoys/{id}", api.Authed(v, s.end))
+	a.Mux.HandleFunc("POST /v1/convoys/{id}/invite", api.Authed(v, s.invite))
 	app.Provide(a, s)
 }
 
@@ -382,4 +386,30 @@ func (s *Service) awardJoin(ctx context.Context, userID string, uid uint64) {
 	if n >= 3 {
 		s.award(ctx, userID, "convoy_3")
 	}
+}
+
+// invite pushes the join code to friends chosen by a member (M9 "Invite friends").
+func (s *Service) invite(w http.ResponseWriter, r *http.Request, cl auth.Claims) {
+	var b struct {
+		UserIDs []string `json:"user_ids"`
+	}
+	if api.Decode(r, &b) != nil || len(b.UserIDs) == 0 || len(b.UserIDs) > 50 {
+		api.Error(w, http.StatusBadRequest, "bad body")
+		return
+	}
+	c := s.get(r.Context(), r.PathValue("id"))
+	uid, err := s.uid(r.Context(), cl.UserID)
+	if c == nil || c.Ended || err != nil || !c.has(uid) {
+		api.Error(w, http.StatusNotFound, "not found")
+		return
+	}
+	if s.push != nil {
+		name := "A friend"
+		if p, err := s.store.Profile(r.Context(), cl.UserID); err == nil && p.DisplayName != "" {
+			name = p.DisplayName
+		}
+		go s.push.Send(context.WithoutCancel(r.Context()), b.UserIDs, push.Note{Kind: push.ConvoyInvites, Title: "Convoy invite",
+			Body: name + " invited you to " + c.Name + ".", URL: "waypoints://invite/convoy/" + c.JoinCode})
+	}
+	w.WriteHeader(http.StatusAccepted)
 }
