@@ -1,4 +1,5 @@
 import AppShell
+import DesignSystem
 import PushKitBridge
 import SwiftUI
 import UIKit
@@ -16,6 +17,10 @@ struct WaypointsApp: App {
 }
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        OrientationLock.mask
+    }
+
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         PushKitBridge.didRegister(deviceToken: deviceToken)
     }

@@ -284,7 +284,7 @@ struct RunView: View {
             if model.phase == .done || model.phase == .redLight {
                 TimeSlip(model: model, again: { dismiss() }, close: { dismiss() })
             } else {
-                scene
+                scene.orientation(.landscape)
             }
         }
         .background(Color.asphalt.ignoresSafeArea())
