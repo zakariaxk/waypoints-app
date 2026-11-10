@@ -1,0 +1,5 @@
+# Hand-kept enthusiast specs (plan section 11.1). One row is a trim over a span of model years.
+# displ, cyl, aspiration, trans, epa_contains select the EPA variants the row labels; epa_contains
+# is matched against EPA's raw model name ("|" separates alternatives). Without epa_contains only
+# untrimmed variants are labeled. Years with no matching EPA variant get the row inserted.
+make,model,year_from,year_to,trim,displ,cyl,aspiration,trans,epa_contains,drive,hp,torque_lbft,weight_lb,redline,gears

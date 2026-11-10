@@ -85,6 +85,10 @@ public enum Opacity {
     public static let staleDesaturation: Double = 0.5
     /// Pressed buttons scale to this.
     public static let pressedScale: CGFloat = 0.96
+    /// Text-only controls while pressed.
+    public static let pressed: Double = 0.6
+    /// Unlit steps of the loading indicator.
+    public static let inactive: Double = 0.4
 }
 
 /// Depth (plan 9.4). Surfaces separate by fill step and a hairline; only things floating over

@@ -305,6 +305,8 @@ public protocol LocationService: Sendable {
     func requestWhenInUse() async
     func requestAlways() async
     func setSharing(_ on: Bool) async
+    func homeZones() async -> AsyncStream<[HomeZone]>          // device-only storage (2.5): current list, then changes
+    func setHomeZones(_ zones: [HomeZone]) async throws        // at most HomeZone.maximumCount
 }
 
 // Map plug-ins (consumed by MapFeature, supplied by other features through AppShell)
@@ -351,6 +353,8 @@ public enum Route: Hashable, Sendable {
 }
 public protocol Router: Sendable { @MainActor func open(_ route: Route) }
 ```
+
+Home zones reach the gateway without a feature in the loop: `RealtimeClient.makeLive(config:auth:location:)` takes the `LocationService`, subscribes to `homeZones()`, and sends `SetHomeZones` at every connect and on every change.
 
 `FeatureRegistry` lets a feature register: a tab (title, SF Symbol, root view, optional reselect hook and badge count), route handlers (`Route` case → view, with push, sheet, or full-screen presentation), map layer providers, map sheet sections, map actions, feed modes, and the onboarding flow (the signed-out root, registered by `OnboardingFeature`).
 

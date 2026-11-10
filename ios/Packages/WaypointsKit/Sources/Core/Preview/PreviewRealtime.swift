@@ -86,6 +86,8 @@ public actor PreviewLocationService: LocationService {
     private var authorization: LocationAuthorization
     private var authBroadcast = Broadcast<LocationAuthorization>()
     private var sharing = true
+    private var zones: [HomeZone] = []
+    private var zoneBroadcast = Broadcast<[HomeZone]>()
 
     public init(authorization: LocationAuthorization = .whenInUse) { self.authorization = authorization }
 
@@ -107,6 +109,12 @@ public actor PreviewLocationService: LocationService {
     public func requestWhenInUse() async { set(.whenInUse) }
     public func requestAlways() async { set(.always) }
     public func setSharing(_ on: Bool) async { sharing = on }
+    public func homeZones() async -> AsyncStream<[HomeZone]> { zoneBroadcast.subscribe(initial: zones) }
+    public func setHomeZones(_ zones: [HomeZone]) async throws {
+        guard zones.count <= HomeZone.maximumCount else { throw WaypointsError.invalid("home_zones") }
+        self.zones = zones
+        zoneBroadcast.send(zones)
+    }
     private func set(_ value: LocationAuthorization) {
         guard value != authorization, authorization != .always else { return }
         authorization = value

@@ -25,8 +25,7 @@ let infrastructure: [Target] = [
     // Layer 1
     // Resources: the embedded B612 Mono readout face and its licence (W0-D).
     .target(name: "DesignSystem", resources: [.copy("Resources/Fonts")]),
-    // supabase-swift (plan 4.4) is added here by W1-1 when Backend stops returning previews.
-    .target(name: "Backend", dependencies: ["Core"]),
+    .target(name: "Backend", dependencies: ["Core", .product(name: "Supabase", package: "supabase-swift")]),
     .target(name: "GatewayAPI", dependencies: ["Core"]),
     .target(name: "RealtimeClient", dependencies: ["Core", "WireProtocol"]),
     .target(name: "LocationKit", dependencies: ["Core"]),
@@ -57,6 +56,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-protobuf.git", from: "1.28.0"),
+        .package(url: "https://github.com/supabase/supabase-swift.git", from: "2.55.0"),
     ],
     targets: allTargets,
     swiftLanguageModes: [.v6]

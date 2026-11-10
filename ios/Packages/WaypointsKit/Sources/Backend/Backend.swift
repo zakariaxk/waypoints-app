@@ -1,7 +1,6 @@
 import Core
 
 /// Supabase-backed implementations of the `Core` repositories, auth, and media.
-/// Stub from W0-A: returns the in-memory preview store until W1-1 replaces it.
 public enum Backend {
     public struct Services: Sendable {
         public let auth: any AuthService
@@ -32,7 +31,29 @@ public enum Backend {
         }
     }
 
+    /// Live Supabase implementations. With no anon key configured (a fresh clone without
+    /// `Config.xcconfig` values) it falls back to the in-memory preview store so the app runs.
     public static func makeLive(config: AppConfig) -> Services {
+        guard !config.supabaseAnonKey.isEmpty else { return makePreview() }
+        let ctx = BackendContext(config: config)
+        let store = PreviewStore.shared
+        return Services(
+            auth: LiveAuth(ctx: ctx),
+            profiles: LiveProfiles(ctx: ctx, changes: Fanout()),
+            garage: LiveGarage(ctx: ctx, changes: FanoutTable()),
+            friends: LiveFriends(ctx: ctx, changes: Fanout()),
+            meets: LiveMeets(ctx: ctx),
+            reports: LiveReports(ctx: ctx),
+            teams: store, messages: store, posts: store, showdown: store, market: store,
+            spots: LiveSpots(ctx: ctx),
+            roads: LiveRoads(ctx: ctx),
+            progress: store,
+            media: LiveMedia(ctx: ctx)
+        )
+    }
+
+    /// The in-memory store from `Core`, signed out at launch.
+    public static func makePreview() -> Services {
         let store = PreviewStore.shared
         return Services(auth: store, profiles: store, garage: store, friends: store, meets: store, reports: store,
                         teams: store, messages: store, posts: store, showdown: store, market: store, spots: store,
