@@ -716,7 +716,7 @@ The test applied to every element: does it work, and would the screen be worse w
 | `seam` | `#37373B` | Hairlines, 1 physical pixel. |
 | `chalk` | `#F3F1EC` | Primary text and icons. |
 | `dust` | `#A8A6A0` | Secondary text. |
-| `gravel` | `#86847F` | Tertiary text, disabled. Never below this for text. |
+| `gravel` | `#94928D` | Tertiary text, disabled. Never below this for text. (W0-D audit: lifted from `#86847F`, which measured 4.35:1 on `concrete` and 3.78:1 on `curb`.) |
 | `sodium` | `#FFB224` | The accent. Primary action, the route line, your own marker ring, selection, live navigation. |
 | `sodiumDim` | `#3A2A0A` | Tinted fill behind sodium text or icon. |
 | `brake` | `#FF4B3A` | Destructive actions, errors, hazards and closures on the map, live recording. |
