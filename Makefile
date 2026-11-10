@@ -16,7 +16,7 @@ SIMULATOR    ?= iPhone 16
 BUNDLE_ID    := app.waypoints.ios
 CONFIG       := ios/App/Config.xcconfig
 
-.PHONY: build go ios generate run proto clean bench-local
+.PHONY: build go ios generate run proto clean bench-local bench-cluster
 
 build: go ios
 
@@ -58,6 +58,10 @@ proto:
 # Benchmark I on this machine (plan 8.3). Writes bench/results and docs/BENCHMARKS.md.
 bench-local:
 	bench/run-local.sh
+
+# Benchmark II: two nodes and NATS on this machine (needs nats-server).
+bench-cluster:
+	bench/run-cluster.sh
 
 clean:
 	rm -rf '$(DERIVED_DATA)' ios/Waypoints.xcodeproj
