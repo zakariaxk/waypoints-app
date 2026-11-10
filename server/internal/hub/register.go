@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"waypoints/server/internal/app"
+	"waypoints/server/internal/bus"
 	"waypoints/server/internal/metrics"
 	"waypoints/server/internal/privacy"
 	"waypoints/server/internal/wire"
@@ -107,6 +108,7 @@ const QueueSize = 4096
 type Hub struct {
 	shards []*shard
 	m      *hubMetrics
+	br     *bridge // nil in single-node mode
 }
 
 type hubMetrics struct {
@@ -119,6 +121,9 @@ type hubMetrics struct {
 // Register provides *Hub and starts its shards with the app.
 func Register(a *app.App) {
 	h := New(2*runtime.GOMAXPROCS(0), a.Metrics)
+	if b := bus.From(a); !b.Local() {
+		h.br = newBridge(h, b, a.Config.Node)
+	}
 	for _, s := range h.shards {
 		a.Go("hub-shard", s.run)
 	}
@@ -176,30 +181,52 @@ func AggTopic(h3r5 uint64) Topic  { return Topic{KindAgg, h3r5} }
 // cell and aggregate topics ignore it. The shard replies with a snapshot.
 func (h *Hub) Subscribe(t Topic, s Sink, rel wire.Relation) {
 	h.send(cmd{op: opSub, topic: t, sink: s, rel: rel})
+	if h.br != nil {
+		h.br.ref(t, 1)
+	}
 }
 
 // Unsubscribe detaches sink from t and sends it gone for what t showed.
-func (h *Hub) Unsubscribe(t Topic, s Sink) { h.send(cmd{op: opUnsub, topic: t, sink: s}) }
+func (h *Hub) Unsubscribe(t Topic, s Sink) {
+	h.send(cmd{op: opUnsub, topic: t, sink: s})
+	if h.br != nil {
+		h.br.ref(t, -1)
+	}
+}
 
 // SetPolicy sets a publisher's effective policy.
 func (h *Hub) SetPolicy(uid uint64, p privacy.Policy) {
 	h.send(cmd{op: opPolicy, topic: UserTopic(uid), policy: p})
+	if h.br != nil {
+		h.br.setLocalPolicy(uid, p)
+		h.br.publish(UserTopic(uid), remoteMsg{Op: "policy", UID: uid, Policy: &p})
+	}
 }
 
 // PublishUser publishes to the publisher's friends and teammates. Either form
 // may be nil (approx is produced at most every 15 s).
 func (h *Hub) PublishUser(uid uint64, precise, approx *Update) {
 	h.trySend(cmd{op: opPublishUser, topic: UserTopic(uid), precise: precise, approx: approx})
+	if h.br != nil {
+		p := h.br.localPolicy(uid)
+		h.br.publish(UserTopic(uid), remoteMsg{Op: "user", UID: uid, Precise: encodeUpdate(precise), Approx: encodeUpdate(approx), Policy: &p})
+	}
 }
 
 // PublishCell publishes the nearby form to a cell.
 func (h *Hub) PublishCell(h3r7 uint64, u *Update) {
 	h.trySend(cmd{op: opPublishCell, topic: CellTopic(h3r7), precise: u})
+	if h.br != nil {
+		h.br.publish(CellTopic(h3r7), remoteMsg{Op: "cell", UID: u.UID, Precise: encodeUpdate(u)})
+	}
 }
 
 // LeaveCell removes a publisher from a cell and sends gone to its viewers.
 func (h *Hub) LeaveCell(h3r7, uid uint64) {
 	h.send(cmd{op: opLeaveCell, topic: CellTopic(h3r7), uid: uid})
+	if h.br != nil {
+		h.br.publish(CellTopic(h3r7), remoteMsg{Op: "leave", UID: uid})
+	}
 }
 
 // JoinAgg and LeaveAgg maintain aggregate membership.
@@ -207,4 +234,12 @@ func (h *Hub) JoinAgg(h3r5, uid uint64)  { h.send(cmd{op: opJoinAgg, topic: AggT
 func (h *Hub) LeaveAgg(h3r5, uid uint64) { h.send(cmd{op: opLeaveAgg, topic: AggTopic(h3r5), uid: uid}) }
 
 // Offline clears a publisher's user topic and sends gone to its viewers.
-func (h *Hub) Offline(uid uint64) { h.send(cmd{op: opOffline, topic: UserTopic(uid)}) }
+func (h *Hub) Offline(uid uint64) {
+	h.send(cmd{op: opOffline, topic: UserTopic(uid)})
+	if h.br != nil {
+		h.br.publish(UserTopic(uid), remoteMsg{Op: "offline", UID: uid})
+		h.br.mu.Lock()
+		delete(h.br.local, uid)
+		h.br.mu.Unlock()
+	}
+}

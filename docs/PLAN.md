@@ -648,7 +648,7 @@ A subscriber to a user is attached to `.p` or `.a` according to that publisher's
 - Any node serves any client; the load balancer needs no stickiness.
 - `bus.Bus` interface: `Publish(subject, bytes)`, `Subscribe(subject, handler)`, `Request(subject, bytes, window)`. Single-node mode uses an in-process implementation with zero serialization. Multi-node mode uses NATS core.
 - A node subscribes on NATS only to subjects that have at least one local subscriber, and unsubscribes when the count reaches zero. NATS propagates interest between servers, so an update for a cell nobody is watching anywhere is dropped at the publisher's node.
-- Payload on the bus is the already-encoded `EntityUpdate` bytes, so a receiving node copies bytes into outboxes without decoding.
+- Payload on the bus is a compact JSON envelope (`hub/bridge.go`) carrying the update and the publisher's current policy, so a receiving node can apply privacy exactly as the publisher's node does. *(Implementation note: the plan first proposed pre-encoded `EntityUpdate` bytes; those cannot carry the policy the receiving shard needs.)*
 - At-most-once is correct for conflatable data. Reliable-lane messages (`MapEvent`, `ConvoyState`) are also published once; a client that missed one reconciles on the next camera-settle fetch or convoy snapshot.
 - Convoy state lives in memory on the node that created it and is mirrored to Postgres table `convoys` (added by package W2-1's migration) on each change, so any node can load it.
 
