@@ -6,7 +6,7 @@ import (
 )
 
 // Dev endpoints seed the in-memory backend. They answer 404 unless the store
-// is in memory mode and WAYPOINTS_ENV=dev, so they never exist against a real
+// is in memory mode and WAYPOINTS_ENV is dev or bench, so they never exist against a real
 // database. User ids are the JWT subjects the debug client mints.
 //
 //	POST /dev/profile  {"user_id", "display_name", "marker_icon", "marker_trail", "paint_rgb", "car_label"}

@@ -47,7 +47,7 @@ func Register(a *app.App) {
 		log.Warn("store running in memory", "reason", s.reason)
 	}
 
-	s.mountDev(a.Mux, a.Config.Env == "dev")
+	s.mountDev(a.Mux, a.Config.Env == "dev" || a.Config.IsBench())
 	a.Go("store-presence", func(ctx context.Context) { s.runPresence(ctx, log) })
 	a.OnStop("store", func(context.Context) error { s.b.Close(); return nil })
 	app.Provide(a, s)
