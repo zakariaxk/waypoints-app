@@ -28,6 +28,10 @@ public struct LiveGatewayService: GatewayService {
         try await client.send("POST", "v1/reports/\(id)/vote", body: VoteBody(stillThere: stillThere))
     }
 
+    public func undoReport(_ id: ReportID) async throws {
+        try await client.send("DELETE", "v1/reports/\(id)")
+    }
+
     // MARK: Meets
 
     public func createMeet(_ draft: MeetDraft) async throws -> Meet {

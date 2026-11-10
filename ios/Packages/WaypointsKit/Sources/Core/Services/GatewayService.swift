@@ -8,6 +8,8 @@ public protocol GatewayService: Sendable {
     // Reports
     @discardableResult func postReport(kind: ReportKind, at coordinate: Coordinate, note: String?) async throws -> Report
     func voteReport(_ id: ReportID, stillThere: Bool) async throws
+    /// The author's own report, within 5 minutes of posting (M5 "Undo").
+    func undoReport(_ id: ReportID) async throws
 
     // Meets (3 per user per day)
     @discardableResult func createMeet(_ draft: MeetDraft) async throws -> Meet

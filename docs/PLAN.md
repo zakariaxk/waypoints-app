@@ -550,6 +550,7 @@ HTTP JSON API on the gateway (all require `Authorization: Bearer <Supabase acces
 | `PUT /v1/privacy` | `{friends_level, team_level, nearby_level, ghost_until, notify_meets_nearby, notify_radius_km}` | Writes `privacy_settings`, invalidates caches on all nodes. |
 | `POST /v1/reports` | `{kind, lat, lng, note}` | Inserts, publishes `MapEvent` to the cell. Merges with an existing report of the same kind within 30 m (counts as a confirmation). |
 | `POST /v1/reports/{id}/vote` | `{still_there}` | Applies section 5.3 rules; publishes `UPSERT` or `REMOVE`. |
+| `DELETE /v1/reports/{id}` | | Author only, within 5 minutes of posting (M5 Undo). Publishes `REMOVE`. |
 | `POST /v1/meets` | meet fields | Inserts, publishes `MapEvent`, pushes to users whose `user_presence_cell` is within their own `notify_radius_km`. Limit: 3 per user per day. |
 | `PATCH /v1/meets/{id}`, `DELETE /v1/meets/{id}` | | Host only. Publishes; pushes RSVP'd users on time change or cancel. |
 | `POST /v1/convoys` | `{name, destination?}` | Returns `{id, join_code}`. |

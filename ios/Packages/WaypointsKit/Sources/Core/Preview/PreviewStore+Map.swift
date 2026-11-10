@@ -105,6 +105,10 @@ extension PreviewStore: GatewayService {
         reports[report.id] = report
         return report
     }
+    public func undoReport(_ id: ReportID) async throws {
+        guard reports[id]?.authorID == (try me()) else { throw WaypointsError.notFound }
+        reports[id] = nil
+    }
     public func voteReport(_ id: ReportID, stillThere: Bool) async throws {
         let me = try me()
         guard var report = reports[id] else { throw WaypointsError.notFound }

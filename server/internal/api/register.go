@@ -45,6 +45,7 @@ func Register(a *app.App) {
 	s.push, _ = app.Lookup[*push.Service](a)
 	a.Mux.HandleFunc("POST /v1/reports", Authed(s.auth, s.postReport))
 	a.Mux.HandleFunc("POST /v1/reports/{id}/vote", Authed(s.auth, s.voteReport))
+	a.Mux.HandleFunc("DELETE /v1/reports/{id}", Authed(s.auth, s.undoReport))
 	a.Mux.HandleFunc("POST /v1/meets", Authed(s.auth, s.createMeet))
 	a.Mux.HandleFunc("PATCH /v1/meets/{id}", Authed(s.auth, s.updateMeet))
 	a.Mux.HandleFunc("DELETE /v1/meets/{id}", Authed(s.auth, s.cancelMeet))
@@ -338,6 +339,23 @@ func (s *Service) voteReport(w http.ResponseWriter, r *http.Request, c auth.Clai
 		}
 	}
 	JSON(w, http.StatusOK, rep)
+}
+
+// undoReport removes the author's own report within 5 minutes of posting (M5 "Undo").
+func (s *Service) undoReport(w http.ResponseWriter, r *http.Request, c auth.Claims) {
+	pool := Pool(w, s.store)
+	if pool == nil {
+		return
+	}
+	rep, err := scanReport(pool.QueryRow(r.Context(), `delete from public.reports
+		where id = $1 and author_id = $2 and created_at > now() - interval '5 minutes' returning `+reportCols,
+		r.PathValue("id"), c.UserID))
+	if err != nil {
+		Error(w, http.StatusNotFound, "not found")
+		return
+	}
+	s.publishReport(rep, wire.MapEvent_REMOVE)
+	w.WriteHeader(http.StatusNoContent)
 }
 
 // MARK: meets

@@ -112,9 +112,24 @@ struct PostReport: View {
     @State private var error: String?
     @State private var done = 0
     @State private var failed = 0
+    @State private var posted: Report?
 
     var body: some View {
         Sheet(Text("What's here?")) {
+            if let posted {
+                HStack {
+                    Text(verbatim: "\(ReportText.name(posted.kind)) reported").typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                    Spacer()
+                    QuietButton("Undo") {
+                        Task { try? await env.gateway.undoReport(posted.id); dismiss() }
+                    }
+                }
+                .padding(.horizontal, Space.margin)
+                .task {
+                    try? await Task.sleep(for: .seconds(5))
+                    dismiss()
+                }
+            } else {
             VStack(spacing: Space.s16) {
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: Space.s16) {
                     ForEach(ReportKind.allCases, id: \.self) { kind in
@@ -135,6 +150,7 @@ struct PostReport: View {
                 if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
             }
             .padding(.horizontal, Space.margin)
+            }
         }
         .presentationDetents([.height(Size.row * 5.7), .medium])
         .haptic(.done, trigger: done)
@@ -144,9 +160,8 @@ struct PostReport: View {
     private func post(_ kind: ReportKind) {
         Task {
             do {
-                _ = try await env.gateway.postReport(kind: kind, at: at, note: note.isEmpty ? nil : note)
+                posted = try await env.gateway.postReport(kind: kind, at: at, note: note.isEmpty ? nil : note)
                 done += 1
-                dismiss()
             } catch WaypointsError.rateLimited {
                 error = "That's a lot of reports. Try again in a few minutes."
                 failed += 1
