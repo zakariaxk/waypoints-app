@@ -48,6 +48,7 @@ type result struct {
 
 func main() {
 	base := flag.String("url", "http://127.0.0.1:8080", "gateway base URL")
+	base2 := flag.String("url2", "", "second gateway node; odd-numbered clients connect here, so friends span both nodes")
 	clients := flag.Int("clients", 200, "simulated drivers")
 	group := flag.Int("group", 10, "friends per group (everyone in a group is friends with everyone else)")
 	hz := flag.Float64("hz", 1, "location updates per second per driver")
@@ -60,21 +61,35 @@ func main() {
 		log.Fatal("loadgen: -secret or WAYPOINTS_BENCH_SECRET is required")
 	}
 
+	// Each node keeps its own in-memory store in bench mode, so every node gets the seed.
+	bases := []string{*base}
+	if *base2 != "" {
+		bases = append(bases, *base2)
+	}
+	seed := func(path string, body any) {
+		for _, b := range bases {
+			post(b+path, body)
+		}
+	}
 	ids := make([]string, *clients)
 	for i := range ids {
 		ids[i] = fmt.Sprintf("00000000-0000-4000-8000-%012d", i+1)
-		post(*base+"/dev/profile", map[string]any{"user_id": ids[i], "display_name": fmt.Sprintf("Driver %d", i+1), "marker_icon": "coupe"})
+		seed("/dev/profile", map[string]any{"user_id": ids[i], "display_name": fmt.Sprintf("Driver %d", i+1), "marker_icon": "coupe"})
 	}
 	for g := 0; g < len(ids); g += *group {
 		end := min(g+*group, len(ids))
 		for a := g; a < end; a++ {
 			for b := a + 1; b < end; b++ {
-				post(*base+"/dev/friends", map[string]string{"a": ids[a], "b": ids[b]})
+				seed("/dev/friends", map[string]string{"a": ids[a], "b": ids[b]})
 			}
 		}
 	}
 
 	ws := strings.Replace(*base, "http", "ws", 1) + "/v1/rt"
+	ws2 := ws
+	if *base2 != "" {
+		ws2 = strings.Replace(*base2, "http", "ws", 1) + "/v1/rt"
+	}
 	var (
 		published, deliveries, bytesIn, errs atomic.Int64
 		mu                                   sync.Mutex
@@ -93,7 +108,11 @@ func main() {
 			defer wg.Done()
 			tok, _ := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"sub": id, "exp": time.Now().Add(time.Hour).Unix()}).
 				SignedString([]byte(*secret))
-			c, _, err := websocket.Dial(ctx, ws, nil)
+			target := ws
+			if i%2 == 1 {
+				target = ws2
+			}
+			c, _, err := websocket.Dial(ctx, target, nil)
 			if err != nil {
 				errs.Add(1)
 				return
