@@ -274,6 +274,7 @@ func (s *Service) join(w http.ResponseWriter, r *http.Request, cl auth.Claims) {
 	}
 	s.mu.Unlock()
 	s.changed(r.Context(), c)
+	s.awardJoin(r.Context(), cl.UserID, uid)
 	s.mu.Lock()
 	out := *c
 	out.MemberUIDs = append([]uint64(nil), c.MemberUIDs...)
@@ -350,7 +351,35 @@ func (s *Service) end(w http.ResponseWriter, r *http.Request, cl auth.Claims) {
 	}
 	s.mu.Lock()
 	c.Ended = true
+	led := c.Destination != nil && len(c.MemberUIDs) >= 5
 	s.mu.Unlock()
 	s.changed(r.Context(), c)
+	if led {
+		s.award(r.Context(), cl.UserID, "convoy_lead")
+	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// award records an achievement (plan 9.8). Convoy keys are awarded here because only the
+// gateway sees convoys.
+func (s *Service) award(ctx context.Context, userID, key string) {
+	if pool := s.store.Pool(); pool != nil {
+		_, _ = pool.Exec(ctx, `insert into public.achievements (user_id, key) values ($1, $2) on conflict do nothing`, userID, key)
+	}
+}
+
+// awardJoin counts the convoys the user has been in (the mirror keeps member uids).
+func (s *Service) awardJoin(ctx context.Context, userID string, uid uint64) {
+	pool := s.store.Pool()
+	if pool == nil {
+		return
+	}
+	var n int
+	_ = pool.QueryRow(ctx, `select count(*) from public.convoys where state->'member_uids' @> to_jsonb($1::bigint)`, int64(uid)).Scan(&n)
+	if n >= 1 {
+		s.award(ctx, userID, "convoy_1")
+	}
+	if n >= 3 {
+		s.award(ctx, userID, "convoy_3")
+	}
 }
