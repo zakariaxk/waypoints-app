@@ -558,7 +558,17 @@ HTTP JSON API on the gateway (all require `Authorization: Bearer <Supabase acces
 
 Rewrite, in Go.
 
-What existed: about 1,400 lines of Fastify and `ws`. Rooms keyed by a join code, capped at 50 participants, JSON text frames, one process, every location update appended to a per-room event log and broadcast to the whole room. There was no geography, no public map, no backpressure (a slow socket's buffer grew without bound), and no way to use a second core or a second node. The file named `benchmark-fanout.ts` called a mock `send` in a loop and measured `JSON.stringify` reuse, not a network.
+What existed (latest version, GitHub `main` as of 2026-08-17): a Fastify and `ws` service. Rooms keyed by a join code, capped at 50 participants, JSON text frames, one process, every location update appended to a per-room event log and broadcast to the whole room, with heartbeat-backed presence and a safety layer (SOS, arrival ping). It was competently hardened for what it was: a session-indexed fan-out, a circular event buffer, per-IP join limits, and a real load test. There was no geography, no public map, no per-viewer privacy, no per-connection backpressure, and no way to use a second core or a second node.
+
+Its measured numbers are the baseline this rewrite is compared against (from the deleted `docs/CAPACITY.md`; Apple M2, Node 24, client and server on one host, 20 s runs):
+
+| Sessions × participants | Clients | Deliveries per second | p50 | p99 |
+|---|---|---|---|---|
+| 1 × 20 | 20 | 361 | 9.5 ms | 23.0 ms |
+| 5 × 10 | 50 | 427 | 12.1 ms | 21.3 ms |
+| 20 × 10 | 200 | 1,709 | 27.7 ms | 37.1 ms |
+
+Benchmark I (package W2-6) must include a scenario shaped like the last row (200 clients in groups of 10, 1 Hz) on the same Mac so the before-and-after comparison is like for like, before moving to the larger scenarios the old service could not attempt.
 
 Why not harden it: the new product needs a different system (interest management by map cell, per-viewer privacy tiers, conflation, binary frames, multi-node). None of the old hot path survives that, so "harden" would mean a rewrite in place, on a runtime with one event loop where using more cores means running more processes and inventing a bus between them on day one.
 
@@ -1600,7 +1610,7 @@ Optional later: request the CarPlay navigation entitlement from Apple; buy a dom
 
 ## 16. Carried over from the old codebase
 
-The Expo app, the TypeScript service, and the old docs are deleted (they remain in git history before commit "chore: remove Expo app, TypeScript backend, and dead deployment config"). These ideas survive:
+The Expo app, the TypeScript service, and the old docs are deleted. They remain in git history: the newest version is commit `ebdce7c` (GitHub `main` before the rewrite merge). These ideas survive:
 
 - **Location payload shape**: sequence number, latitude, longitude, speed, heading, accuracy, client timestamp. Kept, quantized, in `LocationUpdate`.
 - **Presence thresholds**: stale after 10 s and offline after 30 s, driven by a periodic sweep. Kept as an idea with new numbers (9.8 staleness stages; 40 s liveness in 7.5).
@@ -1612,4 +1622,10 @@ The Expo app, the TypeScript service, and the old docs are deleted (they remain 
 - **Join codes** from an alphabet without 0, O, 1, I. Kept for convoys and team invites.
 - **Group ETA to a shared destination.** Became the convoy's shared route and time gaps.
 
-Dropped on purpose: session rooms as the unit of sharing, the per-room event log with replay by event id (location is conflatable, so reconnect resumes from current state), JSON text frames, peer-to-peer WebRTC voice signaling through the socket, and the old fan-out "benchmark", which measured a loop over mock objects.
+- **Battery level riding the location stream**, shown as a low-battery badge on a friend. Not in the wire protocol yet; a candidate addition to `LocationUpdate` and `EntityInfo` for friends only, to be decided in wave 1 integration.
+- **Arrival detection within 50 m of a destination, validated on the server.** Reused for meet check-in (200 m) and convoy arrival.
+- **SOS: a durable alert whose location comes from the server's last known fix, never from the client's claim.** Not scheduled. Worth adding to convoys later; the rule about sourcing location server-side stands.
+- **Load test method**: senders stamp send time, receivers measure only cross-participant deliveries, optional connection churn. Kept and extended in section 8.2. The old results are the baseline in section 7.1.
+- **Per-IP rate limit on joins.** Kept for convoy and team joins.
+
+Dropped on purpose: session rooms as the unit of sharing, the per-room event log with replay by event id (location is conflatable, so reconnect resumes from current state), JSON text frames, and peer-to-peer WebRTC voice signaling through the socket.

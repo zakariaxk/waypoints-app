@@ -34,3 +34,6 @@ supabase/.temp/
 .idea/
 *.swp
 *.log
+
+# Agent local settings
+.claude/settings.local.json
