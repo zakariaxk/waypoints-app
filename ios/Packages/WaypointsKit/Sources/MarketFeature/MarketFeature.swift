@@ -37,6 +37,18 @@ struct Browse: View {
     @State private var loading = false
     @State private var listing = false
     @State private var yours = false
+    @State private var showFilter = false
+    @State private var minPrice = ""
+    @State private var maxPrice = ""
+    @State private var conditions: Set<ListingCondition> = []
+
+    /// Price and condition narrow the loaded results (K1 filter sheet).
+    private var shown: [Listing] {
+        listings.filter { l in
+            (Int(minPrice).map { l.priceCents >= $0 * 100 } ?? true) && (Int(maxPrice).map { l.priceCents <= $0 * 100 } ?? true)
+                && (conditions.isEmpty || conditions.contains(l.condition))
+        }
+    }
 
     private var filter: ListingFilter {
         ListingFilter(kind: kind, query: query.isEmpty ? nil : query,
@@ -59,7 +71,7 @@ struct Browse: View {
                         }
                     }
                 }
-                if listings.isEmpty && !loading {
+                if shown.isEmpty && !loading {
                     if let c = fitsCar, kind == .part {
                         Text("Nothing listed for a \(c.shortLabel) yet.").typeStyle(.body).foregroundStyle(Color.dust)
                         QuietButton("Search all cars") { fitsCar = nil }
@@ -69,10 +81,10 @@ struct Browse: View {
                 }
                 if kind == .part {
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: Space.s12), GridItem(.flexible())], spacing: Space.s16) {
-                        ForEach(listings) { l in card(l) }
+                        ForEach(shown) { l in card(l) }
                     }
                 } else {
-                    ForEach(listings) { l in carRow(l) }
+                    ForEach(shown) { l in carRow(l) }
                 }
                 if next != nil {
                     Color.clear.frame(height: 1).onAppear { Task { await load(more: true) } }
@@ -86,9 +98,33 @@ struct Browse: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) { IconButton("tray", label: "Yours") { yours = true } }
             ToolbarItem(placement: .topBarTrailing) { IconButton(Symbol.add, label: "List something") { listing = true } }
+            ToolbarItem(placement: .topBarTrailing) {
+                IconButton("line.3.horizontal.decrease", label: "Filter") { showFilter = true }
+            }
         }
         .sheet(isPresented: $listing, onDismiss: { Task { await load(more: false) } }) { ListSomething(env: env) }
         .navigationDestination(isPresented: $yours) { Yours(env: env) }
+        .sheet(isPresented: $showFilter) {
+            Sheet(Text("Filter")) {
+                VStack(alignment: .leading, spacing: Space.s16) {
+                    HStack(spacing: Space.s12) {
+                        Field("Min price", text: $minPrice, prompt: "$").keyboardType(.numberPad)
+                        Field("Max price", text: $maxPrice, prompt: "$").keyboardType(.numberPad)
+                    }
+                    Text("Condition").typeStyle(.foot).foregroundStyle(Color.dust)
+                    HStack(spacing: Space.s8) {
+                        ForEach([(ListingCondition.new, LocalizedStringKey("New")), (.used, "Used"), (.forParts, "For parts")], id: \.0) { c, t in
+                            Chip(t, isSelected: conditions.contains(c)) {
+                                if conditions.contains(c) { conditions.remove(c) } else { conditions.insert(c) }
+                            }
+                        }
+                    }
+                    QuietButton("Clear") { minPrice = ""; maxPrice = ""; conditions = [] }
+                }
+                .padding(Space.margin)
+            }
+            .presentationDetents([.medium])
+        }
         .task {
             if let me = await env.auth.currentSession()?.userID {
                 cars = (try? await env.garage.cars(of: me)) ?? []
