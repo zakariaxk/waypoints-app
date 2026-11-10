@@ -64,6 +64,9 @@ struct SettingsView: View {
             NavRow(title: "Blocked people") { AnyView(BlockedView(env: env)) }
             NavRow(title: "Account") { AnyView(AccountView(env: env)) }
             NavRow(title: "About") { AnyView(AboutView()) }
+            #if DEBUG
+            NavRow(title: "Design gallery") { AnyView(Gallery()) }
+            #endif
         }
     }
 }
