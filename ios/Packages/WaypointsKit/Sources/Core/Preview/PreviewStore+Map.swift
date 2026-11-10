@@ -163,6 +163,7 @@ extension PreviewStore: GatewayService {
     public func setConvoyDestination(_ id: ConvoyID, _ destination: ConvoyDestination) async throws { _ = try me() }
     public func setConvoyRegroup(_ id: ConvoyID, at coordinate: Coordinate) async throws { _ = try me() }
     public func endConvoy(_ id: ConvoyID) async throws { _ = try me() }
+    public func inviteToConvoy(_ id: ConvoyID, users: [UserID]) async throws { _ = try me() }
     public func voiceToken(for channel: ChannelID) async throws -> VoiceCredentials {
         let me = try me()
         guard canRead(.channel(channel), as: me) else { throw WaypointsError.forbidden }

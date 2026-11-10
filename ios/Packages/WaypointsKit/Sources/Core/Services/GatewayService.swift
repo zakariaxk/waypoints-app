@@ -22,6 +22,8 @@ public protocol GatewayService: Sendable {
     func setConvoyDestination(_ id: ConvoyID, _ destination: ConvoyDestination) async throws
     func setConvoyRegroup(_ id: ConvoyID, at coordinate: Coordinate) async throws
     func endConvoy(_ id: ConvoyID) async throws
+    /// Pushes the join code to these users (M9 "Invite friends").
+    func inviteToConvoy(_ id: ConvoyID, users: [UserID]) async throws
 
     // Voice
     func voiceToken(for channel: ChannelID) async throws -> VoiceCredentials

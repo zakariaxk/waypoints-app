@@ -556,6 +556,7 @@ HTTP JSON API on the gateway (all require `Authorization: Bearer <Supabase acces
 | `POST /v1/convoys` | `{name, destination?}` | Returns `{id, join_code}`. |
 | `POST /v1/convoys/join` | `{join_code}` | Returns convoy. |
 | `PUT /v1/convoys/{id}/destination`, `PUT /v1/convoys/{id}/regroup`, `DELETE /v1/convoys/{id}` | | Leader only. |
+| `POST /v1/convoys/{id}/invite` | `{user_ids}` | Members only. Pushes the join code (convoy invites switch in S3). |
 | `POST /v1/voice/token` | `{channel_id}` | Checks team membership; returns `{url, token}` for LiveKit room `ch_<channel_id>`. |
 | `POST /internal/notify` | `{kind, ...}` | Called by a Postgres trigger through `pg_net` with a shared secret header; sends pushes for DMs, mentions, friend requests. |
 

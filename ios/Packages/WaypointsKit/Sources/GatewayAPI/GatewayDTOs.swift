@@ -43,6 +43,7 @@ struct ReportBody: Encodable, Sendable {
 }
 
 struct VoteBody: Encodable, Sendable { var stillThere: Bool }
+struct InviteBody: Encodable, Sendable { var userIds: [UserID] }
 struct JoinConvoyBody: Encodable, Sendable { var joinCode: String }
 struct VoiceBody: Encodable, Sendable { var channelId: ChannelID }
 struct PointDTO: Codable, Sendable { var lat: Double; var lng: Double }

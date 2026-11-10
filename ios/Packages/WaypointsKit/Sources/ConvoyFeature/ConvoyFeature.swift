@@ -267,6 +267,8 @@ struct ConvoySheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var name = ""
     @State private var place = ""
+    @State private var friends: [Friend] = []
+    @State private var invited: Set<UserID> = []
     @State private var destination: ConvoyDestination?
     @State private var joining = false
     @State private var working = false
@@ -280,7 +282,31 @@ struct ConvoySheet: View {
                     if let url = URL(string: "waypoints://invite/convoy/\(c)") {
                         ShareLink(item: url) { Text("Share invite").typeStyle(.bodyStrong).foregroundStyle(Color.sodium) }
                     }
-                    PrimaryButton("Done") { dismiss() }
+                    if !friends.isEmpty {
+                        SectionLabel("INVITE FRIENDS")
+                        ScrollView {
+                            ForEach(friends) { f in
+                                Button {
+                                    if invited.contains(f.id) { invited.remove(f.id) } else { invited.insert(f.id) }
+                                } label: {
+                                    Row(Text(verbatim: f.profile.displayName), leading: { Avatar(name: f.profile.displayName, size: .s28) },
+                                        trailing: {
+                                            Image(systemName: invited.contains(f.id) ? "checkmark.circle.fill" : "circle")
+                                                .foregroundStyle(invited.contains(f.id) ? Color.sodium : Color.gravel)
+                                        })
+                                }
+                                .buttonStyle(RowButtonStyle())
+                            }
+                        }
+                        .frame(maxHeight: Size.row * 3)
+                    }
+                    PrimaryButton(invited.isEmpty ? "Done" : "Invite friends") {
+                        if let id = store.state?.id, !invited.isEmpty {
+                            let users = Array(invited)
+                            Task { try? await store.env.gateway.inviteToConvoy(id, users: users) }
+                        }
+                        dismiss()
+                    }
                 } else if !code.isEmpty || joining {
                     Field("Code", text: $code, prompt: "6 characters", limit: 6).textInputAutocapitalization(.characters)
                     Text("Everyone in the convoy sees your exact location until you leave.").typeStyle(.sub).foregroundStyle(Color.dust)
@@ -306,6 +332,7 @@ struct ConvoySheet: View {
         .presentationDetents([.medium])
         .task {
             if name.isEmpty, let p = try? await store.env.profiles.myProfile() { name = "\(p.displayName)'s convoy" }
+            friends = (try? await store.env.friends.friends()) ?? []
         }
     }
 
