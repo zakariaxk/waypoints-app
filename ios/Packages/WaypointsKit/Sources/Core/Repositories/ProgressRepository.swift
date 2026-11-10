@@ -8,4 +8,6 @@ public protocol ProgressRepository: Sendable {
     @discardableResult func saveRaceResult(_ result: RaceResult) async throws -> RaceResult
     func raceResults(for car: CarID) async throws -> [RaceResult]
     func bestRaceResults(limit: Int) async throws -> [RaceResult]
+    /// Another user's fastest runs (the Strip's "A friend's run").
+    func raceResults(by user: UserID, limit: Int) async throws -> [RaceResult]
 }

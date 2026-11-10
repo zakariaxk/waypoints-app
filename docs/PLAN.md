@@ -355,7 +355,7 @@ public enum Route: Hashable, Sendable {
 public protocol Router: Sendable { @MainActor func open(_ route: Route) }
 ```
 
-`settings` opens S1 (Garage's gear button), `createReport` opens M5 at a point (the Reports add-menu action), `spotCar` opens M12, and `voice` opens T3 for a voice channel (Teams shows voice rows only when a handler exists). `joinConvoy(code: "")` opens the convoy start-or-join sheet. `ProfileRepository` also carries `notificationPrefs()` and `setNotificationPrefs(_:)` over the `notification_prefs` table (S3, migration W3-4). `SafetyKit.makeLive(config:auth:profiles:)` talks to PostgREST directly.
+`settings` opens S1 (Garage's gear button), `createReport` opens M5 at a point (the Reports add-menu action), `spotCar` opens M12, and `voice` opens T3 for a voice channel (Teams shows voice rows only when a handler exists). `joinConvoy(code: "")` opens the convoy start-or-join sheet. `ProfileRepository` also carries `notificationPrefs()` and `setNotificationPrefs(_:)` over the `notification_prefs` table (S3, migration W3-4). `SafetyKit.makeLive(config:auth:profiles:)` talks to PostgREST directly. `ProgressRepository.raceResults(by:limit:)` returns another user's fastest runs for the Strip's friend opponent.
 
 Home zones reach the gateway without a feature in the loop: `RealtimeClient.makeLive(config:auth:location:)` takes the `LocationService`, subscribes to `homeZones()`, and sends `SetHomeZones` at every connect and on every change.
 

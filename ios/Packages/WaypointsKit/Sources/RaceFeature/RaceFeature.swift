@@ -31,11 +31,13 @@ struct InputLog: Codable, Hashable {
 
 enum Opponent: Hashable {
     case ghost(RaceResult)
+    case friend(name: String, RaceResult, VehicleSpec)
     case house(String, VehicleSpec)
 
     var title: String {
         switch self {
         case .ghost: "Your best run"
+        case let .friend(name, r, _): "\(name)'s run · \(String(format: "%.2f", Double(r.etMs) / 1000)) s"
         case let .house(name, _): name
         }
     }
@@ -57,6 +59,7 @@ struct Lobby: View {
     @State private var best: RaceResult?
     @State private var past: [RaceResult] = []
     @State private var opponent: Opponent?
+    @State private var friendRuns: [Opponent] = []
     @State private var running = false
     @State private var showPast = false
 
@@ -73,6 +76,7 @@ struct Lobby: View {
                     }
                     SectionLabel("OPPONENT")
                     if let best { opponentRow(.ghost(best)) }
+                    ForEach(friendRuns, id: \.self) { opponentRow($0) }
                     ForEach(houseCars, id: \.0) { opponentRow(.house($0.0, $0.1)) }
                     PrimaryButton("Stage") { running = true }.disabled(opponent == nil)
                     if !past.isEmpty { QuietButton("Past runs") { showPast = true } }
@@ -123,6 +127,17 @@ struct Lobby: View {
         past = (try? await env.progress.raceResults(for: carID)) ?? []
         best = past.min { $0.etMs < $1.etMs }
         if opponent == nil { opponent = best.map(Opponent.ghost) ?? .house(houseCars[1].0, houseCars[1].1) }
+        var runs: [Opponent] = []
+        for f in ((try? await env.friends.friends()) ?? []).prefix(10) {
+            guard let r = try? await env.progress.raceResults(by: f.id, limit: 1).first,
+                  let theirCar = try? await env.garage.car(r.carID) else { continue }
+            var v: CatalogVariant?
+            if let id = theirCar.catalogVariantID { v = try? await env.catalog.variant(id) }
+            if let s = VehicleSpec.from(variant: v, car: theirCar) {
+                runs.append(.friend(name: f.profile.displayName, r, modified(s, mods: r.mods.compactMap(ModCatalog.mod), high: false)))
+            }
+        }
+        friendRuns = runs
     }
 }
 
@@ -161,6 +176,9 @@ final class RaceModel {
         case let .ghost(r):
             themLog = InputLog.decode(r.inputLog)
             them = RunState(spec: mine, launchRpm: themLog?.launchRpm ?? 3500)
+        case let .friend(_, r, s):
+            themLog = InputLog.decode(r.inputLog)
+            them = RunState(spec: s, launchRpm: themLog?.launchRpm ?? 3500)
         case let .house(_, s):
             them = RunState(spec: s, launchRpm: min(s.redline * 0.55, 4500))
             themLaunchTick = 60 + Int.random(in: 0...20)
@@ -477,3 +495,4 @@ struct TwoFingerTap: UIViewRepresentable {
         @objc func fire() { action() }
     }
 }
+

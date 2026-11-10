@@ -717,6 +717,14 @@ struct LiveProgress: ProgressRepository {
         }
     }
 
+    func raceResults(by user: UserID, limit: Int) async throws -> [RaceResult] {
+        try await ctx.run {
+            let rows: [RaceResultRow] = try await ctx.table("race_results").select().eq("user_id", value: user.key)
+                .order("et_ms").limit(limit).execute().value
+            return rows.map(\.model)
+        }
+    }
+
     func bestRaceResults(limit: Int) async throws -> [RaceResult] {
         let me = try ctx.me()
         return try await ctx.run {

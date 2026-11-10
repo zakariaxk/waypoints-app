@@ -138,6 +138,9 @@ extension PreviewStore: ProgressRepository {
     public func raceResults(for car: CarID) async throws -> [RaceResult] {
         raceResults.filter { $0.carID == car }.sorted { $0.etMs < $1.etMs }
     }
+    public func raceResults(by user: UserID, limit: Int) async throws -> [RaceResult] {
+        Array(raceResults.filter { $0.userID == user }.sorted { $0.etMs < $1.etMs }.prefix(limit))
+    }
     public func bestRaceResults(limit: Int) async throws -> [RaceResult] {
         Array(raceResults.sorted { $0.etMs < $1.etMs }.prefix(limit))
     }
