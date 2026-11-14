@@ -729,6 +729,7 @@ struct RoleEditor: View {
                                     .frame(width: Size.hitTarget, height: Size.hitTarget)
                             }
                             .accessibilityLabel(Text(verbatim: s.name))
+                            .accessibilityAddTraits(role.colorHex == s.hex ? .isSelected : [])
                         }
                     }
                     SectionLabel("PERMISSIONS")
