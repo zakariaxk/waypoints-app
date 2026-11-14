@@ -112,6 +112,9 @@
     "Message about this car": {
       "extractionState": "manual"
     },
+    "More options": {
+      "extractionState": "manual"
+    },
     "My code": {
       "extractionState": "manual"
     },

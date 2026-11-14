@@ -186,7 +186,8 @@ struct ProfileScreen: View {
                         if let url = Route.profile(p.userID).shareURL { ShareLink("Share profile", item: url) }
                         Button("Block", role: .destructive) { Task { try? await ctx.env.safety.block(p.userID) } }
                         Button("Report") { ctx.env.router.open(.reportContent(.user(p.userID))) }
-                    } label: { Image.symbol(Symbol.more) }
+                    } label: { Image.symbol(Symbol.more).frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget) }
+                    .accessibilityLabel(Text("More options", bundle: .module))
                 }
             }
         }

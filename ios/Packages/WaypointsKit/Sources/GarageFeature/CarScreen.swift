@@ -94,14 +94,16 @@ struct CarScreen: View {
                     Menu {
                         Button("Share build") { shareBuild() }
                         Button("Delete car", role: .destructive) { confirmDelete = true }
-                    } label: { Image.symbol(Symbol.more) }
+                    } label: { Image.symbol(Symbol.more).frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget) }
+                    .accessibilityLabel(Text("More options", bundle: .module))
                 }
             } else if let car = model.car {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button("Share build") { shareBuild() }
                         Button("Report") { ctx.env.router.open(.reportContent(ContentRef(kind: .car, id: car.id.description))) }
-                    } label: { Image.symbol(Symbol.more) }
+                    } label: { Image.symbol(Symbol.more).frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget) }
+                    .accessibilityLabel(Text("More options", bundle: .module))
                 }
             }
         }
