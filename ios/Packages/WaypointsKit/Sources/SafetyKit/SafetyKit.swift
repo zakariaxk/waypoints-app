@@ -67,6 +67,8 @@ actor LiveSafetyService: SafetyService {
         case 200..<300: return data
         case 401: throw WaypointsError.notSignedIn
         case 403: throw WaypointsError.forbidden
+        case 423: throw WaypointsError.suspended
+        case 429: throw WaypointsError.rateLimited
         default: throw WaypointsError.server(String(decoding: data, as: UTF8.self))
         }
     }

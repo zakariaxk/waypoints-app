@@ -81,6 +81,12 @@ public struct ReportSheet: View {
                 try await safety.report(target, reason: reason, note: note.isEmpty ? nil : note)
                 if alsoBlock, let blockUser { try await safety.block(blockUser) }
                 done = true
+            } catch WaypointsError.rateLimited {
+                self.error = "You're doing that a lot. Try again in a few minutes."
+                failed += 1
+            } catch WaypointsError.suspended {
+                self.error = "This account is suspended. Write to support@waypoints.app."
+                failed += 1
             } catch {
                 self.error = "Couldn't send the report. Check your connection and try again."
                 failed += 1
