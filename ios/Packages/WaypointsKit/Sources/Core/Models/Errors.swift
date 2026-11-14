@@ -8,6 +8,7 @@ public enum WaypointsError: Error, Sendable, Hashable {
     case offline
     case forbidden
     case rateLimited
+    case suspended                 // the account is suspended (SAFE-7)
     case conflict(String)          // e.g. handle taken
     case invalid(String)           // a field failed validation; associated value names it
     case server(String)

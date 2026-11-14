@@ -54,6 +54,8 @@ final class BackendContext: Sendable {
             switch error.code {
             case "23505": return WaypointsError.conflict(error.message)
             case "23514", "23502", "22001", "22P02", "23503", "22023": return WaypointsError.invalid(error.message)
+            case "PT429": return WaypointsError.rateLimited
+            case "PT423": return WaypointsError.suspended
             case "42501": return WaypointsError.forbidden
             case "PGRST116", "P0002": return WaypointsError.notFound
             case "PGRST301", "PGRST302": return WaypointsError.notSignedIn
