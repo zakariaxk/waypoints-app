@@ -35,21 +35,38 @@ struct BlurBox: Identifiable, Hashable {
 }
 
 enum PlateBlur {
-    /// Text regions with a plate-like aspect ratio (wider than tall, 1.6:1 to 6:1).
+    /// Plates (text regions with a plate-like aspect ratio, wider than tall, 1.6:1 to 6:1) and
+    /// faces (SPOT-6), both blurred the same way and both correctable by tapping.
     static func detect(_ image: CGImage) async -> [BlurBox] {
-        await withCheckedContinuation { c in
-            let request = VNRecognizeTextRequest { req, _ in
-                let boxes = (req.results as? [VNRecognizedTextObservation] ?? []).compactMap { o -> BlurBox? in
-                    let b = o.boundingBox
-                    let ratio = (b.width * CGFloat(image.width)) / max(1, b.height * CGFloat(image.height))
-                    guard (1.6...6).contains(ratio) else { return nil }
-                    let r = CGRect(x: b.minX, y: 1 - b.maxY, width: b.width, height: b.height).insetBy(dx: -b.width * 0.15, dy: -b.height * 0.4)
-                    return BlurBox(rect: r)
-                }
-                c.resume(returning: boxes)
-            }
-            request.recognitionLevel = .fast
-            try? VNImageRequestHandler(cgImage: image).perform([request])
+        let text = VNRecognizeTextRequest()
+        text.recognitionLevel = .fast
+        let faces = VNDetectFaceRectanglesRequest()
+        try? VNImageRequestHandler(cgImage: image).perform([text, faces])
+        let plates = (text.results ?? []).compactMap { o -> BlurBox? in
+            let b = o.boundingBox
+            let ratio = (b.width * CGFloat(image.width)) / max(1, b.height * CGFloat(image.height))
+            guard (1.6...6).contains(ratio) else { return nil }
+            return box(b, dx: -b.width * 0.15, dy: -b.height * 0.4)
+        }
+        let heads = (faces.results ?? []).map { o in
+            box(o.boundingBox, dx: -o.boundingBox.width * 0.2, dy: -o.boundingBox.height * 0.25)
+        }
+        return plates + heads
+    }
+
+    /// Vision's normalized rect (origin bottom-left) to a blur box (origin top-left), grown by an inset.
+    private static func box(_ b: CGRect, dx: CGFloat, dy: CGFloat) -> BlurBox {
+        BlurBox(rect: CGRect(x: b.minX, y: 1 - b.maxY, width: b.width, height: b.height).insetBy(dx: dx, dy: dy))
+    }
+
+    /// Camera photos arrive rotated by EXIF; draw them upright so detection, blur, and the
+    /// on-screen boxes share one coordinate space.
+    static func upright(_ image: UIImage) -> UIImage {
+        guard image.imageOrientation != .up else { return image }
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = image.scale
+        return UIGraphicsImageRenderer(size: image.size, format: format).image { _ in
+            image.draw(in: CGRect(origin: .zero, size: image.size))
         }
     }
 
@@ -81,15 +98,38 @@ struct SpotFlow: View {
     @State private var pickLibrary = false
     @State private var picking = false
     @State private var saving = false
+    @State private var picked: PickedModel?
     @State private var result: String?
+    @State private var shot: UIImage?
     @State private var error: String?
+    @Namespace private var collection
+
+    /// The model chosen in "What is it?", waiting for "Add to collection".
+    struct PickedModel {
+        let make: String
+        let model: String
+        let id: Int64
+        let year: Int?
+        var label: String { [year.map { String($0) }, make, model].compactMap { $0 }.joined(separator: " ") }
+    }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: Space.s16) {
                 if let result {
                     Spacer()
-                    Text(verbatim: result).typeStyle(.display).foregroundStyle(Color.chalk).transition(.scale.combined(with: .opacity))
+                    // SPOT-5: the photo flies into the collection counter with `win`.
+                    HStack(spacing: Space.s12) {
+                        if let shot {
+                            Image(uiImage: shot).resizable().scaledToFill()
+                                .frame(width: Size.row, height: Size.row)
+                                .clipShape(RoundedRectangle(cornerRadius: Radius.r6, style: .continuous))
+                                .matchedGeometryEffect(id: "shot", in: collection)
+                                .accessibilityHidden(true)
+                        }
+                        Text(verbatim: result).typeStyle(.display).foregroundStyle(Color.chalk)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                     PrimaryButton("Done") { dismiss() }
                     Spacer()
                 } else if let image {
@@ -102,6 +142,9 @@ struct SpotFlow: View {
                                     .frame(width: b.rect.width * size.width, height: b.rect.height * size.height)
                                     .offset(x: b.rect.minX * size.width, y: b.rect.minY * size.height)
                                     .onTapGesture { boxes.removeAll { $0.id == b.id } }
+                                    .accessibilityLabel(Text("Blurred area"))
+                                    .accessibilityHint(Text("Removes the blur"))
+                                    .accessibilityAddTraits(.isButton)
                             }
                         }
                         .frame(width: size.width, height: size.height)
@@ -109,11 +152,23 @@ struct SpotFlow: View {
                         .onTapGesture { p in
                             boxes.append(BlurBox(rect: CGRect(x: p.x / size.width - 0.12, y: p.y / size.height - 0.04, width: 0.24, height: 0.08)))
                         }
+                        .matchedGeometryEffect(id: "shot", in: collection)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
-                    Text("Tap a box to remove it. Tap the photo to blur more.").typeStyle(.foot).foregroundStyle(Color.dust)
+                    Text("Plates and faces are blurred. Tap a box to remove it. Tap the photo to blur more.")
+                        .typeStyle(.foot).foregroundStyle(Color.dust)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
-                    PrimaryButton("What is it?", isLoading: saving) { picking = true }
+                    if let picked {
+                        HStack {
+                            Text(verbatim: picked.label).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                            Spacer()
+                            QuietButton("Change") { picking = true }
+                        }
+                        PrimaryButton("Add to collection", isLoading: saving) { save(picked) }
+                    } else {
+                        PrimaryButton("What is it?") { picking = true }
+                    }
                 } else {
                     Spacer()
                     SecondaryButton("Take a photo") { showCamera = true }
@@ -129,7 +184,9 @@ struct SpotFlow: View {
                 NavigationStack {
                     VehiclePicker(catalog: env.catalog, mode: .modelOnly) { p in
                         picking = false
-                        if case let .model(make, model, id, year) = p { save(make: make, model: model, modelID: id, year: year) }
+                        if case let .model(make, model, id, year) = p {
+                            picked = PickedModel(make: make, model: model, id: id, year: year)
+                        }
                     }
                     .navigationTitle("What is it?")
                 }
@@ -153,22 +210,30 @@ struct SpotFlow: View {
     }
 
     private func use(_ ui: UIImage) {
-        image = ui
-        Task { if let cg = ui.cgImage { boxes = await PlateBlur.detect(cg) } }
+        let upright = PlateBlur.upright(ui)
+        image = upright
+        boxes = []
+        picked = nil
+        Task { if let cg = upright.cgImage { boxes = await PlateBlur.detect(cg) } }
     }
 
-    private func save(make: String, model: String, modelID: Int64, year: Int?) {
-        guard let image, let data = PlateBlur.apply(boxes, to: image).jpegData(compressionQuality: 0.85) else { return }
+    private func save(_ picked: PickedModel) {
+        let make = picked.make, model = picked.model, modelID = picked.id, year = picked.year
+        guard let image else { return }
+        let blurred = PlateBlur.apply(boxes, to: image)
+        guard let data = blurred.jpegData(compressionQuality: 0.85) else { return }
         saving = true
+        error = nil
         Task {
             do {
-                guard let me = await env.auth.currentSession()?.userID else { return }
+                guard let me = await env.auth.currentSession()?.userID else { saving = false; return }
                 let city = await Self.city()
                 let media = try await env.media.upload(data, contentType: "image/jpeg", to: .spots) { _ in }
                 _ = try await env.spots.addSpot(Spot(spotterID: me, catalogModelID: modelID, year: year, make: make, model: model,
                                                      photoPath: media.path, city: city))
                 let n = ((try? await env.spots.spots(by: me)) ?? []).filter { $0.catalogModelID == modelID }.count
                 let ordinal = NumberFormatter.localizedString(from: NSNumber(value: n), number: .ordinal)
+                shot = blurred
                 withMotion(.win, reduceMotion: reduceMotion) { result = "\(make) \(model) · \(ordinal) spotted" }
             } catch {
                 self.error = "Couldn't add it. Check your connection and try again."

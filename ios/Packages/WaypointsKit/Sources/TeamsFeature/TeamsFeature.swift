@@ -362,7 +362,11 @@ struct TeamDetail: View {
                     }
                     .padding(Space.margin)
                     if let code = t.inviteCode, let url = URL(string: "waypoints://invite/team/\(code)") {
-                        ShareLink(item: url) { Row(Text("Invite people"), trailing: { Image.symbol(Symbol.share) }) }
+                        NavigationLink {
+                            QRCodeScreen(Text("Invite people"), heading: Text(verbatim: t.name),
+                                         caption: Text("Scan to join, or share the link."), url: url)
+                        } label: { Row(Text("Invite people"), trailing: { Disclosure() }) }
+                        .buttonStyle(RowButtonStyle())
                     }
                     NavigationLink { MembersView(model: model, teamID: teamID, perms: perms, roles: roles) } label: {
                         Row(Text("Members"), trailing: { Disclosure() })

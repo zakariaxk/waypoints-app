@@ -78,6 +78,7 @@ final class ProfileModel {
     var photos: [CarID: CarPhoto] = [:]
     var posts: [Post] = []
     var spots: [Spot] = []
+    var earned: [String] = []
     var friendCount = 0
     var friendship: Friendship?
     var following = false
@@ -102,6 +103,7 @@ final class ProfileModel {
         for car in cars { photos[car.id] = try? await env.garage.photos(of: car.id).first }
         posts = (try? await env.posts.posts(by: userID)) ?? []
         spots = (try? await env.spots.spots(by: userID)) ?? []
+        earned = EarnedIcons.names((try? await env.progress.achievements(of: userID)) ?? [])
         if userID == me {
             friendCount = (try? await env.friends.friends().count) ?? 0
             requests = (try? await env.friends.incomingRequests().count) ?? 0
@@ -139,6 +141,7 @@ struct ProfileScreen: View {
                 VStack(alignment: .leading, spacing: 0) {
                     header(p)
                     if !own { relationButtons(p) }
+                    if !model.earned.isEmpty { EarnedIconStrip(names: model.earned, paint: iconPaint(p)) }
                     carsSection
                     if !model.spots.isEmpty { spottedSection }
                     if !model.posts.isEmpty { postsSection }
@@ -198,6 +201,11 @@ struct ProfileScreen: View {
         }
         .padding(.horizontal, Space.margin)
         .padding(.top, Space.s16)
+    }
+
+    /// Earned icons draw in the owner's primary car paint, as on the map (plan 9.8).
+    private func iconPaint(_ p: Profile) -> Color {
+        (model.cars.first { $0.id == p.primaryCarID } ?? model.cars.first)?.paint ?? .chalk
     }
 
     private func count(_ n: Int, _ label: LocalizedStringKey) -> some View {

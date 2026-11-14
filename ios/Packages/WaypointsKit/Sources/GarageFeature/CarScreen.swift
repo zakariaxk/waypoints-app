@@ -61,7 +61,9 @@ struct CarScreen: View {
     @State private var enterClass: ShowdownClass = .street
     @State private var askShowdown = false
     @State private var confirmDelete = false
+    @State private var shared: SharedImage?
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.displayScale) private var displayScale
 
     init(ctx: GarageContext, carID: CarID) {
         self.ctx = ctx
@@ -90,12 +92,14 @@ struct CarScreen: View {
             if model.own {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
+                        Button("Share build") { shareBuild() }
                         Button("Delete car", role: .destructive) { confirmDelete = true }
                     } label: { Image.symbol(Symbol.more) }
                 }
             } else if let car = model.car {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
+                        Button("Share build") { shareBuild() }
                         Button("Report") { ctx.env.router.open(.reportContent(ContentRef(kind: .car, id: car.id.description))) }
                     } label: { Image.symbol(Symbol.more) }
                 }
@@ -118,9 +122,21 @@ struct CarScreen: View {
                 }
             }
         } message: { Text("Needs at least one photo.") }
+        .sheet(item: $shared) { ShareSheet(items: [$0.image]).presentationDetents([.medium, .large]) }
         .photosPicker(isPresented: $pickPhoto, selection: $photoItem, matching: .images)
         .onChange(of: photoItem) { if let item = photoItem { Task { await model.addPhoto(item); photoItem = nil } } }
         .task { await model.load() }
+    }
+
+    /// GAR-15: renders the build card and hands it to the share sheet.
+    private func shareBuild() {
+        guard let car = model.car else { return }
+        Task {
+            let image = await BuildShare.render(car: car, photoURL: ctx.url(.cars, model.photos.first?.path),
+                                                estimate: model.estimate, handle: model.owner?.handle,
+                                                silhouette: model.owner?.markerIcon ?? "coupe", scale: displayScale)
+            if let image { shared = SharedImage(image: image) }
+        }
     }
 
     private var pager: some View {
@@ -452,6 +468,9 @@ struct FriendsScreen: View {
     @State private var query = ""
     @State private var found: [Profile] = []
     @State private var handle = ""
+    @State private var meID: UserID?
+    @State private var scanning = false
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
@@ -471,6 +490,19 @@ struct FriendsScreen: View {
                     } else {
                         if let url = URL(string: "https://waypoints.app/u/\(handle)") {
                             ShareLink(item: url) { Row(Text("Invite a friend"), trailing: { Image.symbol(Symbol.share) }) }
+                        }
+                        if let meID, let link = ProfileLink.url(for: meID) {
+                            NavigationLink {
+                                QRCodeScreen(Text("My code"), heading: Text(verbatim: "@\(handle)"),
+                                             caption: Text("Have them scan it in Friends to add you."), url: link)
+                            } label: { Row(Text("My code"), trailing: { Disclosure() }) }
+                            .buttonStyle(RowButtonStyle())
+                        }
+                        if CodeScanner.isAvailable {
+                            Button { scanning = true } label: {
+                                Row(Text("Scan"), subtitle: Text("Add someone from their code"), trailing: { Image.symbol(Symbol.camera) })
+                            }
+                            .buttonStyle(RowButtonStyle())
                         }
                         SegmentedSwitch(selection: $tab, options: [(0, "Friends"), (1, "Requests")])
                             .padding(.horizontal, Space.margin)
@@ -506,6 +538,13 @@ struct FriendsScreen: View {
             .navigationTitle("Friends")
             .navigationBarTitleDisplayMode(.inline)
         }
+        .fullScreenCover(isPresented: $scanning) {
+            ScanSheet { id in
+                scanning = false
+                dismiss()
+                ctx.env.router.open(.profile(id))
+            }
+        }
         .task { await load() }
         .task(id: query) {
             try? await Task.sleep(for: .milliseconds(250))
@@ -516,7 +555,7 @@ struct FriendsScreen: View {
     private func load() async {
         friends = (try? await ctx.env.friends.friends()) ?? []
         requests = (try? await ctx.env.friends.incomingRequests()) ?? []
-        handle = (try? await ctx.env.profiles.myProfile().handle) ?? ""
+        if let me = try? await ctx.env.profiles.myProfile() { handle = me.handle; meID = me.userID }
     }
 
     private func remove(_ id: UserID) {
