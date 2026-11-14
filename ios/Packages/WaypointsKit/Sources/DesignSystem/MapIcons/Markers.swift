@@ -19,13 +19,14 @@ public struct VehicleMarker: View {
     let staleness: TimeInterval
     let selected: Bool
     let trail: String?
+    let detail: String?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var pulse = false
 
     public init(icon: String, paint: Color, role: MarkerRole, heading: Double? = nil, moving: Bool = false,
-                staleness: TimeInterval = 0, selected: Bool = false, trail: String? = nil) {
+                staleness: TimeInterval = 0, selected: Bool = false, trail: String? = nil, detail: String? = nil) {
         self.icon = icon; self.paint = paint; self.role = role; self.heading = heading; self.moving = moving
-        self.staleness = staleness; self.selected = selected; self.trail = trail
+        self.staleness = staleness; self.selected = selected; self.trail = trail; self.detail = detail
     }
 
     private var size: CGFloat {
@@ -78,20 +79,35 @@ public struct VehicleMarker: View {
         .scaleEffect(selected ? Size.Marker.selectedScale : 1)
         .motion(.sheet, value: selected)
         .mapShadow()
-        .onAppear {
-            guard !reduceMotion else { return }
-            withAnimation(.easeOut(duration: Timing.livePulse).repeatForever(autoreverses: false)) { pulse = true }
-        }
+        .onAppear { startPulse() }
+        .onChange(of: reduceMotion) { startPulse() }
         .accessibilityElement()
-        .accessibilityLabel(Text(accessibility))
+        .accessibilityLabel(accessibility)
+        .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
     }
 
-    private var accessibility: String {
+    /// The live ring is the only map loop; Reduce Motion stops it (plan 9.5).
+    private func startPulse() {
+        guard !reduceMotion else {
+            var t = Transaction(); t.disablesAnimations = true
+            withTransaction(t) { pulse = false }
+            return
+        }
+        withAnimation(.easeOut(duration: Timing.livePulse).repeatForever(autoreverses: false)) { pulse = true }
+    }
+
+    /// "Maya, 2 miles north east, moving" (plan 9.12).
+    private var accessibility: Text {
+        let place = detail.map { ", \($0)" } ?? ""
         switch role {
-        case .you: "You"
-        case let .friend(name): moving ? "\(name), moving" : name
-        case .approximate: "Approximate location"
-        case .stranger: "A driver nearby"
+        case .you: return Text("You", bundle: .module)
+        case let .friend(name):
+            if staleness >= 300 {
+                return Text("\(name)\(place), last seen \(Int(staleness / 60)) minutes ago", bundle: .module)
+            }
+            return moving ? Text("\(name)\(place), moving", bundle: .module) : Text("\(name)\(place)", bundle: .module)
+        case .approximate: return Text("Approximate location\(place)", bundle: .module)
+        case .stranger: return Text("A driver nearby\(place)", bundle: .module)
         }
     }
 
@@ -177,7 +193,9 @@ public struct ReportBadge: View {
         }
         .frame(width: Size.hitTarget, height: Size.hitTarget)
         .mapShadow()
-        .accessibilityLabel(Text(kind == "help" ? "A driver needs a hand" : MapIconSet.title(kind)))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(kind == "help" ? Text("A driver needs a hand", bundle: .module) : Text(verbatim: MapIconSet.title(kind)))
+        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -211,7 +229,24 @@ public struct MeetPin: View {
                     .padding(.horizontal, Space.s4).background(Color.tarmac, in: Capsule())
             }
         }
+        .frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget)
+        .contentShape(Rectangle())
         .mapShadow()
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibility)
+        .accessibilityAddTraits(.isButton)
+    }
+
+    private var accessibility: Text {
+        let at = time.map { ", \($0)" } ?? ""
+        let kindName: String = switch kind {
+        case "cruise": String(localized: "Cruise", bundle: .module)
+        case "hangout": String(localized: "Hangout", bundle: .module)
+        case "track_day": String(localized: "Track day", bundle: .module)
+        case "show": String(localized: "Show", bundle: .module)
+        default: String(localized: "Meet", bundle: .module)
+        }
+        return live ? Text("\(kindName)\(at), happening now", bundle: .module) : Text("\(kindName)\(at)", bundle: .module)
     }
 }
 
@@ -226,8 +261,12 @@ public struct ClusterMarker: View {
             .frame(width: Size.Marker.cluster, height: Size.Marker.cluster)
             .background(Color.tarmac, in: Circle())
             .overlay(Circle().strokeBorder(Color.seam, lineWidth: Size.Marker.innerStroke))
+            .frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget)
+            .contentShape(Circle())
             .mapShadow()
             .accessibilityLabel(Text("\(count) drivers", bundle: .module))
+            .accessibilityHint(Text("Zooms in", bundle: .module))
+            .accessibilityAddTraits(.isButton)
     }
 }
 
