@@ -1,0 +1,4 @@
+# Models the federal data does not cover (PRD GAR-2): classics before 1981 and grey-market
+# imports. One row is a model (optionally a named generation in trim) over its model years;
+# each year the catalog lacks gets a bare variant. source_url is the page the years were read from.
+make,model,year_from,year_to,trim,source_url

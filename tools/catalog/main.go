@@ -1,5 +1,6 @@
 // Command catalog builds the bundled vehicle catalog (docs/PLAN.md section 11.1) from
-// NHTSA vPIC, EPA vehicles.csv, the EPA test car lists, and overrides.csv.
+// NHTSA vPIC, EPA vehicles.csv, the EPA test car lists, supplement.csv (classics and
+// grey-market imports), and overrides.csv.
 //
 //	go run . -cache .cache -out ../../ios/App/Resources/catalog.sqlite.lzfse
 package main
@@ -52,8 +53,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	supplement, err := loadSupplement("supplement.csv")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	cat := build(vp, epaRows, tests, overrides)
+	cat := build(vp, epaRows, tests, supplement, overrides)
 	sqlitePath := *raw
 	if sqlitePath == "" {
 		sqlitePath = *cache + "/catalog.sqlite"

@@ -57,7 +57,7 @@ type modelRef struct {
 	years map[int]bool
 }
 
-func build(vp map[string]*vpicMake, rows []epaRow, tests []testCar, overrides []override) *catalog {
+func build(vp map[string]*vpicMake, rows []epaRow, tests []testCar, supplement []supplementRow, overrides []override) *catalog {
 	refs := map[string][]modelRef{}
 	for mk, vm := range vp {
 		seen := map[string]int{}
@@ -114,6 +114,7 @@ func build(vp map[string]*vpicMake, rows []epaRow, tests []testCar, overrides []
 	}
 
 	attachTestCars(vs, tests)
+	vs = applySupplement(vs, supplement)
 	vs = applyOverrides(vs, overrides)
 	vs = dedupe(vs)
 	return assemble(vs)

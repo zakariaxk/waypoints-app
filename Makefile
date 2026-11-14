@@ -15,6 +15,7 @@ DESTINATION  := generic/platform=iOS Simulator
 SIMULATOR    ?= iPhone 16
 BUNDLE_ID    := app.waypoints.ios
 CONFIG       := ios/App/Config.xcconfig
+CATALOG      := ios/App/Resources/catalog.sqlite.lzfse
 
 .PHONY: build go ios generate run proto clean bench-local bench-cluster
 
@@ -33,7 +34,13 @@ go:
 $(CONFIG):
 	cp ios/App/Config.example.xcconfig $@
 
-generate: $(CONFIG)
+# The bundled vehicle catalog snapshot (GAR-7), built from tools/catalog's download cache
+# when missing. Untracked; delete it to rebuild after editing overrides.csv or supplement.csv.
+$(CATALOG):
+	@echo "==> catalog snapshot"
+	@cd tools/catalog && go run . -cache .cache -out '$(CURDIR)/$(CATALOG)'
+
+generate: $(CONFIG) $(CATALOG)
 	@echo "==> xcodegen generate"
 	@cd ios && xcodegen generate --quiet
 

@@ -23,8 +23,10 @@ server/bin/
 *.test
 *.prof
 
-# Catalog pipeline cache
-tools/catalog/.cache/
+# Catalog pipeline cache and the snapshot `make` builds into the app
+tools/catalog/.cache
+ios/App/Resources/catalog.sqlite.lzfse
+ios/App/Resources/manifest.json
 
 # Supabase local
 supabase/.branches/

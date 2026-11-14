@@ -76,6 +76,8 @@ public struct VehiclePicker: View {
     @State private var tick = 0
 
     struct ManualTrim: Hashable { var trim = ""; var engine = ""; var drive = "" }
+    /// The free-text car typed after "Mine isn't listed" at the make or model step (GAR-3).
+    struct UnlistedCar: Hashable { var make = ""; var model = ""; var year = ""; var trim = "" }
 
     public init(catalog: any VehicleCatalogService, mode: PickerMode = .full, markerIcon: String = "coupe",
                 actionTitle: LocalizedStringKey = "Add to garage", onPick: @escaping @MainActor (PickedVehicle) -> Void) {
@@ -166,6 +168,7 @@ public struct VehiclePicker: View {
         case .trim: variant = nil; manualTrim = nil; fallthrough
         case .color: family = nil
         }
+        unlistedAt = nil
     }
 
     // MARK: Steps
@@ -189,6 +192,7 @@ public struct VehiclePicker: View {
             }
             SectionLabel("All makes")
             ForEach(allMakes) { m in makeRow(m) }
+            unlistedEntry(at: .make)
         }
     }
 
@@ -209,7 +213,81 @@ public struct VehiclePicker: View {
                 SectionLabel("Older models")
                 ForEach(older) { modelRow($0) }
             }
+            unlistedEntry(at: .model)
         }
+    }
+
+    // MARK: Mine isn't listed (make and model steps)
+
+    @State private var unlistedAt: Step?
+    @State private var draftCar = UnlistedCar()
+
+    private var currentYear: Int { Calendar.current.component(.year, from: .now) }
+
+    /// The typed year when it is a plausible model year, otherwise nil.
+    private var draftYear: Int? {
+        guard let y = Int(draftCar.year.trimmingCharacters(in: .whitespaces)), (1886...currentYear + 2).contains(y) else { return nil }
+        return y
+    }
+
+    private func draftReady(at step: Step) -> Bool {
+        let makeName = step == .make ? draftCar.make : (make?.name ?? "")
+        guard !makeName.trimmingCharacters(in: .whitespaces).isEmpty,
+              !draftCar.model.trimmingCharacters(in: .whitespaces).isEmpty else { return false }
+        // A car needs its year; Spots and Fits can leave it open, but not half typed.
+        if mode == .full { return draftYear != nil }
+        return draftCar.year.isEmpty || draftYear != nil
+    }
+
+    @ViewBuilder private func unlistedEntry(at step: Step) -> some View {
+        if unlistedAt == step {
+            VStack(spacing: Space.s12) {
+                if step == .make {
+                    Field("Make", text: $draftCar.make, prompt: "Like 'Datsun'", limit: 40)
+                }
+                Field("Model", text: $draftCar.model, prompt: "Like 'Skyline GT-R'", limit: 60)
+                Field(mode == .full ? "Year" : "Year (optional)", text: $draftCar.year, prompt: "Like '1999'", limit: 4)
+                    .keyboardType(.numberPad)
+                if mode == .full {
+                    Field("Trim (optional)", text: $draftCar.trim, prompt: "Like 'V-Spec'", limit: 40)
+                }
+                SecondaryButton("Use this") { useUnlisted(at: step) }
+                    .disabled(!draftReady(at: step))
+            }
+            .padding(Space.margin)
+        } else {
+            Button {
+                draftCar = UnlistedCar()
+                unlistedAt = step
+            } label: { Row(Text("Mine isn't listed"), showsDivider: false) }
+                .buttonStyle(RowButtonStyle())
+        }
+    }
+
+    /// Stores the typed car as text: no catalog ids, straight to colour (or back to the caller
+    /// in model-only and range modes).
+    private func useUnlisted(at step: Step) {
+        guard draftReady(at: step) else { return }
+        let makeName = step == .make ? draftCar.make.trimmingCharacters(in: .whitespaces) : (make?.name ?? "")
+        let modelName = draftCar.model.trimmingCharacters(in: .whitespaces)
+        let trim = draftCar.trim.trimmingCharacters(in: .whitespaces)
+        tick += 1
+        switch mode {
+        case .modelOnly:
+            onPick(.model(make: makeName, model: modelName, modelID: 0, year: draftYear))
+        case .range:
+            onPick(.fitment(Fitment(make: makeName, model: modelName, yearFrom: draftYear, yearTo: draftYear)))
+        case .full:
+            guard let y = draftYear else { return }
+            let picked = step == .make ? CatalogMake(id: -1, name: makeName) : (make ?? CatalogMake(id: -1, name: makeName))
+            make = picked
+            model = CatalogModel(id: -1, makeID: picked.id, name: modelName, yearFrom: y, yearTo: y)
+            year = y
+            variants = []
+            variant = nil
+            manualTrim = ManualTrim(trim: trim)
+        }
+        unlistedAt = nil
     }
 
     private func modelRow(_ m: CatalogModel) -> some View {

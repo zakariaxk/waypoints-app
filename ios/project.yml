@@ -28,6 +28,11 @@ targets:
       - path: App
         excludes:
           - "*.xcconfig"
+          - "Resources/**"
+      # The catalog snapshot `make` builds from tools/catalog (untracked, GAR-7).
+      - path: App/Resources
+        buildPhase: resources
+        optional: true
     # Config.xcconfig is gitignored; `make` copies Config.example.xcconfig when it is missing.
     configFiles:
       Debug: App/Config.xcconfig

@@ -26,6 +26,7 @@ type override struct {
 	Weight      int
 	Redline     int
 	Gears       string
+	Source      string // page the numbers were read from (PRD GAR-8)
 }
 
 func loadOverrides(path string) ([]override, error) {
@@ -36,6 +37,7 @@ func loadOverrides(path string) ([]override, error) {
 	defer f.Close()
 	r := csv.NewReader(f)
 	r.Comment = '#'
+	r.FieldsPerRecord = -1
 	recs, err := r.ReadAll()
 	if err != nil {
 		return nil, err
@@ -49,7 +51,7 @@ func loadOverrides(path string) ([]override, error) {
 			Make: get("make"), Model: get("model"), From: num("year_from"), To: num("year_to"),
 			Trim: get("trim"), Cyl: num("cyl"), Asp: get("aspiration"), Trans: get("trans"),
 			Drive: get("drive"), HP: num("hp"), Torque: num("torque_lbft"), Weight: num("weight_lb"),
-			Redline: num("redline"),
+			Redline: num("redline"), Source: get("source_url"),
 		}
 		o.Displ, _ = strconv.ParseFloat(get("displ"), 64)
 		if e := get("epa_contains"); e != "" {
@@ -60,6 +62,9 @@ func loadOverrides(path string) ([]override, error) {
 		}
 		if o.Make == "" || o.Model == "" || o.From == 0 || o.To < o.From {
 			return nil, fmt.Errorf("overrides.csv line %d: make, model, and years are required", n+2)
+		}
+		if !strings.HasPrefix(o.Source, "http") {
+			return nil, fmt.Errorf("overrides.csv line %d: source_url is required", n+2)
 		}
 		out = append(out, o)
 	}
