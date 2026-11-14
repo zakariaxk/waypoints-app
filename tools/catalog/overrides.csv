@@ -183,3 +183,28 @@ Ford,F-150,2021,2022,Raptor,3.5,6,turbo,10-speed automatic, raptor ,4wd,450,510,
 Ford,F-150,2023,2023,Raptor,3.5,6,turbo,10-speed automatic, raptor ,4wd,450,510,5757,,,https://www.caranddriver.com/ford/f-150-raptor/specs/2023/ford_f-150-raptor_ford-f-150-raptor_2023,
 Ford,F-150,2024,2025,Raptor,3.5,6,turbo,10-speed automatic, raptor ,4wd,450,510,5863,,,https://www.caranddriver.com/ford/f-150-raptor/specs/2024/ford_f-150-raptor_ford-f-150-raptor_2024,
 Ford,F-150,2010,2010,Raptor,5.4,8,natural,6-speed automatic,raptor,4wd,310,310,,,4.17;2.34;1.52;1.14;0.86;0.69,https://www.caranddriver.com/ford/f-150-raptor/specs/2010/ford_f-150-raptor_ford-f-150-svt-raptor_2010,
+Ford,F-150,2011,2013,Raptor,6.2,8,natural,6-speed automatic, raptor ,4wd,411,434,,,4.17;2.34;1.52;1.14;0.86;0.69,https://www.caranddriver.com/ford/f-150-raptor/specs/2011/ford_f-150-raptor_ford-f-150-svt-raptor_2011,
+Ford,F-150,2014,2014,Raptor,6.2,8,natural,6-speed automatic, raptor ,4wd,411,434,6113,,4.17;2.34;1.52;1.14;0.86;0.69,https://www.caranddriver.com/ford/f-150-raptor/specs/2014/ford_f-150-raptor_ford-f-150-svt-raptor_2014,
+Ford,F-150,2021,2022,,3.3,6,natural,10-speed automatic,,,290,265,,,,https://www.caranddriver.com/ford/f-150/specs/2021/ford_f-150_ford-f-150_2021,1
+Ford,F-150,2023,2023,,3.3,6,natural,10-speed automatic,,,290,265,,,,https://www.caranddriver.com/ford/f-150/specs/2023/ford_f-150_ford-f-150_2023,1
+Ford,F-150,2018,2020,,3.3,6,natural,6-speed automatic,,,290,265,,,4.17;2.34;1.52;1.14;0.86;0.69,https://www.caranddriver.com/ford/f-150/specs/2018/ford_f-150_ford-f-150_2018,1
+Ford,F-150,2015,2015,,3.5,6,natural,6-speed automatic,,,282,253,,,4.17;2.34;1.52;1.14;0.86;0.69,https://www.caranddriver.com/ford/f-150/specs/2015/ford_f-150_ford-f-150_2015,1
+Ford,F-150,2016,2016,,3.5,6,natural,6-speed automatic,,,282,253,,,4.17;2.34;1.52;1.14;0.86;0.69,https://www.caranddriver.com/ford/f-150/specs/2016/ford_f-150_ford-f-150_2016,1
+Ford,F-150,2017,2017,,3.5,6,natural,6-speed automatic,,,282,253,,,4.17;2.34;1.52;1.14;0.86;0.69,https://www.caranddriver.com/ford/f-150/specs/2017/ford_f-150_ford-f-150_2017,1
+Ford,F-150,2011,2013,,3.7,6,natural,6-speed automatic,,,302,278,,,4.17;2.34;1.52;1.14;0.86;0.69,https://www.caranddriver.com/ford/f-150/specs/2011/ford_f-150_ford-f-150_2011,1
+Ford,F-150,2014,2014,,3.7,6,natural,6-speed automatic,,,302,278,,,4.17;2.34;1.52;1.14;0.86;0.69,https://www.caranddriver.com/ford/f-150/specs/2014/ford_f-150_ford-f-150_2014,1
+Ford,F-150,2007,2008,,4.2,6,natural,5-speed manual,,,202,260,,,3.90;2.25;1.49;1.00;0.80,https://www.caranddriver.com/ford/f-150/specs/2007/ford_f-150_ford-f-150_2007,1
+Ford,F-150,2009,2009,,4.6,8,natural,4-speed automatic,,,248,294,,,2.84;1.56;1.00;0.70,https://www.caranddriver.com/ford/f-150/specs/2009/ford_f-150_ford-f-150_2009,1
+Ford,F-150,2010,2010,,4.6,8,natural,4-speed automatic,,,248,294,,,2.48;1.56;1.00;0.70,https://www.caranddriver.com/ford/f-150/specs/2010/ford_f-150_ford-f-150_2010,1
+Ford,F-150,2024,2025,,5.0,8,natural,10-speed automatic,,,400,410,,,,https://www.caranddriver.com/ford/f-150/specs/2024/ford_f-150_ford-f-150_2024,1
+Ford,Fiesta,2014,2015,ST,1.6,4,turbo,6-speed manual, st ,fwd,197,202,2720,,3.73;2.10;1.36;1.03;0.82;0.69,https://www.caranddriver.com/ford/fiesta-st/specs/2014/ford_fiesta-st_ford-fiesta-st_2014,
+Ford,Fiesta,2016,2018,ST,1.6,4,turbo,6-speed manual, st ,fwd,197,202,2720,,3.72;2.05;1.36;1.03;0.82;0.69,https://www.caranddriver.com/ford/fiesta-st/specs/2016/ford_fiesta-st_ford-fiesta-st_2016,
+Ford,Focus,2016,2017,RS,2.3,4,turbo,6-speed manual, rs ,awd,350,350,3460,,3.23;1.95;1.32;1.03;1.13;0.94,https://www.caranddriver.com/ford/focus-rs/specs/2016/ford_focus-rs_ford-focus-rs_2016,
+Ford,Focus,2014,2017,ST,2.0,4,turbo,6-speed manual, st ,fwd,252,270,3223,,3.23;1.95;1.32;1.02;1.12;0.94,https://www.caranddriver.com/ford/focus-st/specs/2014/ford_focus-st_ford-focus-st_2014,
+Ford,Focus,2013,2013,ST,2.0,4,turbo,6-speed manual,,fwd,252,270,3223,,,https://www.caranddriver.com/ford/focus-st/specs/2013/ford_focus-st_ford-focus-st_2013,
+Ford,Mustang,2026,2026,Dark Horse SC,5.2,8,supercharged,7-speed dual-clutch, dark horse sc ,rwd,795,660,,,,https://www.caranddriver.com/ford/mustang/specs/2026/ford_mustang_ford-mustang-dark-horse-sc_2026,
+Ford,Mustang,2020,2021,Shelby GT500,5.2,8,supercharged,7-speed dual-clutch, shelby gt500 ,rwd,760,625,4183,,3.14;2.05;1.43;1.10;0.86;0.68;0.56,https://www.caranddriver.com/ford/mustang-shelby-gt500/specs/2020/ford_mustang-shelby-gt500_ford-mustang-shelby-gt500_2020,
+Ford,Mustang,2012,2012,Boss 302,5.0,8,natural,6-speed manual,boss 302,rwd,444,380,3631,,3.66;2.43;1.69;1.32;1.00;0.65,https://www.caranddriver.com/ford/mustang/specs/2012/ford_mustang_ford-mustang-gt-coupe-boss-302_2012,
+Ford,Mustang,2013,2013,Boss 302,5.0,8,natural,6-speed manual,boss 302,rwd,444,380,3631,,3.660;2.430;1.690;1.320;1.000;0.650,https://www.caranddriver.com/ford/mustang/specs/2013/ford_mustang_ford-mustang-boss-302_2013,
+Ford,Mustang,2019,2019,Bullitt,5.0,8,natural,6-speed manual, bullitt ,rwd,480,420,3705,,3.66;2.43;1.69;1.31;1.00;0.65,https://www.caranddriver.com/ford/mustang/specs/2019/ford_mustang_ford-mustang-bullitt-coupe_2019,
+Ford,Mustang,2007,2009,Shelby GT500,5.4,8,supercharged,6-speed manual,,rwd,500,480,3920,,2.97;1.78;1.30;1.00;0.80;0.63,https://www.caranddriver.com/ford/mustang-shelby-gt500/specs/2007/ford_mustang-shelby-gt500_ford-mustang-shelby-gt500-coupe_2007,
