@@ -404,11 +404,11 @@ Drive together and stay together. Plan 6, 7.6, 10.3 (M9).
 | CNV-4 | Members are listed in road order with their gap to the leader as time ("+40 s"), never speed. | P0 | Coded |
 | CNV-5 | The shared route is drawn for everyone, and the leader's marker is marked. | P0 | Coded |
 | CNV-6 | Regroup. When the last member has been more than 3 minutes behind the leader for 60 s, the leader is asked "The group has split. Set a regroup point?" Accepting drops a pin at the nearest fuel or parking point on the route within 3 km, or the leader's position, and every member sees "Regroup at <place>" with Directions. | P0 | Coded |
-| CNV-7 | The leader can change the destination and end the convoy (with a confirmation naming the driver count). Others see "Convoy ended." | P0 | Partial: that line is not in the source. |
+| CNV-7 | The leader can change the destination and end the convoy (with a confirmation naming the driver count). Others see "Convoy ended." | P0 | Coded |
 | CNV-8 | A member who loses signal reads "Lost signal" and ages like any marker. | P0 | Coded |
 | CNV-9 | Precise positions flow only while a member is in the convoy and stop the moment they leave. | P0 | Coded |
 | CNV-10 | A convoy survives a gateway restart or a move to another node. | P0 | Coded |
-| CNV-11 | Every convoy has voice. "Talk" opens the voice sheet for the convoy's own room; you join muted; the room ends with the convoy. This replaces the plan's team-only Talk button. | P1 | New |
+| CNV-11 | Every convoy has voice. "Talk" opens the voice sheet for the convoy's own room; you join muted; the room ends with the convoy. This replaces the plan's team-only Talk button. | P1 | Coded |
 
 ### 4.10 Friends, follows, and profiles (SOC)
 
@@ -531,7 +531,7 @@ Talk while driving, hands off. Plan 10.7 (T3).
 | VOX-2 | Voice opens as a sheet over wherever you are and collapses to a strip above the tab bar that persists across tabs. | P0 | Coded |
 | VOX-3 | You join muted ("You're muted. Tap to talk."). Microphone permission is asked on the first unmute. | P0 | Coded |
 | VOX-4 | A speaking participant is ringed. Controls: mute, audio route, Leave. | P0 | Coded |
-| VOX-5 | Connecting, reconnecting (up to 15 s, then "Voice disconnected."), microphone denied, and free minutes exhausted each have their own state. | P0 | Partial: the disconnect line is not in the source. |
+| VOX-5 | Connecting, reconnecting (up to 15 s, then "Voice disconnected."), microphone denied, and free minutes exhausted each have their own state. | P0 | Coded |
 | VOX-6 | Voice continues in the background and under navigation prompts. | P0 | Coded |
 
 ### 4.17 Feed (FEED)
