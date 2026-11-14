@@ -255,7 +255,7 @@ Get from install to a car on the map with the least typing. Plan 10.2, 10.10.
 | ACC-7 | Notification permission is asked only at its first reason: the first Going RSVP, the first friend request sent, or turning on meets-nearby alerts. | P0 | Partial: the RSVP prompt copy is not in the source. |
 | ACC-8 | A new user finishes onboarding in under 60 seconds. | P0 | Coded |
 | ACC-9 | The session survives relaunch and refreshes its token without the user noticing. Sign out returns to sign-in and clears local state. | P0 | Coded |
-| ACC-10 | Delete account: explains what is deleted, requires typing the handle, deletes the auth user and every row immediately, signs out. | P0 | Missing: RPC `delete_account` is not defined. |
+| ACC-10 | Delete account: explains what is deleted, requires typing the handle, deletes the auth user and every row immediately, signs out. | P0 | Coded |
 | ACC-11 | A link opened while signed out continues to its target after sign-in. | P0 | Coded |
 
 ### 4.2 Privacy and location sharing (PRV)
@@ -618,7 +618,7 @@ Told when it matters, at the moment it has a reason. Plan 6, 10.9 (S3).
 | NTF-2 | The gateway sends directly to APNs. Database events reach it through a trigger with a shared secret. | P0 | Coded |
 | NTF-3 | Tapping a notification opens the thing it is about. | P0 | Coded |
 | NTF-4 | When system permission is off, the settings screen says so and links to Settings. | P0 | Coded |
-| NTF-5 | The device token is registered after permission is granted and removed on sign-out. | P0 | Partial: nothing removes it on sign-out. |
+| NTF-5 | The device token is registered after permission is granted and removed on sign-out. | P0 | Coded |
 | NTF-6 | Activity. A bell in the Garage bar opens a list of what happened to you: friend requests and acceptances, likes, comments, mentions, RSVPs to your meet, changes to meets you are going to, convoy invites, unlocks earned, help responses. Each row opens its subject. Kept 90 days. The bell carries an unread dot. | P1 | Partial: coded except help responses, which wait for the HELP tables. |
 | NTF-7 | Restraint. One notification per event, never a marketing push, and at most three meets-nearby alerts per person per day. | P1 | Coded |
 
@@ -635,10 +635,10 @@ Required by App Review for any app with user content, and by the kind of place t
 | SAFE-3 | A reported item disappears for the person who reported it. | P0 | Coded |
 | SAFE-4 | A text filter with a bundled word list runs on messages, comments, captions, titles, names, and handles before they are sent. | P0 | Coded |
 | SAFE-5 | Reports land in `content_reports`. The owner reviews them within 24 hours (section 9.2). | P0 | Coded |
-| SAFE-6 | Content reported by three different people within 7 days is hidden from everyone but its author until reviewed. | P0 | New |
-| SAFE-7 | A person can be suspended. A suspended account cannot connect to the gateway or write anything, and its content is hidden. Signing in shows "This account is suspended." with the contact address. | P0 | New |
-| SAFE-8 | The reviewer works from the Supabase SQL editor with four documented functions: hide, restore, suspend, unsuspend. No admin app. | P0 | New |
-| SAFE-9 | Abuse limits, enforced on the server: 3 meets a day, 10 map reports in 10 minutes, 3 help requests a day, 10 posts a day, 30 comments an hour, 10 listings a day, 30 friend requests a day, 3 teams a day, 20 content reports a day, 5 messages in 5 seconds. Over a limit the client says "You're doing that a lot. Try again in a few minutes." | P1 | Partial: meets and map reports are limited today. |
+| SAFE-6 | Content reported by three different people within 7 days is hidden from everyone but its author until reviewed. | P0 | Coded |
+| SAFE-7 | A person can be suspended. A suspended account cannot connect to the gateway or write anything, and its content is hidden. Signing in shows "This account is suspended." with the contact address. | P0 | Partial: a gateway connection already open stays up until its next token refresh. |
+| SAFE-8 | The reviewer works from the Supabase SQL editor with four documented functions: hide, restore, suspend, unsuspend. No admin app. | P0 | Coded |
+| SAFE-9 | Abuse limits, enforced on the server: 3 meets a day, 10 map reports in 10 minutes, 3 help requests a day, 10 posts a day, 30 comments an hour, 10 listings a day, 30 friend requests a day, 3 teams a day, 20 content reports a day, 5 messages in 5 seconds. Over a limit the client says "You're doing that a lot. Try again in a few minutes." | P1 | Partial: help requests have no table to limit yet; map reports are limited per gateway node in memory; only SafetyKit shows the copy, other features still show their generic error on `rateLimited`. |
 | SAFE-10 | Minimum age 17, asked at sign-up. | P0 | Coded |
 | SAFE-11 | The contact address is shown in About and in the suspension message. | P0 | Coded |
 
@@ -747,8 +747,8 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
 | CMP-1 | A privacy manifest and purpose strings that match what the app does. | P0 | Coded |
-| CMP-2 | Account deletion inside the app (ACC-10). | P0 | Missing |
-| CMP-3 | For user content: terms accepted first, a filter, report, block, action within 24 hours, a published contact (SAFE). | P0 | Partial: SAFE-6 to SAFE-8 are new. |
+| CMP-2 | Account deletion inside the app (ACC-10). | P0 | Coded |
+| CMP-3 | For user content: terms accepted first, a filter, report, block, action within 24 hours, a published contact (SAFE). | P0 | Coded |
 | CMP-4 | Review notes explain location use, the absence of speed display, and that racing is virtual. `docs/APP_STORE.md` holds them with the listing copy and the privacy-label answers. | P0 | Coded |
 | CMP-5 | Terms of Service and a Privacy Policy at public URLs (LINK-4). | P0 | Partial: pages in `site/`, not yet published; S6 rows appear once `LINK_HOST` is set. |
 | CMP-6 | An app icon, drawn by a script in the repository from the design tokens. | P0 | Coded |
