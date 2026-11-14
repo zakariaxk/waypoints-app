@@ -56,6 +56,10 @@ func loadOverrides(path string) ([]override, error) {
 		}
 		o.Displ, _ = strconv.ParseFloat(get("displ"), 64)
 		if e := get("epa_contains"); e != "" {
+			// Spaces are kept so " si " matches the word and not "SIDI".
+			if i, ok := col["epa_contains"]; ok {
+				e = rec[i]
+			}
 			o.EPAContains = strings.Split(strings.ToLower(e), "|")
 		}
 		if g := get("gears"); g != "" {
