@@ -289,6 +289,10 @@ public protocol RealtimeService: Sendable {
     func send(_ sample: LocationSample) async
     func joinConvoy(_ id: ConvoyID) async
     func leaveConvoy() async
+    // Contract change (W8-1A): the convoy this device is in, replayed to each consumer; replaces
+    // the old UserDefaults "convoy.id" coupling between ConvoyFeature, MapFeature, and NavigationFeature.
+    func activeConvoy() async -> AsyncStream<ConvoyState?>
+    func currentConvoy() async -> ConvoyState?
 }
 public enum ServerEvent: Sendable {
     case entities([EntityUpdate])          // conflated positions
@@ -418,7 +422,8 @@ Year, make, model, and trim are copied onto the row as text so a car still rende
 | `report_votes` | `report_id`, `user_id`, `still_there bool`, pk on the pair | Service role. |
 | `help_requests` | `id`, `requester_id`, `kind` (`flat_tire`, `jump_start`, `out_of_fuel`, `stuck`, `other`), `geom geography(Point)` (exact: the requester chose to share it), `h3_r7 bigint`, `note text` (≤120), `show_nearby bool default false`, `expires_at timestamptz` (created + 60 min, reset by extend), `ended_at timestamptz`; one active row per requester (partial unique index) | Read: requester, and their friends and teammates while active (`can_read_help`). Insert, end, extend: through gateway only. |
 | `help_responses` | `request_id`, `user_id`, pk on the pair ("On my way") | Read: the responder and the requester. Write: through gateway only. |
-| `meets` | `id`, `host_id`, `title text` (≤50), `kind` (`meet`, `cruise`, `hangout`, `track_day`, `show`), `geom geography(Point)`, `h3_r7 bigint`, `place_name text`, `starts_at timestamptz`, `ends_at timestamptz`, `details text` (≤500), `visibility` (`public`, `friends`, `team`), `team_id uuid null`, `cancelled_at timestamptz`, `recurrence text null` (`weekly`, `biweekly`, `monthly`), `series_id uuid null`, `time_zone text null`, `dest_lat`, `dest_lng`, `dest_name` (a cruise's roll-out destination) | Read: per `visibility`. Insert and update: through gateway (host only). |
+| `meets` | `id`, `host_id`, `title text` (≤50), `kind` (`meet`, `cruise`, `hangout`, `track_day`, `show`), `geom geography(Point)`, `h3_r7 bigint`, `place_name text`, `starts_at timestamptz`, `ends_at timestamptz`, `details text` (≤500), `visibility` (`public`, `friends`, `team`), `team_id uuid null`, `cancelled_at timestamptz`, `recurrence text null` (`weekly`, `biweekly`, `monthly`), `series_id uuid null`, `time_zone text null`, `dest_lat`, `dest_lng`, `dest_name` (a cruise's roll-out destination), `road_id uuid null` (a cruise's saved road), `winner_car_id uuid null`, `choice_settled_at timestamptz null` (people's choice result) | Read: per `visibility`. Insert and update: through gateway (host only). Contract change: W8-1A added `road_id`, `winner_car_id`, `choice_settled_at` (MEET-13, MEET-14). |
+| `meet_votes` | `meet_id`, `voter_id`, `car_id`, `created_at`, pk (`meet_id`, `voter_id`) | People's choice (MEET-14). Read: anyone who can read the meet. Insert, update, delete: own row, only while a `meet` or `show` is on, the voter is in `meet_checkins`, and the car is a Going RSVP's car (`can_pick_car`). The gateway's `meet-choice` sweep calls `settle_peoples_choice()` (service only) each minute: most votes wins, ties to the first picked; it sets `winner_car_id` and adds a `build_entries` line "People's choice at <title>" to the car. `MeetRepository` gains `isCheckedIn`, `myChoice(for:)`, `setChoice(_:for:)`. Contract change: W8-1A. |
 | `meet_rsvps` | `meet_id`, `user_id`, `status` (`going`, `maybe`), `car_id uuid null`, `on_the_way_until timestamptz null` (set by `POST /v1/eta`; "on the way" while in the future), pk on the pair | Read: anyone who can read the meet. Write: owner. Contract change: W8-1F added `on_the_way_until` (NAV-15). |
 | `venue_notes` | `id`, `geom geography(Point)`, `h3_r9 bigint`, `author_id`, `entrance` (`flat`, `moderate`, `steep`), `lot_size` (`small`, `medium`, `large`), `lit bool`, `note text` (≤120) | Read: signed-in. Insert: signed-in. |
 | `roads` | `id`, `author_id`, `name text` (≤50), `path geography(LineString)`, `length_m int`, `h3_r7 bigint` | Read: signed-in. Insert: owner. |
@@ -573,7 +578,7 @@ HTTP JSON API on the gateway (all require `Authorization: Bearer <Supabase acces
 | `PUT /v1/help/{id}/extend` | | Requester only. `expires_at` = now + 60 min. |
 | `POST /v1/meets` | meet fields, plus optional `recurrence` (`weekly`, `biweekly`, `monthly`), `time_zone` (IANA), `destination {lat, lng, name}` | Inserts, publishes `MapEvent`, pushes to users whose `user_presence_cell` is within their own `notify_radius_km`. Limit: 3 per user per day (occurrences the gateway creates for a series do not count). Responses carry `recurrence`, `series_id`, `destination`. |
 | `PATCH /v1/meets/{id}`, `DELETE /v1/meets/{id}` | `DELETE` takes optional `{scope: "following"}` | Host only. Publishes; pushes RSVP'd users on time change or cancel. `scope: "following"` also cancels every later occurrence of the series and ends it. A one-minute sweep creates the next occurrence of a recurring meet when one ends (no RSVPs carried over) and tells the people who checked in at the one that ended. |
-| `POST /v1/convoys` | `{name, destination?}` | Returns `{id, join_code}`. |
+| `POST /v1/convoys` | `{name, destination?, route_polyline?}` | Returns `{id, join_code}`. `route_polyline` (encoded, precision 5, ≤64 KB) is the convoy's route, e.g. a cruise's saved road; `GatewayService.createConvoy(name:destination:routePolyline:)`. `POST`/`PATCH /v1/meets` take `road_id?`. Contract change: W8-1A (MEET-13). |
 | `POST /v1/convoys/join` | `{join_code}` | Returns convoy. |
 | `PUT /v1/convoys/{id}/destination`, `PUT /v1/convoys/{id}/regroup`, `DELETE /v1/convoys/{id}` | | Leader only. |
 | `POST /v1/convoys/{id}/invite` | `{user_ids}` | Members only. Pushes the join code (convoy invites switch in S3). |

@@ -33,10 +33,10 @@ enum MeetReminder {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier(id)])
     }
 
-    /// The first yes is a notification permission moment (plan 10.2).
+    /// The first yes is a notification permission moment (plan 10.2, ACC-7): asked even when the
+    /// meet is too close for this reminder, so the first Going RSVP is where it happens.
     private static func schedule(_ meet: Meet) async {
         let fireAt = meet.startsAt.addingTimeInterval(-lead)
-        guard fireAt > .now else { cancel(meet.id); return }
         let center = UNUserNotificationCenter.current()
         switch await center.notificationSettings().authorizationStatus {
         case .notDetermined:
@@ -48,6 +48,7 @@ enum MeetReminder {
         default:
             break
         }
+        guard fireAt > .now else { cancel(meet.id); return }
         let content = UNMutableNotificationContent()
         content.title = meet.title
         content.body = meet.placeName.isEmpty
@@ -237,5 +238,51 @@ struct MeetPostsStrip: View {
             }
         }
         .task(id: meetID) { posts = (try? await env.posts.postsFromMeet(meetID)) ?? [] }
+    }
+}
+
+// MARK: SET-3 distances, MEET-14 eligibility
+
+extension MeetFormat {
+    /// A distance in the locale's road units ("2.3 mi", "3.7 km").
+    static func distance(_ meters: Double) -> String {
+        Measurement(value: meters, unit: UnitLength.meters)
+            .formatted(.measurement(width: .abbreviated, usage: .road, numberFormatStyle: .number.precision(.fractionLength(0...1))))
+    }
+
+    /// The place name with how far it is from you, when both are known.
+    static func place(_ m: Meet, from here: Coordinate?) -> String {
+        guard let here else { return m.placeName }
+        let away = distance(here.distance(to: m.coordinate))
+        return m.placeName.isEmpty ? away : "\(m.placeName) · \(away)"
+    }
+
+    /// People's choice runs at meets and shows (MEET-14).
+    static func hasChoice(_ m: Meet) -> Bool { m.kind == .meet || m.kind == .show }
+}
+
+// MARK: MEET-13 road route
+
+/// Google encoded polyline, precision 5: the convoy route format (`ConvoyState.routePolyline`).
+enum Polyline {
+    static func encode(_ path: [Coordinate]) -> String {
+        var out = ""
+        var lastLat = 0, lastLng = 0
+        for c in path {
+            let lat = Int((c.latitude * 1e5).rounded()), lng = Int((c.longitude * 1e5).rounded())
+            append(lat - lastLat, to: &out)
+            append(lng - lastLng, to: &out)
+            lastLat = lat; lastLng = lng
+        }
+        return out
+    }
+
+    private static func append(_ delta: Int, to out: inout String) {
+        var v = delta < 0 ? ~(delta << 1) : delta << 1
+        while v >= 0x20 {
+            out.unicodeScalars.append(Unicode.Scalar(UInt8((0x20 | (v & 0x1f)) + 63)))
+            v >>= 5
+        }
+        out.unicodeScalars.append(Unicode.Scalar(UInt8(v + 63)))
     }
 }

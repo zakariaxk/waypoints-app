@@ -73,6 +73,7 @@ struct MeetsSectionView: View {
     let env: AppEnvironment
     let region: MapRegion
     @State private var meets: [Meet] = []
+    @State private var here: Coordinate?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -80,7 +81,7 @@ struct MeetsSectionView: View {
                 SectionLabel("MEETS")
                 ForEach(meets.sorted { $0.startsAt < $1.startsAt }.prefix(6)) { m in
                     Button { env.router.open(.meet(m.id)) } label: {
-                        Row(Text(verbatim: m.title), subtitle: Text(verbatim: m.placeName), leading: {
+                        Row(Text(verbatim: m.title), subtitle: Text(verbatim: MeetFormat.place(m, from: here)), leading: {
                             MeetPin(kind: m.kind.rawValue, live: m.isHappening()).scaleEffect(0.7)
                                 .frame(width: Size.Marker.meetPin, height: Size.Marker.meetPin)
                         }, trailing: { Text(verbatim: MeetFormat.when(m)).typeStyle(.readoutS) })
@@ -90,6 +91,7 @@ struct MeetsSectionView: View {
             }
         }
         .task(id: region) { meets = ((try? await env.meets.meets(in: region)) ?? []).filter { $0.cancelledAt == nil } }
+        .task { for await s in await env.location.samples() { here = s.coordinate; break } }
     }
 }
 
@@ -121,6 +123,8 @@ struct CreateMeet: View {
     @State private var showDetails = false
     @State private var recurrence: MeetRecurrence?
     @State private var destName = ""
+    @State private var roadID: RoadID?
+    @State private var myRoads: [Road] = []
     @State private var saving = false
     @State private var error: String?
     @State private var failed = 0
@@ -138,6 +142,7 @@ struct CreateMeet: View {
             _startsAt = State(initialValue: m.startsAt); _endsAt = State(initialValue: m.endsAt); _when = State(initialValue: 2)
             _details = State(initialValue: m.details); _visibility = State(initialValue: m.visibility)
             _recurrence = State(initialValue: m.recurrence); _destName = State(initialValue: m.destination?.name ?? "")
+            _roadID = State(initialValue: m.roadID)
         }
     }
 
@@ -188,6 +193,18 @@ struct CreateMeet: View {
                     }
                     if kind == .cruise {
                         Field("Rolling out to", text: $destName, prompt: "Where does the cruise end?", limit: 80)
+                        if !myRoads.isEmpty {
+                            // MEET-13: one of your saved roads as the cruise's route.
+                            Text("Route").typeStyle(.foot).foregroundStyle(Color.dust)
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: Space.s8) {
+                                    Chip("No road", isSelected: roadID == nil) { roadID = nil }
+                                    ForEach(myRoads) { r in
+                                        Chip(LocalizedStringKey(r.name), isSelected: roadID == r.id) { roadID = r.id }
+                                    }
+                                }
+                            }
+                        }
                     }
                     Text("Who can see it").typeStyle(.foot).foregroundStyle(Color.dust)
                     SegmentedSwitch(selection: $visibility, options: [(.public, "Everyone"), (.friends, "Friends")]
@@ -212,6 +229,9 @@ struct CreateMeet: View {
             resolvePlace()
         }
         .task {
+            if let me = await env.auth.currentSession()?.userID {
+                myRoads = ((try? await env.roads.roads(by: me)) ?? []).sorted { $0.createdAt > $1.createdAt }
+            }
             // The first team where the user may host meets (plan 10.4 E1).
             for team in (try? await env.teams.myTeams()) ?? [] {
                 if (try? await env.teams.myPermissions(in: team.id).contains(.hostMeets)) == true { hostTeam = team; break }
@@ -258,7 +278,8 @@ struct CreateMeet: View {
             }
             let draft = MeetDraft(title: title, kind: kind, coordinate: Coordinate(latitude: center.latitude, longitude: center.longitude),
                                   placeName: place, startsAt: startsAt, endsAt: endsAt, details: details, visibility: visibility,
-                                  teamID: visibility == .team ? hostTeam?.id : nil, recurrence: recurrence, destination: dest)
+                                  teamID: visibility == .team ? hostTeam?.id : nil, recurrence: recurrence, destination: dest,
+                                  roadID: kind == .cruise ? roadID : nil)
             do {
                 let meet = if let editing { try await env.gateway.updateMeet(editing.id, draft) } else { try await env.gateway.createMeet(draft) }
                 done += 1
@@ -299,6 +320,11 @@ struct MeetDetail: View {
     @State private var editing = false
     @State private var showGoing = false
     @State private var goingPeople: [Profile] = []
+    @State private var road: Road?
+    @State private var here: Coordinate?
+    @State private var checkedIn = false
+    @State private var myChoice: CarID?
+    @State private var winner: Car?
     @State private var done = 0
 
     var body: some View {
@@ -306,11 +332,12 @@ struct MeetDetail: View {
             if let m = meet {
                 header(m)
                 if m.cancelledAt == nil { rsvpControl }
-                if let dest = m.destination, canRollOut(m) {
-                    PrimaryButton("Roll out", isLoading: rolling) { rollOut(m, to: dest) }
+                if canRollOut(m) {
+                    PrimaryButton("Roll out", isLoading: rolling) { rollOut(m) }
                     if let rollError { Text(verbatim: rollError).typeStyle(.foot).foregroundStyle(Color.brake) }
                 }
                 going
+                peoplesChoice(m)
                 MeetPostsStrip(env: env, meetID: meetID)
                 venue
                 if !m.details.isEmpty { Text(verbatim: m.details).typeStyle(.body).foregroundStyle(Color.chalk) }
@@ -323,6 +350,7 @@ struct MeetDetail: View {
         .padding(.bottom, Space.s24)
         .haptic(.done, trigger: done)
         .task { await load() }
+        .task { for await s in await env.location.samples() { here = s.coordinate; break } }
         .task(id: meet) {
             guard let meet, meet.cancelledAt == nil else { return }
             shareCard = await MeetShareCard.render(meet, scale: displayScale)
@@ -375,7 +403,7 @@ struct MeetDetail: View {
                 MeetPin(kind: m.kind.rawValue, live: m.isHappening())
                 Spacer()
                 Menu {
-                    if let url = URL(string: "waypoints://meet/\(m.id)") {
+                    if let url = Route.meet(m.id).shareURL {
                         if let shareCard {
                             // LINK-5: the card image with the link alongside it.
                             ShareLink("Share", item: Image(uiImage: shareCard), message: Text(verbatim: url.absoluteString),
@@ -400,12 +428,15 @@ struct MeetDetail: View {
             }
             Text(verbatim: m.title).typeStyle(.title).foregroundStyle(Color.chalk)
             Text(verbatim: MeetFormat.when(m)).typeStyle(.readoutM).foregroundStyle(Color.chalk)
-            Text(verbatim: m.placeName).typeStyle(.sub).foregroundStyle(Color.dust)
+            Text(verbatim: MeetFormat.place(m, from: here)).typeStyle(.sub).foregroundStyle(Color.dust)
             if let repeats = MeetFormat.repeats(m) {
                 Text(verbatim: repeats).typeStyle(.sub).foregroundStyle(Color.dust)
             }
             if let dest = m.destination {
                 Text("Rolling out to \(dest.name)").typeStyle(.sub).foregroundStyle(Color.dust)
+            }
+            if let road {
+                Text("Driving \(road.name) · \(MeetFormat.distance(Double(road.lengthMeters)))").typeStyle(.sub).foregroundStyle(Color.dust)
             }
             if let host {
                 Button { env.router.open(.profile(host.userID)) } label: {
@@ -468,7 +499,7 @@ struct MeetDetail: View {
         event.startDate = m.startsAt
         event.endDate = m.endsAt
         event.location = m.placeName
-        event.url = URL(string: "waypoints://meet/\(m.id)")
+        event.url = Route.meet(m.id).shareURL
         event.calendar = store.defaultCalendarForNewEvents
         try? store.save(event, span: .thisEvent)
         done += 1
@@ -491,19 +522,24 @@ struct MeetDetail: View {
         }
     }
 
-    /// MEET-13: the host of a cruise with a destination sees "Roll out" from shortly before the start.
+    /// MEET-13: the host of a cruise with a destination or a saved road sees "Roll out" from shortly before the start.
     private func canRollOut(_ m: Meet) -> Bool {
-        m.hostID == me && m.kind == .cruise && m.cancelledAt == nil
+        m.hostID == me && m.kind == .cruise && m.cancelledAt == nil && (m.destination != nil || road != nil)
             && m.startsAt.addingTimeInterval(-MeetReminder.lead / 2) <= .now && .now < m.endsAt
     }
 
-    /// Starts a convoy named for the meet, headed to its destination, invites everyone Going, then opens it.
-    private func rollOut(_ m: Meet, to dest: ConvoyDestination) {
+    /// Starts a convoy named for the meet on its road and to its destination (the road's end when
+    /// there is none), invites everyone Going, joins the host, then opens it.
+    private func rollOut(_ m: Meet) {
         rolling = true
         rollError = nil
         Task {
             do {
-                let invite = try await env.gateway.createConvoy(name: String(m.title.prefix(40)), destination: dest)
+                let roadEnd = road.flatMap { r in r.path.last.map { ConvoyDestination(coordinate: $0, name: r.name) } }
+                let invite = try await env.gateway.createConvoy(name: String(m.title.prefix(40)),
+                                                                destination: m.destination ?? roadEnd,
+                                                                routePolyline: road.map { Polyline.encode($0.path) })
+                await env.realtime.joinConvoy(invite.id)
                 let going = rsvps.filter { $0.status == .going && $0.userID != me }.map(\.userID)
                 if !going.isEmpty { try? await env.gateway.inviteToConvoy(invite.id, users: going) }
                 done += 1
@@ -530,6 +566,57 @@ struct MeetDetail: View {
         }
         goingCars = list
         notes = (try? await env.meets.venueNotes(near: m.coordinate, meters: 150)) ?? []
+        road = if let id = m.roadID { try? await env.roads.road(id) } else { nil }
+        if MeetFormat.hasChoice(m) {
+            checkedIn = false
+            myChoice = nil
+            if m.isHappening(), (try? await env.meets.isCheckedIn(meetID)) == true {
+                checkedIn = true
+                myChoice = try? await env.meets.myChoice(for: meetID)
+            }
+            winner = nil
+            if let id = m.winnerCarID {
+                if let c = goingCars.first(where: { $0.id == id }) { winner = c } else { winner = try? await env.garage.car(id) }
+            }
+        }
+    }
+
+    /// MEET-14: while it is on, checked-in people pick one car brought; after, the winner.
+    @ViewBuilder private func peoplesChoice(_ m: Meet) -> some View {
+        if let winner {
+            Button { env.router.open(.car(winner.id)) } label: {
+                HStack(spacing: Space.s8) {
+                    Image(systemName: "trophy.fill").foregroundStyle(Color.sodium)
+                    Text("People's choice: \(winner.shortLabel)").typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                }
+            }
+        } else if MeetFormat.hasChoice(m), m.isHappening(), checkedIn, !goingCars.isEmpty {
+            VStack(alignment: .leading, spacing: Space.s8) {
+                SectionLabel("PEOPLE'S CHOICE")
+                Text("Pick one car here. The winner shows when it ends.").typeStyle(.sub).foregroundStyle(Color.dust)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: Space.s8) {
+                        ForEach(goingCars) { car in
+                            Chip(LocalizedStringKey(car.shortLabel), isSelected: myChoice == car.id) { choose(car.id) }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func choose(_ car: CarID) {
+        let pick: CarID? = myChoice == car ? nil : car
+        let previous = myChoice
+        myChoice = pick
+        Task {
+            do {
+                try await env.meets.setChoice(pick, for: meetID)
+                done += 1
+            } catch {
+                myChoice = previous
+            }
+        }
     }
 }
 
