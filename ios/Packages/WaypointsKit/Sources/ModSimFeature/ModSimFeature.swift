@@ -292,10 +292,28 @@ struct ModSimView: View {
                             }
                         }
                         .onEnded { _ in model.scrub(nil) })
+                    // VoiceOver: swipe up and down to step the scrub line 500 rpm at a time.
+                    .accessibilityElement()
+                    .accessibilityLabel(Text("Dyno curve", bundle: .module))
+                    .accessibilityValue(scrubValue)
+                    .accessibilityAdjustableAction { direction in
+                        let top = model.stock?.redline ?? 7000
+                        let now = model.scrubRpm ?? 1000
+                        let next = direction == .increment ? now + 500 : direction == .decrement ? now - 500 : now
+                        tick += 1
+                        model.scrub(max(1000, min(top, next)))
+                    }
             }
         }
         .frame(height: Size.row * 4)
         .padding(Space.margin)
+    }
+
+    private var scrubValue: Text {
+        guard let rpm = model.scrubRpm, let p = modCurve.min(by: { abs($0.rpm - rpm) < abs($1.rpm - rpm) }) else {
+            return Text("Adjust to read power at an rpm", bundle: .module)
+        }
+        return Text("\(Int(rpm)) rpm, \(Int(p.hp)) horsepower, \(Int(p.torque)) pound-feet", bundle: .module)
     }
 
     private var readouts: some View {
@@ -334,10 +352,20 @@ struct ModSimView: View {
                     .onChanged { _ in if !revving { revving = true; model.rev(true) } }
                     .onEnded { _ in revving = false; model.rev(false) })
                 .opacity(model.soundOn ? 1 : Opacity.inactive)
+                .accessibilityElement()
+                .accessibilityLabel(Text("Rev", bundle: .module))
+                .accessibilityValue(revving ? Text("Revving", bundle: .module) : Text("Idle", bundle: .module))
                 .accessibilityAddTraits(.isButton)
+                .accessibilityAction {
+                    revving.toggle()
+                    model.rev(revving)
+                }
             Text(verbatim: "\(Int(model.revRpm)) rpm").typeStyle(.readoutM).foregroundStyle(Color.chalk)
             Row(Text("Synthesized sound", bundle: .module), showsDivider: false, trailing: {
-                Toggle("", isOn: Binding(get: { model.soundOn }, set: { model.setSound($0) })).labelsHidden().tint(.sodium)
+                Toggle(isOn: Binding(get: { model.soundOn }, set: { model.setSound($0) })) {
+                    Text("Synthesized sound", bundle: .module)
+                }
+                .labelsHidden().tint(.sodium)
             })
         }
         .padding(Space.margin)

@@ -1,7 +1,16 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ rpm, %@ horsepower, %@ pound-feet": {
+      "extractionState": "manual"
+    },
     "Add Stage 1 tune too": {
+      "extractionState": "manual"
+    },
+    "Adjust to read power at an rpm": {
+      "extractionState": "manual"
+    },
+    "Dyno curve": {
       "extractionState": "manual"
     },
     "Enter specs": {
@@ -16,6 +25,9 @@
     "Horsepower": {
       "extractionState": "manual"
     },
+    "Idle": {
+      "extractionState": "manual"
+    },
     "Not now": {
       "extractionState": "manual"
     },
@@ -23,6 +35,12 @@
       "extractionState": "manual"
     },
     "Reference cars": {
+      "extractionState": "manual"
+    },
+    "Rev": {
+      "extractionState": "manual"
+    },
+    "Revving": {
       "extractionState": "manual"
     },
     "Save": {
