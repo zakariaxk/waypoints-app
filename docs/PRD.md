@@ -217,7 +217,7 @@ Found by the audit. Each is carried by the requirement in the last column.
 | No app icon | The icon set has no image. | CMP-6 |
 | No String Catalogs | Strings are inline in every module. | L10N-1 |
 | No MetricKit | Nothing subscribes to it. | OBS-2 |
-| No realtime debug client | `server/cmd/rtdebug` was never written, so the gateway's privacy behaviour has no check. | W6-A |
+| No realtime debug client | Done (W6-A): `server/cmd/rtdebug` and `make check-rt` script the eight W1-2 scenarios (precise, approximate, hidden, ghost, nearby anonymity, viewport swap, slow consumer, convoy) and print PASS or FAIL. Not yet run. | W6-A |
 | "For you" is not ranked | The repository has one feed query ordered by recency. | FEED-2 |
 | Units | Only navigation formats distance by locale. | SET-3 |
 | Device token is never removed | `removeDeviceToken` exists; nothing calls it on sign-out. | NTF-5 |
