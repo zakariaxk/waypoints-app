@@ -337,7 +337,7 @@ Waze-grade guidance built on MapKit, with the one thing nobody else has: routes 
 | NAV-12 | Offline, guidance continues on the loaded route and reads "Offline. Follow the route line." when it cannot reroute. | P0 | Coded |
 | NAV-13 | With a convoy active, route preview offers "Share with convoy". | P0 | Coded |
 | NAV-14 | Directions is offered wherever a place appears: a friend, a meet, a road, a regroup point, a help request. | P0 | Coded |
-| NAV-15 | Share ETA. While navigating, the user can send chosen friends one notice with the destination name and arrival time. No position is shared. Navigating to a meet you are Going to shows you as "on the way" in its list. | P2 | New |
+| NAV-15 | Share ETA. While navigating, the user can send chosen friends one notice with the destination name and arrival time. No position is shared. Navigating to a meet you are Going to shows you as "on the way" in its list. | P2 | Coded (W8-1F): "Share ETA" in M4 guidance sends chosen friends one push and Activity row through `POST /v1/eta` (friends only, no position); starting guidance to a meet you are Going to sets `meet_rsvps.on_the_way_until`, shown as "On the way" in E2's Who's going. |
 
 ### 4.6 Community reports (RPT)
 
@@ -467,7 +467,7 @@ See and hear what a part does to your car, honestly. Plan 10.8 (G6), 11.2, 11.3.
 | MOD-10 | "Hold to rev" sweeps rpm through first gear and lets it fall. The switch is labelled "Synthesized sound". | P0 | Coded |
 | MOD-11 | "Save to car" writes the mod list and offers to add a timeline entry. | P0 | Coded |
 | MOD-12 | A car without specs asks for power and weight and then simulates. | P0 | Coded |
-| MOD-13 | The model is checked against 12 stock cars with published times: trap speed within 3%, quarter-mile time within 5%, 0 to 60 within 0.4 s. A debug screen lists model output beside the published figure. | P0 | Coded: 12 cars in `ReferenceCars.swift`, debug row under G6's mod list. Scratch run after recalibration: 8 of 12 inside the stated error, all 12 inside double it (typical gear ratios); misses are turbo 0–60 (Supra, Type R, WRX) and the 10-speed Mustang trap. |
+| MOD-13 | The model is checked against 12 stock cars with published times: trap speed within 3%, quarter-mile time within 5%, 0 to 60 within 0.4 s. A debug screen lists model output beside the published figure. | P0 | Coded: 12 cars in `ReferenceCars.swift`, debug row under G6's mod list. W8-1F scratch run (swiftc against a Core stub) after turbo gearing and boost margin, automatic torque fill, and 8/10-speed typical ratios: 12 of 12 inside the stated error. Tightest: WRX trap -2.9%, ET +3.0%; Mustang 10-speed trap -2.8%. |
 | MOD-14 | Everything works offline, and toggling a mod updates chart, readouts, and sound within one frame. | P0 | Coded |
 
 ### 4.13 The Strip (STR)
@@ -485,7 +485,7 @@ A virtual drag strip driven by your real build. Plan 10.8 (G7 to G9), 11.4.
 | STR-7 | Runs are deterministic: replaying a stored run reproduces its time exactly, and a perfect-input run lands within 2% of the simulator's quarter-mile midpoint. | P0 | Coded |
 | STR-8 | A two-finger tap pauses: Resume, Restart, Quit. | P0 | Coded |
 | STR-9 | The ladder. Ten house cars from a 16.5 s car to an 8.9 s car, described by plain specs. Beating one opens the next. A choice of sportsman or pro tree. | P1 | Coded |
-| STR-10 | Bench race. Any car in the catalog, stock or with chosen mods, can be picked as the opponent. | P2 | New |
+| STR-10 | Bench race. Any car in the catalog, stock or with chosen mods, can be picked as the opponent. | P2 | Coded (W8-1F): "Pick any car" in G7 opens the vehicle picker, then that car's `ModCatalog` mods; the model runs it with a clean launch. Ghosts and friend runs recorded under an older `PerformanceModelVersion` (`race_results.model_version`) are hidden. |
 
 ### 4.14 Teams (TEAM)
 
@@ -636,7 +636,7 @@ Required by App Review for any app with user content, and by the kind of place t
 | SAFE-4 | A text filter with a bundled word list runs on messages, comments, captions, titles, names, and handles before they are sent. | P0 | Coded |
 | SAFE-5 | Reports land in `content_reports`. The owner reviews them within 24 hours (section 9.2). | P0 | Coded |
 | SAFE-6 | Content reported by three different people within 7 days is hidden from everyone but its author until reviewed. | P0 | Coded |
-| SAFE-7 | A person can be suspended. A suspended account cannot connect to the gateway or write anything, and its content is hidden. Signing in shows "This account is suspended." with the contact address. | P0 | Coded |
+| SAFE-7 | A person can be suspended. A suspended account cannot connect to the gateway or write anything, and its content is hidden. Signing in shows "This account is suspended." with the contact address. | P0 | Coded: a gateway connection closed with reason "suspended" stops reconnecting; the shell signs out and sign-in shows "This account is suspended. Write to support@waypoints.app." (W8-1F). |
 | SAFE-8 | The reviewer works from the Supabase SQL editor with four documented functions: hide, restore, suspend, unsuspend. No admin app. | P0 | Coded |
 | SAFE-9 | Abuse limits, enforced on the server: 3 meets a day, 10 map reports in 10 minutes, 3 help requests a day, 10 posts a day, 30 comments an hour, 10 listings a day, 30 friend requests a day, 3 teams a day, 20 content reports a day, 5 messages in 5 seconds. Over a limit the client says "You're doing that a lot. Try again in a few minutes." | P1 | Partial: SafetyKit, Market, Roads, Spots, Feed (posts, comments), Garage (cars, timeline, profile, friend requests), Teams (find, join, start, edit team, roles), and Messaging (send) show the copy on `rateLimited`, other features still show their generic error. |
 | SAFE-10 | Minimum age 17, asked at sign-up. | P0 | Coded |
@@ -650,7 +650,7 @@ Plan 10.9.
 |---|---|---|---|
 | SET-1 | Settings holds Privacy and location, Notifications, Blocked people, Account, and About (version, Terms, Privacy Policy, Contact, licences). Debug builds add the design gallery. | P0 | Coded |
 | SET-2 | Every change saves at once. A failed save reverts the control and says why. | P0 | Coded |
-| SET-3 | Distances, speeds, and weights follow the device's locale everywhere they appear. | P0 | Partial: navigation, the map, Market (distance filter), Roads (road length), and Garage (curb weight; odometer readings keep the unit entered, defaulting by locale) format by locale; Meets (meet distance, cruise road length); Showdown shows no distances or weights; other features not checked. |
+| SET-3 | Distances, speeds, and weights follow the device's locale everywhere they appear. | P0 | Partial: navigation, the map, Market (distance filter), Roads (road length), and Garage (curb weight; odometer readings keep the unit entered, defaulting by locale) format by locale; Meets (meet distance, cruise road length); Showdown shows no distances or weights; Settings (notify radius, home zone radius), ModSim (weight entry, weight mods) by locale (W8-1F); Onboarding shows none; the Strip time slip stays in mph by drag convention. Other features not checked. |
 
 ### 4.25 Links and sharing (LINK)
 
@@ -674,7 +674,7 @@ Plan section 9 is the law. These make it checkable.
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| DES-1 | Feature code contains no literal colour, font size, radius, spacing, or duration. Only `DesignSystem` tokens. | P0 | Coded |
+| DES-1 | Feature code contains no literal colour, font size, radius, spacing, or duration. Only `DesignSystem` tokens. | P0 | Coded: W8-1F moved NavigationFeature route line widths, hazard badge scale, and button width, ModSim chart strokes, and the home zone fill to tokens (`Size.Route`, `Size.Chart`, `Size.wideButton`, `Opacity.areaFill`). |
 | DES-2 | Features build screens only from `DesignSystem` components. None draws its own button, row, field, or sheet. | P0 | Coded |
 | DES-3 | No pattern banned by plan 9.11 appears anywhere. | P0 | Coded |
 | DES-4 | Every screen in plan section 10 has its loading, empty, error, and offline states, with the plan's copy. | P0 | Coded |
