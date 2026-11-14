@@ -159,7 +159,7 @@ struct MarkerPicker: View {
             VStack(spacing: Space.s16) {
                 VehicleMarker(icon: model.profile?.markerIcon ?? "coupe", paint: model.primaryCar?.paint ?? .dust, role: .you)
                     .scaleEffect(2)
-                    .frame(height: Size.Marker.you * 2.5)
+                    .frame(height: Size.Marker.you * 2.5).accessibilityHidden(true)
                     .frame(maxWidth: .infinity)
                     .background(Color.asphalt, in: RoundedRectangle(cornerRadius: Radius.r20))
                 if let requirement {
@@ -205,19 +205,20 @@ struct MarkerPicker: View {
                             .frame(width: Size.Marker.friend, height: Size.Marker.friend)
                     } else {
                         Text(verbatim: MapIconSet.title(name)).typeStyle(.foot).foregroundStyle(open ? Color.chalk : Color.gravel)
-                            .frame(height: Size.Marker.friend)
+                            .frame(minHeight: Size.Marker.friend)
                     }
-                    if !open { Image(systemName: "lock.fill").font(.caption2).foregroundStyle(Color.gravel) }
+                    if !open { Image(systemName: "lock.fill").font(.caption2).foregroundStyle(Color.gravel).accessibilityHidden(true) }
                 }
                 if tab == 0 {
-                    Text(verbatim: MapIconSet.title(name)).typeStyle(.foot).foregroundStyle(Color.dust).lineLimit(1)
+                    Text(verbatim: MapIconSet.title(name)).typeStyle(.foot).foregroundStyle(Color.dust)
+                        .multilineTextAlignment(.center)
                 }
             }
             .frame(maxWidth: .infinity, minHeight: Size.row)
             .background((model.profile?.markerIcon == name || model.profile?.markerTrail == name) ? Color.sodiumDim : Color.clear,
                         in: RoundedRectangle(cornerRadius: Radius.r12))
         }
-        .accessibilityLabel(Text(verbatim: MapIconSet.title(name) + (open ? "" : ", locked")))
+        .accessibilityLabel(open ? Text(verbatim: MapIconSet.title(name)) : Text("\(MapIconSet.title(name)), locked", bundle: .module))
     }
 }
 

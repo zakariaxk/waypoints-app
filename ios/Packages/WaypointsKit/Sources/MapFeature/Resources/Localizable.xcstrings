@@ -1,6 +1,9 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@, locked": {
+      "extractionState": "manual"
+    },
     "A driver nearby": {
       "extractionState": "manual"
     },
@@ -22,6 +25,9 @@
     "Cancel": {
       "extractionState": "manual"
     },
+    "Collapsed": {
+      "extractionState": "manual"
+    },
     "Directions": {
       "extractionState": "manual"
     },
@@ -31,7 +37,16 @@
     "FRIENDS": {
       "extractionState": "manual"
     },
+    "Full height": {
+      "extractionState": "manual"
+    },
+    "Ghost mode on. Privacy settings": {
+      "extractionState": "manual"
+    },
     "Go ghost for 1 hour": {
+      "extractionState": "manual"
+    },
+    "Half height": {
       "extractionState": "manual"
     },
     "I'm a passenger": {
@@ -50,6 +65,9 @@
       "extractionState": "manual"
     },
     "Location is off. You're not on the map.": {
+      "extractionState": "manual"
+    },
+    "Map sheet": {
       "extractionState": "manual"
     },
     "Meets": {
@@ -71,6 +89,9 @@
       "extractionState": "manual"
     },
     "People": {
+      "extractionState": "manual"
+    },
+    "Privacy settings": {
       "extractionState": "manual"
     },
     "Recent": {

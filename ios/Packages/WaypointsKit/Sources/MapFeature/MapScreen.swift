@@ -101,14 +101,16 @@ struct MapScreen: View {
         let selected = model.selection == .entity(e.uid)
         let paint = e.info.map { Color(rgb: $0.paintRGB) } ?? .dust
         let icon = e.info?.markerIcon.isEmpty == false ? e.info!.markerIcon : "coupe"
+        let line = model.distanceLine(to: e.coordinate)
+        let place: String? = line.isEmpty ? nil : line
         switch (e.info?.relation, e.tier) {
         case (.nearby?, _):
-            VehicleMarker(icon: icon, paint: .dust, role: .stranger, selected: selected)
+            VehicleMarker(icon: icon, paint: .dust, role: .stranger, selected: selected, detail: place)
         case (_, .approximate):
-            VehicleMarker(icon: icon, paint: paint, role: .approximate, staleness: e.staleness, selected: selected)
+            VehicleMarker(icon: icon, paint: paint, role: .approximate, staleness: e.staleness, selected: selected, detail: place)
         default:
             VehicleMarker(icon: icon, paint: paint, role: .friend(name: e.info?.displayName ?? ""), heading: e.heading,
-                          moving: e.moving, staleness: e.staleness, selected: selected)
+                          moving: e.moving, staleness: e.staleness, selected: selected, detail: place)
                 .opacity(model.hasLiveBatch ? 1 : 0.5)
         }
     }
@@ -126,7 +128,7 @@ struct MapScreen: View {
                         Spacer()
                     }
                     .padding(.horizontal, Space.s16)
-                    .frame(height: Size.hitTarget)
+                    .frame(minHeight: Size.hitTarget)
                     .overMapMaterial(in: RoundedRectangle(cornerRadius: Radius.r12))
                 }
                 .accessibilityLabel(Text("Search", bundle: .module))
@@ -201,7 +203,7 @@ struct MapScreen: View {
                 Button("Until I turn it off") { model.setGhost(until: .distantFuture) }
             }
         }
-        .accessibilityLabel(Text(ghost ? "Ghost mode on. Privacy settings" : "Privacy settings"))
+        .accessibilityLabel(ghost ? Text("Ghost mode on. Privacy settings", bundle: .module) : Text("Privacy settings", bundle: .module))
     }
 
     static var tomorrowSix: Date {
@@ -221,6 +223,23 @@ struct MapScreen: View {
         let h = max(Size.row * 1.7, min(height * 0.92, target - dragOffset))
         return VStack(spacing: 0) {
             Capsule().fill(Color.gravel).frame(width: Size.hitTarget * 0.8, height: Space.s4).padding(.top, Space.s8)
+                .frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget)
+                .contentShape(Rectangle())
+                .accessibilityElement()
+                .accessibilityLabel(Text("Map sheet", bundle: .module))
+                .accessibilityValue(detent == .peek ? Text("Collapsed", bundle: .module)
+                                    : detent == .medium ? Text("Half height", bundle: .module) : Text("Full height", bundle: .module))
+                .accessibilityAdjustableAction { direction in
+                    withMotion(.sheet, reduceMotion: reduceMotion) {
+                        switch (direction, detent) {
+                        case (.increment, .peek): detent = .medium
+                        case (.increment, .medium): detent = .large
+                        case (.decrement, .large): detent = .medium
+                        case (.decrement, .medium): detent = .peek
+                        default: break
+                        }
+                    }
+                }
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     if let selection = model.selection {
@@ -353,7 +372,8 @@ struct MapItemView: View {
                     .frame(width: Space.s12, height: Space.s12)
                     .allowsHitTesting(false)
             } else if item.glyph.name == "pin" {
-                Image(systemName: "mappin.circle.fill").font(.largeTitle).foregroundStyle(item.tint.color).mapShadow()
+                Image(systemName: "mappin.circle.fill").font(.largeTitle).foregroundStyle(item.tint.color)
+                    .frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget).contentShape(Rectangle()).mapShadow()
             } else {
                 SilhouetteIcon(item.glyph.name, paint: item.tint.color).frame(width: Size.Marker.friend, height: Size.Marker.friend)
             }
@@ -361,6 +381,7 @@ struct MapItemView: View {
         .scaleEffect(selected ? Size.Marker.selectedScale : 1)
         .motion(.sheet, value: selected)
         .accessibilityLabel(Text(verbatim: item.title ?? item.glyph.name))
+        .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
     }
 }
 
