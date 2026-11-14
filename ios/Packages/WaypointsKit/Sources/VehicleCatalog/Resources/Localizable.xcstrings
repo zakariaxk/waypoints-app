@@ -10,6 +10,9 @@
     "Any year": {
       "extractionState": "manual"
     },
+    "Changes this choice": {
+      "extractionState": "manual"
+    },
     "Close": {
       "extractionState": "manual"
     },

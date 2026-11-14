@@ -149,12 +149,16 @@ public struct VehiclePicker: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: Space.s4) {
                     ForEach(Array(tokens.enumerated()), id: \.offset) { index, token in
-                        if index > 0 { Text(verbatim: "·").foregroundStyle(Color.gravel) }
-                        Button(token.0, action: token.1).typeStyle(.sub).foregroundStyle(Color.sodium)
+                        if index > 0 { Text(verbatim: "·").foregroundStyle(Color.gravel).accessibilityHidden(true) }
+                        Button(action: token.1) {
+                            Text(verbatim: token.0).typeStyle(.sub).foregroundStyle(Color.sodium)
+                                .frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget)
+                                .contentShape(Rectangle())
+                        }
+                        .accessibilityHint(Text("Changes this choice", bundle: .module))
                     }
                 }
                 .padding(.horizontal, Space.margin)
-                .padding(.vertical, Space.s8)
             }
         }
     }
@@ -401,6 +405,7 @@ public struct VehiclePicker: View {
                             .frame(height: Size.hitTarget)
                     }
                     .accessibilityLabel(Text(verbatim: f.title))
+                    .accessibilityAddTraits(family == f && !useCustom ? .isSelected : [])
                 }
             }
             ColorPicker(selection: $customColor, supportsOpacity: false) {
