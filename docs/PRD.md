@@ -447,7 +447,7 @@ Every car, chosen without clutter. Plan 5.2, 10.8 (G3 to G5), 11.1.
 | GAR-13 | Every spec can be overridden by the owner. | P0 | Coded |
 | GAR-14 | Someone else's car shows its owner and "Message about this car". | P0 | Coded |
 | GAR-15 | Share build. A car's overflow renders a card (lead photo, name, the four estimates marked "est.", handle) to the share sheet. | P1 | Coded |
-| GAR-16 | Service log. A timeline entry can be marked as service with an odometer reading and an optional reminder date, delivered as a local notification. | P2 | New |
+| GAR-16 | Service log. A timeline entry can be marked as service with an odometer reading and an optional reminder date, delivered as a local notification. | P2 | Coded |
 
 ### 4.12 Mod simulator (MOD)
 
@@ -550,7 +550,7 @@ Watching builds, full screen. Plan 5.5, 10.5 (F1 to F3).
 | FEED-8 | Empty Following, empty region, a video that will not play ("Couldn't play this." with "Try again"), and offline each have their own state. | P0 | Coded |
 | FEED-9 | Scrolling 50 videos on Wi-Fi never shows a black frame longer than 200 ms, with at most three players alive and flat memory. | P0 | Coded |
 | FEED-10 | You can delete your own post. | P0 | Coded |
-| FEED-11 | Photo posts. A post can be up to 6 photos instead of a video, swiped sideways inside the same pager. A post can also tag a meet, and the meet shows posts from it. | P2 | New |
+| FEED-11 | Photo posts. A post can be up to 6 photos instead of a video, swiped sideways inside the same pager. A post can also tag a meet, and the meet shows posts from it. | P2 | Coded: a meet can be tagged while it is happening (the picker offers your upcoming meets that have started). |
 
 ### 4.18 Showdown (SHOW)
 
@@ -638,7 +638,7 @@ Required by App Review for any app with user content, and by the kind of place t
 | SAFE-6 | Content reported by three different people within 7 days is hidden from everyone but its author until reviewed. | P0 | Coded |
 | SAFE-7 | A person can be suspended. A suspended account cannot connect to the gateway or write anything, and its content is hidden. Signing in shows "This account is suspended." with the contact address. | P0 | Partial: a gateway connection already open stays up until its next token refresh. |
 | SAFE-8 | The reviewer works from the Supabase SQL editor with four documented functions: hide, restore, suspend, unsuspend. No admin app. | P0 | Coded |
-| SAFE-9 | Abuse limits, enforced on the server: 3 meets a day, 10 map reports in 10 minutes, 3 help requests a day, 10 posts a day, 30 comments an hour, 10 listings a day, 30 friend requests a day, 3 teams a day, 20 content reports a day, 5 messages in 5 seconds. Over a limit the client says "You're doing that a lot. Try again in a few minutes." | P1 | Partial: the gateway limits help requests to 6 an hour, not 3 a day; map reports are limited per gateway node in memory; SafetyKit, Market, Roads, and Spots show the copy on `rateLimited`, other features still show their generic error. |
+| SAFE-9 | Abuse limits, enforced on the server: 3 meets a day, 10 map reports in 10 minutes, 3 help requests a day, 10 posts a day, 30 comments an hour, 10 listings a day, 30 friend requests a day, 3 teams a day, 20 content reports a day, 5 messages in 5 seconds. Over a limit the client says "You're doing that a lot. Try again in a few minutes." | P1 | Partial: the gateway limits help requests to 6 an hour, not 3 a day; map reports are limited per gateway node in memory; SafetyKit, Market, Roads, Spots, Feed (posts, comments), and Garage (cars, timeline, profile, friend requests) show the copy on `rateLimited`, other features still show their generic error. |
 | SAFE-10 | Minimum age 17, asked at sign-up. | P0 | Coded |
 | SAFE-11 | The contact address is shown in About and in the suspension message. | P0 | Coded |
 
@@ -650,7 +650,7 @@ Plan 10.9.
 |---|---|---|---|
 | SET-1 | Settings holds Privacy and location, Notifications, Blocked people, Account, and About (version, Terms, Privacy Policy, Contact, licences). Debug builds add the design gallery. | P0 | Coded |
 | SET-2 | Every change saves at once. A failed save reverts the control and says why. | P0 | Coded |
-| SET-3 | Distances, speeds, and weights follow the device's locale everywhere they appear. | P0 | Partial: navigation, the map, Market (distance filter), and Roads (road length) format by locale; other features not checked. |
+| SET-3 | Distances, speeds, and weights follow the device's locale everywhere they appear. | P0 | Partial: navigation, the map, Market (distance filter), Roads (road length), and Garage (curb weight; odometer readings keep the unit entered, defaulting by locale) format by locale; Showdown shows no distances or weights; other features not checked. |
 
 ### 4.25 Links and sharing (LINK)
 
@@ -660,7 +660,7 @@ Growth here is one person sending a link to another. Plan 10.10 (X3).
 |---|---|---|---|
 | LINK-1 | `waypoints://` opens a profile, car, meet, team, listing, post, team invite, or convoy invite. | P0 | Coded |
 | LINK-2 | The same paths work as HTTPS universal links, so a shared link is tappable in Messages and opens the app. Without the app it opens a plain page saying what the link is and where to get Waypoints. | P0 | Partial: no host chosen yet (`LINK_HOST`, section 9.1 step 6) and `TEAMID` in the association file is a placeholder. |
-| LINK-3 | Everything shareable shares the HTTPS link once LINK-2 is configured. | P0 | Partial: `Route.shareURL` gives the https form for every shareable route (profile, car, meet, team, listing, post, help, thread, channel, team and convoy invites) and `Route(url:host:)` parses them all; Convoy, Garage, Feed, Teams, and Meets still build `waypoints://` strings themselves. |
+| LINK-3 | Everything shareable shares the HTTPS link once LINK-2 is configured. | P0 | Partial: `Route.shareURL` gives the https form for every shareable route (profile, car, meet, team, listing, post, help, thread, channel, team and convoy invites) and `Route(url:host:)` parses them all; Garage and Feed share through `Route.shareURL`; Convoy, Teams, and Meets still build `waypoints://` strings themselves. |
 | LINK-4 | A static site in `site/` holds the link landing page, the association file, the Terms, and the Privacy Policy. Plain HTML, no build step, free hosting (section 9.1). | P0 | Partial: not yet published to a host. |
 | LINK-5 | Share cards. A meet shares as an image (title, time, place, a map snapshot) alongside its link. Builds and time slips have theirs (GAR-15, STR-5). | P1 | Partial: the meet card is coded; builds and time slips belong to GAR-15, STR-5. |
 
