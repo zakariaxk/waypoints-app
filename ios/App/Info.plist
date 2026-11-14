@@ -36,7 +36,7 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Your location puts you on the map for the people you choose, and finds meets and reports near you.</string>
+	<string>Your location puts you on the map for the people you choose, finds meets and road reports near you, places a help request, and guides navigation and convoys.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>With "Keep sharing when the app is closed" on, friends keep seeing you while Waypoints is in the background. Sharing stops after 5 minutes parked.</string>
 	<key>UIBackgroundModes</key>
@@ -48,11 +48,13 @@
 	<key>NSCalendarsWriteOnlyAccessUsageDescription</key>
 	<string>Adds meets you choose to your calendar.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>The camera reads your VIN and takes photos of your car and of cars you spot.</string>
+	<string>The camera reads your VIN, scans car QR codes, and takes photos of your car and of cars you spot.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>The microphone lets you talk in your team's voice channels.</string>
+	<string>The microphone lets you talk in team voice channels and convoy voice. You join muted.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Saves photos and videos you choose to keep.</string>
+	<string>Saves images you choose to keep, such as a meet card or a time slip.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Lets you pick photos and videos of your car to post, list, or add to your garage.</string>
 	<key>WPSupabaseURL</key>
 	<string>$(SUPABASE_URL)</string>
 	<key>WPSupabaseAnonKey</key>
