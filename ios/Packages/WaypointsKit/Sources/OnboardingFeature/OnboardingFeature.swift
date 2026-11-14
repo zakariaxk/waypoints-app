@@ -337,9 +337,11 @@ struct LocationStepView: View {
             Row(Text(title), leading: {
                 Image(systemName: selected ? "largecircle.fill.circle" : "circle")
                     .foregroundStyle(selected ? Color.sodium : Color.gravel)
+                    .accessibilityHidden(true)
             })
         }
         .buttonStyle(RowButtonStyle())
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     private func finish(requestLocation: Bool) {
