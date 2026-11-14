@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0D0D0E">
+<title>Waypoints link</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header><a href="/">Waypoints</a></header>
+<main>
+  <!-- Every shared link (/profile/<id>, /car/<id>, /meet/<id>, /team/<id>, /listing/<id>,
+       /post/<id>, /invite/team/<code>, /invite/convoy/<code>) lands here when the app is not
+       installed. GitHub Pages serves this file for any path it has no file for. -->
+  <h1 id="title">This page doesn't exist.</h1>
+  <p id="what" class="secondary">Check the link and try again.</p>
+  <div id="app" hidden>
+    <p class="label">Open it in Waypoints</p>
+    <p>This link opens in Waypoints on iPhone. Get Waypoints on the App Store (search for Waypoints), then tap the link again.</p>
+    <p>Already have Waypoints? <a id="open" class="button" href="/">Open in Waypoints</a></p>
+  </div>
+  <p><a href="/">What Waypoints is</a></p>
+</main>
+<footer><a href="/terms">Terms</a><a href="/privacy">Privacy Policy</a><a href="mailto:support@waypoints.app">Contact</a></footer>
+<script>
+(function () {
+  var parts = location.pathname.split("/").filter(function (p) { return p.length > 0; });
+  var kinds = {
+    profile: ["A driver on Waypoints", "Someone shared a driver's profile with you."],
+    car: ["A car on Waypoints", "Someone shared a car and its build with you."],
+    meet: ["A meet on Waypoints", "Someone shared a meet with you: where, when, and who's going."],
+    team: ["A team on Waypoints", "Someone shared a team with you."],
+    listing: ["A listing on Waypoints", "Someone shared a part or car for sale in the Waypoints market."],
+    post: ["A post on Waypoints", "Someone shared a post with you."]
+  };
+  var invites = {
+    team: ["You're invited to a team", "Join the team in Waypoints to see its members on the map and talk in its channels."],
+    convoy: ["You're invited to a convoy", "Join the convoy in Waypoints to drive a shared route. Everyone in a convoy sees your exact position while it runs."]
+  };
+  var entry = null, path = null;
+  if (parts.length >= 2 && kinds.hasOwnProperty(parts[0])) {
+    entry = kinds[parts[0]]; path = parts[0] + "/" + parts[1];
+  } else if (parts.length >= 3 && parts[0] === "invite" && invites.hasOwnProperty(parts[1])) {
+    entry = invites[parts[1]]; path = "invite/" + parts[1] + "/" + parts[2];
+  }
+  if (!entry) return;
+  document.title = entry[0];
+  document.getElementById("title").textContent = entry[0];
+  document.getElementById("what").textContent = entry[1];
+  document.getElementById("open").href = "waypoints://" + path;
+  document.getElementById("app").hidden = false;
+})();
+</script>
+</body>
+</html>

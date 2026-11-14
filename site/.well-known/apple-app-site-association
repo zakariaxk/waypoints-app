@@ -1,0 +1,19 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["TEAMID.app.waypoints.ios"],
+        "components": [
+          { "/": "/profile/*", "comment": "A driver's profile" },
+          { "/": "/car/*", "comment": "A car" },
+          { "/": "/meet/*", "comment": "A meet" },
+          { "/": "/team/*", "comment": "A team" },
+          { "/": "/listing/*", "comment": "A market listing" },
+          { "/": "/post/*", "comment": "A post" },
+          { "/": "/invite/team/*", "comment": "A team invite" },
+          { "/": "/invite/convoy/*", "comment": "A convoy invite" }
+        ]
+      }
+    ]
+  }
+}

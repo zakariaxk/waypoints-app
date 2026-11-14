@@ -1,0 +1,49 @@
+/* Waypoints site. Tokens from docs/PLAN.md 9.2 to 9.4. Dark only, one accent, no gradients. */
+:root {
+  --asphalt: #0D0D0E;
+  --tarmac: #161617;
+  --concrete: #202022;
+  --seam: #37373B;
+  --chalk: #F3F1EC;
+  --dust: #A8A6A0;
+  --gravel: #94928D;
+  --sodium: #FFB224;
+  --xenon: #BFE2FF;
+  --s4: 4px; --s8: 8px; --s12: 12px; --s16: 16px; --s20: 20px; --s24: 24px; --s32: 32px; --s48: 48px;
+  --r12: 12px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--asphalt); }
+body {
+  margin: 0;
+  color: var(--chalk);
+  background: var(--asphalt);
+  font: 17px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+main { max-width: 640px; padding: var(--s48) var(--s20) var(--s48); }
+header { border-bottom: 1px solid var(--seam); padding: var(--s16) var(--s20); }
+header a { color: var(--chalk); text-decoration: none; font-weight: 700; font-stretch: expanded; letter-spacing: 0.01em; }
+h1 { font-size: 28px; line-height: 32px; font-weight: 700; font-stretch: expanded; margin: 0 0 var(--s12); }
+h2 { font-size: 20px; line-height: 24px; font-weight: 600; font-stretch: expanded; margin: var(--s32) 0 var(--s8); }
+.label { font-size: 11px; line-height: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dust); margin: var(--s32) 0 var(--s8); }
+p, li { color: var(--chalk); margin: 0 0 var(--s12); }
+.secondary { color: var(--dust); }
+.foot { font-size: 13px; color: var(--gravel); }
+a { color: var(--xenon); }
+ol, ul { padding-left: var(--s24); }
+.button {
+  display: inline-block;
+  min-height: 44px;
+  padding: var(--s12) var(--s20);
+  border-radius: var(--r12);
+  background: var(--sodium);
+  color: var(--asphalt);
+  font-weight: 600;
+  text-decoration: none;
+}
+.rows { margin: var(--s16) 0 0; padding: 0; list-style: none; border-top: 1px solid var(--seam); }
+.rows li { padding: var(--s12) 0; margin: 0; border-bottom: 1px solid var(--seam); }
+footer { border-top: 1px solid var(--seam); padding: var(--s16) var(--s20); }
+footer a { color: var(--dust); margin-right: var(--s16); }
