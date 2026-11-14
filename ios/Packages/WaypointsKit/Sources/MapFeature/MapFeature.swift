@@ -234,16 +234,38 @@ final class MapModel {
         Task { try? await env.gateway.updatePrivacy(s) }
     }
 
+    /// "2.1 mi north east", in the locale's road unit (SET-3).
     func distanceLine(to c: Coordinate) -> String {
         guard let me else { return "" }
-        let meters = me.coordinate.distance(to: c)
-        let miles = meters / 1609.344
         let dLat = c.latitude - me.coordinate.latitude
         let dLng = c.longitude - me.coordinate.longitude
         let angle = (atan2(dLng, dLat) * 180 / .pi + 360).truncatingRemainder(dividingBy: 360)
-        let dirs = ["north", "north east", "east", "south east", "south", "south west", "west", "north west"]
+        let dirs = [String(localized: "north"), String(localized: "north east"), String(localized: "east"),
+                    String(localized: "south east"), String(localized: "south"), String(localized: "south west"),
+                    String(localized: "west"), String(localized: "north west")]
         let dir = dirs[Int((angle + 22.5) / 45) % 8]
-        return String(format: "%.1f mi %@", miles, dir)
+        return "\(distanceText(to: c)) \(dir)"
+    }
+
+    /// Straight-line distance from you, miles or kilometres by locale, one decimal.
+    func distanceText(to c: Coordinate) -> String {
+        guard let me else { return "" }
+        let meters = Measurement(value: me.coordinate.distance(to: c), unit: UnitLength.meters)
+        let unit: UnitLength = Locale.current.measurementSystem == .metric ? .kilometers : .miles
+        return meters.converted(to: unit).formatted(.measurement(width: .abbreviated, usage: .asProvided,
+                                                                 numberFormatStyle: .number.precision(.fractionLength(1))))
+    }
+
+    /// The convoy this device is in. `ConvoyFeature` keeps its id under `convoy.id`.
+    var activeConvoy: ConvoyID? { UserDefaults.standard.string(forKey: "convoy.id").map { ConvoyID(raw: $0) } }
+
+    /// MAP-12: in a convoy, push its join code to this friend; otherwise open the start sheet.
+    func inviteToConvoy(_ user: UserID) {
+        if let id = activeConvoy {
+            Task { try? await env.gateway.inviteToConvoy(id, users: [user]) }
+        } else {
+            env.router.open(.joinConvoy(code: ""))
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 import Core
 import DesignSystem
 import MapKit
+import Network
 import SwiftUI
 
 // MARK: M7 Driver peek
@@ -33,6 +34,7 @@ struct DriverPeek: View {
                 Spacer()
                 Menu {
                     Button("View profile") { model.env.router.open(.profile(f.profile.userID)) }
+                    Button("Invite to convoy") { model.inviteToConvoy(f.profile.userID) }
                     Button("Remove friend", role: .destructive) { confirmRemove = true }
                     Button("Block", role: .destructive) { Task { try? await model.env.safety.block(f.profile.userID) } }
                     Button("Report") { model.env.router.open(.reportContent(.user(f.profile.userID))) }
@@ -229,7 +231,26 @@ final class SearchModel: NSObject, MKLocalSearchCompleterDelegate {
     var results: [Place] = []
     var people: [Profile] = []
     var meets: [Meet] = []
+    /// Search needs the network; offline it shows recents only (NAV-1).
+    var online = true
     @ObservationIgnored private let completer = MKLocalSearchCompleter()
+    @ObservationIgnored private var monitor: NWPathMonitor?
+
+    func watchNetwork() {
+        guard monitor == nil else { return }
+        let m = NWPathMonitor()
+        m.pathUpdateHandler = { @Sendable [weak self] path in
+            let ok = path.status == .satisfied
+            Task { @MainActor [weak self] in self?.online = ok }
+        }
+        m.start(queue: .global(qos: .utility))
+        monitor = m
+    }
+
+    func stopWatching() {
+        monitor?.cancel()
+        monitor = nil
+    }
 
     func configure(region: MapRegion) {
         completer.delegate = self
@@ -249,6 +270,7 @@ struct SearchView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var search = SearchModel()
     @State private var upcoming: [Meet] = []
+    @State private var savedRoads: [Road] = []
     @FocusState private var focused: Bool
     @AppStorage("map.recents") private var recentsRaw = ""
 
@@ -265,10 +287,20 @@ struct SearchView: View {
                                 Button { search.query = r } label: { Row(Text(verbatim: r)) }.buttonStyle(RowButtonStyle())
                             }
                         }
-                        if !upcoming.isEmpty {
-                            SectionLabel("Meets tonight")
-                            ForEach(upcoming.prefix(3)) { meetRow($0) }
+                        if !search.online {
+                            offlineLine
+                        } else {
+                            if !upcoming.isEmpty {
+                                SectionLabel("Meets tonight")
+                                ForEach(upcoming.prefix(3)) { meetRow($0) }
+                            }
+                            if !savedRoads.isEmpty {
+                                SectionLabel("Saved roads")
+                                ForEach(savedRoads.prefix(3)) { roadRow($0) }
+                            }
                         }
+                    } else if !search.online {
+                        offlineLine
                     } else {
                         ForEach(search.results, id: \.self) { r in
                             Button { pick(r) } label: {
@@ -311,13 +343,43 @@ struct SearchView: View {
                 .background(Color.asphalt)
             }
         }
-        .onAppear { focused = true; search.configure(region: model.region) }
+        .onAppear { focused = true; search.configure(region: model.region); search.watchNetwork() }
+        .onDisappear { search.stopWatching() }
         .task { upcoming = (try? await model.env.meets.meets(in: model.region)) ?? [] }
+        .task {
+            guard let me = await model.env.auth.currentSession()?.userID else { return }
+            savedRoads = (try? await model.env.roads.roads(by: me)) ?? []
+        }
         .task(id: search.query) {
             guard search.query.count >= 2 else { search.people = []; return }
             try? await Task.sleep(for: .milliseconds(250))
             search.people = (try? await model.env.profiles.search(search.query, limit: 5)) ?? []
         }
+    }
+
+    private var offlineLine: some View {
+        Text("Search needs a connection.").typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin)
+    }
+
+    /// A saved road opens directions to where it starts.
+    private func roadRow(_ r: Road) -> some View {
+        Button {
+            guard let start = r.path.first else { return }
+            dismiss()
+            model.env.router.open(.navigate(to: start, name: r.name))
+        } label: {
+            Row(Text(verbatim: r.name), trailing: {
+                Text(verbatim: Self.length(r.lengthMeters)).typeStyle(.readoutS)
+            })
+        }
+        .buttonStyle(RowButtonStyle())
+    }
+
+    /// Road length in miles or kilometres by locale (SET-3).
+    static func length(_ meters: Int) -> String {
+        let unit: UnitLength = Locale.current.measurementSystem == .metric ? .kilometers : .miles
+        return Measurement(value: Double(meters), unit: UnitLength.meters).converted(to: unit)
+            .formatted(.measurement(width: .abbreviated, usage: .asProvided, numberFormatStyle: .number.precision(.fractionLength(1))))
     }
 
     private func meetRow(_ m: Meet) -> some View {

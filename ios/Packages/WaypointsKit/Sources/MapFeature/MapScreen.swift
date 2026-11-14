@@ -307,7 +307,7 @@ struct MapScreen: View {
                         Avatar(name: f.profile.displayName, size: .s40)
                     }, trailing: {
                         if let e {
-                            Text(verbatim: "\(model.distanceLine(to: e.coordinate).split(separator: " ").prefix(2).joined(separator: " ")) · \(e.moving ? "moving" : "parked")")
+                            Text(verbatim: "\(model.distanceText(to: e.coordinate)) · \(e.moving ? "moving" : "parked")")
                                 .typeStyle(.readoutS)
                         }
                     })
