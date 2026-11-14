@@ -5,7 +5,9 @@ import DesignSystem
 import LiveKit
 import SwiftUI
 
-/// Team voice channels over LiveKit (plan 10.7 T3). Route `voice`.
+/// Voice over LiveKit (plan 10.7 T3): team voice channels (route `voice`) and every
+/// convoy's own room (route `convoyVoice`, CNV-11). One session at a time; joining
+/// another room leaves the current one.
 public enum VoiceFeature: FeatureModule {
     public static let isAvailable = true
 
@@ -14,9 +16,18 @@ public enum VoiceFeature: FeatureModule {
         let session = VoiceSession(env: env)
         registry.registerRoute(.voice, presentation: .sheet) { route in
             guard case let .voice(id) = route else { return nil }
-            return AnyView(VoiceSheet(session: session, channelID: id))
+            return AnyView(VoiceSheet(session: session, room: .channel(id)))
+        }
+        registry.registerRoute(.convoyVoice, presentation: .sheet) { route in
+            guard case let .convoyVoice(id) = route else { return nil }
+            return AnyView(VoiceSheet(session: session, room: .convoy(id)))
         }
     }
+}
+
+enum VoiceRoom: Hashable, Sendable {
+    case channel(ChannelID)
+    case convoy(ConvoyID)
 }
 
 struct Speaker: Identifiable, Hashable {
@@ -32,34 +43,78 @@ final class VoiceSession {
     enum Phase: Equatable { case idle, connecting, live, reconnecting, failed(String) }
     let env: AppEnvironment
     var phase: Phase = .idle
-    var channel: Channel?
+    var current: VoiceRoom?
+    var title = ""
     var muted = true
     var speakers: [Speaker] = []
     var micDenied = false
+    var toast: ToastMessage?
+    /// Bumped when the session ends on its own (room closed, convoy ended, connection lost); the sheet dismisses.
+    var closed = 0
     @ObservationIgnored private var room: Room?
     @ObservationIgnored private var poll: Task<Void, Never>?
+    @ObservationIgnored private var watch: Task<Void, Never>?
     @ObservationIgnored private var lostSince: Date?
+    @ObservationIgnored private var closing = false
 
     init(env: AppEnvironment) { self.env = env }
 
-    func join(_ id: ChannelID) async {
-        if channel?.id == id, phase == .live { return }
+    func join(_ target: VoiceRoom) async {
+        if current == target, phase == .live || phase == .reconnecting { return }
         await leave()
+        current = target
         phase = .connecting
-        channel = try? await env.teams.channel(id)
+        closing = false
         do {
-            let creds = try await env.gateway.voiceToken(for: id)
+            let creds: VoiceCredentials
+            switch target {
+            case let .channel(id):
+                title = (try? await env.teams.channel(id))?.name ?? String(localized: "Voice")
+                creds = try await env.gateway.voiceToken(for: id)
+            case let .convoy(id):
+                title = String(localized: "Convoy")
+                creds = try await env.gateway.voiceToken(forConvoy: id)
+                watchConvoy(id)
+            }
             let room = Room()
             try await room.connect(url: creds.url.absoluteString, token: creds.token)
+            guard current == target else { await room.disconnect(); return }
             self.room = room
             muted = true
             phase = .live
             startPolling()
         } catch WaypointsError.forbidden {
-            phase = .failed("You're not in this team.")
+            if case .convoy = target { phase = .failed(String(localized: "You're not in this convoy.")) }
+            else { phase = .failed(String(localized: "You're not in this team.")) }
         } catch {
             phase = .failed("Voice is unavailable right now. Try again later.")
         }
+    }
+
+    /// The convoy room is left when the convoy ends (CNV-11). A member who leaves the
+    /// convoy is removed from the room by the gateway, which lands in `.disconnected`.
+    private func watchConvoy(_ id: ConvoyID) {
+        watch?.cancel()
+        let env = self.env
+        watch = Task { [weak self] in
+            for await event in await env.realtime.events() {
+                guard case let .convoy(s) = event, s.id == id, s.ended else { continue }
+                await self?.close(lost: false)
+                return
+            }
+        }
+    }
+
+    /// Ends the session without the user asking: VOX-5 shows "Voice disconnected." when the connection was lost.
+    private func close(lost: Bool) async {
+        guard !closing else { return }
+        closing = true
+        await leave()
+        if lost {
+            toast = ToastMessage(Text("Voice disconnected."))
+            try? await Task.sleep(for: .seconds(Timing.toast))
+        }
+        closed += 1
     }
 
     private func startPolling() {
@@ -88,9 +143,10 @@ final class VoiceSession {
         case .reconnecting:
             phase = .reconnecting
             lostSince = lostSince ?? .now
-            if let since = lostSince, Date.now.timeIntervalSince(since) > 15 { Task { await leave() } }
+            if let since = lostSince, Date.now.timeIntervalSince(since) > 15 { Task { await close(lost: true) } }
         case .disconnected:
-            Task { await leave() }
+            let wasLost = lostSince != nil
+            Task { await close(lost: wasLost) }
         default:
             break
         }
@@ -113,6 +169,9 @@ final class VoiceSession {
     func leave() async {
         poll?.cancel()
         poll = nil
+        watch?.cancel()
+        watch = nil
+        lostSince = nil
         if let room { await room.disconnect() }
         room = nil
         speakers = []
@@ -122,10 +181,14 @@ final class VoiceSession {
 
 struct VoiceSheet: View {
     @Bindable var session: VoiceSession
-    let channelID: ChannelID
+    let room: VoiceRoom
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @State private var detent: PresentationDetent = .height(320)
+
+    private var isConvoy: Bool {
+        if case .convoy = room { true } else { false }
+    }
 
     var body: some View {
         Group {
@@ -135,13 +198,15 @@ struct VoiceSheet: View {
         .presentationBackgroundInteraction(.enabled)
         .interactiveDismissDisabled(session.phase == .live)
         .sheetChrome()
-        .task { await session.join(channelID) }
+        .toast($session.toast)
+        .task(id: room) { await session.join(room) }
+        .onChange(of: session.closed) { dismiss() }
     }
 
     private var strip: some View {
         HStack(spacing: Space.s12) {
             Circle().fill(session.speakers.contains(where: \.speaking) ? Color.xenon : Color.gravel).frame(width: Space.s8, height: Space.s8)
-            Text(verbatim: session.channel?.name ?? "Voice").typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+            Text(verbatim: session.title).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
             Spacer()
             IconButton(session.muted ? Symbol.micOff : Symbol.micOn, label: session.muted ? "Unmute" : "Mute") {
                 Task { await session.toggleMute() }
@@ -153,7 +218,7 @@ struct VoiceSheet: View {
 
     private var full: some View {
         VStack(alignment: .leading, spacing: Space.s16) {
-            Text(verbatim: session.channel?.name ?? "Voice").typeStyle(.title).foregroundStyle(Color.chalk)
+            Text(verbatim: session.title).typeStyle(.title).foregroundStyle(Color.chalk)
             switch session.phase {
             case let .failed(message):
                 Text(verbatim: message).typeStyle(.body).foregroundStyle(Color.dust)
@@ -185,7 +250,7 @@ struct VoiceSheet: View {
                     Task { await session.toggleMute() }
                 }
                 RoutePicker().frame(width: Size.hitTarget, height: Size.hitTarget)
-                DestructiveButton("Leave", confirmTitle: "Leave voice", consequence: "You'll stop hearing the channel.") {
+                DestructiveButton("Leave", confirmTitle: "Leave voice", consequence: isConvoy ? "You'll stop hearing the convoy." : "You'll stop hearing the channel.") {
                     Task { await session.leave(); dismiss() }
                 }
             }

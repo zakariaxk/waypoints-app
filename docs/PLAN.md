@@ -557,7 +557,7 @@ HTTP JSON API on the gateway (all require `Authorization: Bearer <Supabase acces
 | `POST /v1/convoys/join` | `{join_code}` | Returns convoy. |
 | `PUT /v1/convoys/{id}/destination`, `PUT /v1/convoys/{id}/regroup`, `DELETE /v1/convoys/{id}` | | Leader only. |
 | `POST /v1/convoys/{id}/invite` | `{user_ids}` | Members only. Pushes the join code (convoy invites switch in S3). |
-| `POST /v1/voice/token` | `{channel_id}` | Checks team membership; returns `{url, token}` for LiveKit room `ch_<channel_id>`. |
+| `POST /v1/voice/token` | `{channel_id}` or `{convoy_id}` (exactly one) | Channel: checks team membership; returns `{url, token}` for LiveKit room `ch_<channel_id>`. Convoy: current convoy members only (package `convoy`'s state, Postgres mirror); room `cv_<convoy_id>`, participant identity is the realtime uid. A member leaving is removed from the room and the room is deleted when the convoy ends (LiveKit RoomService). 403 when not a member. |
 | `POST /internal/notify` | `{kind, ...}` | Called by a Postgres trigger through `pg_net` with a shared secret header; sends pushes for DMs, mentions, friend requests. |
 
 ---
@@ -1031,7 +1031,7 @@ Notifications permission is not asked here. It is asked the first time it has a 
 - Join: deep link or "Join with code" in the same sheet. Before joining: "Everyone in the convoy sees your exact location until you leave." `PrimaryButton` "Join convoy".
 - Active: a strip sits above the map sheet at all detents: convoy name, member count, `QuietButton` "Leave". The sheet's Convoy section lists members in road order with gap to the leader as time ("+40 s"), never speed. The shared route draws in `sodium`; members use their precise markers with a `sodium` tick on the leader.
 - Regroup: if the last member is more than 3 minutes behind the leader for 60 s, the leader sees a prompt in the strip: "The group has split. Set a regroup point?" Accepting drops a pin at the next safe-looking stop ahead (the nearest fuel or parking point of interest on the route within 3 km, else the leader's current position) and every member gets a banner "Regroup at <place>" with "Directions".
-- Voice: not built in. A "Talk" button appears only when the convoy belongs to a team with a voice channel, and it opens T3.
+- Voice: every convoy has its own room (CNV-11). A `QuietButton` "Talk" in the strip opens T3 for the convoy room (route `convoyVoice`); you join muted. The room is left when you leave the convoy or it ends.
 - End: leader taps "End convoy" (confirmation: "End the convoy for all 6 drivers?"). Others see "Convoy ended."
 - Offline member: their marker goes stale by the normal rules; row reads "Lost signal".
 

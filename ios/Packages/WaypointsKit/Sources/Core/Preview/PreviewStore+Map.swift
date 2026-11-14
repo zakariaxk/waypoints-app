@@ -169,4 +169,8 @@ extension PreviewStore: GatewayService {
         guard canRead(.channel(channel), as: me) else { throw WaypointsError.forbidden }
         return VoiceCredentials(url: URL(string: "wss://preview.livekit.invalid")!, token: "preview")
     }
+    public func voiceToken(forConvoy convoy: ConvoyID) async throws -> VoiceCredentials {
+        _ = try me()
+        return VoiceCredentials(url: URL(string: "wss://preview.livekit.invalid")!, token: "preview")
+    }
 }

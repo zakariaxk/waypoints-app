@@ -42,7 +42,9 @@ final class ConvoyStore {
     var positions: [RealtimeUID: (Coordinate, Date, String)] = [:]
     var splitSince: Date?
     var regroupPlace: String?
+    /// Set when the leader ended the convoy for everyone else; "Convoy ended." (CNV-7).
     var ended = false
+    @ObservationIgnored private var ending = false
     @ObservationIgnored private var started = false
 
     init(env: AppEnvironment) { self.env = env }
@@ -62,12 +64,16 @@ final class ConvoyStore {
                 switch event {
                 case let .convoy(s):
                     if s.ended {
+                        if UserDefaults.standard.string(forKey: "convoy.id") == s.id.raw {
+                            UserDefaults.standard.removeObject(forKey: "convoy.id")
+                        }
+                        guard s.id == self.state?.id else { break }
                         self.state = nil
-                        self.ended = true
-                        UserDefaults.standard.removeObject(forKey: "convoy.id")
+                        if !self.ending { self.ended = true }
                     } else {
                         if s.regroup != nil && s.regroup != self.state?.regroup { self.resolveRegroup(s.regroup!.coordinate) }
                         self.state = s
+                        self.ended = false
                     }
                 case let .entities(updates):
                     for u in updates where u.info?.relation == .convoy || self.state?.memberUIDs.contains(u.uid) == true {
@@ -136,8 +142,16 @@ final class ConvoyStore {
 
     func end() async {
         guard let id = state?.id else { return }
+        ending = true
         try? await env.gateway.endConvoy(id)
         await leave()
+        ending = false
+    }
+
+    /// Every convoy has its own voice room (CNV-11); VoiceFeature joins it muted.
+    func talk() {
+        guard let id = state?.id else { return }
+        env.router.open(.convoyVoice(id))
     }
 
     /// Drops a pull-off pin: the nearest fuel or parking point within 3 km ahead, else the leader.
@@ -217,6 +231,7 @@ struct ConvoySectionView: View {
                         Text("\(s.memberUIDs.count) drivers").typeStyle(.foot).foregroundStyle(Color.dust)
                     }
                     Spacer()
+                    QuietButton("Talk") { store.talk() }
                     if store.isLeader {
                         QuietButton("End convoy") { confirmEnd = true }
                     } else {
@@ -257,6 +272,16 @@ struct ConvoySectionView: View {
             .confirmationDialog("End the convoy for all \(s.memberUIDs.count) drivers?", isPresented: $confirmEnd) {
                 Button("End convoy", role: .destructive) { Task { await store.end() } }
             }
+        } else if store.ended {
+            Text("Convoy ended.").typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, Space.margin)
+                .padding(.vertical, Space.s8)
+                .background(Color.sodiumDim)
+                .task {
+                    try? await Task.sleep(for: .seconds(Timing.toast))
+                    store.ended = false
+                }
         }
     }
 }

@@ -80,4 +80,8 @@ public struct LiveGatewayService: GatewayService {
     public func voiceToken(for channel: ChannelID) async throws -> VoiceCredentials {
         try await client.send("POST", "v1/voice/token", body: VoiceBody(channelId: channel), as: VoiceCredentials.self)
     }
+
+    public func voiceToken(forConvoy convoy: ConvoyID) async throws -> VoiceCredentials {
+        try await client.send("POST", "v1/voice/token", body: ConvoyVoiceBody(convoyId: convoy), as: VoiceCredentials.self)
+    }
 }

@@ -27,4 +27,6 @@ public protocol GatewayService: Sendable {
 
     // Voice
     func voiceToken(for channel: ChannelID) async throws -> VoiceCredentials
+    /// Room `cv_<convoy_id>`, current members only (CNV-11).
+    func voiceToken(forConvoy convoy: ConvoyID) async throws -> VoiceCredentials
 }

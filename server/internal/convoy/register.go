@@ -81,6 +81,21 @@ type Service struct {
 	mu     sync.Mutex
 	byID   map[string]*Convoy
 	byCode map[string]string
+	voice  VoiceRooms
+}
+
+// VoiceRooms is implemented by package voice: every convoy has a LiveKit room
+// (CNV-11) that a leaving member is removed from and that closes with the convoy.
+type VoiceRooms interface {
+	ConvoyLeft(convoyID string, uid uint64)
+	ConvoyEnded(convoyID string)
+}
+
+// SetVoice installs the convoy room closer.
+func (s *Service) SetVoice(v VoiceRooms) {
+	s.mu.Lock()
+	s.voice = v
+	s.mu.Unlock()
 }
 
 // Register mounts the convoy endpoints and installs the membership authority.
@@ -141,8 +156,12 @@ func (s *Service) Leave(id string, uid uint64) {
 		c.LeaderUID = out[0]
 		c.LeaderID = ""
 	}
+	v := s.voice
 	s.mu.Unlock()
 	s.changed(context.Background(), c)
+	if v != nil {
+		go v.ConvoyLeft(id, uid)
+	}
 }
 
 func (s *Service) get(ctx context.Context, id string) *Convoy {
@@ -184,11 +203,15 @@ func (s *Service) changed(ctx context.Context, c *Convoy) {
 	raw, _ := json.Marshal(c)
 	st := c.wire()
 	members := append([]uint64(nil), c.MemberUIDs...)
+	v := s.voice
 	if c.Ended {
 		delete(s.byID, c.ID)
 		delete(s.byCode, c.JoinCode)
 	}
 	s.mu.Unlock()
+	if c.Ended && v != nil {
+		go v.ConvoyEnded(c.ID)
+	}
 	if pool := s.store.Pool(); pool != nil {
 		_, _ = pool.Exec(ctx, `insert into public.convoys (id, join_code, state, ended, updated_at)
 			values ($1, $2, $3, $4, now())
