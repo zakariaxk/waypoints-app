@@ -152,7 +152,7 @@ struct PostReport: View {
                             VStack(spacing: Space.s4) {
                                 ReportBadge(kind: kind.rawValue)
                                 Text(verbatim: ReportText.name(kind)).typeStyle(.foot).foregroundStyle(Color.chalk)
-                                    .multilineTextAlignment(.center).lineLimit(2)
+                                    .multilineTextAlignment(.center)
                             }
                         }
                     }
