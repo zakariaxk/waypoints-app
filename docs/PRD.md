@@ -353,7 +353,7 @@ The map is useful with nobody online. Plan 5.3, 10.3 (M5, M6).
 | RPT-6 | A new, changed, or removed report reaches everyone viewing that area within one gateway tick. | P0 | Coded |
 | RPT-7 | Passing a temporary report while navigating asks "Still there?" for 8 seconds. | P0 | Coded |
 | RPT-8 | The shape of a report's badge encodes its severity, so colour is not the only signal. | P0 | Coded |
-| RPT-9 | Two more kinds: speed camera and red-light camera, permanent and confirmable like a speed bump. There is no checkpoint kind and never will be (App Review guideline 1.4.4 *(verify)*). | P1 | New |
+| RPT-9 | Two more kinds: speed camera and red-light camera, permanent and confirmable like a speed bump. There is no checkpoint kind and never will be (App Review guideline 1.4.4 *(verify)*). | P1 | Coded |
 
 ### 4.7 Help requests (HELP)
 
@@ -361,13 +361,13 @@ A driver who is stuck asks the people who would actually come. Nobody in this sp
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| HELP-1 | From the add menu, "Ask for a hand" posts a help request at your position with one of five kinds: flat tire, jump start, out of fuel, stuck, something else. Optional note (120). | P1 | New |
-| HELP-2 | It is shown to friends and teammates with your name and car. A switch, off by default, also shows it to drivers nearby as "A driver needs a hand" with no name. | P1 | New |
-| HELP-3 | The sheet says, before posting: "This shares your exact spot with the people you pick until you clear it. For an emergency, call emergency services." | P1 | New |
-| HELP-4 | Friends and teammates within 25 km are notified. | P1 | New |
-| HELP-5 | A viewer can tap "On my way"; the requester is told who is coming. Directions is offered. | P1 | New |
-| HELP-6 | It ends when the requester taps "I'm good", or after 60 minutes unless extended. One active request per person. | P1 | New |
-| HELP-7 | Home zones do not apply to a help request (the user chose to share the spot), and the sheet says so when posting from inside one. | P1 | New |
+| HELP-1 | From the add menu, "Ask for a hand" posts a help request at your position with one of five kinds: flat tire, jump start, out of fuel, stuck, something else. Optional note (120). | P1 | Coded |
+| HELP-2 | It is shown to friends and teammates with your name and car. A switch, off by default, also shows it to drivers nearby as "A driver needs a hand" with no name. | P1 | Coded |
+| HELP-3 | The sheet says, before posting: "This shares your exact spot with the people you pick until you clear it. For an emergency, call emergency services." | P1 | Coded |
+| HELP-4 | Friends and teammates within 25 km are notified. | P1 | Partial: the push opens `waypoints://help/<id>`, which AppShell `DeepLink` and PushKitBridge `ActivityLink` do not parse yet (should map to `Route.help`). |
+| HELP-5 | A viewer can tap "On my way"; the requester is told who is coming. Directions is offered. | P1 | Coded |
+| HELP-6 | It ends when the requester taps "I'm good", or after 60 minutes unless extended. One active request per person. | P1 | Coded |
+| HELP-7 | Home zones do not apply to a help request (the user chose to share the spot), and the sheet says so when posting from inside one. | P1 | Coded |
 
 Build note: a table `help_requests`, gateway endpoints beside the reports ones, and a third `MapEvent.Kind`. Delivery to friends and teammates uses the per-user subjects that already exist; only the opt-in nearby form goes to the cell.
 
