@@ -1329,16 +1329,16 @@ Generic gains (confidence C; typical dyno ranges):
 | Stage 2 (bolt-ons and tune, total) | n/a | 25–40% |
 | E85 on top of a tune | 3–5% | 10–20% |
 
-Platform kits seeded for the 2024+ Mustang GT (stock 486 hp), confidence B, advertised crank figures on 93 octane: Ford Performance/Whipple 750 hp and 615 lb-ft; Whipple Gen 6 3.0 L Stage 1 810 hp and 640 lb-ft; Whipple Stage 2 up to 875 hp and 660 lb-ft; Roush Phase 2 (TVS R2650) 810 hp and 630 lb-ft. Earlier S550 kit figures must be sourced by the package before being added. Package W4-1 seeds at least 40 generic mods and kits for 6 platforms, each with a source URL.
+Platform kits, confidence B, advertised crank figures on 93 octane, each with the maker or dealer page it was read from in `Mods.swift`: the 5.0 Mustang GT for 2011–2014, 2015–2017, 2018–2023, and 2024 on (Whipple and Roush each, plus Ford Performance on the S650: 810 hp and 615 lb-ft), the 2021-on F-150 5.0, the 2016–2024 Camaro LT1, and the 2011–2023 Challenger and Charger 6.4 L. Package W4-1 seeds at least 40 generic mods and kits for 6 platforms, each with a source URL.
 
 **Acceleration.** A longitudinal simulation, also used by the Strip:
 
 `F = min(T(rpm) × gear × final × η / r, F_traction) − ½ρ·CdA·v² − C_rr·m·g`, `a = F / (m × k)`
 
 - Torque curve synthesized from peak power, peak torque, and redline (shape by aspiration; a centrifugal supercharger rises with rpm, a positive-displacement one is flat).
-- Traction limit by drivetrain with weight transfer: RWD `μ(l_f/L) / (1 − μh/L)`, FWD `μ(l_r/L) / (1 + μh/L)`, AWD `μ`; street tire μ = 0.95.
-- Driveline efficiency η: 0.88 manual 2WD, 0.85 automatic 2WD, 0.80 AWD. Inertia factor k from 1.25 in first gear to 1.05 in top. Shift time 0.25 s manual, 0.12 s dual-clutch or modern automatic. One-foot rollout for the quarter mile. `dt` 4 ms for estimates, 1/240 s in the game.
-- Missing gear ratios fall back to a typical set for the transmission type and the estimate widens.
+- Traction limit by drivetrain with weight transfer: RWD `μ(l_f/L) / (1 − μh/L)`, FWD `μ(l_r/L) / (1 + μh/L)`, AWD `μ`; summer street tire μ = 1.1. The inertia factor applies to engine-limited force only; a tire at its grip limit pushes the car's mass directly.
+- Driveline efficiency η: 0.88 manual 2WD, 0.87 automatic 2WD, 0.85 AWD. Inertia factor k from 1.15 in first gear to 1.05 in top. Shift time 0.2 s manual, 0.12 s dual-clutch or modern automatic. One-foot rollout for the quarter mile. `dt` 4 ms for estimates, 1/240 s in the game.
+- Missing gear ratios fall back to a typical set for the transmission type, with a final drive that runs first gear out near 38 mph at redline, and the estimate widens. Above the torque peak the curve follows the rated power, flat to 92% of redline and 12% down at redline. (These constants were set against the twelve reference cars, MOD-13.)
 
 **Honesty.**
 

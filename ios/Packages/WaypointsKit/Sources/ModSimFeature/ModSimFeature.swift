@@ -67,7 +67,7 @@ final class ModSimModel {
 
     var available: [Mod] {
         guard let stock, let car else { return [] }
-        return ModCatalog.available(for: stock, platform: ModCatalog.platform(for: car))
+        return ModCatalog.available(for: stock, platform: ModCatalog.platform(for: car, variant: variant))
     }
 
     func load() async {
@@ -98,6 +98,10 @@ final class ModSimModel {
             mods.remove(m.id)
         } else {
             mods.subtract(m.conflicts)
+            // One forced-induction system at a time.
+            if m.category == .forcedInduction {
+                for other in selected where other.category == .forcedInduction { mods.remove(other.id) }
+            }
             for other in mods.compactMap(ModCatalog.mod) where other.conflicts.contains(m.id) { mods.remove(other.id) }
             mods.insert(m.id)
             let tuned = selected.contains { $0.category == .tune }
@@ -194,6 +198,13 @@ struct ModSimView: View {
                         .typeStyle(.foot).foregroundStyle(Color.dust).padding(.horizontal, Space.margin)
                     soundControls
                     modList
+                    #if DEBUG
+                    NavigationLink { ReferenceCarsView() } label: {
+                        Row(Text(verbatim: "Reference cars"), subtitle: Text(verbatim: "Debug: model beside published tests"),
+                            trailing: { Disclosure() })
+                    }
+                    .buttonStyle(RowButtonStyle())
+                    #endif
                 }
                 .padding(.bottom, Space.s48)
             }

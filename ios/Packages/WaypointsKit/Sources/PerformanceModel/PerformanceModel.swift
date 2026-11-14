@@ -26,14 +26,20 @@ public struct VehicleSpec: Sendable, Hashable {
 
     public init(hpCrank: Double, torqueLbFt: Double, weightLb: Double, drivetrain: Drivetrain = .rwd,
                 aspiration: Aspiration = .natural, redline: Double = 6500, gearRatios: [Double]? = nil,
-                finalDrive: Double = 3.55, tireRadiusM: Double = 0.33, cdA: Double = 0.7, cylinders: Int = 4,
+                finalDrive: Double? = nil, tireRadiusM: Double = 0.33, cdA: Double = 0.7, cylinders: Int = 4,
                 layout: EngineLayout = .inline, crankPlane: CrankPlane = .flat, automatic: Bool = false) {
         self.hpCrank = hpCrank; self.torqueLbFt = torqueLbFt; self.weightLb = weightLb; self.drivetrain = drivetrain
         self.aspiration = aspiration; self.redline = redline
-        self.realGears = gearRatios?.isEmpty == false
-        self.gearRatios = gearRatios.flatMap { $0.isEmpty ? nil : $0 }
+        let real = gearRatios?.isEmpty == false
+        self.realGears = real
+        let ratios = gearRatios.flatMap { $0.isEmpty ? nil : $0 }
             ?? (automatic ? [4.17, 2.34, 1.52, 1.14, 0.87, 0.69] : [3.66, 2.43, 1.69, 1.32, 1.0, 0.65])
-        self.finalDrive = finalDrive; self.tireRadiusM = tireRadiusM; self.cdA = cdA; self.cylinders = cylinders
+        self.gearRatios = ratios
+        // Without the real ratios, gear the car the way makers do: first gear runs out near
+        // 38 mph (17 m/s) at redline, whatever the engine revs to.
+        self.finalDrive = finalDrive
+            ?? (real ? 3.55 : redline / 60 * 2 * .pi * tireRadiusM / (17 * ratios[0]))
+        self.tireRadiusM = tireRadiusM; self.cdA = cdA; self.cylinders = cylinders
         self.layout = layout; self.crankPlane = crankPlane; self.automatic = automatic
     }
 
@@ -137,18 +143,21 @@ public func modified(_ spec: VehicleSpec, mods: [Mod], high: Bool) -> VehicleSpe
 // MARK: Torque curve
 
 /// Torque at rpm, synthesized from peak power, peak torque, and redline; shape by aspiration.
+/// Low in the range the torque shape limits; high in the range the rated power does, held flat
+/// to 92% of redline and falling 12% by redline, so the curve reaches the rated peak power
+/// (MOD-13: without that, every reference car ran slow).
 public func torque(at rpm: Double, spec: VehicleSpec) -> Double {
     let x = max(0.1, min(rpm / spec.redline, 1.05))
     let shape: Double
     switch spec.aspiration {
     case .turbo, .twinCharged:
-        shape = x < 0.3 ? 0.55 + 1.5 * x : x < 0.75 ? 1 : 1 - (x - 0.75) * 0.9
+        shape = x < 0.3 ? 0.55 + 1.5 * x : 1
     case .supercharged:
-        shape = x < 0.2 ? 0.8 + x : x < 0.8 ? 1 : 1 - (x - 0.8)
+        shape = x < 0.2 ? 0.8 + x : 1
     default:
-        shape = 0.72 + 0.28 * sin(min(x / 0.68, 1) * .pi / 2) - max(0, x - 0.75) * 0.8
+        shape = 0.72 + 0.28 * sin(min(x / 0.6, 1) * .pi / 2)
     }
-    let powerCap = spec.hpCrank * 5252 / max(rpm, 1)
+    let powerCap = spec.hpCrank * 5252 / max(rpm, 1) * (1 - 1.5 * max(0, x - 0.92))
     return min(spec.torqueLbFt * shape, powerCap)
 }
 
@@ -197,18 +206,21 @@ public struct RunState: Sendable {
     public private(set) var quarter: (et: Double, mph: Double)?
     public private(set) var zeroToSixty: Double?
     private var rolloutAt: Double?
+    /// Engine speed the slipping clutch holds until the wheels catch up.
+    private let clutchRpm: Double
 
-    static let rho = 1.2, g = 9.81, crr = 0.012, mu = 0.95, h = 0.2
+    static let rho = 1.2, g = 9.81, crr = 0.012, mu = 1.1, h = 0.2
     static let quarterM = 402.336, eighthM = 201.168, sixtyFtM = 18.288, rolloutM = 0.3048
 
     public init(spec: VehicleSpec, launchRpm: Double) {
         self.spec = spec
         rpm = launchRpm
+        clutchRpm = min(launchRpm, spec.redline * 0.9)
     }
 
     private var mass: Double { spec.weightLb * 0.4536 + 80 }
-    private var eta: Double { spec.drivetrain == .awd || spec.drivetrain == .fourWD ? 0.80 : spec.automatic ? 0.85 : 0.88 }
-    private var shiftTime: Double { spec.automatic ? 0.12 : 0.25 }
+    private var eta: Double { spec.drivetrain == .awd || spec.drivetrain == .fourWD ? 0.85 : spec.automatic ? 0.87 : 0.88 }
+    private var shiftTime: Double { spec.automatic ? 0.12 : 0.2 }
 
     private func wheelRpm(_ v: Double, gear: Int) -> Double {
         v / spec.tireRadiusM * 60 / (2 * .pi) * spec.gearRatios[gear] * spec.finalDrive
@@ -227,8 +239,8 @@ public struct RunState: Sendable {
         let ratio = spec.gearRatios[gear] * spec.finalDrive
         let coupled = wheelRpm(speed, gear: gear)
         let engineRpm: Double
-        if gear == 0 && coupled < rpm && speed < 8 {
-            engineRpm = max(coupled, rpm * 0.98)          // clutch slip at launch
+        if gear == 0 && coupled < clutchRpm && speed < 8 {
+            engineRpm = max(coupled, clutchRpm)           // clutch slip holds launch rpm
         } else {
             engineRpm = max(coupled, 900)
         }
@@ -247,8 +259,10 @@ public struct RunState: Sendable {
         default: Self.mu * m * Self.g
         }
         let resist = 0.5 * Self.rho * spec.cdA * speed * speed + Self.crr * m * Self.g
-        let k = 1.25 - 0.2 * Double(gear) / Double(max(1, spec.gearRatios.count - 1))
-        let a = (min(drive, traction) - resist) / (m * k)
+        let k = 1.15 - 0.1 * Double(gear) / Double(max(1, spec.gearRatios.count - 1))
+        // The inertia factor scales what the engine can accelerate; a tire at its grip limit
+        // pushes the car's mass directly.
+        let a = (min(drive / k, traction) - resist) / m
         speed = max(0, speed + a * dt)
         distance += speed * dt
         time += dt

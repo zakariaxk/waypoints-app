@@ -92,6 +92,15 @@ public enum ModCatalog {
             conflicts: conflicts, weightDeltaLb: weight, sound: sound, confidence: conf, sourceURL: src)
     }
 
+    /// A supercharger kit for one platform, rated by its maker. It replaces breathing and tune
+    /// gains with its own figure (MOD-3). No weight is added: no maker publishes an installed
+    /// weight delta.
+    static func kit(_ id: String, _ name: String, _ brand: String, _ platform: String, _ hp: Double, _ tq: Double,
+                    _ src: String) -> Mod {
+        m(id, .forcedInduction, name, na, hp: 0...0, conflicts: [], sound: .init(whine: true), conf: .b, src: src,
+          brand: brand, platforms: [platform], absolute: (hp, tq))
+    }
+
     public static let all: [Mod] = [
         // Intake
         m("intake_cai_na", .intake, "Cold air intake", na, hp: 0...2, sound: .init(gainDb: 1, brightness: 0.1),
@@ -138,16 +147,43 @@ public enum ModCatalog {
           sound: .init(whine: true), weight: 40),
         m("sc_roots", .forcedInduction, "Roots supercharger kit", na, hp: 40...60, tune: true, sound: .init(whine: true), weight: 55),
         m("turbo_kit_na", .forcedInduction, "Turbo kit", na, hp: 40...70, tune: true, sound: .init(whistle: true), weight: 45),
-        // Platform kits (B: manufacturer crank figures, 93 octane)
-        m("s650_whipple_fp", .forcedInduction, "Ford Performance supercharger", na, hp: 0...0, sound: .init(whine: true), weight: 50,
-          conf: .b, src: "https://performanceparts.ford.com/", brand: "Ford Performance / Whipple", platforms: ["s650_gt"],
-          absolute: (750, 615)),
-        m("s650_whipple_s1", .forcedInduction, "Whipple Gen 6 3.0 L Stage 1", na, hp: 0...0, sound: .init(whine: true), weight: 55,
-          conf: .b, src: "https://whipplesuperchargers.com/", brand: "Whipple", platforms: ["s650_gt"], absolute: (810, 640)),
-        m("s650_whipple_s2", .forcedInduction, "Whipple Stage 2", na, hp: 0...0, sound: .init(whine: true), weight: 55,
-          conf: .b, src: "https://whipplesuperchargers.com/", brand: "Whipple", platforms: ["s650_gt"], absolute: (875, 660)),
-        m("s650_roush_p2", .forcedInduction, "Roush Phase 2 (TVS R2650)", na, hp: 0...0, sound: .init(whine: true), weight: 60,
-          conf: .b, src: "https://roushperformance.com/", brand: "Roush", platforms: ["s650_gt"], absolute: (810, 630)),
+        // Platform kits (B: the maker's advertised crank figures on 93 octane). Every figure was
+        // read off the page in `src` when the row was written (PRD 2.2).
+        // 2011–2014 Mustang GT (S197, Coyote Gen 1)
+        kit("s197_whipple_s1", "Whipple Gen 6 3.0 L Stage 1", "Whipple", "s197_gt", 745, 620,
+            "https://whipplesuperchargers.com/products/2011-2014-ford-mustang-gt-5-0l-gen-6-3-0l-whipple-supercharger-stage-1-kit"),
+        kit("s197_roush_p1", "Roush Phase 1 (TVS R2300, 575 hp calibration)", "Roush", "s197_gt", 575, 505,
+            "https://www.lethalperformance.com/roush-phase-1-supercharger-mustang-575hp-upgrade-kit.html"),
+        // 2015–2017 Mustang GT (S550, Coyote Gen 2)
+        kit("s550a_whipple_s2", "Whipple Gen 6 3.0 L Stage 2", "Whipple", "s550_gt_15", 825, 640,
+            "https://whipplesuperchargers.com/products/2015-2017-ford-mustang-5-0l-gen-6-3-0l-whipple-supercharger-stage-2-kit"),
+        kit("s550a_roush_p1", "Roush Phase 1 (TVS R2300)", "Roush", "s550_gt_15", 670, 545,
+            "https://www.roushperformance.com/products/2015-2016-ford-mustang-supercharger-upgrade-kit-phase-2"),
+        kit("s550a_roush_p2", "Roush Phase 2 (TVS R2300)", "Roush", "s550_gt_15", 727, 610,
+            "https://www.roushperformance.com/products/2015-2016-ford-mustang-supercharger-phase-2-727-hp"),
+        // 2018–2023 Mustang GT (S550, Coyote Gen 3)
+        kit("s550b_whipple_s1", "Whipple Gen 6 3.0 L Stage 1", "Whipple", "s550_gt_18", 750, 640,
+            "https://whipplesuperchargers.com/products/2018-2021-ford-mustang-gt-5-0l-gen-6-3-0l-whipple-supercharger-stage-1-kit"),
+        kit("s550b_roush_p2", "Roush Phase 2 (TVS R2650)", "Roush", "s550_gt_18", 750, 670,
+            "https://www.roushperformance.com/products/2018-mustang-supercharger-phase-2"),
+        // 2024 on Mustang GT and Dark Horse (S650, Coyote Gen 4)
+        kit("s650_whipple_fp", "Ford Performance supercharger (Whipple Gen 6)", "Ford Performance / Whipple", "s650_gt", 810, 615,
+            "https://www.performanceparts.ford.com/part/M-6066-M8800"),
+        kit("s650_whipple_s1", "Whipple Gen 6 3.0 L Stage 1", "Whipple", "s650_gt", 810, 640,
+            "https://whipplesuperchargers.com/products/2024-2026-ford-mustang-gt-dark-horse-5-0l-s650-gen-6-3-0l-whipple-stage-1-supercharger-kit-50-state-legal"),
+        kit("s650_whipple_s2", "Whipple Gen 6 3.0 L Stage 2", "Whipple", "s650_gt", 875, 660,
+            "https://www.lethalperformance.com/blogs/tech-tips/2024-2026-mustang-whipple-supercharger"),
+        kit("s650_roush_p2", "Roush Phase 2 (TVS R2650)", "Roush", "s650_gt", 810, 630,
+            "https://www.roushperformance.com/products/2024-roush-mustang-phase-2-supercharger"),
+        // 2021 on F-150 5.0 L
+        kit("f150_fp_whipple", "Ford Performance supercharger (Whipple Gen 6)", "Ford Performance / Whipple", "f150_50", 700, 590,
+            "https://performanceparts.ford.com/part/M-6066-F150SCA"),
+        // 2016–2024 Camaro with the 6.2 L LT1
+        kit("lt1_magnuson_2650", "Magnuson TVS2650R Magnum", "Magnuson", "camaro_lt1", 588, 600,
+            "https://magnusonsuperchargers.com/products/01-26-62-182-bl"),
+        // 2011–2023 Challenger and Charger with the 6.4 L (392) Hemi
+        kit("hemi64_whipple", "Whipple Gen 6 3.0 L", "Whipple", "hemi_64", 710, 650,
+            "https://whipplesuperchargers.com/products/2018-2023-dodge-challenger-charger-chrysler-300-6-4l-gen-6-3-0l-whipple-supercharger-kit"),
         // Weight
         m("wheels_light", .weight, "Lightweight wheels", hp: 0...0, weight: -30),
         m("seats_bucket", .weight, "Bucket seats", hp: 0...0, weight: -40),
@@ -166,9 +202,40 @@ public enum ModCatalog {
         }
     }
 
-    /// A platform id for kit matching.
-    public static func platform(for car: Car) -> String? {
-        if car.make == "Ford" && car.model == "Mustang" && car.year >= 2024 && (car.trim ?? "").contains("GT") { return "s650_gt" }
-        return nil
+    /// A platform id for kit matching, from the car and its catalog row. Only naturally aspirated
+    /// cars with the engine the kits were built for match; a car already boosted gets none.
+    public static func platform(for car: Car, variant: CatalogVariant? = nil) -> String? {
+        if let asp = variant?.aspiration, asp != .natural { return nil }
+        let trim = (car.trim ?? variant?.trim ?? "").lowercased()
+        let engine = (variant?.engine ?? "").lowercased()
+        let litres = variant?.displacementL
+        func engineIs(_ l: Double, _ text: String) -> Bool {
+            litres.map { abs($0 - l) < 0.15 } ?? (engine.contains(text) || trim.contains(text))
+        }
+        let y = car.year
+        switch (car.make, car.model) {
+        case ("Ford", "Mustang"):
+            // GT and Dark Horse carry the Coyote; GT350/GT500, Mach 1, and Bullitt need other kits.
+            let gt = (trim.contains("gt") || trim.contains("dark horse") || engineIs(5.0, "5.0"))
+                && !["gt350", "gt500", "mach", "bullitt", "shelby"].contains { trim.contains($0) }
+            guard gt else { return nil }
+            switch y {
+            case 2011...2014: return "s197_gt"
+            case 2015...2017: return "s550_gt_15"
+            case 2018...2023: return "s550_gt_18"
+            case 2024...: return "s650_gt"
+            default: return nil
+            }
+        case ("Ford", "F-150") where y >= 2021 && engineIs(5.0, "5.0"):
+            return "f150_50"
+        case ("Chevrolet", "Camaro") where (2016...2024).contains(y)
+            && (trim.contains("ss") || trim.contains("lt1") || engineIs(6.2, "6.2")) && !trim.contains("zl1"):
+            return "camaro_lt1"
+        case ("Dodge", "Challenger"), ("Dodge", "Charger"):
+            let hemi64 = trim.contains("392") || trim.contains("scat pack") || trim.contains("srt8") || engineIs(6.4, "6.4")
+            return (2011...2023).contains(y) && hemi64 && !trim.contains("hellcat") ? "hemi_64" : nil
+        default:
+            return nil
+        }
     }
 }
