@@ -376,7 +376,7 @@ struct LivePosts: PostRepository {
         struct Params: Encodable { let after: Int; let lim: Int }
         let start = cursor.flatMap { Int($0.raw) } ?? 0
         let rows: [PostRow] = try await ctx.run {
-            try await ctx.client.rpc("feed_for_you", params: Params(after: start, lim: limit)).execute().value
+            try await ctx.client.rpc("feed_for_you", params: Params(after: start, lim: limit)).select(PostRow.columns).execute().value
         }
         let next = rows.count == limit ? PageCursor(raw: String(start + rows.count)) : nil
         return Page(items: await models(rows), next: next)
@@ -390,7 +390,7 @@ struct LivePosts: PostRepository {
         }
         guard !followees.isEmpty else { return Page(items: [], next: nil) }
         let rows: [PostRow] = try await ctx.run {
-            var q = ctx.table("posts").select().in("author_id", values: followees.map { $0.followeeId.uuidString.lowercased() })
+            var q = ctx.table("posts").select(PostRow.columns).in("author_id", values: followees.map { $0.followeeId.uuidString.lowercased() })
             if let cursor { q = q.lt("created_at", value: cursor.raw) }
             return try await q.order("created_at", ascending: false).limit(limit).execute().value
         }
@@ -400,7 +400,7 @@ struct LivePosts: PostRepository {
 
     func posts(by author: UserID) async throws -> [Post] {
         let rows: [PostRow] = try await ctx.run {
-            try await ctx.table("posts").select().eq("author_id", value: author.key).order("created_at", ascending: false)
+            try await ctx.table("posts").select(PostRow.columns).eq("author_id", value: author.key).order("created_at", ascending: false)
                 .limit(60).execute().value
         }
         return await models(rows)
@@ -408,20 +408,46 @@ struct LivePosts: PostRepository {
 
     func post(_ id: PostID) async throws -> Post {
         let row: PostRow = try await ctx.run {
-            try await ctx.table("posts").select().eq("id", value: id.key).single().execute().value
+            try await ctx.table("posts").select(PostRow.columns).eq("id", value: id.key).single().execute().value
         }
         return await models([row])[0]
     }
 
+    func postsFromMeet(_ meet: MeetID) async throws -> [Post] {
+        let rows: [PostRow] = try await ctx.run {
+            try await ctx.table("posts").select(PostRow.columns).eq("meet_id", value: meet.key)
+                .order("created_at", ascending: false).limit(60).execute().value
+        }
+        return await models(rows)
+    }
+
+    /// A photo post inserts the post, then its photos (`post_photos`, FEED-11).
     func createPost(_ post: NewPost) async throws -> Post {
         let me = try ctx.me()
-        struct Body: Encodable { let authorId: UUID; let carId: UUID?; let videoPath: String; let posterPath: String; let caption: String; let durationMs: Int }
+        struct Body: Encodable {
+            let authorId: UUID; let carId: UUID?; let meetId: UUID?; let videoPath: String?; let posterPath: String
+            let caption: String; let durationMs: Int?
+        }
+        struct PhotoBody: Encodable { let postId: UUID; let path: String; let sort: Int }
+        let photos = Array(post.photoPaths.prefix(Post.maxPhotos))
         let row: PostRow = try await ctx.run {
-            try await ctx.table("posts").insert(Body(authorId: me.raw, carId: post.carID?.raw, videoPath: post.videoPath,
-                                                     posterPath: post.posterPath, caption: post.caption, durationMs: post.durationMs))
+            try await ctx.table("posts").insert(Body(authorId: me.raw, carId: post.carID?.raw, meetId: post.meetID?.raw,
+                                                     videoPath: post.videoPath, posterPath: post.posterPath, caption: post.caption,
+                                                     durationMs: post.durationMs > 0 ? post.durationMs : nil))
                 .select().single().execute().value
         }
-        return row.model(liked: false)
+        if !photos.isEmpty {
+            let bodies = photos.enumerated().map { PhotoBody(postId: row.id, path: $0.element, sort: $0.offset) }
+            do {
+                try await ctx.run { _ = try await ctx.table("post_photos").insert(bodies, returning: .minimal).execute() }
+            } catch {
+                try? await deletePost(PostID(raw: row.id))
+                throw error
+            }
+        }
+        var model = row.model(liked: false)
+        model.photoPaths = photos
+        return model
     }
 
     func deletePost(_ id: PostID) async throws {

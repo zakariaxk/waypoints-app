@@ -262,6 +262,13 @@ struct CarScreen: View {
                 VStack(alignment: .leading, spacing: Space.s4) {
                     Text(verbatim: e.happenedOn.formatted(date: .abbreviated, time: .omitted)).typeStyle(.readoutS).foregroundStyle(Color.dust)
                     Text(verbatim: e.title).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                    if e.isService {
+                        let odo = e.odometer.map { GarageUnits.odometer($0, e.odometerUnit ?? GarageUnits.defaultOdometer) }
+                        Text(odo.map { "Service · \($0)" } ?? "Service").typeStyle(.sub).foregroundStyle(Color.dust)
+                        if let day = e.remindOn, day >= Calendar.current.startOfDay(for: .now) {
+                            Text("Reminder \(day.formatted(date: .abbreviated, time: .omitted))").typeStyle(.sub).foregroundStyle(Color.dust)
+                        }
+                    }
                     if !e.body.isEmpty { Text(verbatim: e.body).typeStyle(.body).foregroundStyle(Color.chalk) }
                     if let path = e.photoPath {
                         MediaView(url: ctx.url(.cars, path), aspectRatio: 4.0 / 3.0, cornerRadius: Radius.r12, label: Text(verbatim: e.title))
@@ -282,7 +289,7 @@ struct CarScreen: View {
             ("Power", (o.hp ?? v?.hp).map { "\($0) hp" }, o.hp != nil),
             ("Drivetrain", (o.drivetrain ?? v?.drive)?.rawValue.uppercased(), o.drivetrain != nil),
             ("Transmission", v?.transmission, o.gears != nil),
-            ("Weight", (o.weightLb ?? v?.weightLb).map { "\($0) lb" }, o.weightLb != nil),
+            ("Weight", (o.weightLb ?? v?.weightLb).map(GarageUnits.weight(lb:)), o.weightLb != nil),
             ("Clearance", car.clearance.rawValue.capitalized, car.clearance != .stock),
         ]
         return VStack(alignment: .leading, spacing: 0) {
@@ -325,6 +332,12 @@ struct TimelineEntrySheet: View {
     @State private var photo: PhotosPickerItem?
     @State private var pick = false
     @State private var modID: String?
+    /// GAR-16
+    @State private var isService = false
+    @State private var odometer = ""
+    @State private var unit = GarageUnits.defaultOdometer
+    @State private var remind = false
+    @State private var remindOn = Calendar.current.date(byAdding: .month, value: 6, to: .now) ?? .now
     @State private var saving = false
     @State private var error: String?
 
@@ -349,6 +362,19 @@ struct TimelineEntrySheet: View {
                             Text(verbatim: modID.flatMap { ModCatalog.mod($0)?.name } ?? "").typeStyle(.sub)
                         })
                     }
+                    Toggle("Service", isOn: $isService).tint(.sodium).typeStyle(.body).foregroundStyle(Color.chalk)
+                    if isService {
+                        HStack(alignment: .bottom, spacing: Space.s12) {
+                            Field("Odometer", text: $odometer, prompt: "Optional", limit: 7).keyboardType(.numberPad)
+                            SegmentedSwitch(selection: $unit, options: [(OdometerUnit.mi, "mi"), (OdometerUnit.km, "km")])
+                                .frame(maxWidth: Size.row * 2)
+                        }
+                        Toggle("Remind me", isOn: $remind).tint(.sodium).typeStyle(.body).foregroundStyle(Color.chalk)
+                        if remind {
+                            DatePicker("On", selection: $remindOn, in: Date.now..., displayedComponents: .date).tint(.sodium)
+                                .typeStyle(.body).foregroundStyle(Color.chalk)
+                        }
+                    }
                     if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                     PrimaryButton("Add to timeline", isLoading: saving) { save() }.disabled(title.isEmpty)
                 }
@@ -366,8 +392,12 @@ struct TimelineEntrySheet: View {
                 if let photo, let data = try await photo.loadTransferable(type: Data.self) {
                     path = try await ctx.env.media.upload(data, contentType: "image/jpeg", to: .cars, progress: { _ in }).path
                 }
-                try await ctx.env.garage.addBuildEntry(BuildEntry(carID: car.id, happenedOn: date, title: title, body: details,
-                                                                  photoPath: path, modID: modID))
+                let reading = isService ? Int(odometer.filter(\.isNumber)) : nil
+                let saved = try await ctx.env.garage.addBuildEntry(BuildEntry(
+                    carID: car.id, happenedOn: date, title: title, body: details, photoPath: path, modID: modID,
+                    isService: isService, odometer: reading, odometerUnit: reading == nil ? nil : unit,
+                    remindOn: isService && remind ? remindOn : nil))
+                await ServiceReminder.sync(saved, car: car)
                 if let modID, !car.mods.contains(modID) {
                     var updated = car
                     updated.mods.append(modID)
@@ -375,6 +405,8 @@ struct TimelineEntrySheet: View {
                 }
                 onSave()
                 dismiss()
+            } catch WaypointsError.rateLimited {
+                error = GarageCopy.rateLimited
             } catch {
                 self.error = "Couldn't save. Check your connection and try again."
             }
@@ -450,6 +482,8 @@ struct EditProfile: View {
                 dismiss()
             } catch WaypointsError.conflict {
                 error = "That handle is taken."
+            } catch WaypointsError.rateLimited {
+                error = GarageCopy.rateLimited
             } catch {
                 self.error = "Couldn't save. Check your connection and try again."
             }

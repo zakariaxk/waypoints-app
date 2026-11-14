@@ -126,6 +126,7 @@ struct ProfileScreen: View {
     @State private var editing = false
     @State private var showFriends = false
     @State private var activityUnread = 0
+    @State private var toast: ToastMessage?
 
     init(ctx: GarageContext, userID: UserID, isOwn: Bool = false) {
         self.ctx = ctx; self.userID = userID; self.isOwn = isOwn
@@ -198,6 +199,7 @@ struct ProfileScreen: View {
             for await count in await ctx.env.activity.unreadCount() { activityUnread = count }
         }
         .refreshable { await model.load() }
+        .toast($toast)
     }
 
     private func header(_ p: Profile) -> some View {
@@ -241,7 +243,12 @@ struct ProfileScreen: View {
             }
             PrimaryButton(title) {
                 Task {
-                    if status == nil { askForNotifications(); try? await ctx.env.friends.sendRequest(to: p.userID) }
+                    if status == nil {
+                        askForNotifications()
+                        do { try await ctx.env.friends.sendRequest(to: p.userID) } catch WaypointsError.rateLimited {
+                            toast = ToastMessage(Text(GarageCopy.rateLimited))
+                        } catch {}
+                    }
                     else if status?.status == .pending, status?.requesterID != model.me { try? await ctx.env.friends.acceptRequest(from: p.userID) }
                     model.friendship = try? await ctx.env.friends.friendship(with: p.userID)
                 }
@@ -372,6 +379,8 @@ struct PickerSheet: View {
                 }
             }
             dismiss()
+        } catch WaypointsError.rateLimited {
+            error = GarageCopy.rateLimited
         } catch {
             self.error = "Couldn't save the car. Check your connection and try again."
         }

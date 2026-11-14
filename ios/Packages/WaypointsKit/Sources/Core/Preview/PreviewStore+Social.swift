@@ -206,12 +206,17 @@ extension PreviewStore: PostRepository {
         posts.values.filter { $0.authorID == author && visible(author) }.sorted { $0.createdAt > $1.createdAt }
             .map(decorated)
     }
+    public func postsFromMeet(_ meet: MeetID) async throws -> [Post] {
+        posts.values.filter { $0.meetID == meet && visible($0.authorID) }.sorted { $0.createdAt > $1.createdAt }
+            .map(decorated)
+    }
     public func post(_ id: PostID) async throws -> Post {
         guard let post = posts[id], visible(post.authorID) else { throw WaypointsError.notFound }
         return decorated(post)
     }
     public func createPost(_ new: NewPost) async throws -> Post {
-        let post = Post(authorID: try me(), carID: new.carID, videoPath: new.videoPath, posterPath: new.posterPath,
+        let post = Post(authorID: try me(), carID: new.carID, meetID: new.meetID, videoPath: new.videoPath,
+                        photoPaths: Array(new.photoPaths.prefix(Post.maxPhotos)), posterPath: new.posterPath,
                         caption: new.caption, durationMs: new.durationMs)
         posts[post.id] = post
         return post

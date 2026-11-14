@@ -6,7 +6,12 @@ public struct Post: Identifiable, Hashable, Sendable, Codable {
     public let id: PostID
     public let authorID: UserID
     public var carID: CarID?
-    public var videoPath: String
+    /// The meet the post was tagged with (FEED-11).
+    public var meetID: MeetID?
+    /// Nil for a photo post.
+    public var videoPath: String?
+    /// A photo post's photos in order, at most `Post.maxPhotos` (FEED-11). Empty for a video post.
+    public var photoPaths: [String]
     public var posterPath: String
     public var caption: String                // ≤150
     public var durationMs: Int
@@ -14,25 +19,34 @@ public struct Post: Identifiable, Hashable, Sendable, Codable {
     public var commentCount: Int
     public var likedByMe: Bool
     public var createdAt: Date
-    public init(id: PostID = PostID(), authorID: UserID, carID: CarID? = nil, videoPath: String, posterPath: String,
+    public init(id: PostID = PostID(), authorID: UserID, carID: CarID? = nil, meetID: MeetID? = nil, videoPath: String?,
+                photoPaths: [String] = [], posterPath: String,
                 caption: String = "", durationMs: Int, likeCount: Int = 0, commentCount: Int = 0,
                 likedByMe: Bool = false, createdAt: Date = .now) {
-        self.id = id; self.authorID = authorID; self.carID = carID; self.videoPath = videoPath
-        self.posterPath = posterPath; self.caption = caption; self.durationMs = durationMs
+        self.id = id; self.authorID = authorID; self.carID = carID; self.meetID = meetID; self.videoPath = videoPath
+        self.photoPaths = photoPaths; self.posterPath = posterPath; self.caption = caption; self.durationMs = durationMs
         self.likeCount = likeCount; self.commentCount = commentCount; self.likedByMe = likedByMe
         self.createdAt = createdAt
     }
+
+    /// FEED-11: a photo post carries up to 6 photos.
+    public static let maxPhotos = 6
+    public var isPhotoPost: Bool { videoPath == nil && !photoPaths.isEmpty }
 }
 
+/// Either `videoPath` or one to six `photoPaths` (FEED-11).
 public struct NewPost: Hashable, Sendable, Codable {
     public var carID: CarID?
-    public var videoPath: String
+    public var meetID: MeetID?
+    public var videoPath: String?
+    public var photoPaths: [String]
     public var posterPath: String
     public var caption: String
-    public var durationMs: Int
-    public init(carID: CarID? = nil, videoPath: String, posterPath: String, caption: String, durationMs: Int) {
-        self.carID = carID; self.videoPath = videoPath; self.posterPath = posterPath
-        self.caption = caption; self.durationMs = durationMs
+    public var durationMs: Int                // 0 for a photo post
+    public init(carID: CarID? = nil, meetID: MeetID? = nil, videoPath: String?, photoPaths: [String] = [],
+                posterPath: String, caption: String, durationMs: Int) {
+        self.carID = carID; self.meetID = meetID; self.videoPath = videoPath; self.photoPaths = photoPaths
+        self.posterPath = posterPath; self.caption = caption; self.durationMs = durationMs
     }
 }
 

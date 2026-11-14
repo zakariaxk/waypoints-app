@@ -100,10 +100,21 @@ public struct BuildEntry: Identifiable, Hashable, Sendable, Codable {
     public var body: String                   // ≤500
     public var photoPath: String?
     public var modID: String?
+    /// GAR-16: a service entry, with an odometer reading and an optional reminder day.
+    public var isService: Bool
+    public var odometer: Int?
+    public var odometerUnit: OdometerUnit?
+    /// Delivered as a local notification on the owner's device; nothing on the server sends it.
+    public var remindOn: Date?
     public var createdAt: Date
     public init(id: BuildEntryID = BuildEntryID(), carID: CarID, happenedOn: Date, title: String, body: String = "",
-                photoPath: String? = nil, modID: String? = nil, createdAt: Date = .now) {
+                photoPath: String? = nil, modID: String? = nil, isService: Bool = false, odometer: Int? = nil,
+                odometerUnit: OdometerUnit? = nil, remindOn: Date? = nil, createdAt: Date = .now) {
         self.id = id; self.carID = carID; self.happenedOn = happenedOn; self.title = title; self.body = body
-        self.photoPath = photoPath; self.modID = modID; self.createdAt = createdAt
+        self.photoPath = photoPath; self.modID = modID; self.isService = isService; self.odometer = odometer
+        self.odometerUnit = odometerUnit; self.remindOn = remindOn; self.createdAt = createdAt
     }
 }
+
+/// `build_entries.odometer_unit`: the unit the owner read off their dash (GAR-16).
+public enum OdometerUnit: String, Sendable, Codable, Hashable, CaseIterable { case mi, km }

@@ -95,6 +95,13 @@ struct PlayerLayerView: UIViewRepresentable {
     func updateUIView(_ v: LayerView, context: Context) { v.playerLayer.player = player }
 }
 
+// MARK: Copy
+
+enum FeedCopy {
+    /// SAFE-9: shown when the server refuses with `rateLimited`.
+    static let rateLimited = "You're doing that a lot. Try again in a few minutes."
+}
+
 // MARK: F1
 
 @MainActor
@@ -105,6 +112,7 @@ final class FeedModel {
     var authors: [UserID: Profile] = [:]
     var following: [UserID: Bool] = [:]
     var cars: [CarID: Car] = [:]
+    var meets: [MeetID: Meet] = [:]
     var next: PageCursor?
     var loading = false
     var failed = false
@@ -149,6 +157,7 @@ final class FeedModel {
             for p in (try? await env.profiles.profiles(Array(missing))) ?? [] { authors[p.userID] = p }
             for a in missing where following[a] == nil { following[a] = (try? await env.posts.isFollowing(a)) ?? false }
             for id in page.items.compactMap(\.carID) where cars[id] == nil { cars[id] = try? await env.garage.car(id) }
+            for id in page.items.compactMap(\.meetID) where meets[id] == nil { meets[id] = try? await env.meets.meet(id) }
         } catch {
             if case WaypointsError.offline = error { offline = true } else { failed = true }
         }
@@ -206,7 +215,7 @@ struct FeedHome: View {
                 Spacer()
             }
             .overlay(alignment: .trailing) {
-                IconButton(Symbol.add, label: "Post a video", style: .overMap) { posting = true }.padding(.trailing, Space.s12)
+                IconButton(Symbol.add, label: "Post", style: .overMap) { posting = true }.padding(.trailing, Space.s12)
             }
             .padding(.top, Space.s8)
             if uploader.progress != nil {
@@ -243,7 +252,7 @@ struct Pager: View {
                     } else if followingOnly {
                         EmptyState("Nobody you follow has posted yet.", actionTitle: "See For you", action: switchToForYou)
                     } else {
-                        EmptyState("No videos near you yet. Post the first one.", actionTitle: "Post a video", action: post)
+                        EmptyState("No posts near you yet. Post the first one.", actionTitle: "Post", action: post)
                     }
                     Spacer()
                 }
@@ -251,10 +260,16 @@ struct Pager: View {
                 ScrollView(.vertical) {
                     LazyVStack(spacing: 0) {
                         ForEach(Array(posts.enumerated()), id: \.element.id) { i, p in
-                            let url = model.env.media.publicURL(bucket: .posts, path: p.videoPath)
-                            VideoPage(model: model, post: p, player: pool.player(for: i, url: url),
-                                      pool: pool, comments: { commentsFor = p }, overflow: { overflow = p },
-                                      retry: { pool.retry(i, url: url) })
+                            Group {
+                                if let path = p.videoPath {
+                                    let url = model.env.media.publicURL(bucket: .posts, path: path)
+                                    VideoPage(model: model, post: p, player: pool.player(for: i, url: url),
+                                              pool: pool, comments: { commentsFor = p }, overflow: { overflow = p },
+                                              retry: { pool.retry(i, url: url) })
+                                } else {
+                                    PhotoPage(model: model, post: p, comments: { commentsFor = p }, overflow: { overflow = p })
+                                }
+                            }
                                 .containerRelativeFrame([.horizontal, .vertical])
                                 .id(i)
                                 .onAppear { if i >= posts.count - 3 { Task { await model.more() } } }
@@ -294,7 +309,6 @@ struct VideoPage: View {
     let retry: () -> Void
     @State private var paused = false
     @State private var heart: CGPoint?
-    @State private var expanded = false
     /// FEED-8: the item failed to load or to play; the poster stays with "Try again".
     @State private var failed = false
 
@@ -330,6 +344,27 @@ struct VideoPage: View {
                 Image(systemName: "heart.fill").font(.system(size: Size.likeHeart)).foregroundStyle(Color.brake)
                     .position(heart).transition(.scale.combined(with: .opacity))
             }
+            PostOverlay(model: model, post: post, comments: comments)
+        }
+        .clipped()
+        .motion(.quick, value: heart)
+        .onReceive(player.publisher(for: \.currentItem?.status).receive(on: DispatchQueue.main)) { failed = $0 == .failed }
+        .onReceive(NotificationCenter.default.publisher(for: AVPlayerItem.failedToPlayToEndTimeNotification).receive(on: DispatchQueue.main)) {
+            if ($0.object as? AVPlayerItem) === player.currentItem { failed = true }
+        }
+    }
+
+}
+
+/// Author, caption, tags, and the like/comment/share rail over a video or photo post (FEED-3, FEED-4).
+struct PostOverlay: View {
+    let model: FeedModel
+    let post: Post
+    let comments: () -> Void
+    @State private var expanded = false
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
             Gradients.scrim.frame(height: Size.row * 4).allowsHitTesting(false)
             HStack(alignment: .bottom) {
                 info
@@ -338,12 +373,6 @@ struct VideoPage: View {
             }
             .padding(Space.margin)
             .padding(.bottom, Space.s16)
-        }
-        .clipped()
-        .motion(.quick, value: heart)
-        .onReceive(player.publisher(for: \.currentItem?.status).receive(on: DispatchQueue.main)) { failed = $0 == .failed }
-        .onReceive(NotificationCenter.default.publisher(for: AVPlayerItem.failedToPlayToEndTimeNotification).receive(on: DispatchQueue.main)) {
-            if ($0.object as? AVPlayerItem) === player.currentItem { failed = true }
         }
     }
 
@@ -366,6 +395,11 @@ struct VideoPage: View {
             if let id = post.carID, let car = model.cars[id] {
                 Button { model.env.router.open(.car(id)) } label: {
                     CarBadge(car.shortLabel, icon: author?.markerIcon ?? "coupe", paint: car.colorHex.flatMap { Color(paintHex: $0) } ?? .dust)
+                }
+            }
+            if let id = post.meetID, let meet = model.meets[id] {
+                Button { model.env.router.open(.meet(id)) } label: {
+                    Text("At \(meet.title)").typeStyle(.sub).foregroundStyle(Color.chalk)
                 }
             }
         }
@@ -397,6 +431,43 @@ struct VideoPage: View {
     }
 }
 
+// MARK: FEED-11 photo posts
+
+/// A photo post: up to 6 photos swiped sideways inside the vertical pager, with the same overlay.
+struct PhotoPage: View {
+    let model: FeedModel
+    let post: Post
+    let comments: () -> Void
+    let overflow: () -> Void
+    @State private var page = 0
+    @State private var heart: CGPoint?
+
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            TabView(selection: $page) {
+                ForEach(Array(post.photoPaths.enumerated()), id: \.offset) { i, path in
+                    MediaView(url: model.env.media.publicURL(bucket: .posts, path: path), cornerRadius: 0, label: Text(verbatim: post.caption))
+                        .tag(i)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: post.photoPaths.count > 1 ? .always : .never))
+            .onTapGesture(count: 2) { loc in
+                if !post.likedByMe { model.toggleLike(post) }
+                heart = loc
+                Task { try? await Task.sleep(for: .seconds(Timing.likeHeart)); heart = nil }
+            }
+            .onLongPressGesture { overflow() }
+            if let heart {
+                Image(systemName: "heart.fill").font(.system(size: Size.likeHeart)).foregroundStyle(Color.brake)
+                    .position(heart).transition(.scale.combined(with: .opacity))
+            }
+            PostOverlay(model: model, post: post, comments: comments)
+        }
+        .clipped()
+        .motion(.quick, value: heart)
+    }
+}
+
 struct SinglePost: View {
     let env: AppEnvironment
     let postID: PostID
@@ -411,12 +482,14 @@ struct SinglePost: View {
 
     var body: some View {
         Group {
-            if let p = model.posts.first {
-                let url = env.media.publicURL(bucket: .posts, path: p.videoPath)
+            if let p = model.posts.first, let path = p.videoPath {
+                let url = env.media.publicURL(bucket: .posts, path: path)
                 VideoPage(model: model, post: p, player: pool.player(for: 0, url: url),
                           pool: pool, comments: { comments = p }, overflow: {}, retry: { pool.retry(0, url: url) })
                     .onAppear { pool.play(0) }
                     .onDisappear { pool.pauseAll() }
+            } else if let p = model.posts.first {
+                PhotoPage(model: model, post: p, comments: { comments = p }, overflow: {})
             } else {
                 SkeletonBlock(height: Size.row * 8)
             }
@@ -427,6 +500,8 @@ struct SinglePost: View {
             if let p = try? await env.posts.post(postID) {
                 model.posts = [p]
                 if let a = try? await env.profiles.profile(p.authorID) { model.authors[a.userID] = a }
+                if let id = p.carID { model.cars[id] = try? await env.garage.car(id) }
+                if let id = p.meetID { model.meets[id] = try? await env.meets.meet(id) }
             }
         }
     }
@@ -473,8 +548,15 @@ struct Comments: View {
                         let text = draft
                         Task {
                             if case .blocked = await env.safety.check(text) { error = "That comment can't be posted."; return }
-                            draft = ""
-                            _ = try? await env.posts.addComment(text, to: post.id)
+                            do {
+                                _ = try await env.posts.addComment(text, to: post.id)
+                                draft = ""
+                                error = nil
+                            } catch WaypointsError.rateLimited {
+                                error = FeedCopy.rateLimited
+                            } catch {
+                                self.error = "Couldn't post that comment. Try again."
+                            }
                             await load()
                         }
                     }
@@ -505,7 +587,33 @@ final class Uploader {
 
     init(env: AppEnvironment) { self.env = env }
 
-    func post(video: URL, poster: Data, caption: String, car: CarID?, duration: Double) {
+    /// FEED-11: photos upload in order; the first is also the poster.
+    func post(photos: [Data], caption: String, car: CarID?, meet: MeetID?) {
+        progress = 0
+        Task {
+            do {
+                var paths: [String] = []
+                let total = Double(photos.count)
+                for (i, data) in photos.prefix(Post.maxPhotos).enumerated() {
+                    let media = try await env.media.upload(data, contentType: "image/jpeg", to: .posts) { p in
+                        Task { @MainActor in self.progress = (Double(i) + p) / total }
+                    }
+                    paths.append(media.path)
+                }
+                guard let first = paths.first else { throw WaypointsError.invalid("photo") }
+                _ = try await env.posts.createPost(NewPost(carID: car, meetID: meet, videoPath: nil, photoPaths: paths,
+                                                           posterPath: first, caption: caption, durationMs: 0))
+                toast = ToastMessage(Text("Posted"))
+            } catch WaypointsError.rateLimited {
+                toast = ToastMessage(Text(FeedCopy.rateLimited))
+            } catch {
+                toast = ToastMessage(Text("Couldn't post. Check your connection and try again."))
+            }
+            progress = nil
+        }
+    }
+
+    func post(video: URL, poster: Data, caption: String, car: CarID?, meet: MeetID?, duration: Double) {
         progress = 0
         Task {
             do {
@@ -516,9 +624,12 @@ final class Uploader {
                 let videoMedia = try await env.media.upload(data, contentType: "video/mp4", to: .posts) { p in
                     Task { @MainActor in self.progress = p }
                 }
-                _ = try await env.posts.createPost(NewPost(carID: car, videoPath: videoMedia.path, posterPath: posterMedia.path,
-                                                           caption: caption, durationMs: Int(seconds * 1000)))
+                _ = try await env.posts.createPost(NewPost(carID: car, meetID: meet, videoPath: videoMedia.path,
+                                                           posterPath: posterMedia.path, caption: caption,
+                                                           durationMs: Int(seconds * 1000)))
                 toast = ToastMessage(Text("Posted"))
+            } catch WaypointsError.rateLimited {
+                toast = ToastMessage(Text(FeedCopy.rateLimited))
             } catch {
                 let drafts = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appending(path: "drafts")
                 try? FileManager.default.createDirectory(at: drafts, withIntermediateDirectories: true)
@@ -586,20 +697,37 @@ struct PostVideo: View {
     let uploader: Uploader
     @Environment(\.dismiss) private var dismiss
     @State private var item: PhotosPickerItem?
-    @State private var pick = true
+    @State private var pick = false
     @State private var video: URL?
     @State private var duration = 0.0
     @State private var cover = 0.0
     @State private var poster: UIImage?
+    /// FEED-11: a photo post instead of a video, up to 6.
+    @State private var photoItems: [PhotosPickerItem] = []
+    @State private var photos: [UIImage] = []
+    @State private var pickPhotos = false
     @State private var caption = ""
     @State private var cars: [Car] = []
     @State private var car: CarID?
+    @State private var meets: [Meet] = []
+    @State private var meet: MeetID?
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: Space.s16) {
-                    if let poster {
+                    if !photos.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: Space.s8) {
+                                ForEach(Array(photos.enumerated()), id: \.offset) { _, image in
+                                    Image(uiImage: image).resizable().aspectRatio(9.0 / 16.0, contentMode: .fill)
+                                        .frame(width: Size.row * 2, height: Size.row * 3.5)
+                                        .clipShape(RoundedRectangle(cornerRadius: Radius.r12))
+                                }
+                            }
+                        }
+                        SecondaryButton("Choose photos") { pickPhotos = true }
+                    } else if let poster {
                         Image(uiImage: poster).resizable().aspectRatio(9.0 / 16.0, contentMode: .fit)
                             .frame(maxHeight: Size.row * 6).clipShape(RoundedRectangle(cornerRadius: Radius.r12))
                         Text("Cover frame").typeStyle(.foot).foregroundStyle(Color.dust)
@@ -607,6 +735,7 @@ struct PostVideo: View {
                             .onChange(of: cover) { Task { await makePoster() } }
                     } else {
                         SecondaryButton("Choose a video") { pick = true }
+                        SecondaryButton("Choose photos") { pickPhotos = true }
                     }
                     Field("Caption", text: $caption, limit: 150, axis: .vertical)
                     Menu {
@@ -617,31 +746,66 @@ struct PostVideo: View {
                             Text(verbatim: cars.first { $0.id == car }?.shortLabel ?? "").typeStyle(.sub)
                         })
                     }
+                    if !meets.isEmpty {
+                        Menu {
+                            Button("No meet") { meet = nil }
+                            ForEach(meets) { m in Button(m.title) { meet = m.id } }
+                        } label: {
+                            Row(Text("Tag a meet"), showsDivider: false, trailing: {
+                                Text(verbatim: meets.first { $0.id == meet }?.title ?? "").typeStyle(.sub)
+                            })
+                        }
+                    }
                     PrimaryButton("Post") {
+                        if !photos.isEmpty {
+                            let data = photos.compactMap { $0.jpegData(compressionQuality: 0.85) }
+                            uploader.post(photos: data, caption: caption, car: car, meet: meet)
+                            dismiss()
+                            return
+                        }
                         guard let video, let data = poster?.jpegData(compressionQuality: 0.8) else { return }
-                        uploader.post(video: video, poster: data, caption: caption, car: car, duration: min(duration, 30))
+                        uploader.post(video: video, poster: data, caption: caption, car: car, meet: meet, duration: min(duration, 30))
                         dismiss()
                     }
-                    .disabled(video == nil)
+                    .disabled(video == nil && photos.isEmpty)
                 }
                 .padding(Space.margin)
             }
             .background(Color.asphalt.ignoresSafeArea())
-            .navigationTitle("Post a video")
+            .navigationTitle("Post")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .topBarLeading) { QuietButton("Cancel") { dismiss() } } }
             .photosPicker(isPresented: $pick, selection: $item, matching: .videos)
+            .photosPicker(isPresented: $pickPhotos, selection: $photoItems, maxSelectionCount: Post.maxPhotos,
+                          selectionBehavior: .ordered, matching: .images)
         }
         .onChange(of: item) {
             Task {
                 guard let file = try? await item?.loadTransferable(type: VideoFile.self) else { return }
+                photos = []
+                photoItems = []
                 video = file.url
                 duration = (try? await AVURLAsset(url: file.url).load(.duration).seconds) ?? 0
                 await makePoster()
             }
         }
+        .onChange(of: photoItems) {
+            Task {
+                var loaded: [UIImage] = []
+                for it in photoItems.prefix(Post.maxPhotos) {
+                    if let data = try? await it.loadTransferable(type: Data.self), let image = UIImage(data: data) { loaded.append(image) }
+                }
+                guard !loaded.isEmpty else { return }
+                photos = loaded
+                video = nil
+                poster = nil
+            }
+        }
         .task {
-            if let me = await env.auth.currentSession()?.userID { cars = (try? await env.garage.cars(of: me)) ?? [] }
+            if let me = await env.auth.currentSession()?.userID {
+                cars = (try? await env.garage.cars(of: me)) ?? []
+                meets = ((try? await env.meets.upcomingMeets(for: me)) ?? []).filter { $0.cancelledAt == nil && $0.startsAt <= .now }
+            }
         }
     }
 

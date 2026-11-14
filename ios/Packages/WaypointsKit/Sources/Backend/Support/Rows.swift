@@ -152,11 +152,16 @@ struct BuildEntryRow: Decodable, Sendable {
     let body: String?
     let photoPath: String?
     let modId: String?
+    let isService: Bool?
+    let odometer: Int?
+    let odometerUnit: OdometerUnit?
+    let remindOn: Date?
     let createdAt: Date
 
     var model: BuildEntry {
         BuildEntry(id: BuildEntryID(raw: id), carID: CarID(raw: carId), happenedOn: happenedOn, title: title,
-                   body: body ?? "", photoPath: photoPath, modID: modId, createdAt: createdAt)
+                   body: body ?? "", photoPath: photoPath, modID: modId, isService: isService ?? false,
+                   odometer: odometer, odometerUnit: odometerUnit, remindOn: remindOn, createdAt: createdAt)
     }
 }
 
@@ -168,10 +173,18 @@ struct BuildEntryWrite: Encodable, Sendable {
     var body: String
     var photoPath: Nullable<String>
     var modId: Nullable<String>
+    var isService: Bool
+    var odometer: Nullable<Int>
+    var odometerUnit: Nullable<String>
+    var remindOn: Nullable<String>
 
     init(_ e: BuildEntry) {
         id = e.id.raw; carId = e.carID.raw; happenedOn = PostgresDate.day(e.happenedOn); title = e.title
         body = e.body; photoPath = .init(e.photoPath); modId = .init(e.modID)
+        isService = e.isService
+        odometer = .init(e.isService ? e.odometer : nil)
+        odometerUnit = .init(e.isService && e.odometer != nil ? e.odometerUnit?.rawValue : nil)
+        remindOn = .init(e.isService ? e.remindOn.map(PostgresDate.day) : nil)
     }
 }
 
@@ -427,10 +440,15 @@ struct ReadMarkerRow: Decodable, Sendable {
 // MARK: Feed, Showdown, Market, Progress
 
 struct PostRow: Decodable, Sendable {
+    /// Posts with their photos embedded (FEED-11).
+    static let columns = "*, post_photos(path, sort)"
+    struct Photo: Decodable, Sendable { let path: String; let sort: Int }
     let id: UUID
     let authorId: UUID
     let carId: UUID?
-    let videoPath: String
+    let meetId: UUID?
+    let videoPath: String?
+    let postPhotos: [Photo]?
     let posterPath: String?
     let caption: String?
     let durationMs: Int?
@@ -440,7 +458,8 @@ struct PostRow: Decodable, Sendable {
 
     func model(liked: Bool) -> Post {
         Post(id: PostID(raw: id), authorID: UserID(raw: authorId), carID: carId.map(CarID.init(raw:)),
-             videoPath: videoPath, posterPath: posterPath ?? "", caption: caption ?? "", durationMs: durationMs ?? 0,
+             meetID: meetId.map(MeetID.init(raw:)), videoPath: videoPath,
+             photoPaths: (postPhotos ?? []).sorted { $0.sort < $1.sort }.map(\.path), posterPath: posterPath ?? "", caption: caption ?? "", durationMs: durationMs ?? 0,
              likeCount: likeCount, commentCount: commentCount, likedByMe: liked, createdAt: createdAt)
     }
 }

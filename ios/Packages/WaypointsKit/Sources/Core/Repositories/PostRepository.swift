@@ -7,6 +7,8 @@ public protocol PostRepository: Sendable {
     /// "Following": posts by the people the viewer follows, newest first.
     func followingFeed(after cursor: PageCursor?, limit: Int) async throws -> Page<Post>
     func posts(by author: UserID) async throws -> [Post]
+    /// FEED-11: posts tagged with a meet, newest first.
+    func postsFromMeet(_ meet: MeetID) async throws -> [Post]
     func post(_ id: PostID) async throws -> Post
     @discardableResult func createPost(_ post: NewPost) async throws -> Post
     func deletePost(_ id: PostID) async throws

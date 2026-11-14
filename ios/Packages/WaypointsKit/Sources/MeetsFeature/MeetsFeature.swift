@@ -311,6 +311,7 @@ struct MeetDetail: View {
                     if let rollError { Text(verbatim: rollError).typeStyle(.foot).foregroundStyle(Color.brake) }
                 }
                 going
+                MeetPostsStrip(env: env, meetID: meetID)
                 venue
                 if !m.details.isEmpty { Text(verbatim: m.details).typeStyle(.body).foregroundStyle(Color.chalk) }
                 PrimaryButton("Directions") { env.router.open(.navigate(to: m.coordinate, name: m.placeName)) }

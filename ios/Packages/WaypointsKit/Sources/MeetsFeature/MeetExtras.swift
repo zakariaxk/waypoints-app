@@ -207,3 +207,35 @@ struct MeetShareCard: View {
         }
     }
 }
+
+// MARK: FEED-11 posts from this meet
+
+/// E2's "Posts" strip: posts tagged with the meet, newest first. Hidden when there are none.
+struct MeetPostsStrip: View {
+    let env: AppEnvironment
+    let meetID: MeetID
+    @State private var posts: [Post] = []
+
+    var body: some View {
+        Group {
+            if !posts.isEmpty {
+                VStack(alignment: .leading, spacing: Space.s8) {
+                    Text("Posts").typeStyle(.label).foregroundStyle(Color.dust)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: Space.s8) {
+                            ForEach(posts) { p in
+                                Button { env.router.open(.post(p.id)) } label: {
+                                    MediaView(url: env.media.publicURL(bucket: .posts, path: p.posterPath), aspectRatio: 9.0 / 16.0,
+                                              cornerRadius: Radius.r12, label: Text(verbatim: p.caption))
+                                        .frame(width: Size.row * 1.5, height: Size.row * 2.67)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .task(id: meetID) { posts = (try? await env.posts.postsFromMeet(meetID)) ?? [] }
+    }
+}
