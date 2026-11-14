@@ -380,16 +380,16 @@ Anyone drops a meet on the map in three fields, from a full show to "Wawa and ch
 | MEET-1 | Starting a meet takes under 20 seconds: a pin, a title (50), one of five kinds (meet, cruise, hangout, track day, show), a time ("Now", "Tonight 8 PM", or picked), and who can see it (everyone, friends, or a team). End time defaults to 2 hours later. | P0 | Coded |
 | MEET-2 | People whose last coarse cell is within their own alert radius (5 to 50 km, default 15) and who have meets-nearby alerts on are notified of a new public meet. | P0 | Coded |
 | MEET-3 | Three meets per person per day. | P0 | Coded |
-| MEET-4 | RSVP is Going, Maybe, or Can't. Going asks once which car you are bringing and whether to be reminded. | P0 | Partial: the reminder question is not in the source. |
+| MEET-4 | RSVP is Going, Maybe, or Can't. Going asks once which car you are bringing and whether to be reminded. | P0 | Coded |
 | MEET-5 | "Who's going" shows cars, not faces, with a count and a full list. | P0 | Coded |
-| MEET-6 | A reminder arrives 30 minutes before a meet you are Going to, if you said yes to being reminded. A local notification scheduled on the device; no server job. | P0 | Missing: nothing schedules one. The "Meet reminders" switch today covers only time changes and cancellations. |
+| MEET-6 | A reminder arrives 30 minutes before a meet you are Going to, if you said yes to being reminded. A local notification scheduled on the device; no server job. | P0 | Coded |
 | MEET-7 | Venue notes: entrance (flat, moderate, steep), lot size, lit or not, and a note, added by anyone. | P0 | Coded |
 | MEET-8 | A meet offers Directions, Share, Add to Calendar, and Report. Its host can edit or cancel it; people who RSVP'd are told of a time change or a cancellation. | P0 | Coded |
 | MEET-9 | During its window a meet reads "Happening now". People with a Going RSVP within 200 m count as checked in. | P0 | Coded |
 | MEET-10 | Meets appear as pins with their start time, in the map sheet sorted by start, and in search. There is no separate list screen. | P0 | Coded |
 | MEET-11 | A member with the host-meets permission can start a team-only meet. A team's page lists its meets. | P0 | Coded |
-| MEET-12 | Recurring meets. A host can make a meet repeat weekly, every two weeks, or monthly on the same weekday. When one occurrence ends the next is created. RSVPs do not carry over; people who checked in last time are told once. Cancelling asks "This meet" or "This and every one after". | P1 | New |
-| MEET-13 | Roll out. A cruise can carry a destination or a saved road. At start time its host sees "Roll out", which starts a convoy named for the meet with that route and invites everyone Going. | P1 | New |
+| MEET-12 | Recurring meets. A host can make a meet repeat weekly, every two weeks, or monthly on the same weekday. When one occurrence ends the next is created. RSVPs do not carry over; people who checked in last time are told once. Cancelling asks "This meet" or "This and every one after". | P1 | Coded |
+| MEET-13 | Roll out. A cruise can carry a destination or a saved road. At start time its host sees "Roll out", which starts a convoy named for the meet with that route and invites everyone Going. | P1 | Coded: a destination place; a saved road is not offered yet. |
 | MEET-14 | People's choice. During a show or meet, each person checked in can pick one car from those brought. When it ends, the meet shows the winner and the car's timeline gains a line. | P2 | New |
 
 ### 4.9 Convoys (CNV)
@@ -662,7 +662,7 @@ Growth here is one person sending a link to another. Plan 10.10 (X3).
 | LINK-2 | The same paths work as HTTPS universal links, so a shared link is tappable in Messages and opens the app. Without the app it opens a plain page saying what the link is and where to get Waypoints. | P0 | Partial: no host chosen yet (`LINK_HOST`, section 9.1 step 6) and `TEAMID` in the association file is a placeholder. |
 | LINK-3 | Everything shareable shares the HTTPS link once LINK-2 is configured. | P0 | Partial: `Route.shareURL` gives the https form; Convoy, Garage, Feed, Teams, and Meets still build `waypoints://` strings themselves. |
 | LINK-4 | A static site in `site/` holds the link landing page, the association file, the Terms, and the Privacy Policy. Plain HTML, no build step, free hosting (section 9.1). | P0 | Partial: not yet published to a host. |
-| LINK-5 | Share cards. A meet shares as an image (title, time, place, a map snapshot) alongside its link. Builds and time slips have theirs (GAR-15, STR-5). | P1 | New |
+| LINK-5 | Share cards. A meet shares as an image (title, time, place, a map snapshot) alongside its link. Builds and time slips have theirs (GAR-15, STR-5). | P1 | Partial: the meet card is coded; builds and time slips belong to GAR-15, STR-5. |
 
 ---
 
