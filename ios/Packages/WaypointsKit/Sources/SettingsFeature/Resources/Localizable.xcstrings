@@ -70,10 +70,16 @@
     "Licences": {
       "extractionState": "manual"
     },
+    "Map": {
+      "extractionState": "manual"
+    },
     "MetricKit payload": {
       "extractionState": "manual"
     },
     "Name": {
+      "extractionState": "manual"
+    },
+    "No zone placed": {
       "extractionState": "manual"
     },
     "Nothing": {
@@ -89,6 +95,9 @@
       "extractionState": "manual"
     },
     "Open-source licences": {
+      "extractionState": "manual"
+    },
+    "Place the zone at the map's centre": {
       "extractionState": "manual"
     },
     "Privacy and location": {
@@ -110,6 +119,12 @@
       "extractionState": "manual"
     },
     "Sign out": {
+      "extractionState": "manual"
+    },
+    "Tap again to move it.": {
+      "extractionState": "manual"
+    },
+    "Tap the map to place the zone.": {
       "extractionState": "manual"
     },
     "This deletes your profile, cars, posts, messages you sent, and listings. Type your handle to confirm.": {
@@ -137,6 +152,9 @@
       "extractionState": "manual"
     },
     "You haven't blocked anyone.": {
+      "extractionState": "manual"
+    },
+    "Zone placed": {
       "extractionState": "manual"
     }
   },

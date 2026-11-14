@@ -10,6 +10,8 @@ struct HomeZoneEditor: View {
     @State private var center: CLLocationCoordinate2D?
     @State private var name = "Home"
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
+    /// Where the camera is looking, so VoiceOver can place the zone without a tap point.
+    @State private var cameraCenter: CLLocationCoordinate2D?
 
     var body: some View {
         Sheet(Text("Add a zone", bundle: .module)) {
@@ -25,10 +27,16 @@ struct HomeZoneEditor: View {
                     }
                     .mapStyle(.standard(emphasis: .muted))
                     .onTapGesture { point in center = proxy.convert(point, from: .local) }
+                    .onMapCameraChange(frequency: .onEnd) { cameraCenter = $0.region.center }
+                    .accessibilityLabel(Text("Map", bundle: .module))
+                    .accessibilityValue(center == nil ? Text("No zone placed", bundle: .module) : Text("Zone placed", bundle: .module))
+                    .accessibilityAction(named: Text("Place the zone at the map's centre", bundle: .module)) {
+                        if let cameraCenter { center = cameraCenter }
+                    }
                 }
                 .clipShape(RoundedRectangle(cornerRadius: Radius.r20))
                 .environment(\.colorScheme, .dark)
-                Text(center == nil ? "Tap the map to place the zone." : "Tap again to move it.")
+                (center == nil ? Text("Tap the map to place the zone.", bundle: .module) : Text("Tap again to move it.", bundle: .module))
                     .typeStyle(.foot).foregroundStyle(Color.dust)
                 Field("Name", text: $name, limit: 20)
                 PrimaryButton("Save zone") {
