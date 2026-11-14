@@ -313,7 +313,7 @@ extension PreviewStore: MarketRepository {
         return true
     }
     public func listings(_ filter: ListingFilter, after cursor: PageCursor?, limit: Int) async throws -> Page<Listing> {
-        let all = listings.values.filter { $0.status == .active && visible($0.sellerID) && matches($0, filter) }
+        let all = listings.values.filter { $0.status == .active && !$0.isExpired() && visible($0.sellerID) && matches($0, filter) }
             .sorted { $0.createdAt > $1.createdAt }
         let start = cursor.flatMap { Int($0.raw) } ?? 0
         let page = all.dropFirst(start).prefix(limit).map(decorated)
@@ -332,20 +332,29 @@ extension PreviewStore: MarketRepository {
                               condition: draft.condition, description: draft.description, fits: draft.fits,
                               carID: draft.carID, region: draft.region,
                               photos: draft.photoPaths.enumerated().map { ListingPhoto(path: $0.element, sort: $0.offset) },
-                              category: draft.category)
+                              category: draft.category, updatedAt: .now)
         listings[listing.id] = listing
         return listing
     }
     public func updateListing(_ listing: Listing) async throws -> Listing {
         let me = try me()
         guard listings[listing.id]?.sellerID == me else { throw WaypointsError.forbidden }
-        listings[listing.id] = listing
-        return listing
+        var l = listing
+        l.updatedAt = .now
+        listings[listing.id] = l
+        return l
     }
     public func setStatus(_ status: ListingStatus, for id: ListingID) async throws {
         let me = try me()
         guard listings[id]?.sellerID == me else { throw WaypointsError.forbidden }
         listings[id]?.status = status
+        listings[id]?.updatedAt = .now
+    }
+    public func relist(_ id: ListingID) async throws {
+        let me = try me()
+        guard listings[id]?.sellerID == me else { throw WaypointsError.forbidden }
+        listings[id]?.status = .active
+        listings[id]?.updatedAt = .now
     }
     public func save(_ id: ListingID) async throws { saves.insert(Pair(id.raw, try me().raw)) }
     public func unsave(_ id: ListingID) async throws { saves.remove(Pair(id.raw, try me().raw)) }

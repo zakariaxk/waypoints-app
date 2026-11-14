@@ -600,6 +600,14 @@ struct LiveMarket: MarketRepository {
     func listings(_ filter: ListingFilter, after cursor: PageCursor?, limit: Int) async throws -> Page<Listing> {
         let rows: [ListingRow] = try await ctx.run {
             var q = ctx.table("listings").select(listingColumns).eq("status", value: ListingStatus.active.rawValue)
+                .gte("updated_at", value: PostgresDate.timestamp(Date.now.addingTimeInterval(-Listing.expiresAfter)))
+            if let c = filter.near, let r = filter.radiusMeters {
+                // Coarse cells are 0.1 degree; pad the box by half a cell so edge listings stay in.
+                let dLat = Double(r) / 111_320 + 0.05
+                let dLng = Double(r) / (111_320 * max(0.1, cos(c.latitude * .pi / 180))) + 0.05
+                q = q.gte("lat_c", value: c.latitude - dLat).lte("lat_c", value: c.latitude + dLat)
+                    .gte("lng_c", value: c.longitude - dLng).lte("lng_c", value: c.longitude + dLng)
+            }
             if let k = filter.kind { q = q.eq("kind", value: k.rawValue) }
             if let c = filter.category { q = q.eq("category", value: c.rawValue) }
             if let text = filter.query, !text.isEmpty { q = q.ilike("title", pattern: "%\(filterSafe(text))%") }
@@ -637,7 +645,7 @@ struct LiveMarket: MarketRepository {
         let me = try ctx.me()
         let write = ListingWrite(kind: draft.kind, title: draft.title, priceCents: draft.priceCents, condition: draft.condition,
                                  description: draft.description, fits: draft.fits, carID: draft.carID, region: draft.region,
-                                 seller: me, status: .active, category: draft.category)
+                                 seller: me, status: .active, category: draft.category, near: draft.near)
         let id: UUID = try await ctx.run {
             let row: IDRow = try await ctx.table("listings").insert(write).select("id").single().execute().value
             return row.id
@@ -665,6 +673,11 @@ struct LiveMarket: MarketRepository {
         try await ctx.run {
             _ = try await ctx.table("listings").update(Body(status: status), returning: .minimal).eq("id", value: id.key).execute()
         }
+    }
+
+    func relist(_ id: ListingID) async throws {
+        struct Params: Encodable { let listing: UUID }
+        try await ctx.run { _ = try await ctx.client.rpc("relist_listing", params: Params(listing: id.raw)).execute() }
     }
 
     func save(_ id: ListingID) async throws {

@@ -8,6 +8,8 @@ public protocol MarketRepository: Sendable {
     @discardableResult func createListing(_ draft: ListingDraft) async throws -> Listing
     @discardableResult func updateListing(_ listing: Listing) async throws -> Listing
     func setStatus(_ status: ListingStatus, for id: ListingID) async throws
+    /// MKT-9: makes an expired listing active again and resets its 90 days.
+    func relist(_ id: ListingID) async throws
     func save(_ id: ListingID) async throws
     func unsave(_ id: ListingID) async throws
     func savedListings() async throws -> [Listing]
