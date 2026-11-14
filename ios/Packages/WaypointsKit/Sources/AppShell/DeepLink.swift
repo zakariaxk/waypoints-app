@@ -11,11 +11,7 @@ import Foundation
 /// `url(for:)` returns the `waypoints://` form.
 public enum DeepLink {
     /// The configured universal-link host, lowercased, or nil.
-    public static let linkHost: String? = {
-        guard let raw = Bundle.main.object(forInfoDictionaryKey: AppConfig.linkHostInfoKey) as? String else { return nil }
-        let host = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        return host.isEmpty || host.contains("$(") ? nil : host
-    }()
+    public static var linkHost: String? { Route.linkHost }
 
     public static func route(from url: URL) -> Route? { route(from: url, host: linkHost) }
 
@@ -54,19 +50,6 @@ public enum DeepLink {
 
     /// The https form on `host` when one is configured, else `waypoints://`.
     public static func url(for route: Route, host: String?) -> URL? {
-        let path: String? = switch route {
-        case .profile(let id): "profile/\(id)"
-        case .car(let id): "car/\(id)"
-        case .meet(let id): "meet/\(id)"
-        case .team(let id): "team/\(id)"
-        case .listing(let id): "listing/\(id)"
-        case .post(let id): "post/\(id)"
-        case .joinTeam(let code): "invite/team/\(code)"
-        case .joinConvoy(let code): "invite/convoy/\(code)"
-        default: nil
-        }
-        guard let path else { return nil }
-        if let host { return URL(string: "https://\(host)/\(path)") }
-        return URL(string: "waypoints://\(path)")
+        route.shareURL(host: host)
     }
 }

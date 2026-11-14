@@ -1233,7 +1233,7 @@ Meets appear in the map sheet's Meets section as rows (glyph, title, time in `re
 
 **X3 Deep links.** `waypoints://` and universal links for profile, car, meet, team invite, convoy invite, listing, post. Signed-out users land on O1 and continue to the target after sign-in.
 
-Contract change: the universal-link form is `https://<LINK_HOST>/<path>` with the same paths as `waypoints://` (`profile/<id>`, `car/<id>`, `meet/<id>`, `team/<id>`, `listing/<id>`, `post/<id>`, `invite/team/<code>`, `invite/convoy/<code>`). `LINK_HOST` is one value in `Config.xcconfig`, read through Info.plist `WPLinkHost` into `AppConfig.linkHost` and `DeepLink.linkHost`, and used by the associated-domains entitlement (`applinks:$(LINK_HOST)`). `DeepLink.url(for:)` returns the https form when a host is set, else `waypoints://`; share sheets should build links through it. The host serves `site/` (LINK-4); without the app, `site/404.html` says what the link is and where to get Waypoints.
+Contract change: the universal-link form is `https://<LINK_HOST>/<path>` with the same paths as `waypoints://` (`profile/<id>`, `car/<id>`, `meet/<id>`, `team/<id>`, `listing/<id>`, `post/<id>`, `invite/team/<code>`, `invite/convoy/<code>`). `LINK_HOST` is one value in `Config.xcconfig`, read through Info.plist `WPLinkHost` into `AppConfig.linkHost` and `DeepLink.linkHost`, and used by the associated-domains entitlement (`applinks:$(LINK_HOST)`). `Route.shareURL` (Core, so features can use it) and `DeepLink.url(for:)` return the https form when a host is set, else `waypoints://`; every share sheet builds its link through `Route.shareURL`. The host serves `site/` (LINK-4); without the app, `site/404.html` says what the link is and where to get Waypoints.
 
 ---
 

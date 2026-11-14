@@ -39,3 +39,39 @@ public struct AppConfig: Sendable, Hashable {
         appVersion: "0.0.0"
     )
 }
+
+/// LINK-3: the link to share for a route. Lives in Core so features (which cannot import
+/// AppShell) share the same form `DeepLink` parses: `https://<LINK_HOST>/<path>` when a host
+/// is configured, else `waypoints://<path>`.
+public extension Route {
+    /// The configured universal-link host from Info.plist, lowercased, or nil.
+    static let linkHost: String? = {
+        guard let raw = Bundle.main.object(forInfoDictionaryKey: AppConfig.linkHostInfoKey) as? String else { return nil }
+        let host = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return host.isEmpty || host.contains("$(") ? nil : host
+    }()
+
+    /// The shareable path, for routes that have one.
+    var linkPath: String? {
+        switch self {
+        case .profile(let id): "profile/\(id)"
+        case .car(let id): "car/\(id)"
+        case .meet(let id): "meet/\(id)"
+        case .team(let id): "team/\(id)"
+        case .listing(let id): "listing/\(id)"
+        case .post(let id): "post/\(id)"
+        case .joinTeam(let code): "invite/team/\(code)"
+        case .joinConvoy(let code): "invite/convoy/\(code)"
+        default: nil
+        }
+    }
+
+    /// Use this in every share sheet.
+    var shareURL: URL? { shareURL(host: Self.linkHost) }
+
+    func shareURL(host: String?) -> URL? {
+        guard let linkPath else { return nil }
+        if let host { return URL(string: "https://\(host)/\(linkPath)") }
+        return URL(string: "waypoints://\(linkPath)")
+    }
+}
