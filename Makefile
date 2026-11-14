@@ -70,5 +70,22 @@ bench-local:
 bench-cluster:
 	bench/run-cluster.sh
 
+# W8-2: Release archive for App Store Connect. Config.xcconfig must point at the hosted
+# backend and set LINK_HOST (docs/APP_STORE.md, Release build). Signing uses the team in
+# Xcode's accounts; pass DEVELOPMENT_TEAM=<id> if the project does not set one.
+# `make screenshots` runs tools/screenshots/shots.sh (CMP-7) into .build/screenshots.
+.PHONY: archive screenshots
+ARCHIVE := $(CURDIR)/.build/Waypoints.xcarchive
+archive: generate
+	@echo "==> xcodebuild archive (Release)"
+	@cd ios && xcodebuild -project Waypoints.xcodeproj -scheme Waypoints -configuration Release \
+		-destination 'generic/platform=iOS' -derivedDataPath '$(DERIVED_DATA)' \
+		-archivePath '$(ARCHIVE)' -skipPackagePluginValidation -allowProvisioningUpdates \
+		$(if $(DEVELOPMENT_TEAM),DEVELOPMENT_TEAM=$(DEVELOPMENT_TEAM)) -quiet archive
+	@echo "==> $(ARCHIVE)"
+
+screenshots:
+	tools/screenshots/shots.sh
+
 clean:
 	rm -rf '$(DERIVED_DATA)' ios/Waypoints.xcodeproj
