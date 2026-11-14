@@ -496,11 +496,11 @@ Servers for car clubs. Plan 5.4, 10.7 (T1, T4 to T6).
 | TEAM-1 | Starting a team takes an icon, a name (40), a unique tag (2 to 5 letters), an about line, and whether anyone can find it. It is created with Owner and Member roles, a `general` text channel, and a `Garage` voice channel. | P0 | Coded |
 | TEAM-2 | Find public teams, sorted by members in your region, or join by invite code or link. | P0 | Coded |
 | TEAM-3 | A left rail holds direct messages, your teams, and a button to find or start one. | P0 | Coded |
-| TEAM-4 | A team shows its text channels with unread counts, its voice channels with who is in them, and its next meet under "Upcoming". | P0 | Partial: "Upcoming" is not in the source. |
+| TEAM-4 | A team shows its text channels with unread counts, its voice channels with who is in them, and its next meet under "Upcoming". | P0 | Partial: "Upcoming" and channel unread counts are coded; voice rows do not yet show who is in them (no voice presence API in Core). |
 | TEAM-5 | Roles have a name, a colour, a rank, and six permissions: manage team, manage channels, manage roles, kick, delete messages, host meets. The database enforces them, not only the interface. | P0 | Coded |
 | TEAM-6 | Channels can be added, renamed, reordered, and deleted by those permitted. | P0 | Coded |
-| TEAM-7 | Members are listed by role. Those permitted can change a member's role or remove them. | P0 | Partial: "Change role" is not in the source. |
-| TEAM-8 | A team's page offers Invite people, Members, Meets, and, when permitted, Channels, Roles, and Edit team. Members can leave; the owner deletes by typing the team's name. | P0 | Partial: "Edit team" is not in the source. |
+| TEAM-7 | Members are listed by role. Those permitted can change a member's role or remove them. | P0 | Coded |
+| TEAM-8 | A team's page offers Invite people, Members, Meets, and, when permitted, Channels, Roles, and Edit team. Members can leave; the owner deletes by typing the team's name. | P0 | Coded |
 | TEAM-9 | Teammates see each other on the map at the level each chose for Teams. | P0 | Coded |
 | TEAM-10 | Only the Teams tab carries an unread count. | P0 | Coded |
 
