@@ -4,6 +4,9 @@
     "Add to collection": {
       "extractionState": "manual"
     },
+    "Blur the middle of the photo": {
+      "extractionState": "manual"
+    },
     "Blurred area": {
       "extractionState": "manual"
     },
@@ -38,6 +41,9 @@
       "extractionState": "manual"
     },
     "You're doing that a lot. Try again in a few minutes.": {
+      "extractionState": "manual"
+    },
+    "Your photo": {
       "extractionState": "manual"
     }
   },

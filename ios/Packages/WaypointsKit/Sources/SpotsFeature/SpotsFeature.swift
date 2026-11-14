@@ -90,6 +90,7 @@ enum PlateBlur {
 struct SpotFlow: View {
     let env: AppEnvironment
     @Environment(\.dismiss) private var dismiss
+    /// Reduce Motion: the photo doesn't fly into the result; ids differ so it crossfades.
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var image: UIImage?
     @State private var boxes: [BlurBox] = []
@@ -124,7 +125,7 @@ struct SpotFlow: View {
                             Image(uiImage: shot).resizable().scaledToFill()
                                 .frame(width: Size.row, height: Size.row)
                                 .clipShape(RoundedRectangle(cornerRadius: Radius.r6, style: .continuous))
-                                .matchedGeometryEffect(id: "shot", in: collection)
+                                .matchedGeometryEffect(id: reduceMotion ? "shot.result" : "shot", in: collection)
                                 .accessibilityHidden(true)
                         }
                         Text(verbatim: result).typeStyle(.display).foregroundStyle(Color.chalk)
@@ -152,7 +153,12 @@ struct SpotFlow: View {
                         .onTapGesture { p in
                             boxes.append(BlurBox(rect: CGRect(x: p.x / size.width - 0.12, y: p.y / size.height - 0.04, width: 0.24, height: 0.08)))
                         }
-                        .matchedGeometryEffect(id: "shot", in: collection)
+                        .accessibilityElement(children: .contain)
+                        .accessibilityLabel(Text("Your photo", bundle: .module))
+                        .accessibilityAction(named: Text("Blur the middle of the photo", bundle: .module)) {
+                            boxes.append(BlurBox(rect: CGRect(x: 0.38, y: 0.46, width: 0.24, height: 0.08)))
+                        }
+                        .matchedGeometryEffect(id: reduceMotion ? "shot.photo" : "shot", in: collection)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                     Text("Plates and faces are blurred. Tap a box to remove it. Tap the photo to blur more.", bundle: .module)
