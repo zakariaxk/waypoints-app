@@ -15,6 +15,8 @@ public protocol GatewayService: Sendable {
     @discardableResult func createMeet(_ draft: MeetDraft) async throws -> Meet
     @discardableResult func updateMeet(_ id: MeetID, _ draft: MeetDraft) async throws -> Meet
     func cancelMeet(_ id: MeetID) async throws
+    /// Cancels this occurrence and every later one of its series, ending the series (MEET-12).
+    func cancelMeetAndFollowing(_ id: MeetID) async throws
 
     // Convoys
     func createConvoy(name: String, destination: ConvoyDestination?) async throws -> ConvoyInvite

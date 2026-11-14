@@ -43,6 +43,8 @@ struct ReportBody: Encodable, Sendable {
 }
 
 struct VoteBody: Encodable, Sendable { var stillThere: Bool }
+/// `DELETE /v1/meets/{id}` with `scope: "following"` also cancels later occurrences (MEET-12).
+struct CancelMeetBody: Encodable, Sendable { var scope: String }
 struct InviteBody: Encodable, Sendable { var userIds: [UserID] }
 struct JoinConvoyBody: Encodable, Sendable { var joinCode: String }
 struct VoiceBody: Encodable, Sendable { var channelId: ChannelID }
@@ -73,11 +75,16 @@ struct MeetBody: Encodable, Sendable {
     var details: String
     var visibility: MeetVisibility
     var teamId: TeamID?
+    var recurrence: MeetRecurrence?
+    /// The zone a series repeats in, so "Saturdays 8 AM" holds across daylight saving.
+    var timeZone: String
+    var destination: PlaceDTO?
 
     init(_ d: MeetDraft) {
         title = d.title; kind = d.kind; lat = d.coordinate.latitude; lng = d.coordinate.longitude
         placeName = d.placeName; startsAt = d.startsAt; endsAt = d.endsAt; details = d.details
         visibility = d.visibility; teamId = d.teamID
+        recurrence = d.recurrence; timeZone = TimeZone.current.identifier; destination = d.destination.map(PlaceDTO.init)
     }
 }
 
@@ -117,11 +124,15 @@ struct MeetDTO: Decodable, Sendable {
     var teamId: TeamID?
     var cancelledAt: Date?
     var createdAt: Date?
+    var recurrence: MeetRecurrence?
+    var seriesId: UUID?
+    var destination: PlaceDTO?
 
     var model: Meet {
         Meet(id: id, hostID: hostId, title: title, kind: kind, coordinate: Coordinate(latitude: lat, longitude: lng),
              placeName: placeName, startsAt: startsAt, endsAt: endsAt, details: details ?? "", visibility: visibility,
-             teamID: teamId, cancelledAt: cancelledAt, createdAt: createdAt ?? .now)
+             teamID: teamId, cancelledAt: cancelledAt, createdAt: createdAt ?? .now,
+             recurrence: recurrence, seriesID: seriesId, destination: destination?.model)
     }
 }
 

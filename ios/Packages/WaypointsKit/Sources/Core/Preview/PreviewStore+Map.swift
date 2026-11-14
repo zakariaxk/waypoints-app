@@ -129,7 +129,9 @@ extension PreviewStore: GatewayService {
         guard today < 3 else { throw WaypointsError.rateLimited }
         let meet = Meet(hostID: me, title: draft.title, kind: draft.kind, coordinate: draft.coordinate,
                         placeName: draft.placeName, startsAt: draft.startsAt, endsAt: draft.endsAt,
-                        details: draft.details, visibility: draft.visibility, teamID: draft.teamID)
+                        details: draft.details, visibility: draft.visibility, teamID: draft.teamID,
+                        recurrence: draft.recurrence, seriesID: draft.recurrence == nil ? nil : UUID(),
+                        destination: draft.destination)
         meets[meet.id] = meet
         return meet
     }
@@ -140,6 +142,8 @@ extension PreviewStore: GatewayService {
         meet.title = draft.title; meet.kind = draft.kind; meet.coordinate = draft.coordinate
         meet.placeName = draft.placeName; meet.startsAt = draft.startsAt; meet.endsAt = draft.endsAt
         meet.details = draft.details; meet.visibility = draft.visibility; meet.teamID = draft.teamID
+        meet.recurrence = draft.recurrence; meet.destination = draft.destination
+        if draft.recurrence != nil && meet.seriesID == nil { meet.seriesID = UUID() }
         meets[id] = meet
         return meet
     }
@@ -147,6 +151,14 @@ extension PreviewStore: GatewayService {
         let me = try me()
         guard meets[id]?.hostID == me else { throw WaypointsError.forbidden }
         meets[id]?.cancelledAt = .now
+    }
+    public func cancelMeetAndFollowing(_ id: MeetID) async throws {
+        let me = try me()
+        guard let meet = meets[id], meet.hostID == me else { throw WaypointsError.forbidden }
+        for (key, m) in meets where m.id == id || (meet.seriesID != nil && m.seriesID == meet.seriesID && m.startsAt >= meet.startsAt) {
+            meets[key]?.cancelledAt = m.cancelledAt ?? .now
+            meets[key]?.recurrence = nil
+        }
     }
     public func createConvoy(name: String, destination: ConvoyDestination?) async throws -> ConvoyInvite {
         _ = try me()

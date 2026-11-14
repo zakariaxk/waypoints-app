@@ -415,7 +415,7 @@ Year, make, model, and trim are copied onto the row as text so a car still rende
 |---|---|---|
 | `reports` | `id`, `author_id`, `kind` (`speed_bump`, `steep_entrance`, `pothole`, `rough_road`, `police`, `hazard`, `closure`, `fuel_e85`), `geom geography(Point)`, `h3_r7 bigint`, `note text` (≤120), `confirmations int default 1`, `expires_at timestamptz`, `permanent bool` | Read: signed-in. Insert, confirm, dismiss: through gateway only. |
 | `report_votes` | `report_id`, `user_id`, `still_there bool`, pk on the pair | Service role. |
-| `meets` | `id`, `host_id`, `title text` (≤50), `kind` (`meet`, `cruise`, `hangout`, `track_day`, `show`), `geom geography(Point)`, `h3_r7 bigint`, `place_name text`, `starts_at timestamptz`, `ends_at timestamptz`, `details text` (≤500), `visibility` (`public`, `friends`, `team`), `team_id uuid null`, `cancelled_at timestamptz` | Read: per `visibility`. Insert and update: through gateway (host only). |
+| `meets` | `id`, `host_id`, `title text` (≤50), `kind` (`meet`, `cruise`, `hangout`, `track_day`, `show`), `geom geography(Point)`, `h3_r7 bigint`, `place_name text`, `starts_at timestamptz`, `ends_at timestamptz`, `details text` (≤500), `visibility` (`public`, `friends`, `team`), `team_id uuid null`, `cancelled_at timestamptz`, `recurrence text null` (`weekly`, `biweekly`, `monthly`), `series_id uuid null`, `time_zone text null`, `dest_lat`, `dest_lng`, `dest_name` (a cruise's roll-out destination) | Read: per `visibility`. Insert and update: through gateway (host only). |
 | `meet_rsvps` | `meet_id`, `user_id`, `status` (`going`, `maybe`), `car_id uuid null`, pk on the pair | Read: anyone who can read the meet. Write: owner. |
 | `venue_notes` | `id`, `geom geography(Point)`, `h3_r9 bigint`, `author_id`, `entrance` (`flat`, `moderate`, `steep`), `lot_size` (`small`, `medium`, `large`), `lit bool`, `note text` (≤120) | Read: signed-in. Insert: signed-in. |
 | `roads` | `id`, `author_id`, `name text` (≤50), `path geography(LineString)`, `length_m int`, `h3_r7 bigint` | Read: signed-in. Insert: owner. |
@@ -556,8 +556,8 @@ HTTP JSON API on the gateway (all require `Authorization: Bearer <Supabase acces
 | `POST /v1/reports` | `{kind, lat, lng, note}` | Inserts, publishes `MapEvent` to the cell. Merges with an existing report of the same kind within 30 m (counts as a confirmation). |
 | `POST /v1/reports/{id}/vote` | `{still_there}` | Applies section 5.3 rules; publishes `UPSERT` or `REMOVE`. |
 | `DELETE /v1/reports/{id}` | | Author only, within 5 minutes of posting (M5 Undo). Publishes `REMOVE`. |
-| `POST /v1/meets` | meet fields | Inserts, publishes `MapEvent`, pushes to users whose `user_presence_cell` is within their own `notify_radius_km`. Limit: 3 per user per day. |
-| `PATCH /v1/meets/{id}`, `DELETE /v1/meets/{id}` | | Host only. Publishes; pushes RSVP'd users on time change or cancel. |
+| `POST /v1/meets` | meet fields, plus optional `recurrence` (`weekly`, `biweekly`, `monthly`), `time_zone` (IANA), `destination {lat, lng, name}` | Inserts, publishes `MapEvent`, pushes to users whose `user_presence_cell` is within their own `notify_radius_km`. Limit: 3 per user per day (occurrences the gateway creates for a series do not count). Responses carry `recurrence`, `series_id`, `destination`. |
+| `PATCH /v1/meets/{id}`, `DELETE /v1/meets/{id}` | `DELETE` takes optional `{scope: "following"}` | Host only. Publishes; pushes RSVP'd users on time change or cancel. `scope: "following"` also cancels every later occurrence of the series and ends it. A one-minute sweep creates the next occurrence of a recurring meet when one ends (no RSVPs carried over) and tells the people who checked in at the one that ended. |
 | `POST /v1/convoys` | `{name, destination?}` | Returns `{id, join_code}`. |
 | `POST /v1/convoys/join` | `{join_code}` | Returns convoy. |
 | `PUT /v1/convoys/{id}/destination`, `PUT /v1/convoys/{id}/regroup`, `DELETE /v1/convoys/{id}` | | Leader only. |
@@ -1055,6 +1055,7 @@ Notifications permission is not asked here. It is asked the first time it has a 
 **E1 Start a meet.** Purpose: a meet on the map in under 20 seconds.
 - Sheet, `large`. A small map at top with a draggable pin (prefilled from where the add menu was opened); the resolved place name beneath, editable.
 - Fields: "What is it?" (`Field`, 50 characters, placeholder "Wawa and chill"); kind as five `Chip`s (Meet, Cruise, Hangout, Track day, Show); "When" with three quick choices ("Now", "Tonight 8 PM", "Pick a time") and an optional end time defaulting to 2 hours after; "Who can see it" (`SegmentedSwitch`: Everyone, Friends, a team if the user has `host_meets` in one).
+- "Repeats" as `Chip`s: Doesn't repeat, Weekly, Every two weeks, Monthly (same weekday). A cruise adds "Rolling out to" (a place, geocoded near the pin).
 - "Details" collapses to one line until tapped.
 - `PrimaryButton` "Start meet". On success the sheet closes, the pin drops with `sheet`, `done`, and E2 opens.
 - Daily limit hit: "You've started 3 meets today. That's the limit."
@@ -1068,6 +1069,10 @@ Notifications permission is not asked here. It is asked the first time it has a 
 - `PrimaryButton` "Directions" → M3. Overflow: Share, Add to Calendar, Report; for the host: Edit, Cancel meet (confirmation "Cancel this meet? 12 people who RSVP'd will be told.").
 - Live state: within the time window the header gains a `go` "Happening now"; people within 200 m with a Going RSVP count as checked in.
 - Cancelled: header reads "Cancelled" in `brake`; RSVP control removed.
+- Going opens one small sheet: garage rows (when more than one car) and "Remind you before it starts?"; yes schedules a local notification 30 minutes before the start, and is the notification permission moment.
+- Recurring: the header says "Every Saturday"; the host's cancel asks "This meet" or "This and every one after".
+- Roll out: a cruise with a destination shows its host `PrimaryButton` "Roll out" from 15 minutes before the start; it starts a convoy named for the meet to that destination, invites everyone Going, and opens the convoy sheet.
+- Share sends a card image (map snapshot, title, time, place) with the link as its message.
 
 Meets appear in the map sheet's Meets section as rows (glyph, title, time in `readoutS`, distance, going count), sorted by start time; and in M2. There is no separate meets list screen.
 

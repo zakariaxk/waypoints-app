@@ -39,6 +39,8 @@ public struct Report: Identifiable, Hashable, Sendable, Codable {
 
 public enum MeetKind: String, Sendable, Codable, Hashable, CaseIterable { case meet, cruise, hangout, trackDay = "track_day", show }
 public enum MeetVisibility: String, Sendable, Codable, Hashable, CaseIterable { case `public`, friends, team }
+/// MEET-12: monthly repeats on the same weekday of the same week.
+public enum MeetRecurrence: String, Sendable, Codable, Hashable, CaseIterable { case weekly, biweekly, monthly }
 
 public struct Meet: Identifiable, Hashable, Sendable, Codable {
     public let id: MeetID
@@ -54,13 +56,21 @@ public struct Meet: Identifiable, Hashable, Sendable, Codable {
     public var teamID: TeamID?
     public var cancelledAt: Date?
     public var createdAt: Date
+    /// How the series repeats (MEET-12); nil for a one-off or a series that was ended.
+    public var recurrence: MeetRecurrence?
+    /// Shared by every occurrence of a recurring meet.
+    public var seriesID: UUID?
+    /// Where a cruise rolls out to (MEET-13).
+    public var destination: ConvoyDestination?
     public init(id: MeetID = MeetID(), hostID: UserID, title: String, kind: MeetKind, coordinate: Coordinate,
                 placeName: String, startsAt: Date, endsAt: Date, details: String = "",
                 visibility: MeetVisibility = .public, teamID: TeamID? = nil, cancelledAt: Date? = nil,
-                createdAt: Date = .now) {
+                createdAt: Date = .now, recurrence: MeetRecurrence? = nil, seriesID: UUID? = nil,
+                destination: ConvoyDestination? = nil) {
         self.id = id; self.hostID = hostID; self.title = title; self.kind = kind; self.coordinate = coordinate
         self.placeName = placeName; self.startsAt = startsAt; self.endsAt = endsAt; self.details = details
         self.visibility = visibility; self.teamID = teamID; self.cancelledAt = cancelledAt; self.createdAt = createdAt
+        self.recurrence = recurrence; self.seriesID = seriesID; self.destination = destination
     }
     public func isHappening(at date: Date = .now) -> Bool { cancelledAt == nil && startsAt <= date && date < endsAt }
 }
@@ -76,11 +86,14 @@ public struct MeetDraft: Hashable, Sendable, Codable {
     public var details: String
     public var visibility: MeetVisibility
     public var teamID: TeamID?
+    public var recurrence: MeetRecurrence?
+    public var destination: ConvoyDestination?
     public init(title: String, kind: MeetKind, coordinate: Coordinate, placeName: String, startsAt: Date,
-                endsAt: Date, details: String = "", visibility: MeetVisibility = .public, teamID: TeamID? = nil) {
+                endsAt: Date, details: String = "", visibility: MeetVisibility = .public, teamID: TeamID? = nil,
+                recurrence: MeetRecurrence? = nil, destination: ConvoyDestination? = nil) {
         self.title = title; self.kind = kind; self.coordinate = coordinate; self.placeName = placeName
         self.startsAt = startsAt; self.endsAt = endsAt; self.details = details; self.visibility = visibility
-        self.teamID = teamID
+        self.teamID = teamID; self.recurrence = recurrence; self.destination = destination
     }
 }
 

@@ -217,6 +217,11 @@ struct MeetRow: Decodable, Sendable {
     let teamId: UUID?
     let cancelledAt: Date?
     let createdAt: Date?
+    let recurrence: MeetRecurrence?
+    let seriesId: UUID?
+    let destLat: Double?
+    let destLng: Double?
+    let destName: String?
 
     var model: Meet {
         let coordinate = latitude.flatMap { lat in longitude.map { Coordinate(latitude: lat, longitude: $0) } }
@@ -224,7 +229,10 @@ struct MeetRow: Decodable, Sendable {
         return Meet(id: MeetID(raw: id), hostID: UserID(raw: hostId), title: title, kind: kind, coordinate: coordinate,
                     placeName: placeName ?? "", startsAt: startsAt, endsAt: endsAt, details: details ?? "",
                     visibility: visibility, teamID: teamId.map(TeamID.init(raw:)), cancelledAt: cancelledAt,
-                    createdAt: createdAt ?? .distantPast)
+                    createdAt: createdAt ?? .distantPast, recurrence: recurrence, seriesID: seriesId,
+                    destination: destLat.flatMap { lat in destLng.map {
+                        ConvoyDestination(coordinate: Coordinate(latitude: lat, longitude: $0), name: destName ?? "")
+                    } })
     }
 }
 

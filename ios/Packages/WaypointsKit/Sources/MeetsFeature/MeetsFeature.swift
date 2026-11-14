@@ -3,7 +3,6 @@ import EventKit
 import DesignSystem
 import MapKit
 import SwiftUI
-import UserNotifications
 
 /// Meets (plan 10.4): map layer, sheet section, "Start a meet", routes `meet` and `createMeet`.
 public enum MeetsFeature: FeatureModule {
@@ -23,17 +22,6 @@ public enum MeetsFeature: FeatureModule {
             guard case let .createMeet(c) = route else { return nil }
             return AnyView(CreateMeet(env: env, start: c))
         }
-    }
-}
-
-/// Asks for notification permission once, at a moment that gives it a reason (plan 10.2).
-@MainActor
-func askForNotifications() {
-    let key = "notifications.asked"
-    guard !UserDefaults.standard.bool(forKey: key) else { return }
-    UserDefaults.standard.set(true, forKey: key)
-    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-        if granted { Task { @MainActor in UIApplication.shared.registerForRemoteNotifications() } }
     }
 }
 
@@ -131,6 +119,8 @@ struct CreateMeet: View {
     @State private var hostTeam: Team?
     @State private var details = ""
     @State private var showDetails = false
+    @State private var recurrence: MeetRecurrence?
+    @State private var destName = ""
     @State private var saving = false
     @State private var error: String?
     @State private var failed = 0
@@ -147,8 +137,11 @@ struct CreateMeet: View {
             _title = State(initialValue: m.title); _kind = State(initialValue: m.kind); _place = State(initialValue: m.placeName)
             _startsAt = State(initialValue: m.startsAt); _endsAt = State(initialValue: m.endsAt); _when = State(initialValue: 2)
             _details = State(initialValue: m.details); _visibility = State(initialValue: m.visibility)
+            _recurrence = State(initialValue: m.recurrence); _destName = State(initialValue: m.destination?.name ?? "")
         }
     }
+
+    private static let repeatOptions: [MeetRecurrence?] = [nil, .weekly, .biweekly, .monthly]
 
     private static var tonight8: Date {
         let d = Calendar.current.date(bySettingHour: 20, minute: 0, second: 0, of: .now) ?? .now
@@ -185,6 +178,17 @@ struct CreateMeet: View {
                             .onChange(of: startsAt) { endsAt = startsAt.addingTimeInterval(7200) }
                     }
                     DatePicker("Ends", selection: $endsAt, in: startsAt...).tint(.sodium).foregroundStyle(Color.chalk)
+                    Text("Repeats").typeStyle(.foot).foregroundStyle(Color.dust)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: Space.s8) {
+                            ForEach(Self.repeatOptions, id: \.self) { r in
+                                Chip(MeetFormat.recurrenceTitle(r), isSelected: recurrence == r) { recurrence = r }
+                            }
+                        }
+                    }
+                    if kind == .cruise {
+                        Field("Rolling out to", text: $destName, prompt: "Where does the cruise end?", limit: 80)
+                    }
                     Text("Who can see it").typeStyle(.foot).foregroundStyle(Color.dust)
                     SegmentedSwitch(selection: $visibility, options: [(.public, "Everyone"), (.friends, "Friends")]
                                     + (hostTeam.map { [(MeetVisibility.team, LocalizedStringKey($0.tag))] } ?? []))
@@ -223,13 +227,38 @@ struct CreateMeet: View {
         }
     }
 
+    /// The cruise's end point (MEET-13): the existing one when the name is unchanged, else geocoded near the meet.
+    private func destination() async -> ConvoyDestination?? {
+        let name = destName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard kind == .cruise, !name.isEmpty else { return .some(nil) }
+        if let d = editing?.destination, d.name == name { return d }
+        guard let c = await Self.locate(name, near: center) else { return nil }
+        return ConvoyDestination(coordinate: c, name: name)
+    }
+
+    private static func locate(_ query: String, near: CLLocationCoordinate2D) async -> Coordinate? {
+        await withCheckedContinuation { (done: CheckedContinuation<Coordinate?, Never>) in
+            let region = CLCircularRegion(center: near, radius: 150_000, identifier: "meet")
+            CLGeocoder().geocodeAddressString(query, in: region) { marks, _ in
+                let c = marks?.first?.location?.coordinate
+                done.resume(returning: c.map { Coordinate(latitude: $0.latitude, longitude: $0.longitude) })
+            }
+        }
+    }
+
     private func save() {
         saving = true
         error = nil
-        let draft = MeetDraft(title: title, kind: kind, coordinate: Coordinate(latitude: center.latitude, longitude: center.longitude),
-                              placeName: place, startsAt: startsAt, endsAt: endsAt, details: details, visibility: visibility,
-                              teamID: visibility == .team ? hostTeam?.id : nil)
         Task {
+            guard let dest = await destination() else {
+                error = "Couldn't find that place. Try a fuller name or address."
+                failed += 1
+                saving = false
+                return
+            }
+            let draft = MeetDraft(title: title, kind: kind, coordinate: Coordinate(latitude: center.latitude, longitude: center.longitude),
+                                  placeName: place, startsAt: startsAt, endsAt: endsAt, details: details, visibility: visibility,
+                                  teamID: visibility == .team ? hostTeam?.id : nil, recurrence: recurrence, destination: dest)
             do {
                 let meet = if let editing { try await env.gateway.updateMeet(editing.id, draft) } else { try await env.gateway.createMeet(draft) }
                 done += 1
@@ -260,8 +289,12 @@ struct MeetDetail: View {
     @State private var cars: [Car] = []
     @State private var goingCars: [Car] = []
     @State private var notes: [VenueNote] = []
-    @State private var askCar = false
+    @State private var askGoing = false
     @State private var addNote = false
+    @State private var shareCard: UIImage?
+    @State private var rolling = false
+    @State private var rollError: String?
+    @Environment(\.displayScale) private var displayScale
     @State private var confirmCancel = false
     @State private var editing = false
     @State private var showGoing = false
@@ -273,6 +306,10 @@ struct MeetDetail: View {
             if let m = meet {
                 header(m)
                 if m.cancelledAt == nil { rsvpControl }
+                if let dest = m.destination, canRollOut(m) {
+                    PrimaryButton("Roll out", isLoading: rolling) { rollOut(m, to: dest) }
+                    if let rollError { Text(verbatim: rollError).typeStyle(.foot).foregroundStyle(Color.brake) }
+                }
                 going
                 venue
                 if !m.details.isEmpty { Text(verbatim: m.details).typeStyle(.body).foregroundStyle(Color.chalk) }
@@ -285,15 +322,23 @@ struct MeetDetail: View {
         .padding(.bottom, Space.s24)
         .haptic(.done, trigger: done)
         .task { await load() }
-        .confirmationDialog("Which car are you bringing?", isPresented: $askCar) {
-            ForEach(cars) { car in
-                Button(car.shortLabel) { rsvp(.going, car: car.id) }
-            }
-            Button("Not sure yet") { rsvp(.going, car: nil) }
+        .task(id: meet) {
+            guard let meet, meet.cancelledAt == nil else { return }
+            shareCard = await MeetShareCard.render(meet, scale: displayScale)
         }
-        .confirmationDialog("Cancel this meet? \(rsvps.count) people who RSVP'd will be told.", isPresented: $confirmCancel) {
-            Button("Cancel meet", role: .destructive) {
-                Task { try? await env.gateway.cancelMeet(meetID); await load() }
+        .sheet(isPresented: $askGoing) {
+            GoingSheet(cars: cars, askCar: cars.count > 1, askRemind: MeetReminder.answer(for: meetID) == nil) { car, remind in
+                if let remind { MeetReminder.setAnswer(remind, for: meetID) }
+                rsvp(.going, car: car)
+            }
+        }
+        .confirmationDialog("Cancel this meet? \(rsvps.count) people who RSVP'd will be told.", isPresented: $confirmCancel,
+                            titleVisibility: .visible) {
+            if meet?.seriesID != nil {
+                Button("This meet", role: .destructive) { cancel(following: false) }
+                Button("This and every one after", role: .destructive) { cancel(following: true) }
+            } else {
+                Button("Cancel meet", role: .destructive) { cancel(following: false) }
             }
         }
         .sheet(isPresented: $showGoing) {
@@ -322,7 +367,15 @@ struct MeetDetail: View {
                 MeetPin(kind: m.kind.rawValue, live: m.isHappening())
                 Spacer()
                 Menu {
-                    if let url = URL(string: "waypoints://meet/\(m.id)") { ShareLink("Share", item: url) }
+                    if let url = URL(string: "waypoints://meet/\(m.id)") {
+                        if let shareCard {
+                            // LINK-5: the card image with the link alongside it.
+                            ShareLink("Share", item: Image(uiImage: shareCard), message: Text(verbatim: url.absoluteString),
+                                      preview: SharePreview(m.title, image: Image(uiImage: shareCard)))
+                        } else {
+                            ShareLink("Share", item: url)
+                        }
+                    }
                     Button("Add to Calendar") { Task { await addToCalendar(m) } }
                     if m.hostID == me {
                         Button("Edit") { editing = true }
@@ -340,6 +393,12 @@ struct MeetDetail: View {
             Text(verbatim: m.title).typeStyle(.title).foregroundStyle(Color.chalk)
             Text(verbatim: MeetFormat.when(m)).typeStyle(.readoutM).foregroundStyle(Color.chalk)
             Text(verbatim: m.placeName).typeStyle(.sub).foregroundStyle(Color.dust)
+            if let repeats = MeetFormat.repeats(m) {
+                Text(verbatim: repeats).typeStyle(.sub).foregroundStyle(Color.dust)
+            }
+            if let dest = m.destination {
+                Text("Rolling out to \(dest.name)").typeStyle(.sub).foregroundStyle(Color.dust)
+            }
             if let host {
                 Button { env.router.open(.profile(host.userID)) } label: {
                     HStack(spacing: Space.s8) {
@@ -354,10 +413,12 @@ struct MeetDetail: View {
     private var rsvpControl: some View {
         SegmentedSwitch(selection: Binding(get: { mine.map { $0 == .going ? 0 : 1 } ?? 2 }, set: { v in
             switch v {
-            case 0: if cars.count > 1 { askCar = true } else { rsvp(.going, car: cars.first?.id) }
+            case 0:
+                if cars.count > 1 || MeetReminder.answer(for: meetID) == nil { askGoing = true } else { rsvp(.going, car: cars.first?.id) }
             case 1: rsvp(.maybe, car: nil)
             default:
                 mine = nil
+                MeetReminder.cancel(meetID)
                 Task { try? await env.meets.clearRSVP(for: meetID); await load() }
             }
         }), options: [(0, "Going"), (1, "Maybe"), (2, "Can't")])
@@ -407,11 +468,42 @@ struct MeetDetail: View {
 
     private func rsvp(_ status: RSVPStatus, car: CarID?) {
         mine = status
-        if status == .going { askForNotifications() }
         Task {
             try? await env.meets.setRSVP(status, for: meetID, car: car)
             done += 1
             await load()
+        }
+    }
+
+    private func cancel(following: Bool) {
+        Task {
+            if following { try? await env.gateway.cancelMeetAndFollowing(meetID) } else { try? await env.gateway.cancelMeet(meetID) }
+            MeetReminder.cancel(meetID)
+            await load()
+        }
+    }
+
+    /// MEET-13: the host of a cruise with a destination sees "Roll out" from shortly before the start.
+    private func canRollOut(_ m: Meet) -> Bool {
+        m.hostID == me && m.kind == .cruise && m.cancelledAt == nil
+            && m.startsAt.addingTimeInterval(-MeetReminder.lead / 2) <= .now && .now < m.endsAt
+    }
+
+    /// Starts a convoy named for the meet, headed to its destination, invites everyone Going, then opens it.
+    private func rollOut(_ m: Meet, to dest: ConvoyDestination) {
+        rolling = true
+        rollError = nil
+        Task {
+            do {
+                let invite = try await env.gateway.createConvoy(name: String(m.title.prefix(40)), destination: dest)
+                let going = rsvps.filter { $0.status == .going && $0.userID != me }.map(\.userID)
+                if !going.isEmpty { try? await env.gateway.inviteToConvoy(invite.id, users: going) }
+                done += 1
+                env.router.open(.joinConvoy(code: invite.joinCode))
+            } catch {
+                rollError = "Couldn't start the convoy. Check your connection and try again."
+            }
+            rolling = false
         }
     }
 
@@ -422,6 +514,7 @@ struct MeetDetail: View {
         host = try? await env.profiles.profile(m.hostID)
         rsvps = (try? await env.meets.rsvps(for: meetID)) ?? []
         mine = (try? await env.meets.myRSVP(for: meetID))?.status
+        await MeetReminder.sync(m, going: mine == .going)
         if let me { cars = (try? await env.garage.cars(of: me)) ?? [] }
         var list: [Car] = []
         for r in rsvps where r.status == .going {

@@ -46,6 +46,10 @@ public struct LiveGatewayService: GatewayService {
         try await client.send("DELETE", "v1/meets/\(id)")
     }
 
+    public func cancelMeetAndFollowing(_ id: MeetID) async throws {
+        try await client.send("DELETE", "v1/meets/\(id)", body: CancelMeetBody(scope: "following"))
+    }
+
     // MARK: Convoys
 
     public func createConvoy(name: String, destination: ConvoyDestination?) async throws -> ConvoyInvite {
