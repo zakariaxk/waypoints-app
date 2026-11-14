@@ -49,10 +49,10 @@ public struct ReferenceCheck: Sendable, Hashable, Identifiable {
 }
 
 public enum ReferenceCars {
-    private static func v8(_ hp: Double, _ tq: Double, _ lb: Double, redline: Double, auto: Bool = false,
+    private static func v8(_ hp: Double, _ tq: Double, _ lb: Double, redline: Double, auto: Int? = nil,
                            drive: Drivetrain = .rwd) -> VehicleSpec {
         VehicleSpec(hpCrank: hp, torqueLbFt: tq, weightLb: lb, drivetrain: drive, redline: redline, cylinders: 8,
-                    layout: .v, crankPlane: .cross, automatic: auto)
+                    layout: .v, crankPlane: .cross, automatic: auto != nil, gearCount: auto)
     }
 
     public static let all: [ReferenceCar] = [
@@ -61,7 +61,7 @@ public enum ReferenceCars {
                      zeroToSixty: 4.2, quarterET: 12.5, quarterMph: 114,
                      sourceURL: "https://www.caranddriver.com/reviews/a44892132/2024-ford-mustang-gt-test/"),
         ReferenceCar(name: "2018 Ford Mustang GT (10-speed automatic)",
-                     spec: v8(460, 420, 3851, redline: 7400, auto: true),
+                     spec: v8(460, 420, 3851, redline: 7400, auto: 10),
                      zeroToSixty: 3.8, quarterET: 12.1, quarterMph: 120,
                      sourceURL: "https://www.caranddriver.com/reviews/a24847025/2018-ford-mustang-automatic-transmission-performance/"),
         ReferenceCar(name: "2011 Ford Mustang GT 5.0 convertible (6-speed manual)",
@@ -73,11 +73,11 @@ public enum ReferenceCars {
                      zeroToSixty: 4.1, quarterET: 12.4, quarterMph: 116,
                      sourceURL: "https://www.caranddriver.com/features/a15098588/chevrolet-camaro-2017-10best-cars-feature/"),
         ReferenceCar(name: "2015 Dodge Challenger R/T Scat Pack (8-speed automatic)",
-                     spec: v8(485, 475, 4261, redline: 6000, auto: true),
+                     spec: v8(485, 475, 4261, redline: 6000, auto: 8),
                      zeroToSixty: 4.2, quarterET: 12.6, quarterMph: 114,
                      sourceURL: "https://www.caranddriver.com/reviews/a15107205/2015-dodge-challenger-r-t-scat-pack-automatic-test-review/"),
         ReferenceCar(name: "2021 Ford F-150 5.0 4x4 (10-speed automatic)",
-                     spec: v8(400, 410, 5687, redline: 6000, auto: true, drive: .fourWD),
+                     spec: v8(400, 410, 5687, redline: 6000, auto: 10, drive: .fourWD),
                      zeroToSixty: 6.2, quarterET: 14.6, quarterMph: 96.3,
                      sourceURL: "https://www.motortrend.com/reviews/2021-ford-f-150-v-8-first-test/"),
         ReferenceCar(name: "2023 Toyota GR Supra 3.0 (6-speed manual)",

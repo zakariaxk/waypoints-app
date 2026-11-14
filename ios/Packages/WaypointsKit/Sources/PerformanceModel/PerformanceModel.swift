@@ -3,6 +3,14 @@ import Foundation
 
 // Plan 11.2. Pure, deterministic, synchronous, Sendable. No UI, no I/O.
 
+/// The model's version. Bump it whenever a change alters what the same inputs produce: a ghost's
+/// input log replays to different times under another version, so the Strip hides ghosts and
+/// friend runs recorded under an older one (`race_results.model_version`).
+public enum PerformanceModelVersion {
+    /// 2: MOD-13 turbo gearing and boost, automatic torque fill and multi-speed ratios.
+    public static let current = 2
+}
+
 public enum EngineLayout: String, Sendable, Hashable, Codable { case inline, v, flat, rotary }
 public enum CrankPlane: String, Sendable, Hashable, Codable { case cross, flat }
 
@@ -27,20 +35,45 @@ public struct VehicleSpec: Sendable, Hashable {
     public init(hpCrank: Double, torqueLbFt: Double, weightLb: Double, drivetrain: Drivetrain = .rwd,
                 aspiration: Aspiration = .natural, redline: Double = 6500, gearRatios: [Double]? = nil,
                 finalDrive: Double? = nil, tireRadiusM: Double = 0.33, cdA: Double = 0.7, cylinders: Int = 4,
-                layout: EngineLayout = .inline, crankPlane: CrankPlane = .flat, automatic: Bool = false) {
+                layout: EngineLayout = .inline, crankPlane: CrankPlane = .flat, automatic: Bool = false,
+                gearCount: Int? = nil) {
         self.hpCrank = hpCrank; self.torqueLbFt = torqueLbFt; self.weightLb = weightLb; self.drivetrain = drivetrain
         self.aspiration = aspiration; self.redline = redline
         let real = gearRatios?.isEmpty == false
         self.realGears = real
         let ratios = gearRatios.flatMap { $0.isEmpty ? nil : $0 }
-            ?? (automatic ? [4.17, 2.34, 1.52, 1.14, 0.87, 0.69] : [3.66, 2.43, 1.69, 1.32, 1.0, 0.65])
+            ?? Self.typicalRatios(automatic: automatic, gears: gearCount)
         self.gearRatios = ratios
         // Without the real ratios, gear the car the way makers do: first gear runs out near
-        // 38 mph (17 m/s) at redline, whatever the engine revs to.
+        // 38 mph (17 m/s) at redline, whatever the engine revs to; 42 mph for a turbo.
         self.finalDrive = finalDrive
-            ?? (real ? 3.55 : redline / 60 * 2 * .pi * tireRadiusM / (17 * ratios[0]))
+            ?? (real ? 3.55 : redline / 60 * 2 * .pi * tireRadiusM / (Self.firstGearTop(aspiration) * ratios[0]))
         self.tireRadiusM = tireRadiusM; self.cdA = cdA; self.cylinders = cylinders
         self.layout = layout; self.crankPlane = crankPlane; self.automatic = automatic
+    }
+
+    /// First-gear speed at redline (m/s) for the typical fill. A turbo engine's flat torque lets
+    /// makers gear it taller, so 60 mph comes in second rather than third (MOD-13).
+    static func firstGearTop(_ a: Aspiration) -> Double {
+        a == .turbo || a == .twinCharged ? 19 : 17
+    }
+
+    /// Typical ratios when the real ones are unknown. Automatics with more speeds space them
+    /// closer, which keeps the engine near peak power through the trap (MOD-13: the 10-speed
+    /// Mustang ran 4 mph slow on six typical ratios).
+    static func typicalRatios(automatic: Bool, gears: Int?) -> [Double] {
+        guard automatic else { return [3.66, 2.43, 1.69, 1.32, 1.0, 0.65] }
+        switch gears ?? 6 {
+        case 10...: return [4.70, 2.99, 2.15, 1.80, 1.52, 1.28, 1.00, 0.85, 0.69, 0.64]   // Ford/GM 10R80
+        case 7...9: return [4.71, 3.14, 2.10, 1.67, 1.29, 1.00, 0.84, 0.67]               // ZF 8HP
+        default: return [4.17, 2.34, 1.52, 1.14, 0.87, 0.69]
+        }
+    }
+
+    /// "10-speed automatic" → 10.
+    static func gearCount(in transmission: String) -> Int? {
+        let digits = transmission.prefix { $0.isNumber }
+        return Int(digits).flatMap { (3...12).contains($0) ? $0 : nil }
     }
 
     /// Builds a spec from a catalog row, the car's overrides, and sensible fills. `nil` when
@@ -62,7 +95,8 @@ public struct VehicleSpec: Sendable, Hashable {
                            drivetrain: o.drivetrain ?? variant?.drive ?? .rwd, aspiration: variant?.aspiration ?? .natural,
                            redline: Double(o.redline ?? variant?.redline ?? (cyl >= 8 ? 6500 : 7000)),
                            gearRatios: o.gears ?? variant?.gears, cylinders: cyl, layout: layout,
-                           crankPlane: cyl == 8 && !flatPlane ? .cross : .flat, automatic: auto)
+                           crankPlane: cyl == 8 && !flatPlane ? .cross : .flat, automatic: auto,
+                           gearCount: Self.gearCount(in: trans))
     }
 
     var isTurbo: Bool { aspiration == .turbo || aspiration == .twinCharged }
@@ -157,7 +191,9 @@ public func torque(at rpm: Double, spec: VehicleSpec) -> Double {
     default:
         shape = 0.72 + 0.28 * sin(min(x / 0.6, 1) * .pi / 2)
     }
-    let powerCap = spec.hpCrank * 5252 / max(rpm, 1) * (1 - 1.5 * max(0, x - 0.92))
+    // A turbo engine's wastegate holds boost, so its power stays near peak to redline.
+    let fade = spec.isTurbo ? 0.5 : 1.5
+    let powerCap = spec.hpCrank * 5252 / max(rpm, 1) * (1 - fade * max(0, x - 0.92))
     return min(spec.torqueLbFt * shape, powerCap)
 }
 
@@ -209,6 +245,14 @@ public struct RunState: Sendable {
     /// Engine speed the slipping clutch holds until the wheels catch up.
     private let clutchRpm: Double
 
+    /// Share of drive an automatic keeps through a shift (torque fill).
+    static let torqueFill = 0.8
+    /// Turbo launch and boost (MOD-13). The slipping clutch holds the launch rpm, above the spool
+    /// knee (30% of redline), so boost is up when the wheels start to turn rather than building
+    /// from idle; at full boost a turbo engine on a test day makes more than its conservative
+    /// rating, and the ECU overboosts in the lower gears. Applied to the run only, so the G6
+    /// curve still peaks at the rated figure. Fitted on the four turbo reference cars.
+    static let turboBoostMargin = 1.05
     static let rho = 1.2, g = 9.81, crr = 0.012, mu = 1.1, h = 0.2
     static let quarterM = 402.336, eighthM = 201.168, sixtyFtM = 18.288, rolloutM = 0.3048
 
@@ -246,10 +290,16 @@ public struct RunState: Sendable {
         }
         rpm = min(engineRpm, spec.redline * 1.02)
         var drive = 0.0
+        let boost = spec.isTurbo ? Self.turboBoostMargin : 1
         if shiftTimer > 0 {
             shiftTimer -= dt
+            // A manual's clutch cuts drive; an automatic's clutch-to-clutch shift keeps part of it
+            // (torque fill), on the new gear at the rpm it lands on.
+            if spec.automatic {
+                drive = torque(at: rpm, spec: spec) * boost * 1.3558 * throttle * Self.torqueFill * ratio * eta / spec.tireRadiusM
+            }
         } else if rpm < spec.redline * 1.01 {
-            let tqNm = torque(at: rpm, spec: spec) * 1.3558 * throttle
+            let tqNm = torque(at: rpm, spec: spec) * boost * 1.3558 * throttle
             drive = tqNm * ratio * eta / spec.tireRadiusM
         }
         let wf = spec.drivetrain == .fwd ? 0.6 : 0.52
