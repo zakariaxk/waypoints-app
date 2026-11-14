@@ -2,6 +2,7 @@ import AVFoundation
 import Core
 import DesignSystem
 import MapKit
+import Network
 import SwiftUI
 
 /// Route preview with low-car scoring (M3) and turn-by-turn guidance (M4). Handles `navigate`.
@@ -56,8 +57,20 @@ final class NavigationModel {
     var rerouting = false
     var arrived = false
     var hazardAhead: Report?
+    /// Metres along the route from here to `hazardAhead`.
+    var hazardDistance: Double = 0
     var me: CLLocationCoordinate2D?
     var heading: Double = 0
+    /// Network reachability (NAV-12). Offline, guidance keeps the loaded route and does not reroute.
+    var online = true
+    /// The convoy this device is in, if any (NAV-13).
+    var convoyID: ConvoyID?
+    var sharedWithConvoy = false
+    var shareFailed = false
+    @ObservationIgnored private var monitor = NWPathMonitor()
+    @ObservationIgnored private var convoyTask: Task<Void, Never>?
+    @ObservationIgnored private var watching = false
+    @ObservationIgnored private var hazardAlong: [ReportID: Double] = [:]
     @ObservationIgnored private var points: [CLLocationCoordinate2D] = []
     @ObservationIgnored private var cumulative: [Double] = []
     @ObservationIgnored private var stepEnds: [Double] = []
@@ -80,8 +93,48 @@ final class NavigationModel {
     var current: ScoredRoute? { routes.indices.contains(selected) ? routes[selected] : nil }
 
     func load() async {
+        watch()
         if let me = await env.auth.currentSession()?.userID { cars = (try? await env.garage.cars(of: me)) ?? [] }
         calculate(from: nil)
+    }
+
+    /// Starts the reachability monitor and follows convoy membership. `ConvoyFeature` keeps the
+    /// active convoy id under `convoy.id`; convoy events from the gateway keep it current.
+    private func watch() {
+        guard !watching else { return }
+        watching = true
+        monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { @Sendable [weak self] path in
+            let ok = path.status == .satisfied
+            Task { @MainActor [weak self] in self?.online = ok }
+        }
+        monitor.start(queue: .global(qos: .utility))
+        convoyID = UserDefaults.standard.string(forKey: "convoy.id").map { ConvoyID(raw: $0) }
+        let env = self.env
+        convoyTask = Task { [weak self] in
+            for await event in await env.realtime.events() {
+                guard case let .convoy(s) = event else { continue }
+                self?.convoyID = s.ended ? nil : s.id
+            }
+        }
+    }
+
+    func teardown() {
+        convoyTask?.cancel()
+        monitor.cancel()
+        watching = false
+    }
+
+    /// Sets this destination for the whole convoy (`PUT /v1/convoys/{id}/destination`).
+    func shareWithConvoy() async {
+        guard let id = convoyID else { return }
+        do {
+            try await env.gateway.setConvoyDestination(id, ConvoyDestination(coordinate: destination, name: name ?? String(localized: "Destination")))
+            sharedWithConvoy = true
+            shareFailed = false
+        } catch {
+            shareFailed = true
+        }
     }
 
     func calculate(from origin: CLLocationCoordinate2D?) {
@@ -113,7 +166,23 @@ final class NavigationModel {
         for (i, path) in paths.enumerated() where routes.indices.contains(i) {
             routes[i].hazards = (try? await env.reports.hazards(along: path, bufferMeters: 25)) ?? []
         }
-        if !guiding { selected = bestIndex() }
+        if guiding { indexHazards() } else { selected = bestIndex() }
+    }
+
+    /// Places each clearance hazard on the loaded route as metres from its start, so the strip
+    /// only fires for reports ahead on the route, not ones beside it or behind.
+    private func indexHazards() {
+        hazardAlong = [:]
+        guard let r = current, !points.isEmpty else { return }
+        for h in r.clearanceHazards(for: clearance) {
+            let loc = CLLocation(latitude: h.coordinate.latitude, longitude: h.coordinate.longitude)
+            var best = (dist: Double.greatestFiniteMagnitude, along: 0.0)
+            for i in points.indices {
+                let d = loc.distance(from: CLLocation(latitude: points[i].latitude, longitude: points[i].longitude))
+                if d < best.dist { best = (d, cumulative[i]) }
+            }
+            if best.dist <= 40 { hazardAlong[h.id] = best.along }
+        }
     }
 
     /// Fewest clearance hazards among routes within 20% of the fastest.
@@ -169,6 +238,7 @@ final class NavigationModel {
         stepEnds = route.steps.map { total += $0.distance; return total }
         stepIndex = 0
         spoken = []
+        indexHazards()
     }
 
     private func update(_ s: LocationSample) {
@@ -189,15 +259,17 @@ final class NavigationModel {
         stepIndex = stepEnds.firstIndex { $0 > best.along + 5 } ?? max(0, r.route.steps.count - 1)
         toManeuver = max(0, (stepEnds.indices.contains(stepIndex) ? stepEnds[stepIndex] : total) - best.along)
 
-        // Off route: > 40 m for 5 s; at most one request every 8 s.
+        // Off route: > 40 m for 5 s; at most one request every 8 s. Offline, keep the loaded route.
         if best.dist > 40 {
+            offRoute = true
             offSince = offSince ?? .now
-            if let since = offSince, Date.now.timeIntervalSince(since) > 5, Date.now.timeIntervalSince(lastReroute) > 8 {
+            if online, let since = offSince, Date.now.timeIntervalSince(since) > 5, Date.now.timeIntervalSince(lastReroute) > 8 {
                 lastReroute = .now
                 rerouting = true
                 calculate(from: here)
             }
         } else {
+            offRoute = false
             offSince = nil
         }
 
@@ -217,23 +289,33 @@ final class NavigationModel {
                     let key = "\(stepIndex)-\(Int(mark))"
                     if !spoken.contains(key) {
                         spoken.insert(key)
-                        if mark == 25 { say(text, key: key) } else { say("In \(Self.distance(mark)), \(text.prefix(1).lowercased() + text.dropFirst())", key: key) }
+                        if mark == 25 { say(text, key: key) } else { say("In \(Self.distance(mark, spoken: true)), \(text.prefix(1).lowercased() + text.dropFirst())", key: key) }
                         break
                     }
                 }
             }
         }
 
-        // Hazard ahead within 250 m for a non-stock car.
+        // Hazard ahead on the route within 250 m for a non-stock car: strip, one haptic, one spoken line.
         if clearance != .stock {
-            let ahead = r.clearanceHazards(for: clearance).first { h in
-                let d = loc.distance(from: CLLocation(latitude: h.coordinate.latitude, longitude: h.coordinate.longitude))
-                return d < 250
-            }
-            if let ahead, hazardAhead?.id != ahead.id {
-                hazardAhead = ahead
-                say("\(Self.kindName(ahead.kind)) ahead", key: "h-\(ahead.id)")
-            } else if ahead == nil {
+            let ahead = r.clearanceHazards(for: clearance)
+                .compactMap { h -> (report: Report, meters: Double)? in
+                    guard let at = hazardAlong[h.id] else { return nil }
+                    let d = at - best.along
+                    return d > 0 && d <= 250 ? (h, d) : nil
+                }
+                .min { $0.meters < $1.meters }
+            if let ahead {
+                hazardDistance = ahead.meters
+                if hazardAhead?.id != ahead.report.id {
+                    hazardAhead = ahead.report
+                    let key = "h-\(ahead.report.id)"
+                    if !spoken.contains(key) {
+                        spoken.insert(key)
+                        say("\(Self.kindName(ahead.report.kind)) in \(Self.distance(ahead.meters, spoken: true))", key: key)
+                    }
+                }
+            } else {
                 hazardAhead = nil
             }
         }
@@ -254,14 +336,33 @@ final class NavigationModel {
         }
     }
 
-    static func distance(_ meters: Double) -> String {
-        let f = MeasurementFormatter()
-        f.unitOptions = .naturalScale
-        f.numberFormatter.maximumFractionDigits = 1
-        let usesMetric = Locale.current.measurementSystem == .metric
-        if usesMetric { return f.string(from: Measurement<UnitLength>(value: meters.rounded(), unit: .meters)) }
-        let feet = meters * 3.28084
-        return feet < 1000 ? "\(Int((feet / 50).rounded() * 50)) feet" : f.string(from: Measurement<UnitLength>(value: meters / 1609.344, unit: .miles))
+    /// Road distance in the device locale's units (SET-3): feet then miles, or metres then
+    /// kilometres. Abbreviated on screen ("250 ft"), spelled out for voice ("250 feet").
+    static func distance(_ meters: Double, spoken: Bool = false) -> String {
+        let imperial = Locale.current.measurementSystem != .metric
+        let value: Measurement<UnitLength>
+        let digits: Int
+        if imperial {
+            let feet = Measurement(value: meters, unit: UnitLength.meters).converted(to: .feet).value
+            if feet < 1000 {
+                value = Measurement(value: (feet / 50).rounded() * 50, unit: .feet); digits = 0
+            } else {
+                value = Measurement(value: meters, unit: UnitLength.meters).converted(to: .miles); digits = 1
+            }
+        } else if meters < 1000 {
+            value = Measurement(value: (meters / 10).rounded() * 10, unit: .meters); digits = 0
+        } else {
+            value = Measurement(value: meters, unit: UnitLength.meters).converted(to: .kilometers); digits = 1
+        }
+        return value.formatted(.measurement(width: spoken ? .wide : .abbreviated, usage: .asProvided,
+                                            numberFormatStyle: .number.precision(.fractionLength(0...digits))))
+    }
+
+    /// Your own speed in the locale's road unit. Never anyone else's.
+    var speedReadout: (value: String, unit: String) {
+        let unit: UnitSpeed = Locale.current.measurementSystem == .metric ? .kilometersPerHour : .milesPerHour
+        let v = Measurement(value: speed, unit: UnitSpeed.metersPerSecond).converted(to: unit).value
+        return (v.formatted(.number.precision(.fractionLength(0))), unit.symbol)
     }
 }
 
@@ -279,6 +380,7 @@ struct NavigationRoot: View {
         }
         .preferredColorScheme(.dark)
         .task { await model.load() }
+        .onDisappear { model.teardown() }
     }
 }
 
@@ -337,6 +439,16 @@ struct RoutePreview: View {
                         .typeStyle(.foot).foregroundStyle(Color.dust)
                 }
                 PrimaryButton("Go") { model.start() }
+                if model.convoyID != nil {
+                    if model.sharedWithConvoy {
+                        Text("Shared with your convoy.").typeStyle(.sub).foregroundStyle(Color.go)
+                    } else {
+                        QuietButton("Share with convoy") { Task { await model.shareWithConvoy() } }
+                    }
+                    if model.shareFailed {
+                        Text("Couldn't share the destination. Try again.").typeStyle(.foot).foregroundStyle(Color.brake)
+                    }
+                }
             }
         }
         .padding(Space.margin)
@@ -354,7 +466,7 @@ struct RoutePreview: View {
             Text(verbatim: "\(NavigationModel.distance(r.route.distance)) · \(r.route.name)").typeStyle(.sub).foregroundStyle(Color.dust)
             if model.clearance != .stock {
                 if hazards.isEmpty {
-                    Text("Clear for a \(model.clearance.rawValue) car").typeStyle(.sub).foregroundStyle(Color.go)
+                    Text("Clear for a lowered car").typeStyle(.sub).foregroundStyle(Color.go)
                 } else {
                     let counts = Dictionary(grouping: hazards, by: \.kind).map { "\($0.value.count) \(NavigationModel.kindName($0.key).lowercased())\($0.value.count > 1 ? "s" : "")" }
                     Text(verbatim: counts.joined(separator: ", ")).typeStyle(.sub).foregroundStyle(Color.sodium)
@@ -384,30 +496,34 @@ struct GuidanceView: View {
             VStack(spacing: 0) {
                 banner
                 if let h = model.hazardAhead {
-                    Text(verbatim: "\(NavigationModel.kindName(h.kind)) ahead").typeStyle(.bodyStrong).foregroundStyle(Color.asphalt)
+                    Text(verbatim: "\(NavigationModel.kindName(h.kind)) in \(NavigationModel.distance(model.hazardDistance))")
+                        .typeStyle(.bodyStrong).foregroundStyle(Color.asphalt)
                         .frame(maxWidth: .infinity).padding(Space.s8).background(Color.sodium)
                         .padding(.horizontal, Space.margin)
                 }
                 Spacer()
                 HStack {
-                    Text(verbatim: String(format: "%.0f", Locale.current.measurementSystem == .metric ? model.speed * 3.6 : model.speed * 2.23694))
-                        .typeStyle(.readoutXL).foregroundStyle(Color.chalk)
-                        .padding(.horizontal, Space.s16)
-                        .background(Color.tarmac, in: Capsule())
+                    let readout = model.speedReadout
+                    HStack(alignment: .firstTextBaseline, spacing: Space.s4) {
+                        Text(verbatim: readout.value).typeStyle(.readoutXL).foregroundStyle(Color.chalk)
+                        Text(verbatim: readout.unit).typeStyle(.foot).foregroundStyle(Color.dust)
+                    }
+                    .padding(.horizontal, Space.s16)
+                    .background(Color.tarmac, in: Capsule())
                     Spacer()
                 }
                 .padding(.horizontal, Space.margin)
                 bottomBar
             }
         }
-        .haptic(.warn, trigger: model.hazardAhead?.id)
+        .haptic(.warn, trigger: model.hazardAhead?.id) { _, new in new != nil }
     }
 
     private var banner: some View {
         let steps = model.current?.route.steps ?? []
         let next = steps.indices.contains(model.stepIndex + 1) ? steps[model.stepIndex + 1] : steps.last
         return HStack(spacing: Space.s12) {
-            Image(systemName: arrow(next?.instructions ?? "")).font(.system(size: Size.hitTarget * 0.8, weight: .bold))
+            Image(systemName: arrow(next?.instructions ?? "")).font(TypeToken.readoutL.font).fontWeight(.bold)
                 .foregroundStyle(Color.sodium).frame(width: Size.hitTarget)
             VStack(alignment: .leading, spacing: Space.s2) {
                 if model.arrived {
@@ -415,7 +531,8 @@ struct GuidanceView: View {
                     Text(verbatim: model.name ?? "").typeStyle(.bodyStrong).foregroundStyle(Color.dust)
                 } else {
                     Text(verbatim: NavigationModel.distance(model.toManeuver)).typeStyle(.readoutL).foregroundStyle(Color.chalk)
-                    Text(verbatim: model.rerouting ? "Rerouting" : (next?.instructions ?? "")).typeStyle(.bodyStrong)
+                    Text(verbatim: model.offRoute && !model.online ? String(localized: "Offline. Follow the route line.")
+                         : model.rerouting ? String(localized: "Rerouting") : (next?.instructions ?? "")).typeStyle(.bodyStrong)
                         .foregroundStyle(Color.chalk).lineLimit(2)
                 }
             }
