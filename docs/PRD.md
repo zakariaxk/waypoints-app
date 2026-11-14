@@ -746,13 +746,13 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| CMP-1 | A privacy manifest and purpose strings that match what the app does. | P0 | Coded |
+| CMP-1 | A privacy manifest and purpose strings that match what the app does. | P0 | Coded: manifest declares UserDefaults CA92.1, file timestamp C617.1 and ten linked, non-tracking data types from the schema; purpose strings cover camera, microphone, photos read and add, location when in use and always, calendar write-only. Not yet checked against an archive's privacy report in Xcode Organizer. |
 | CMP-2 | Account deletion inside the app (ACC-10). | P0 | Coded |
 | CMP-3 | For user content: terms accepted first, a filter, report, block, action within 24 hours, a published contact (SAFE). | P0 | Coded |
-| CMP-4 | Review notes explain location use, the absence of speed display, and that racing is virtual. `docs/APP_STORE.md` holds them with the listing copy and the privacy-label answers. | P0 | Coded |
+| CMP-4 | Review notes explain location use, the absence of speed display, and that racing is virtual. `docs/APP_STORE.md` holds them with the listing copy and the privacy-label answers. | P0 | Coded: final listing, review notes (help requests, moderation functions, demo account), age rating and privacy label answers. Left: the owner fills `<LINK_HOST>` and the demo mailbox login (9.1 step 10). |
 | CMP-5 | Terms of Service and a Privacy Policy at public URLs (LINK-4). | P0 | Partial: pages in `site/`, not yet published; S6 rows appear once `LINK_HOST` is set. |
 | CMP-6 | An app icon, drawn by a script in the repository from the design tokens. | P0 | Coded |
-| CMP-7 | App Store screenshots produced by the harness in section 7, from seed data with real model names. | P1 | New |
+| CMP-7 | App Store screenshots produced by the harness in section 7, from seed data with real model names. | P1 | Partial: `tools/screenshots/shots.sh` (`make screenshots`) captures eight shots on 6.9" and 6.5" simulators into `.build/screenshots/`, through `make shot` when present or simctl directly; the debug screen names in its table follow 7.1 and await the harness's `waypoints://debug/` paths. Not yet run. |
 
 ### 5.8 Observability, size, language (OBS, L10N)
 
