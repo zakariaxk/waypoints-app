@@ -206,6 +206,7 @@ struct ReportDetail: View {
                     Menu {
                         Button("Report") { env.router.open(.reportContent(ContentRef(kind: .report, id: r.id.description))) }
                     } label: { Image.symbol(Symbol.more).frame(width: Size.hitTarget, height: Size.hitTarget) }
+                    .accessibilityLabel(Text("More options", bundle: .module))
                 }
                 Text("Reported \(r.createdAt.formatted(.relative(presentation: .named))) · confirmed by \(r.confirmations)")
                     .typeStyle(.foot).foregroundStyle(Color.dust)
