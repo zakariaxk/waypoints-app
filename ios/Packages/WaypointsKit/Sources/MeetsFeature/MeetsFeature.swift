@@ -345,10 +345,17 @@ struct MeetDetail: View {
             Sheet(Text("Who's going")) {
                 ScrollView {
                     ForEach(goingPeople) { p in
-                        let car = rsvps.first { $0.userID == p.userID }?.carID.flatMap { id in goingCars.first { $0.id == id } }
+                        let rsvp = rsvps.first { $0.userID == p.userID }
+                        let car = rsvp?.carID.flatMap { id in goingCars.first { $0.id == id } }
                         Button { showGoing = false; env.router.open(.profile(p.userID)) } label: {
                             Row(Text(verbatim: p.displayName), subtitle: car.map { Text(verbatim: $0.shortLabel) },
-                                leading: { Avatar(name: p.displayName, size: .s40) })
+                                leading: { Avatar(name: p.displayName, size: .s40) },
+                                trailing: {
+                                    // NAV-15: set while they navigate here. No position, only the label.
+                                    if rsvp?.isOnTheWay() == true {
+                                        Text("On the way").typeStyle(.label).foregroundStyle(Color.go)
+                                    }
+                                })
                         }
                         .buttonStyle(RowButtonStyle())
                     }

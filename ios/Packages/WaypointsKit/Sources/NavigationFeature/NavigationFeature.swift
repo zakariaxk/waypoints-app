@@ -67,6 +67,13 @@ final class NavigationModel {
     var convoyID: ConvoyID?
     var sharedWithConvoy = false
     var shareFailed = false
+    /// Share ETA (NAV-15): one notice per trip.
+    var friends: [Friend] = []
+    var etaSent: Int?
+    var etaFailed = false
+    var sendingETA = false
+    /// The meet at this destination that you're Going to, if any. Navigating marks you "on the way".
+    @ObservationIgnored private var meet: MeetID?
     @ObservationIgnored private var monitor = NWPathMonitor()
     @ObservationIgnored private var convoyTask: Task<Void, Never>?
     @ObservationIgnored private var watching = false
@@ -94,9 +101,55 @@ final class NavigationModel {
 
     func load() async {
         watch()
-        if let me = await env.auth.currentSession()?.userID { cars = (try? await env.garage.cars(of: me)) ?? [] }
+        if let me = await env.auth.currentSession()?.userID {
+            cars = (try? await env.garage.cars(of: me)) ?? []
+            meet = await goingMeet(me)
+        }
         calculate(from: nil)
+        friends = ((try? await env.friends.friends()) ?? []).sorted { $0.profile.displayName < $1.profile.displayName }
     }
+
+    /// A meet you're Going to whose spot is this destination (within 150 m) and has not ended.
+    private func goingMeet(_ me: UserID) async -> MeetID? {
+        let near = ((try? await env.meets.upcomingMeets(for: me)) ?? [])
+            .filter { $0.cancelledAt == nil && $0.endsAt > .now && $0.coordinate.distance(to: destination) <= 150 }
+        for m in near {
+            if let r = try? await env.meets.myRSVP(for: m.id), r.status == .going { return m.id }
+        }
+        return nil
+    }
+
+    /// Arrival from the loaded route, scaled by what is left of it.
+    var arrival: Date {
+        guard let r = current?.route else { return .now }
+        let left = remaining > 0 ? r.expectedTravelTime * (remaining / max(r.distance, 1)) : r.expectedTravelTime
+        return Date.now.addingTimeInterval(left)
+    }
+
+    /// Sends the chosen friends one notice: destination name and arrival time, no position.
+    func shareETA(with users: [UserID]) async {
+        guard !users.isEmpty, etaSent == nil else { return }
+        sendingETA = true
+        defer { sendingETA = false }
+        do {
+            let result = try await env.gateway.shareETA(ETAShare(recipients: users, destination: destinationName,
+                                                                 arriveAt: arrival, meet: meet))
+            etaSent = result.sent
+            etaFailed = false
+        } catch {
+            etaFailed = true
+        }
+    }
+
+    /// Marks your Going RSVP "on the way" when guidance starts toward the meet.
+    private func markOnTheWay() {
+        guard let meet else { return }
+        let share = ETAShare(recipients: [], destination: destinationName, arriveAt: arrival, meet: meet)
+        let gateway = env.gateway
+        Task { _ = try? await gateway.shareETA(share) }
+    }
+
+    var destinationName: String { name.flatMap { $0.isEmpty ? nil : $0 } ?? String(localized: "Destination") }
 
     /// Starts the reachability monitor and follows convoy membership. `ConvoyFeature` keeps the
     /// active convoy id under `convoy.id`; convoy events from the gateway keep it current.
@@ -212,6 +265,7 @@ final class NavigationModel {
         guard let r = current else { return }
         guiding = true
         prepare(r.route)
+        markOnTheWay()
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .voicePrompt, options: [.duckOthers])
         task = Task { [weak self] in
             guard let self else { return }
@@ -397,9 +451,10 @@ struct RoutePreview: View {
                 UserAnnotation()
                 ForEach(Array(model.routes.enumerated()), id: \.element.id) { i, r in
                     MapPolyline(r.route.polyline)
-                        .stroke(i == model.selected ? Color.sodium : Color.dust, lineWidth: i == model.selected ? 6 : 4)
+                        .stroke(i == model.selected ? Color.sodium : Color.dust,
+                                lineWidth: i == model.selected ? Size.Route.selected : Size.Route.alternate)
                     ForEach(r.clearanceHazards(for: model.clearance)) { h in
-                        Annotation("", coordinate: h.coordinate.cl) { ReportBadge(kind: h.kind.rawValue).scaleEffect(0.7) }
+                        Annotation("", coordinate: h.coordinate.cl) { ReportBadge(kind: h.kind.rawValue).scaleEffect(Size.Marker.routeHazardScale) }
                     }
                 }
                 Marker(model.name ?? "", coordinate: model.destination.cl).tint(Color.sodium)
@@ -484,12 +539,13 @@ struct GuidanceView: View {
     @Bindable var model: NavigationModel
     let end: () -> Void
     @State private var position: MapCameraPosition = .userLocation(followsHeading: true, fallback: .automatic)
+    @State private var sharingETA = false
 
     var body: some View {
         ZStack {
             Map(position: $position) {
                 UserAnnotation()
-                if let r = model.current { MapPolyline(r.route.polyline).stroke(Color.sodium, lineWidth: 6) }
+                if let r = model.current { MapPolyline(r.route.polyline).stroke(Color.sodium, lineWidth: Size.Route.selected) }
             }
             .mapStyle(.standard(elevation: .realistic, emphasis: .muted))
             .ignoresSafeArea()
@@ -517,6 +573,7 @@ struct GuidanceView: View {
             }
         }
         .haptic(.warn, trigger: model.hazardAhead?.id) { _, new in new != nil }
+        .sheet(isPresented: $sharingETA) { ShareETASheet(model: model).presentationDetents([.medium, .large]) }
     }
 
     private var banner: some View {
@@ -545,16 +602,19 @@ struct GuidanceView: View {
 
     private var bottomBar: some View {
         HStack(spacing: Space.s16) {
-            let eta = Date.now.addingTimeInterval((model.current?.route.expectedTravelTime ?? 0) * (model.remaining / max(model.current?.route.distance ?? 1, 1)))
+            let eta = model.arrival
             VStack(alignment: .leading) {
                 Text(verbatim: eta.formatted(date: .omitted, time: .shortened)).typeStyle(.readoutM).foregroundStyle(Color.chalk)
                 Text(verbatim: NavigationModel.distance(model.remaining)).typeStyle(.foot).foregroundStyle(Color.dust)
             }
             Spacer()
+            if model.etaSent == nil && !model.friends.isEmpty && !model.arrived {
+                IconButton(Symbol.share, label: "Share ETA") { sharingETA = true }
+            }
             IconButton(model.muted ? "speaker.slash" : Symbol.speaker, label: model.muted ? "Unmute" : "Mute") { model.muted.toggle() }
             Button("End", action: end)
                 .typeStyle(.bodyStrong).foregroundStyle(Color.brake)
-                .frame(width: Size.row * 1.6, height: Size.control)
+                .frame(width: Size.wideButton, height: Size.control)
                 .background(Color.concrete, in: RoundedRectangle(cornerRadius: Radius.r12))
         }
         .padding(Space.margin)
@@ -570,6 +630,49 @@ struct GuidanceView: View {
         if t.contains("right") { return "arrow.turn.up.right" }
         if t.contains("arrive") || t.contains("destination") { return "mappin" }
         return "arrow.up"
+    }
+}
+
+// MARK: Share ETA (NAV-15)
+
+/// Pick friends; they get one notice with where you're headed and when you'll get there.
+struct ShareETASheet: View {
+    @Bindable var model: NavigationModel
+    @Environment(\.dismiss) private var dismiss
+    @State private var chosen: Set<UserID> = []
+
+    var body: some View {
+        Sheet(Text("Share ETA")) {
+            VStack(alignment: .leading, spacing: Space.s16) {
+                Text("They get one notice: \(model.destinationName), arriving \(model.arrival.formatted(date: .omitted, time: .shortened)). Not your location.")
+                    .typeStyle(.sub).foregroundStyle(Color.dust)
+                ScrollView {
+                    ForEach(model.friends) { f in
+                        Button {
+                            if chosen.contains(f.id) { chosen.remove(f.id) } else { chosen.insert(f.id) }
+                        } label: {
+                            Row(Text(verbatim: f.profile.displayName), leading: { Avatar(name: f.profile.displayName, size: .s28) },
+                                trailing: {
+                                    Image(systemName: chosen.contains(f.id) ? "checkmark.circle.fill" : "circle")
+                                        .foregroundStyle(chosen.contains(f.id) ? Color.sodium : Color.gravel)
+                                })
+                        }
+                        .buttonStyle(RowButtonStyle())
+                    }
+                }
+                if model.etaFailed {
+                    Text("Couldn't send it. Try again.").typeStyle(.foot).foregroundStyle(Color.brake)
+                }
+                PrimaryButton("Send", isLoading: model.sendingETA) {
+                    let users = Array(chosen)
+                    Task {
+                        await model.shareETA(with: users)
+                        if model.etaSent != nil { dismiss() }
+                    }
+                }
+                .disabled(chosen.isEmpty)
+            }
+        }
     }
 }
 

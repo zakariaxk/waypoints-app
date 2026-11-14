@@ -105,8 +105,15 @@ public struct MeetRSVP: Hashable, Sendable, Codable {
     public let userID: UserID
     public var status: RSVPStatus
     public var carID: CarID?
-    public init(meetID: MeetID, userID: UserID, status: RSVPStatus, carID: CarID? = nil) {
+    /// Set while this person, Going, is navigating here (NAV-15). No position, only the flag.
+    public var onTheWayUntil: Date?
+    public init(meetID: MeetID, userID: UserID, status: RSVPStatus, carID: CarID? = nil, onTheWayUntil: Date? = nil) {
         self.meetID = meetID; self.userID = userID; self.status = status; self.carID = carID
+        self.onTheWayUntil = onTheWayUntil
+    }
+    /// "On the way" shows only while the flag is in the future and the RSVP is Going.
+    public func isOnTheWay(at now: Date = .now) -> Bool {
+        status == .going && (onTheWayUntil.map { $0 > now } ?? false)
     }
 }
 

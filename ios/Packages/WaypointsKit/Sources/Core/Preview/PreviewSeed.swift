@@ -165,7 +165,7 @@ public enum PreviewSeed {
 
     public static let rsvps: [MeetRSVP] = [
         MeetRSVP(meetID: meets[0].id, userID: maya, status: .going, carID: car(1)),
-        MeetRSVP(meetID: meets[0].id, userID: jae, status: .going, carID: car(4)),
+        MeetRSVP(meetID: meets[0].id, userID: jae, status: .going, carID: car(4), onTheWayUntil: .now.addingTimeInterval(20 * 60)),
         MeetRSVP(meetID: meets[0].id, userID: nina, status: .maybe),
         MeetRSVP(meetID: meets[1].id, userID: lena, status: .going, carID: car(9)),
         MeetRSVP(meetID: meets[2].id, userID: devon, status: .going, carID: car(2)),

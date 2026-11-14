@@ -222,4 +222,13 @@ extension PreviewStore: GatewayService {
         _ = try me()
         return VoiceCredentials(url: URL(string: "wss://preview.livekit.invalid")!, token: "preview")
     }
+    public func shareETA(_ share: ETAShare) async throws -> ETAShareResult {
+        let me = try me()
+        var onTheWay = false
+        if let meet = share.meet, let i = rsvps.firstIndex(where: { $0.meetID == meet && $0.userID == me && $0.status == .going }) {
+            rsvps[i].onTheWayUntil = share.arriveAt.addingTimeInterval(20 * 60)
+            onTheWay = true
+        }
+        return ETAShareResult(sent: share.recipients.count, onTheWay: onTheWay)
+    }
 }

@@ -42,4 +42,26 @@ public protocol GatewayService: Sendable {
     func voiceToken(for channel: ChannelID) async throws -> VoiceCredentials
     /// Room `cv_<convoy_id>`, current members only (CNV-11).
     func voiceToken(forConvoy convoy: ConvoyID) async throws -> VoiceCredentials
+
+    // Share ETA (NAV-15). One notice to chosen friends: destination name and arrival time, no
+    // position. With `meet`, marks your Going RSVP "on the way". Recipients may be empty then.
+    @discardableResult func shareETA(_ share: ETAShare) async throws -> ETAShareResult
+}
+
+/// `POST /v1/eta` (NAV-15).
+public struct ETAShare: Hashable, Sendable {
+    public var recipients: [UserID]
+    public var destination: String
+    public var arriveAt: Date
+    public var meet: MeetID?
+    public init(recipients: [UserID], destination: String, arriveAt: Date, meet: MeetID? = nil) {
+        self.recipients = recipients; self.destination = destination; self.arriveAt = arriveAt; self.meet = meet
+    }
+}
+
+public struct ETAShareResult: Hashable, Sendable, Codable {
+    /// Friends the notice went to (non-friends and blocked pairs are dropped).
+    public var sent: Int
+    public var onTheWay: Bool
+    public init(sent: Int, onTheWay: Bool) { self.sent = sent; self.onTheWay = onTheWay }
 }

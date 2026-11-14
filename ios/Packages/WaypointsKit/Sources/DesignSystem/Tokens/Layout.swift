@@ -74,7 +74,20 @@ public enum Size {
         public static let ring: CGFloat = 2
         public static let innerStroke: CGFloat = 1
         public static let selectedScale: CGFloat = 1.15
+        /// Report badges drawn along a route preview, smaller than on the map.
+        public static let routeHazardScale: CGFloat = 0.7
     }
+
+    /// Route lines on the map (M3, M4, convoy destination).
+    public enum Route {
+        /// The selected route and the guidance line.
+        public static let selected: CGFloat = 6
+        /// Alternates in the route preview.
+        public static let alternate: CGFloat = 4
+    }
+
+    /// The wide text button in a bottom bar ("End" in guidance).
+    public static let wideButton: CGFloat = 90
 }
 
 /// Opacity tokens, so feature code never writes a bare fraction.

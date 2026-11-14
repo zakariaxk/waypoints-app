@@ -46,6 +46,18 @@ struct VoteBody: Encodable, Sendable { var stillThere: Bool }
 /// `DELETE /v1/meets/{id}` with `scope: "following"` also cancels later occurrences (MEET-12).
 struct CancelMeetBody: Encodable, Sendable { var scope: String }
 struct InviteBody: Encodable, Sendable { var userIds: [UserID] }
+/// `POST /v1/eta` (NAV-15). `meet_id` is sent as null when absent.
+struct ETABody: Encodable, Sendable {
+    var recipients: [UserID]; var destination: String; var arriveAt: Date; var meetId: MeetID?
+    enum CodingKeys: String, CodingKey { case recipients, destination, arriveAt, meetId }
+    func encode(to encoder: any Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(recipients, forKey: .recipients)
+        try c.encode(destination, forKey: .destination)
+        try c.encode(arriveAt, forKey: .arriveAt)
+        try c.encodeIfPresent(meetId, forKey: .meetId)
+    }
+}
 struct JoinConvoyBody: Encodable, Sendable { var joinCode: String }
 struct VoiceBody: Encodable, Sendable { var channelId: ChannelID }
 struct ConvoyVoiceBody: Encodable, Sendable { var convoyId: ConvoyID }

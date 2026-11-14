@@ -121,4 +121,13 @@ public struct LiveGatewayService: GatewayService {
     public func voiceToken(forConvoy convoy: ConvoyID) async throws -> VoiceCredentials {
         try await client.send("POST", "v1/voice/token", body: ConvoyVoiceBody(convoyId: convoy), as: VoiceCredentials.self)
     }
+
+    // MARK: Share ETA
+
+    public func shareETA(_ share: ETAShare) async throws -> ETAShareResult {
+        try await client.send("POST", "v1/eta",
+                              body: ETABody(recipients: share.recipients, destination: share.destination,
+                                            arriveAt: share.arriveAt, meetId: share.meet),
+                              as: ETAShareResult.self)
+    }
 }

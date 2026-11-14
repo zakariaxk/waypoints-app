@@ -241,10 +241,12 @@ struct RSVPRow: Codable, Sendable {
     let userId: UUID
     let status: RSVPStatus
     let carId: UUID?
+    /// NAV-15, migration 20261114060000. Absent before it is applied.
+    var onTheWayUntil: Date?
 
     var model: MeetRSVP {
         MeetRSVP(meetID: MeetID(raw: meetId), userID: UserID(raw: userId), status: status,
-                 carID: carId.map(CarID.init(raw:)))
+                 carID: carId.map(CarID.init(raw:)), onTheWayUntil: onTheWayUntil)
     }
 }
 
