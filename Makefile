@@ -5,6 +5,14 @@
 #   make run        build, install, and launch in the iPhone 16 simulator
 #   make proto      regenerate wire types (script arrives with W0-B)
 #   make bench-local  single-node benchmark (plan 8.3)
+#
+# The harness (PRD 7.1, tools/dev/):
+#   make dev-install          brew install the supabase CLI and nats-server
+#   make dev                  local Supabase up, reset and seeded, config files written, gateway running
+#   make check-db             supabase/checks.sql; non-zero if any rule prints FAIL
+#   make check-rt             server/cmd/rtdebug against a throwaway bench gateway
+#   make shot NAME= ARGS=     launch in the simulator with ARGS and save .build/shots/NAME.png
+#   make drive ROUTE=         feed the simulator a moving location along tools/dev/routes/ROUTE.txt
 
 SHELL := /bin/bash
 .SHELLFLAGS := -eu -o pipefail -c
@@ -17,7 +25,7 @@ BUNDLE_ID    := app.waypoints.ios
 CONFIG       := ios/App/Config.xcconfig
 CATALOG      := ios/App/Resources/catalog.sqlite.lzfse
 
-.PHONY: build go ios generate run proto clean bench-local bench-cluster
+.PHONY: build go ios generate run proto clean bench-local bench-cluster dev dev-install check-db check-rt shot drive
 
 build: go ios
 
@@ -86,6 +94,24 @@ archive: generate
 
 screenshots:
 	tools/screenshots/shots.sh
+
+dev-install:
+	brew install supabase/tap/supabase nats-server
+
+dev:
+	tools/dev/dev.sh
+
+check-db:
+	tools/dev/check-db.sh
+
+check-rt:
+	ARGS='$(ARGS)' tools/dev/check-rt.sh
+
+shot:
+	NAME='$(NAME)' ARGS='$(ARGS)' SIMULATOR='$(SIMULATOR)' BUNDLE_ID='$(BUNDLE_ID)' DERIVED_DATA='$(DERIVED_DATA)' tools/dev/shot.sh
+
+drive:
+	ROUTE='$(ROUTE)' SIMULATOR='$(SIMULATOR)' BUNDLE_ID='$(BUNDLE_ID)' tools/dev/drive.sh
 
 clean:
 	rm -rf '$(DERIVED_DATA)' ios/Waypoints.xcodeproj
