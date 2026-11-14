@@ -48,6 +48,10 @@ public enum Timing {
     public static let livePulse: TimeInterval = 2
     /// Step of the 3-dot loading indicator.
     public static let loadingStep: TimeInterval = 0.3
+    /// The double-tap like heart stays this long before it fades.
+    public static let likeHeart: TimeInterval = 0.6
+    /// The Showdown winner holds full screen this long before the next pair.
+    public static let winHold: TimeInterval = 0.5
 }
 
 public extension View {

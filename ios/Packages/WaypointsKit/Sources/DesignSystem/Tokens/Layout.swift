@@ -57,6 +57,8 @@ public enum Size {
     public static let rangeBar: CGFloat = 4
     /// Underline of `SegmentedSwitch`.
     public static let underline: CGFloat = 2
+    /// The heart that scales in at the touch point on a double-tap like.
+    public static let likeHeart: CGFloat = 88
 
     public enum Marker {
         public static let you: CGFloat = 44
