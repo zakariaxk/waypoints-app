@@ -52,6 +52,9 @@
     "Like": {
       "extractionState": "manual"
     },
+    "More options": {
+      "extractionState": "manual"
+    },
     "No car": {
       "extractionState": "manual"
     },
@@ -70,6 +73,12 @@
     "Not interested": {
       "extractionState": "manual"
     },
+    "Paused": {
+      "extractionState": "manual"
+    },
+    "Playing": {
+      "extractionState": "manual"
+    },
     "Post": {
       "extractionState": "manual"
     },
@@ -85,6 +94,15 @@
     "Send": {
       "extractionState": "manual"
     },
+    "Share": {
+      "extractionState": "manual"
+    },
+    "Shows less": {
+      "extractionState": "manual"
+    },
+    "Shows the whole caption": {
+      "extractionState": "manual"
+    },
     "Tag a car": {
       "extractionState": "manual"
     },
@@ -92,6 +110,9 @@
       "extractionState": "manual"
     },
     "Try again": {
+      "extractionState": "manual"
+    },
+    "Video": {
       "extractionState": "manual"
     }
   },

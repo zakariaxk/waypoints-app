@@ -309,6 +309,7 @@ struct VideoPage: View {
     let retry: () -> Void
     @State private var paused = false
     @State private var heart: CGPoint?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     /// FEED-8: the item failed to load or to play; the poster stays with "Try again".
     @State private var failed = false
 
@@ -326,6 +327,7 @@ struct VideoPage: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .contentShape(Rectangle())
                 .onLongPressGesture { overflow() }
+                .accessibilityAction(named: Text("More options", bundle: .module)) { overflow() }
             } else {
                 PlayerLayerView(player: player)
                     .onTapGesture(count: 2) { loc in
@@ -339,10 +341,22 @@ struct VideoPage: View {
                         pool.muted = false
                     }
                     .onLongPressGesture { overflow() }
+                    .accessibilityElement()
+                    .accessibilityLabel(post.caption.isEmpty ? Text("Video", bundle: .module) : Text(verbatim: post.caption))
+                    .accessibilityValue(paused ? Text("Paused", bundle: .module) : Text("Playing", bundle: .module))
+                    .accessibilityAddTraits([.isButton, .startsMediaSession])
+                    .accessibilityAction {
+                        paused.toggle()
+                        if paused { player.pause() } else { player.play() }
+                        pool.muted = false
+                    }
+                    .accessibilityAction(named: Text(post.likedByMe ? "Unlike" : "Like", bundle: .module)) { model.toggleLike(post) }
+                    .accessibilityAction(named: Text("More options", bundle: .module)) { overflow() }
             }
             if let heart {
                 Image(systemName: "heart.fill").font(.system(size: Size.likeHeart)).foregroundStyle(Color.brake)
-                    .position(heart).transition(.scale.combined(with: .opacity))
+                    .position(heart).transition(reduceMotion ? .opacity : .scale.combined(with: .opacity))
+                    .accessibilityHidden(true)
             }
             PostOverlay(model: model, post: post, comments: comments)
         }
@@ -391,6 +405,8 @@ struct PostOverlay: View {
             if !post.caption.isEmpty {
                 Text(verbatim: post.caption).typeStyle(.body).foregroundStyle(Color.chalk).lineLimit(expanded ? nil : 2)
                     .onTapGesture { expanded.toggle() }
+                    .accessibilityAddTraits(.isButton)
+                    .accessibilityHint(expanded ? Text("Shows less", bundle: .module) : Text("Shows the whole caption", bundle: .module))
             }
             if let id = post.carID, let car = model.cars[id] {
                 Button { model.env.router.open(.car(id)) } label: {
@@ -415,6 +431,7 @@ struct PostOverlay: View {
                 ShareLink(item: url) {
                     Image.symbol(Symbol.share).font(.title2).foregroundStyle(Color.chalk).frame(width: Size.hitTarget, height: Size.hitTarget)
                 }
+                .accessibilityLabel(Text("Share", bundle: .module))
             }
         }
     }
@@ -427,7 +444,8 @@ struct PostOverlay: View {
             }
             .frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget)
         }
-        .accessibilityLabel(Text(label))
+        .accessibilityLabel(Text(label, bundle: .module))
+        .accessibilityValue(Text(verbatim: "\(count)"))
     }
 }
 
@@ -441,6 +459,7 @@ struct PhotoPage: View {
     let overflow: () -> Void
     @State private var page = 0
     @State private var heart: CGPoint?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -457,9 +476,12 @@ struct PhotoPage: View {
                 Task { try? await Task.sleep(for: .seconds(Timing.likeHeart)); heart = nil }
             }
             .onLongPressGesture { overflow() }
+            .accessibilityAction(named: Text(post.likedByMe ? "Unlike" : "Like", bundle: .module)) { model.toggleLike(post) }
+            .accessibilityAction(named: Text("More options", bundle: .module)) { overflow() }
             if let heart {
                 Image(systemName: "heart.fill").font(.system(size: Size.likeHeart)).foregroundStyle(Color.brake)
-                    .position(heart).transition(.scale.combined(with: .opacity))
+                    .position(heart).transition(reduceMotion ? .opacity : .scale.combined(with: .opacity))
+                    .accessibilityHidden(true)
             }
             PostOverlay(model: model, post: post, comments: comments)
         }
