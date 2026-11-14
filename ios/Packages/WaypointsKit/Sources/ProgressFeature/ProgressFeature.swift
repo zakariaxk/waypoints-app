@@ -47,10 +47,12 @@ struct UnlockView: View {
                 HStack(spacing: Space.s12) {
                     if !f.trail {
                         SilhouetteIcon(f.name, paint: .sodium).frame(width: Size.Marker.friend, height: Size.Marker.friend)
-                            .scaleEffect(shown ? 1 : 0.4)
+                            .scaleEffect(shown || reduceMotion ? 1 : 0.4)
+                            .opacity(shown ? 1 : 0)
+                            .accessibilityHidden(true)
                     }
                     VStack(alignment: .leading, spacing: Space.s2) {
-                        Text(f.trail ? "New trail" : "New icon").typeStyle(.label).foregroundStyle(Color.sodium)
+                        (f.trail ? Text("New trail", bundle: .module) : Text("New icon", bundle: .module)).typeStyle(.label).foregroundStyle(Color.sodium)
                         Text(verbatim: MapIconSet.title(f.name)).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
                     }
                     Spacer()
