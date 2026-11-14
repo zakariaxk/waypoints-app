@@ -949,6 +949,26 @@ Starts after 1.0 is on TestFlight. One package per row, in parallel, then W9-INT
 | 8 | 1, 2, INT | Deployed, benchmarked, on TestFlight, ready to submit. |
 | 9 | 1 to 7, INT | Version 1.1. |
 
+### 8.7 Wave 8 as run (2026-11-14)
+
+The owner chose code first, build later: packages push without running `make build`, and the build is repaired after every line below is in `main`.
+
+| Package | Covers |
+|---|---|
+| W6-A Harness | Section 7.1 tools, seed rows for every table added since W0-C |
+| W6-B Data layer | Migration fixes, `checks.sql` for every table, suspension coverage, SAFE-7, SAFE-9 server limits, read markers, the known `LiveAuth` compile error |
+| W6-5 Catalog specs | GAR-8 |
+| W8-1A Meets and convoys | MEET-13, MEET-14, convoy state in Core, ACC-7, LINK-3 and SET-3 for those screens |
+| W8-1B Teams, messaging, voice | TEAM-4 voice occupants, SAFE-9 copy, LINK-3 |
+| W8-1C Feed, Showdown, Garage | For you privacy fix, FEED-11, GAR-16, LINK-3, SAFE-9 copy, SET-3 |
+| W8-1D Market, roads, spots | ROAD-3, MKT-1 distance, K3 reorder, K4 swipe, MKT-9, ROAD-5, SAFE-9 copy, SET-3 |
+| W8-1E Reports, help, links | HELP-4, help reportable, NTF-6 help responses, shared link parsing in Core |
+| W8-1F Nav, map, Strip, settings | NAV-15, STR-10, ghost versioning, MOD-13 misses, SAFE-7 client, SET-3, DES-1 |
+| W8-1 Benchmarks | PERF-1 to PERF-7 (loopback) |
+| W8-2 Store | CMP-1, CMP-4, CMP-7, `make archive` |
+
+Then, each alone: L10N-1 (String Catalogs in every module), the accessibility sweep (A11Y), and W8-0 green build. The screenshot walk (DES-7), the Verified pass, and the owner's device check follow.
+
 ---
 
 ## 9. Owner's actions
