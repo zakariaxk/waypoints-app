@@ -131,6 +131,7 @@ struct LiveProfiles: ProfileRepository {
                         onConflict: "user_id,apns_token", returning: .minimal, ignoreDuplicates: true)
                 .execute()
         }
+        DeviceTokenStore.remember(apnsToken)
     }
 
     func removeDeviceToken(_ apnsToken: String) async throws {

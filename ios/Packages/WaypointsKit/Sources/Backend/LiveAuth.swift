@@ -4,7 +4,9 @@ import Supabase
 
 /// Supabase Auth: Sign in with Apple (ID token + nonce), email one-time code, automatic
 /// refresh (the SDK refreshes before expiry and `accessToken()` refreshes on demand),
-/// sign-out, and account deletion through the `delete_account` RPC.
+/// sign-out (which first removes this phone's APNs token, NTF-5), and account deletion
+/// through the `delete_account` RPC. Suspended accounts (SAFE-7) are signed out and
+/// sign-in throws `WaypointsError.suspended`.
 actor LiveAuth: AuthService {
     private let ctx: BackendContext
     private let fanout = Fanout<AuthSession?>()
@@ -35,7 +37,12 @@ actor LiveAuth: AuthService {
             await publish(nil)
         default:
             if let session {
-                await publish(await makeSession(session))
+                if let made = await makeSession(session) {
+                    await publish(made)
+                } else {
+                    try? await ctx.client.auth.signOut(scope: .local)
+                    await publish(nil)
+                }
             } else if event == .initialSession {
                 await publish(nil)
             }
@@ -49,11 +56,14 @@ actor LiveAuth: AuthService {
         await fanout.send(session)
     }
 
-    private func makeSession(_ session: Session) async -> AuthSession {
+    /// `nil` when the account is suspended.
+    private func makeSession(_ session: Session) async -> AuthSession? {
         let id = session.user.id
         var needsOnboarding = !onboarded.contains(id)
         if needsOnboarding {
-            if await Self.acceptedTerms(ctx: ctx, id: id) {
+            let flags = await Self.accountFlags(ctx: ctx, id: id)
+            if flags.suspended { return nil }
+            if flags.acceptedTerms {
                 onboarded.insert(id)
                 needsOnboarding = false
             }
@@ -96,10 +106,7 @@ actor LiveAuth: AuthService {
             try await ctx.client.auth.signInWithIdToken(
                 credentials: OpenIDConnectCredentials(provider: .apple, idToken: idToken, nonce: nonce))
         }
-        let made = await makeSession(session)
-        loaded = true
-        await publish(made)
-        return made
+        return try await finishSignIn(session)
     }
 
     func sendEmailCode(to email: String) async throws {
@@ -116,8 +123,18 @@ actor LiveAuth: AuthService {
             try await ctx.client.auth.verifyOTP(email: address, token: token, type: .email)
         }
         guard let session = response.session else { throw WaypointsError.invalid("code") }
-        let made = await makeSession(session)
+        return try await finishSignIn(session)
+    }
+
+    /// A fresh sign-in always re-reads the profile, so a suspension since the last session shows.
+    private func finishSignIn(_ session: Session) async throws -> AuthSession {
+        onboarded.remove(session.user.id)
         loaded = true
+        guard let made = await makeSession(session) else {
+            try? await ctx.client.auth.signOut(scope: .local)
+            await publish(nil)
+            throw WaypointsError.suspended
+        }
         await publish(made)
         return made
     }
@@ -130,6 +147,7 @@ actor LiveAuth: AuthService {
     }
 
     func signOut() async throws {
+        await removeDeviceToken()
         do {
             try await ctx.client.auth.signOut()
         } catch {
@@ -149,16 +167,34 @@ actor LiveAuth: AuthService {
             }
         }
         try await Self.deleteAccountRow(ctx: ctx)
+        DeviceTokenStore.clear()
         onboarded.remove(me.raw)
         try? await ctx.client.auth.signOut(scope: .local)
         await publish(nil)
     }
 
-    private nonisolated static func acceptedTerms(ctx: BackendContext, id: UUID) async -> Bool {
+    /// Best effort: drop this phone's APNs token while the session can still delete it, so a
+    /// signed-out phone stops receiving pushes for the account.
+    private func removeDeviceToken() async {
+        guard let token = DeviceTokenStore.last else { return }
+        if let me = try? ctx.me() {
+            _ = try? await ctx.table("device_tokens").delete(returning: .minimal)
+                .eq("user_id", value: me.key).eq("apns_token", value: token).execute()
+        }
+        DeviceTokenStore.clear()
+    }
+
+    private nonisolated static func accountFlags(ctx: BackendContext, id: UUID) async -> (acceptedTerms: Bool, suspended: Bool) {
+        struct Flags: Decodable, Sendable { let acceptedTermsAt: Date?; let suspendedAt: Date? }
         struct Terms: Decodable, Sendable { let acceptedTermsAt: Date? }
+        if let row: Flags = try? await ctx.table("profiles").select("accepted_terms_at,suspended_at")
+            .eq("user_id", value: id).single().execute().value {
+            return (row.acceptedTermsAt != nil, row.suspendedAt != nil)
+        }
+        // A database without the W7-1 migration has no `suspended_at` column yet.
         let row: Terms? = try? await ctx.table("profiles").select("accepted_terms_at")
             .eq("user_id", value: id).single().execute().value
-        return row?.acceptedTermsAt != nil
+        return (row?.acceptedTermsAt != nil, false)
     }
 
     private nonisolated static func deleteAccountRow(ctx: BackendContext) async throws {
@@ -168,4 +204,15 @@ actor LiveAuth: AuthService {
             throw BackendContext.map(error)
         }
     }
+}
+
+/// The APNs token this phone last registered, so sign-out can remove it (NTF-5).
+enum DeviceTokenStore {
+    private static let key = "waypoints.apnsToken"
+
+    static var last: String? { UserDefaults.standard.string(forKey: key) }
+
+    static func remember(_ token: String) { UserDefaults.standard.set(token, forKey: key) }
+
+    static func clear() { UserDefaults.standard.removeObject(forKey: key) }
 }
