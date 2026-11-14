@@ -687,11 +687,11 @@ Plan section 9 is the law. These make it checkable.
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| A11Y-1 | Dynamic Type through AX5 without clipping primary text. | P0 | Coded |
-| A11Y-2 | Every control and marker has a VoiceOver label that says what it is and its state. | P0 | Coded |
-| A11Y-3 | Reduce Motion turns transitions into crossfades and stops loops. | P0 | Coded |
-| A11Y-4 | Colour is never the only signal. Text contrast meets 4.5:1, glyphs 3:1. | P0 | Coded |
-| A11Y-5 | Hit targets are at least 44 pt, markers included. | P0 | Coded |
+| A11Y-1 | Dynamic Type through AX5 without clipping primary text. | P0 | Coded (W8-4 code sweep; not yet checked on device) |
+| A11Y-2 | Every control and marker has a VoiceOver label that says what it is and its state. | P0 | Coded (W8-4 code sweep; not yet checked on device) |
+| A11Y-3 | Reduce Motion turns transitions into crossfades and stops loops. | P0 | Coded (W8-4 code sweep; not yet checked on device) |
+| A11Y-4 | Colour is never the only signal. Text contrast meets 4.5:1, glyphs 3:1. | P0 | Coded (W8-4 code sweep; not yet checked on device) |
+| A11Y-5 | Hit targets are at least 44 pt, markers included. | P0 | Coded (W8-4 code sweep; not yet checked on device) |
 
 ### 5.3 Concurrency (CONC)
 
