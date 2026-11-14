@@ -349,7 +349,8 @@ struct ListingScreen: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button("Report") { env.router.open(.reportContent(ContentRef(kind: .listing, id: l.id.description))) }
-                    } label: { Image.symbol(Symbol.more) }
+                    } label: { Image.symbol(Symbol.more).frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget) }
+                    .accessibilityLabel(Text("More options", bundle: .module))
                 }
             }
         }

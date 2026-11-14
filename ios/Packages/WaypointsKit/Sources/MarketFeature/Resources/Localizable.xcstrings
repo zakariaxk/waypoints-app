@@ -88,6 +88,9 @@
     "Meet in a public place. Waypoints doesn't handle payment.": {
       "extractionState": "manual"
     },
+    "More options": {
+      "extractionState": "manual"
+    },
     "Move left": {
       "extractionState": "manual"
     },
