@@ -437,7 +437,8 @@ func (s *Service) invite(w http.ResponseWriter, r *http.Request, cl auth.Claims)
 			name = p.DisplayName
 		}
 		go s.push.Send(context.WithoutCancel(r.Context()), b.UserIDs, push.Note{Kind: push.ConvoyInvites, Title: "Convoy invite",
-			Body: name + " invited you to " + c.Name + ".", URL: "waypoints://invite/convoy/" + c.JoinCode})
+			Body: name + " invited you to " + c.Name + ".", URL: "waypoints://invite/convoy/" + c.JoinCode,
+			ActorID: cl.UserID, Dedupe: "convoy_invite:" + c.ID + ":" + cl.UserID})
 	}
 	w.WriteHeader(http.StatusAccepted)
 }

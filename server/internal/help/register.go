@@ -41,7 +41,9 @@ const (
 	// Lifetime is how long a request lasts without an extension (HELP-6).
 	Lifetime = 60 * time.Minute
 	// NotifyRadiusM bounds the push to friends and teammates (HELP-4).
-	NotifyRadiusM  = 25_000
+	NotifyRadiusM = 25_000
+	// DailyLimit is how many help requests one account may start in 24 hours (SAFE-9).
+	DailyLimit     = 3
 	deliverSubject = "help.deliver"
 	// Neither kind has a notification_prefs column, so both are always delivered. They are
 	// also the Activity kinds (notifications.kind).
@@ -130,6 +132,10 @@ const knownSQL = `(exists (select 1 from public.friendships f where f.status = '
 		and greatest(f.requester_id, f.addressee_id) = greatest(h.requester_id, $1::uuid))
 	or exists (select 1 from public.team_members a join public.team_members b on b.team_id = a.team_id
 		where a.user_id = h.requester_id and b.user_id = $1::uuid))`
+
+// notSuspendedSQL drops requests whose requester has since been suspended (SAFE-7).
+const notSuspendedSQL = `not exists (select 1 from public.profiles sp where sp.user_id = h.requester_id
+		and sp.suspended_at is not null)`
 
 const notBlockedSQL = `not exists (select 1 from public.blocks b where (b.blocker_id = h.requester_id and b.blocked_id = $1::uuid)
 		or (b.blocker_id = $1::uuid and b.blocked_id = h.requester_id))`
@@ -285,7 +291,7 @@ func (s *Service) list(w http.ResponseWriter, r *http.Request, c auth.Claims) {
 	ctx := r.Context()
 	rows, err := pool.Query(ctx, `select `+cols+`, `+knownSQL+` from public.help_requests h
 		where h.ended_at is null and h.expires_at > now()
-		  and (h.requester_id = $1::uuid or (`+notBlockedSQL+`
+		  and (h.requester_id = $1::uuid or (`+notBlockedSQL+` and `+notSuspendedSQL+`
 		       and st_intersects(h.geom, st_makeenvelope($2, $3, $4, $5, 4326)::geography)
 		       and (h.show_nearby or `+knownSQL+`)))
 		order by h.created_at desc limit 100`, c.UserID, minLng, minLat, maxLng, maxLat)
@@ -316,7 +322,7 @@ func (s *Service) load(ctx context.Context, pool *pgxpool.Pool, id, viewer strin
 	var x requestJSON
 	err := pool.QueryRow(ctx, `select `+cols+`, `+knownSQL+` from public.help_requests h
 		where h.id = $2::uuid and h.ended_at is null and h.expires_at > now()
-		  and (h.requester_id = $1::uuid or (`+notBlockedSQL+` and (h.show_nearby or `+knownSQL+`)))`, viewer, id).
+		  and (h.requester_id = $1::uuid or (`+notBlockedSQL+` and `+notSuspendedSQL+` and (h.show_nearby or `+knownSQL+`)))`, viewer, id).
 		Scan(&x.ID, &x.requester, &x.Kind, &x.Lat, &x.Lng, &x.Note, &x.ShowNearby, &x.ExpiresAt, &x.CreatedAt, &x.known)
 	return x, err
 }
@@ -376,6 +382,17 @@ func (s *Service) create(w http.ResponseWriter, r *http.Request, c auth.Claims) 
 		return
 	}
 	ctx := r.Context()
+	// SAFE-9: 3 help requests a day, counted in Postgres so the limit holds across nodes.
+	var today int
+	if err := pool.QueryRow(ctx, `select count(*) from public.help_requests
+		where requester_id = $1::uuid and created_at > now() - interval '1 day'`, c.UserID).Scan(&today); err != nil {
+		api.Error(w, http.StatusInternalServerError, "could not save")
+		return
+	}
+	if today >= DailyLimit {
+		api.Error(w, http.StatusTooManyRequests, "rate limited")
+		return
+	}
 	// A request past its hour is ended here too, so it never blocks a new one.
 	s.expire(ctx, pool, `and requester_id = $1::uuid`, c.UserID)
 	h3 := int64(geo.Cell(geo.E7(b.Lat), geo.E7(b.Lng), geo.ResCell))

@@ -100,3 +100,63 @@ func looksLikeUUID(s string) bool {
 	}
 	return true
 }
+
+// SuspendedAmong returns the ids among userIDs whose account is suspended,
+// read from Postgres in one query (bypassing the cache, which it refreshes).
+// The gateway calls it periodically for every open connection so an account
+// suspended while connected is dropped within one sweep (SAFE-7). Errors and
+// memory mode return nothing: fail open, as at connect.
+func (v *Verifier) SuspendedAmong(ctx context.Context, userIDs []string) []string {
+	if v == nil || v.susp == nil {
+		return nil
+	}
+	return v.susp.among(ctx, userIDs)
+}
+
+func (s *suspensions) among(ctx context.Context, userIDs []string) []string {
+	if s.st == nil {
+		return nil
+	}
+	pool := s.st.Pool()
+	if pool == nil {
+		return nil
+	}
+	ids := make([]string, 0, len(userIDs))
+	for _, id := range userIDs {
+		if looksLikeUUID(id) {
+			ids = append(ids, id)
+		}
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	qctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	rows, err := pool.Query(qctx, `select user_id::text from public.profiles
+		where user_id = any($1::uuid[]) and suspended_at is not null`, ids)
+	if err != nil {
+		s.log.Warn("suspension sweep failed", "err", err)
+		return nil
+	}
+	defer rows.Close()
+	var out []string
+	hit := map[string]bool{}
+	for rows.Next() {
+		var id string
+		if rows.Scan(&id) == nil {
+			out = append(out, id)
+			hit[id] = true
+		}
+	}
+	if rows.Err() != nil {
+		s.log.Warn("suspension sweep failed", "err", rows.Err())
+		return nil
+	}
+	now := time.Now()
+	s.mu.Lock()
+	for _, id := range ids {
+		s.cache[id] = suspensionEntry{suspended: hit[id], checked: now}
+	}
+	s.mu.Unlock()
+	return out
+}

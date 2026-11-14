@@ -127,6 +127,7 @@ func Register(a *app.App) {
 	})
 	_, _ = s.bus.Subscribe(MapEventSubject, func(m bus.Msg) { s.fanMapEvent(m.Data) })
 	a.Mux.HandleFunc("GET /v1/rt", s.serve)
+	a.Go("ws-suspensions", s.sweepSuspended)
 	a.OnStop("ws", func(context.Context) error { s.closeAll(); return nil })
 	app.Provide(a, s)
 }

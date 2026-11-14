@@ -178,10 +178,15 @@ actor LiveAuth: AuthService {
     private func removeDeviceToken() async {
         guard let token = DeviceTokenStore.last else { return }
         if let me = try? ctx.me() {
-            _ = try? await ctx.table("device_tokens").delete(returning: .minimal)
-                .eq("user_id", value: me.key).eq("apns_token", value: token).execute()
+            await Self.deleteDeviceTokenRow(ctx: ctx, user: me.key, token: token)
         }
         DeviceTokenStore.clear()
+    }
+
+    /// Nonisolated so the non-Sendable `PostgrestResponse` never crosses the actor boundary.
+    private nonisolated static func deleteDeviceTokenRow(ctx: BackendContext, user: String, token: String) async {
+        _ = try? await ctx.table("device_tokens").delete(returning: .minimal)
+            .eq("user_id", value: user).eq("apns_token", value: token).execute()
     }
 
     private nonisolated static func accountFlags(ctx: BackendContext, id: UUID) async -> (acceptedTerms: Bool, suspended: Bool) {

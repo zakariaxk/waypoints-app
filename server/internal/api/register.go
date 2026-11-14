@@ -31,7 +31,6 @@ type Service struct {
 	auth  *auth.Verifier
 	ws    *ws.Server
 	push  *push.Service
-	limit *Limiter
 }
 
 // Register mounts the report and meet endpoints.
@@ -40,7 +39,6 @@ func Register(a *app.App) {
 		store: app.MustLookup[*store.Store](a),
 		auth:  app.MustLookup[*auth.Verifier](a),
 		ws:    app.MustLookup[*ws.Server](a),
-		limit: NewLimiter(10, 10*time.Minute),
 	}
 	s.push, _ = app.Lookup[*push.Service](a)
 	a.Mux.HandleFunc("POST /v1/reports", Authed(s.auth, s.postReport))
@@ -133,6 +131,12 @@ func (l *Limiter) Allow(key string) bool {
 
 // MARK: reports
 
+// Map report abuse limit (SAFE-9).
+const (
+	reportLimit  = 10
+	reportWindow = "10 minutes"
+)
+
 var lifetimes = map[string]time.Duration{
 	"police":     45 * time.Minute,
 	"hazard":     2 * time.Hour,
@@ -195,15 +199,24 @@ func (s *Service) postReport(w http.ResponseWriter, r *http.Request, c auth.Clai
 		Error(w, http.StatusBadRequest, "note")
 		return
 	}
-	if !s.limit.Allow(c.UserID) {
-		Error(w, http.StatusTooManyRequests, "rate limited")
-		return
-	}
 	pool := Pool(w, s.store)
 	if pool == nil {
 		return
 	}
 	ctx := r.Context()
+	// SAFE-9: 10 map reports in 10 minutes, counted in Postgres so the limit holds across
+	// nodes. A new report and a confirmation each write a "still there" vote by the caller.
+	var recent int
+	if err := pool.QueryRow(ctx, `select count(*) from public.report_votes
+		where user_id = $1::uuid and still_there and created_at > now() - $2::interval`,
+		c.UserID, reportWindow).Scan(&recent); err != nil {
+		Error(w, http.StatusInternalServerError, "could not save report")
+		return
+	}
+	if recent >= reportLimit {
+		Error(w, http.StatusTooManyRequests, "rate limited")
+		return
+	}
 	var expires *time.Time
 	if d, ok := lifetimes[body.Kind]; ok {
 		t := time.Now().Add(d)

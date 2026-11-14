@@ -113,6 +113,7 @@ declare
   post_a  constant text := 'cccccccc-0000-4000-8004-00000000000a';
   thr_ab  constant text := 'cccccccc-0000-4000-8005-0000000000ab';
   lst_a   constant text := 'cccccccc-0000-4000-8006-00000000000a';
+  help_a  constant text := 'cccccccc-0000-4000-8009-00000000000a';
   general_p uuid;
   msg_b bigint;
   v_int int;
@@ -649,6 +650,287 @@ begin
   perform pg_temp.allow('storage: owner deletes own file', a,
     format($s$delete from storage.objects where bucket_id = 'avatars' and name = %L$s$, a || '/avatar.jpg'));
 
+  -- ============================================================== since W0-C (W6-B, SEC-1)
+  ---------------------------------------------------------------- coverage
+  perform pg_temp.truth('rls: enabled on every public table',
+    not exists (select 1 from pg_class
+                where relnamespace = 'public'::regnamespace and relkind = 'r' and not relrowsecurity));
+  perform pg_temp.truth('suspension: write guard on every RLS table',
+    not exists (select 1 from pg_class t
+                where t.relnamespace = 'public'::regnamespace and t.relkind = 'r' and t.relrowsecurity
+                  and not exists (select 1 from pg_trigger g
+                                  where g.tgrelid = t.oid and g.tgname = 'suspended_write_guard')));
+
+  ---------------------------------------------------------------- convoys
+  perform pg_temp.allow('convoys: service role mirrors convoy state', 'service',
+    $s$insert into convoys (id, join_code, state) values ('chk-convoy', 'CHKJOIN1', '{"member_uids":[]}')$s$, true);
+  perform pg_temp.deny('convoys: users cannot read', a, $s$select 1 from convoys$s$);
+  perform pg_temp.deny('convoys: users cannot write', a,
+    $s$insert into convoys (id, join_code, state) values ('chk-convoy-2', 'CHKJOIN2', '{}')$s$);
+  perform pg_temp.deny('convoys: anon cannot read', 'anon', $s$select 1 from convoys$s$);
+
+  ---------------------------------------------------------------- push
+  perform pg_temp.allow('notification_prefs: owner saves own', a,
+    format($s$insert into notification_prefs (user_id, messages) values (%L, false)$s$, a), true);
+  perform pg_temp.allow('notification_prefs: owner reads own', a,
+    format($s$select 1 from notification_prefs where user_id = %L$s$, a));
+  perform pg_temp.allow('notification_prefs: owner updates own', a,
+    format($s$update notification_prefs set messages = true where user_id = %L$s$, a));
+  perform pg_temp.deny('notification_prefs: others cannot read', b,
+    format($s$select 1 from notification_prefs where user_id = %L$s$, a));
+  perform pg_temp.deny('notification_prefs: others cannot update', b,
+    format($s$update notification_prefs set messages = false where user_id = %L$s$, a));
+  perform pg_temp.deny('notification_prefs: cannot write for someone else', a,
+    format($s$insert into notification_prefs (user_id) values (%L)$s$, b));
+  perform pg_temp.truth('push: notify triggers on messages and friendships',
+    exists (select 1 from pg_trigger where tgname = 'messages_notify' and tgrelid = 'public.messages'::regclass)
+    and exists (select 1 from pg_trigger where tgname = 'friendships_notify' and tgrelid = 'public.friendships'::regclass));
+  perform pg_temp.deny('notify_gateway: not callable by users', a,
+    $s$select public.notify_gateway('{}'::jsonb)$s$);
+
+  ---------------------------------------------------------------- achievements
+  perform pg_temp.truth('achievements: a Strip run awards strip_1',
+    exists (select 1 from achievements where user_id = a::uuid and key = 'strip_1'));
+  perform pg_temp.deny('award: not callable by users', a,
+    format($s$select public.award(%L, 'host_3')$s$, a));
+
+  ---------------------------------------------------------------- meet_checkins
+  perform pg_temp.allow('meet_checkins: gateway records a check-in', 'service',
+    format($s$insert into meet_checkins (meet_id, user_id) values (%L, %L)$s$, meet_pub, b), true);
+  perform pg_temp.truth('meet_checkins: a check-in awards first_meet',
+    exists (select 1 from achievements where user_id = b::uuid and key = 'first_meet'));
+  perform pg_temp.allow('meet_checkins: readable with the meet', a,
+    format($s$select 1 from meet_checkins where meet_id = %L$s$, meet_pub));
+  perform pg_temp.deny('meet_checkins: hidden across a block', c,
+    format($s$select 1 from meet_checkins where meet_id = %L$s$, meet_pub));
+  perform pg_temp.deny('meet_checkins: users cannot check in directly', b,
+    format($s$insert into meet_checkins (meet_id, user_id) values (%L, %L)$s$, meet_fr, b));
+
+  ---------------------------------------------------------------- recurring meets
+  perform pg_temp.allow('meets: gateway sets a weekly series with a destination', 'service',
+    format($s$update meets set recurrence = 'weekly', series_id = %L, time_zone = 'America/New_York',
+      dest_lat = 39.95, dest_lng = -75.16, dest_name = 'Check: Philly' where id = %L$s$, meet_pub, meet_pub), true);
+  perform pg_temp.deny('meets: recurrence is weekly, biweekly, or monthly', 'service',
+    format($s$update meets set recurrence = 'daily' where id = %L$s$, meet_pub), '23514');
+  perform pg_temp.deny('meets: a recurring meet needs a series id', 'service',
+    format($s$update meets set recurrence = 'weekly' where id = %L$s$, meet_fr), '23514');
+  perform pg_temp.deny('meets: a destination needs both coordinates', 'service',
+    format($s$update meets set dest_lat = 39.9 where id = %L$s$, meet_fr), '23514');
+  perform pg_temp.deny('meets: one occurrence per series start', 'service',
+    format($s$update meets set series_id = %L, starts_at = m.starts_at, ends_at = m.ends_at
+      from (select starts_at, ends_at from meets where id = %L) m where meets.id = %L$s$, meet_pub, meet_pub, meet_fr), '23505');
+  perform pg_temp.deny('meets: users cannot set recurrence', a,
+    format($s$update meets set recurrence = 'monthly' where id = %L$s$, meet_pub));
+  perform pg_temp.allow('meets_in_bbox: returns recurrence and destination', b,
+    $s$select 1 from meets_in_bbox(-75.1, 39.9, -75.0, 40.0)
+       where title = 'Check: public meet' and recurrence = 'weekly' and dest_name = 'Check: Philly'$s$);
+
+  ---------------------------------------------------------------- listing category and wanted
+  perform pg_temp.allow('listings: wanted listing with a part category', b,
+    format($s$insert into listings (seller_id, kind, category, title, price_cents, condition)
+      values (%L, 'wanted', 'wheels_tires', 'Wanted: 15x8 wheels', 40000, 'used')$s$, b));
+  perform pg_temp.deny('listings: category must be a known part category', b,
+    format($s$insert into listings (seller_id, kind, category, title, price_cents, condition)
+      values (%L, 'part', 'rockets', 'x', 1, 'new')$s$, b), '22P02');
+
+  ---------------------------------------------------------------- notifications
+  perform pg_temp.truth('notifications: a like records one row for the post author',
+    (select count(*) = 1 from notifications where user_id = a::uuid and kind = 'like' and actor_id = b::uuid));
+  insert into post_likes (post_id, user_id) values (post_a::uuid, b::uuid);
+  delete from post_likes where post_id = post_a::uuid and user_id = b::uuid;
+  perform pg_temp.truth('notifications: liking again does not notify twice',
+    (select count(*) = 1 from notifications where user_id = a::uuid and kind = 'like'));
+  perform pg_temp.allow('notifications: recipient reads own', a,
+    $s$select 1 from notifications where kind = 'like'$s$);
+  perform pg_temp.deny('notifications: others cannot read', b,
+    format($s$select 1 from notifications where user_id = %L$s$, a));
+  perform pg_temp.allow('notifications: recipient marks read', a,
+    $s$update notifications set read_at = now() where kind = 'like'$s$);
+  perform pg_temp.deny('notifications: recipient cannot rewrite a row', a,
+    $s$update notifications set title = 'rewritten' where kind = 'like'$s$);
+  perform pg_temp.deny('notifications: users cannot insert', a,
+    format($s$insert into notifications (user_id, kind, title) values (%L, 'like', 'x')$s$, a));
+  perform pg_temp.deny('notifications: users cannot delete', a,
+    $s$delete from notifications$s$);
+  perform pg_temp.deny('record_notification: not callable by users', a,
+    format($s$select public.record_notification(%L, 'like', null, null, 'x', null, null)$s$, b));
+
+  ---------------------------------------------------------------- help requests
+  insert into help_requests (id, requester_id, kind, geom, note) values
+    (help_a::uuid, a::uuid, 'flat_tire', st_setsrid(st_makepoint(-75.02, 39.94), 4326)::geography, 'Check: help');
+  insert into help_responses (request_id, user_id) values (help_a::uuid, b::uuid);
+  perform pg_temp.allow('help_requests: requester reads own', a,
+    format($s$select 1 from help_requests where id = %L$s$, help_a));
+  perform pg_temp.allow('help_requests: friends read an active request', b,
+    format($s$select 1 from help_requests where id = %L$s$, help_a));
+  perform pg_temp.deny('help_requests: hidden across a block', c,
+    format($s$select 1 from help_requests where id = %L$s$, help_a));
+  perform pg_temp.deny('help_requests: anon cannot read', 'anon', $s$select 1 from help_requests$s$);
+  perform pg_temp.deny('help_requests: insert only through gateway', a,
+    format($s$insert into help_requests (requester_id, kind, geom) values (%L, 'stuck',
+      st_setsrid(st_makepoint(-75, 39.9), 4326)::geography)$s$, a));
+  perform pg_temp.deny('help_requests: extend only through gateway', a,
+    format($s$update help_requests set expires_at = now() + interval '1 day' where id = %L$s$, help_a));
+  perform pg_temp.deny('help_requests: one active request per person', 'service',
+    format($s$insert into help_requests (requester_id, kind, geom) values (%L, 'stuck',
+      st_setsrid(st_makepoint(-75, 39.9), 4326)::geography)$s$, a), '23505');
+  perform pg_temp.allow('help_responses: requester sees who is coming', a,
+    format($s$select 1 from help_responses where request_id = %L$s$, help_a));
+  perform pg_temp.allow('help_responses: responder sees own response', b,
+    format($s$select 1 from help_responses where request_id = %L$s$, help_a));
+  perform pg_temp.deny('help_responses: outsiders cannot read', c,
+    format($s$select 1 from help_responses where request_id = %L$s$, help_a));
+  perform pg_temp.deny('help_responses: respond only through gateway', c,
+    format($s$insert into help_responses (request_id, user_id) values (%L, %L)$s$, help_a, c));
+  update help_requests set ended_at = now() where id = help_a::uuid;
+  perform pg_temp.deny('help_requests: friends lose an ended request', b,
+    format($s$select 1 from help_requests where id = %L$s$, help_a));
+  perform pg_temp.allow('help_requests: requester still reads an ended request', a,
+    format($s$select 1 from help_requests where id = %L$s$, help_a));
+  update help_requests set ended_at = null where id = help_a::uuid;
+
+  ---------------------------------------------------------------- feed_for_you, showdown_week_top
+  perform pg_temp.allow('feed_for_you: returns visible posts', b,
+    format($s$select 1 from feed_for_you(0, 50) where id = %L$s$, post_a));
+  perform pg_temp.deny('feed_for_you: hides posts across a block', c,
+    format($s$select 1 from feed_for_you(0, 50) where id = %L$s$, post_a));
+  perform pg_temp.deny('feed_for_you: not callable by anon', 'anon',
+    $s$select 1 from feed_for_you(0, 10)$s$);
+  perform pg_temp.allow('showdown_week_top: ranks this week''s winners', b,
+    format($s$select 1 from showdown_week_top('street') where car_id = %L$s$, car_b));
+  perform pg_temp.deny('showdown_week_top: not callable by anon', 'anon',
+    $s$select 1 from showdown_week_top('street')$s$);
+  perform pg_temp.deny('showdown_close_week: service role only', a,
+    $s$select public.showdown_close_week()$s$);
+
+  ---------------------------------------------------------------- moderation: hidden_at
+  perform pg_temp.allow('hidden_at: owner update runs', a,
+    format($s$update listings set hidden_at = now() where id = %L$s$, lst_a), true);
+  perform pg_temp.truth('hidden_at: end users cannot hide or unhide rows',
+    (select hidden_at is null from listings where id = lst_a::uuid));
+  perform pg_temp.deny('moderation_hide: service role only', a,
+    format($s$select moderation_hide('post', %L)$s$, post_a));
+  perform pg_temp.allow('moderation_hide: reviewer hides a post', 'service',
+    format($s$select moderation_hide('post', %L)$s$, post_a), true);
+  perform pg_temp.deny('posts: hidden post disappears for others', b,
+    format($s$select 1 from posts where id = %L$s$, post_a));
+  perform pg_temp.allow('posts: author still sees own hidden post', a,
+    format($s$select 1 from posts where id = %L$s$, post_a));
+  perform pg_temp.deny('feed_for_you: hidden posts drop out', b,
+    format($s$select 1 from feed_for_you(0, 50) where id = %L$s$, post_a));
+  perform pg_temp.deny('post_likes: cannot like a hidden post', b,
+    format($s$insert into post_likes (post_id, user_id) values (%L, %L)$s$, post_a, b));
+  perform pg_temp.allow('moderation_restore: reviewer restores a post', 'service',
+    format($s$select moderation_restore('post', %L)$s$, post_a), true);
+  perform pg_temp.allow('posts: restored post readable again', b,
+    format($s$select 1 from posts where id = %L$s$, post_a));
+
+  insert into content_reports (reporter_id, target_kind, target_id, reason) values
+    (a::uuid, 'listing', lst_a, 'scam'), (b::uuid, 'listing', lst_a, 'scam');
+  perform pg_temp.truth('content_reports: two reporters do not hide',
+    (select hidden_at is null from listings where id = lst_a::uuid));
+  insert into content_reports (reporter_id, target_kind, target_id, reason) values (c::uuid, 'listing', lst_a, 'scam');
+  perform pg_temp.truth('content_reports: three reporters in 7 days hide the target',
+    (select hidden_at is not null from listings where id = lst_a::uuid));
+  perform pg_temp.deny('listings: auto-hidden listing disappears for others', b,
+    format($s$select 1 from listings where id = %L$s$, lst_a));
+  perform pg_temp.allow('moderation_restore: reviewer restores a listing', 'service',
+    format($s$select moderation_restore('listing', %L)$s$, lst_a), true);
+  perform pg_temp.truth('moderation_restore: open reports closed',
+    not exists (select 1 from content_reports where target_id = lst_a and resolved_at is null));
+
+  perform pg_temp.allow('moderation_hide: reviewer hides a car', 'service',
+    format($s$select moderation_hide('car', %L)$s$, car_b), true);
+  perform pg_temp.deny('showdown_week_top: hidden cars drop out', b,
+    format($s$select 1 from showdown_week_top('street') where car_id = %L$s$, car_b));
+  perform pg_temp.allow('moderation_restore: reviewer restores a car', 'service',
+    format($s$select moderation_restore('car', %L)$s$, car_b), true);
+
+  ---------------------------------------------------------------- moderation: suspension
+  perform pg_temp.deny('moderation_suspend: service role only', a,
+    format($s$select moderation_suspend(%L)$s$, c));
+  perform pg_temp.allow('moderation_suspend: reviewer suspends an account', 'service',
+    format($s$select moderation_suspend(%L)$s$, c), true);
+  perform pg_temp.deny('suspension: suspended account cannot insert', c,
+    format($s$insert into spots (spotter_id, make, model) values (%L, 'Nissan', 'Silvia')$s$, c), 'PT423');
+  perform pg_temp.deny('suspension: suspended account cannot update', c,
+    format($s$update profiles set bio = 'still here' where user_id = %L$s$, c), 'PT423');
+  perform pg_temp.deny('suspension: suspended account cannot upload', c,
+    format($s$insert into storage.objects (bucket_id, name) values ('avatars', %L)$s$, c || '/x.jpg'));
+  perform pg_temp.allow('suspension: account still reads its own profile', c,
+    format($s$select 1 from profiles where user_id = %L$s$, c));
+  perform pg_temp.deny('suspension: profile hidden from others', b,
+    format($s$select 1 from profiles where user_id = %L$s$, c));
+  perform pg_temp.deny('suspension: cars hidden from others', b,
+    format($s$select 1 from cars where id = %L$s$, car_c));
+  perform pg_temp.allow('moderation_unsuspend: reviewer lifts it', 'service',
+    format($s$select moderation_unsuspend(%L)$s$, c), true);
+  perform pg_temp.allow('suspension: lifted suspension shows the profile again', b,
+    format($s$select 1 from profiles where user_id = %L$s$, c));
+
+  perform pg_temp.allow('moderation_suspend: suspends the like''s actor', 'service',
+    format($s$select moderation_suspend(%L)$s$, b), true);
+  perform pg_temp.deny('notifications: rows caused by a suspended account drop out', a,
+    $s$select 1 from notifications where kind = 'like'$s$);
+  perform pg_temp.deny('help_responses: responses by a suspended account drop out', a,
+    format($s$select 1 from help_responses where request_id = %L$s$, help_a));
+  perform pg_temp.deny('meet_checkins: check-ins by a suspended account drop out', a,
+    format($s$select 1 from meet_checkins where meet_id = %L$s$, meet_pub));
+  perform pg_temp.allow('moderation_unsuspend: lifts the actor''s suspension', 'service',
+    format($s$select moderation_unsuspend(%L)$s$, b), true);
+
+  perform pg_temp.allow('moderation_suspend: suspends the help requester', 'service',
+    format($s$select moderation_suspend(%L)$s$, a), true);
+  perform pg_temp.deny('help_requests: a suspended requester''s request drops out', b,
+    format($s$select 1 from help_requests where id = %L$s$, help_a));
+  perform pg_temp.truth('help_requests: suspending ends active requests',
+    (select ended_at is not null from help_requests where id = help_a::uuid));
+  perform pg_temp.allow('moderation_unsuspend: lifts the requester''s suspension', 'service',
+    format($s$select moderation_unsuspend(%L)$s$, a), true);
+
+  ---------------------------------------------------------------- abuse limits (SAFE-9)
+  insert into messages (thread_id, author_id, body)
+    select thr_ab::uuid, b::uuid, 'Check burst ' || g from generate_series(1, 5) g;
+  perform pg_temp.deny('abuse: 5 messages in 5 seconds', b,
+    format($s$insert into messages (thread_id, author_id, body) values (%L, %L, 'one more')$s$, thr_ab, b), 'PT429');
+  delete from messages where body like 'Check burst %';
+
+  insert into posts (author_id, video_path)
+    select b::uuid, b || '/burst' || g || '.mp4' from generate_series(1, 10) g;
+  perform pg_temp.deny('abuse: 10 posts a day', b,
+    format($s$insert into posts (author_id, video_path) values (%L, %L)$s$, b, b || '/one-more.mp4'), 'PT429');
+  delete from posts where author_id = b::uuid;
+
+  insert into post_comments (post_id, author_id, body)
+    select post_a::uuid, b::uuid, 'Check burst ' || g from generate_series(1, 30) g;
+  perform pg_temp.deny('abuse: 30 comments an hour', b,
+    format($s$insert into post_comments (post_id, author_id, body) values (%L, %L, 'one more')$s$, post_a, b), 'PT429');
+  delete from post_comments where body like 'Check burst %';
+
+  insert into listings (seller_id, kind, title, price_cents, condition)
+    select b::uuid, 'part', 'Check burst ' || g, 100, 'used' from generate_series(1, 10) g;
+  perform pg_temp.deny('abuse: 10 listings a day', b,
+    format($s$insert into listings (seller_id, kind, title, price_cents, condition) values (%L, 'part', 'one more', 1, 'new')$s$, b), 'PT429');
+  delete from listings where title like 'Check burst %';
+
+  insert into teams (owner_id, name, tag)
+    select b::uuid, 'Check burst ' || g, 'CKB' || chr(64 + g) from generate_series(1, 3) g;
+  perform pg_temp.deny('abuse: 3 teams a day', b,
+    format($s$insert into teams (owner_id, name, tag) values (%L, 'one more', 'CKBZ')$s$, b), 'PT429');
+  delete from teams where name like 'Check burst %';
+
+  insert into content_reports (reporter_id, target_kind, target_id, reason)
+    select b::uuid, 'check', 'burst-' || g, 'spam' from generate_series(1, 20) g;
+  perform pg_temp.deny('abuse: 20 content reports a day', b,
+    format($s$insert into content_reports (reporter_id, target_kind, target_id, reason) values (%L, 'check', 'one-more', 'spam')$s$, b), 'PT429');
+  delete from content_reports where target_kind = 'check';
+
+  perform pg_temp.truth('abuse: 30 friend requests a day enforced by trigger',
+    exists (select 1 from pg_trigger where tgname = 'abuse_limit' and tgrelid = 'public.friendships'::regclass));
+  perform pg_temp.truth('abuse: help requests a day and map reports in 10 minutes counted in Postgres',
+    to_regclass('public.help_requests_requester_created_idx') is not null
+    and to_regclass('public.report_votes_user_created_idx') is not null);
+
   ---------------------------------------------------------------- cascade
   delete from storage.objects where name like a || '/%';
   delete from auth.users where id = a::uuid;
@@ -657,7 +939,18 @@ begin
     and not exists (select 1 from cars where owner_id = a::uuid)
     and not exists (select 1 from teams where owner_id = a::uuid)
     and not exists (select 1 from posts where author_id = a::uuid)
-    and not exists (select 1 from friendships where a::uuid in (requester_id, addressee_id)));
+    and not exists (select 1 from friendships where a::uuid in (requester_id, addressee_id))
+    and not exists (select 1 from notifications where user_id = a::uuid)
+    and not exists (select 1 from help_requests where requester_id = a::uuid));
+
+  perform pg_temp.deny('delete_account: not callable by anon', 'anon',
+    $s$select public.delete_account()$s$);
+  perform pg_temp.allow('delete_account: user deletes own account', c,
+    $s$select public.delete_account()$s$, true);
+  perform pg_temp.truth('delete_account: auth user and every row removed',
+    not exists (select 1 from auth.users where id = c::uuid)
+    and not exists (select 1 from profiles where user_id = c::uuid)
+    and not exists (select 1 from cars where owner_id = c::uuid));
 end
 $do$;
 

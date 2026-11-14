@@ -22,9 +22,11 @@
 --     hidden_at. It disappears for everyone except its author until you hide
 --     (keep it hidden) or restore it.
 --   * A suspended account cannot insert or update any row or upload media, the
---     gateway refuses its tokens within a minute, its profile, cars, and
---     content are hidden from everyone else, and signing in shows "This
---     account is suspended." with support@waypoints.app.
+--     gateway refuses its tokens within a minute and closes connections it
+--     already has open within 30 seconds (reason "suspended"), its active
+--     help requests end, its profile, cars, and content are hidden from
+--     everyone else, and signing in shows "This account is suspended." with
+--     support@waypoints.app.
 
 
 -- 1. The queue: open reports, grouped by target, oldest first ---------------
