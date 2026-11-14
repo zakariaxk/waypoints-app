@@ -619,8 +619,8 @@ Told when it matters, at the moment it has a reason. Plan 6, 10.9 (S3).
 | NTF-3 | Tapping a notification opens the thing it is about. | P0 | Coded |
 | NTF-4 | When system permission is off, the settings screen says so and links to Settings. | P0 | Coded |
 | NTF-5 | The device token is registered after permission is granted and removed on sign-out. | P0 | Partial: nothing removes it on sign-out. |
-| NTF-6 | Activity. A bell in the Garage bar opens a list of what happened to you: friend requests and acceptances, likes, comments, mentions, RSVPs to your meet, changes to meets you are going to, convoy invites, unlocks earned, help responses. Each row opens its subject. Kept 90 days. The bell carries an unread dot. | P1 | New |
-| NTF-7 | Restraint. One notification per event, never a marketing push, and at most three meets-nearby alerts per person per day. | P1 | New |
+| NTF-6 | Activity. A bell in the Garage bar opens a list of what happened to you: friend requests and acceptances, likes, comments, mentions, RSVPs to your meet, changes to meets you are going to, convoy invites, unlocks earned, help responses. Each row opens its subject. Kept 90 days. The bell carries an unread dot. | P1 | Partial: coded except help responses, which wait for the HELP tables. |
+| NTF-7 | Restraint. One notification per event, never a marketing push, and at most three meets-nearby alerts per person per day. | P1 | Coded |
 
 Build note for NTF-6: a `notifications` table written by the same triggers and gateway calls that push today, read by the client with row-level security. The screen lives in `PushKitBridge`, which becomes the notifications module. It works with no Apple account, so the app is coherent in the simulator.
 
