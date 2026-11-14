@@ -148,9 +148,11 @@ struct Lobby: View {
         Button { opponent = o } label: {
             Row(Text(verbatim: o.title), subtitle: o.subtitle.map { Text(verbatim: $0) }, trailing: {
                 Image(systemName: opponent == o ? "largecircle.fill.circle" : "circle").foregroundStyle(opponent == o ? Color.sodium : Color.gravel)
+                    .accessibilityHidden(true)
             })
         }
         .buttonStyle(RowButtonStyle())
+        .accessibilityAddTraits(opponent == o ? .isSelected : [])
     }
 
     private func load() async {
@@ -431,7 +433,9 @@ struct RunView: View {
                     Spacer()
                     HStack(alignment: .bottom) {
                         Button { model.tapShift(); thud += model.launched ? 0 : 1 } label: {
-                            Text(model.launched ? "Shift" : "Launch").typeStyle(.bodyStrong).foregroundStyle(Color.asphalt)
+                            (model.launched ? Text("Shift", bundle: .module) : Text("Launch", bundle: .module))
+                                .typeStyle(.bodyStrong).foregroundStyle(Color.asphalt)
+                                .minimumScaleFactor(0.5)
                                 .frame(width: Size.row * 2, height: Size.row * 2)
                                 .background(Color.chalk, in: Circle())
                         }
@@ -439,14 +443,24 @@ struct RunView: View {
                         tach
                         Spacer()
                         Text("Throttle", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.asphalt)
+                            .minimumScaleFactor(0.5)
                             .frame(width: Size.row * 2, height: Size.row * 2)
                             .background(model.throttle ? Color.go : Color.sodium, in: Circle())
+                            .contentShape(Circle())
                             .gesture(DragGesture(minimumDistance: 0).onChanged { _ in model.setThrottle(true) }.onEnded { _ in model.setThrottle(false) })
+                            // VoiceOver can't hold: a double tap toggles the throttle on and off.
+                            .accessibilityElement()
+                            .accessibilityLabel(Text("Throttle", bundle: .module))
+                            .accessibilityValue(model.throttle ? Text("On", bundle: .module) : Text("Off", bundle: .module))
+                            .accessibilityAddTraits(model.throttle ? [.isButton, .isSelected] : .isButton)
+                            .accessibilityAction { model.setThrottle(!model.throttle) }
                     }
                     .padding(Space.margin)
                 }
             }
         }
+        .accessibilityAction(named: Text("Throttle", bundle: .module)) { model.setThrottle(!model.throttle) }
+        .accessibilityAction(named: Text("Shift", bundle: .module)) { model.tapShift(); thud += model.launched ? 0 : 1 }
     }
 
     private var tree: some View {
@@ -459,6 +473,19 @@ struct RunView: View {
         .padding(Space.s12)
         .background(Color.tarmac, in: Capsule())
         .padding(.top, Space.s24)
+        .accessibilityElement()
+        .accessibilityLabel(Text("Tree", bundle: .module))
+        .accessibilityValue(treeValue)
+    }
+
+    private var treeValue: Text {
+        switch model.phase {
+        case .staging: Text("Staged", bundle: .module)
+        case let .tree(n): Text("\(n + 1) of 3 lit", bundle: .module)
+        case .racing: Text("Green", bundle: .module)
+        case .redLight: Text("Red light", bundle: .module)
+        case .done: Text("Finished", bundle: .module)
+        }
     }
 
     private func lit(_ i: Int) -> Bool {
@@ -478,6 +505,10 @@ struct RunView: View {
             .frame(width: Size.row * 2, height: Size.row * 2)
             Circle().fill(frac > 0.95 ? Color.brake : Color.curb).frame(width: Space.s12, height: Space.s12)
         }
+        .accessibilityElement()
+        .accessibilityLabel(Text("Gear \(model.me.gear + 1)", bundle: .module))
+        .accessibilityValue(frac > 0.95 ? Text("\(Int(model.me.rpm)) rpm, shift now", bundle: .module)
+                            : Text("\(Int(model.me.rpm)) rpm", bundle: .module))
     }
 }
 

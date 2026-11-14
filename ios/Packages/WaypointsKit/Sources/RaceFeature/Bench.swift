@@ -62,9 +62,11 @@ struct BenchPicker: View {
                             Row(Text(verbatim: m.name), subtitle: Text(verbatim: m.rangeText(base: spec.hpCrank)), trailing: {
                                 Image(systemName: chosen.contains(m.id) ? "checkmark.circle.fill" : "circle")
                                     .foregroundStyle(chosen.contains(m.id) ? Color.sodium : Color.gravel)
+                                    .accessibilityHidden(true)
                             })
                         }
                         .buttonStyle(RowButtonStyle())
+                        .accessibilityAddTraits(chosen.contains(m.id) ? .isSelected : [])
                     }
                 }
                 PrimaryButton(chosen.isEmpty ? "Race it stock" : "Race it with these mods") {

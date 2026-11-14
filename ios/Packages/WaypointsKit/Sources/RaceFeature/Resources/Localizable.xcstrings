@@ -1,6 +1,15 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ of 3 lit": {
+      "extractionState": "manual"
+    },
+    "%@ rpm": {
+      "extractionState": "manual"
+    },
+    "%@ rpm, shift now": {
+      "extractionState": "manual"
+    },
     "All ten house cars are open.": {
       "extractionState": "manual"
     },
@@ -16,13 +25,31 @@
     "EST. ¼ MILE": {
       "extractionState": "manual"
     },
+    "Finished": {
+      "extractionState": "manual"
+    },
+    "Gear %@": {
+      "extractionState": "manual"
+    },
+    "Green": {
+      "extractionState": "manual"
+    },
     "LADDER": {
+      "extractionState": "manual"
+    },
+    "Launch": {
       "extractionState": "manual"
     },
     "MODS": {
       "extractionState": "manual"
     },
     "OPPONENT": {
+      "extractionState": "manual"
+    },
+    "Off": {
+      "extractionState": "manual"
+    },
+    "On": {
       "extractionState": "manual"
     },
     "Past runs": {
@@ -40,6 +67,9 @@
     "Race this car": {
       "extractionState": "manual"
     },
+    "Red light": {
+      "extractionState": "manual"
+    },
     "Restart": {
       "extractionState": "manual"
     },
@@ -52,10 +82,16 @@
     "Share": {
       "extractionState": "manual"
     },
+    "Shift": {
+      "extractionState": "manual"
+    },
     "Sportsman": {
       "extractionState": "manual"
     },
     "Stage": {
+      "extractionState": "manual"
+    },
+    "Staged": {
       "extractionState": "manual"
     },
     "TREE": {
@@ -71,6 +107,9 @@
       "extractionState": "manual"
     },
     "Throttle": {
+      "extractionState": "manual"
+    },
+    "Tree": {
       "extractionState": "manual"
     },
     "VIRTUAL RUN · WAYPOINTS": {
