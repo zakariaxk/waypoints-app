@@ -43,6 +43,8 @@ final class ChatModel {
     var canDelete = false
     var listing: Listing?
     var members: [Profile] = []
+    var teamID: TeamID?
+    var offline = false
     var error: String?
 
     init(env: AppEnvironment, target: MessageTarget) { self.env = env; self.target = target }
@@ -53,6 +55,7 @@ final class ChatModel {
         case let .channel(id):
             if let c = try? await env.teams.channel(id) {
                 title = "#\(c.name)"
+                teamID = c.teamID
                 canDelete = (try? await env.teams.myPermissions(in: c.teamID).contains(.deleteMessages)) ?? false
                 let teamRoles = (try? await env.teams.roles(of: c.teamID)) ?? []
                 let ms = (try? await env.teams.members(of: c.teamID)) ?? []
@@ -85,6 +88,17 @@ final class ChatModel {
             }
             await resolveAuthors()
             markRead()
+        }
+    }
+
+    /// MSG-10: offline disables the composer; loaded messages stay on screen.
+    func watchConnection() async {
+        for await state in await env.realtime.connectionState() {
+            switch state {
+            case .offline: offline = true
+            case .live: offline = false
+            case .connecting, .reconnecting: break
+            }
         }
     }
 
@@ -158,6 +172,7 @@ struct ChatView: View {
     init(env: AppEnvironment, target: MessageTarget) { _model = State(initialValue: ChatModel(env: env, target: target)) }
 
     private var placeholder: LocalizedStringKey {
+        if model.offline { return "Offline" }
         if case .channel = model.target { return "Message \(model.title)" }
         return "Message"
     }
@@ -210,6 +225,14 @@ struct ChatView: View {
         }
         .task { await model.load() }
         .task { await model.listen() }
+        .task { await model.watchConnection() }
+        .toolbar {
+            if let team = model.teamID {
+                ToolbarItem(placement: .topBarTrailing) {
+                    IconButton("person.2", label: "Members") { model.env.router.open(.team(team)) }
+                }
+            }
+        }
     }
 
     private func grouped(_ a: ChatItem, _ b: ChatItem) -> Bool {
@@ -290,7 +313,9 @@ struct ChatView: View {
             if let e = model.error { Text(verbatim: e).typeStyle(.foot).foregroundStyle(Color.brake).padding(.horizontal, Space.margin) }
             HStack(spacing: Space.s8) {
                 IconButton(Symbol.photo, label: "Photo") { pickPhoto = true }
+                    .disabled(model.offline)
                 Field("Message", text: $draft, prompt: placeholder, limit: 2000, axis: .vertical)
+                    .disabled(model.offline)
                 IconButton(Symbol.send, label: "Send") {
                     let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
                     guard !text.isEmpty else { return }
@@ -298,7 +323,7 @@ struct ChatView: View {
                     sendTick += 1
                     Task { if !(await model.send(text)) { draft = text } }
                 }
-                .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .disabled(model.offline || draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
             .padding(.horizontal, Space.s12)
             .padding(.vertical, Space.s8)
