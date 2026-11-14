@@ -123,8 +123,13 @@ struct ShowdownView: View {
                 drag = 0
                 if toward { pick(c) }
             })
-        .accessibilityAddTraits(.isButton)
+        .accessibilityElement(children: .ignore)
+        .accessibilityAddTraits(isWinner ? [.isButton, .isSelected] : .isButton)
         .accessibilityLabel(Text("Pick \(c.car.fullLabel)", bundle: .module))
+        .accessibilityValue(Text(verbatim: "@\(c.owner.handle)"))
+        .accessibilityHidden(hidden)
+        .accessibilityAction { pick(c) }
+        .accessibilityAction(named: Text("Open car", bundle: .module)) { env.router.open(.car(c.car.id)) }
     }
 
     private func pick(_ c: ShowdownContender) {
