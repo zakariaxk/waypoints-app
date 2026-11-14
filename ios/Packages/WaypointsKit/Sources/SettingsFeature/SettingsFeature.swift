@@ -66,6 +66,7 @@ struct SettingsView: View {
             NavRow(title: "About") { AnyView(AboutView()) }
             #if DEBUG
             NavRow(title: "Design gallery") { AnyView(Gallery()) }
+            NavRow(title: "MetricKit payload") { AnyView(MetricKitPayloadView()) }
             #endif
         }
     }
@@ -402,8 +403,10 @@ struct AboutView: View {
                 Text(verbatim: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "")
                     .typeStyle(.readoutS)
             })
-            link("Terms", "https://waypoints.app/terms")
-            link("Privacy Policy", "https://waypoints.app/privacy")
+            if let host = Self.linkHost {
+                link("Terms", "https://\(host)/terms")
+                link("Privacy Policy", "https://\(host)/privacy")
+            }
             link("Contact", "mailto:support@waypoints.app")
             NavigationLink {
                 ScrollView {
@@ -416,6 +419,13 @@ struct AboutView: View {
         }
     }
 
+    /// The site host (`LINK_HOST`), which serves `site/` (LINK-4). Rows are hidden until set.
+    static var linkHost: String? {
+        guard let raw = Bundle.main.object(forInfoDictionaryKey: AppConfig.linkHostInfoKey) as? String else { return nil }
+        let host = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return host.isEmpty || host.contains("$(") ? nil : host
+    }
+
     private func link(_ title: LocalizedStringKey, _ url: String) -> some View {
         Link(destination: URL(string: url)!) { Row(Text(title), trailing: { Disclosure() }) }
     }
@@ -426,3 +436,42 @@ struct AboutView: View {
     swift-protobuf: Apache License 2.0.
     """
 }
+
+#if DEBUG
+/// OBS-2: the last MetricKit payloads the app target stored. Debug builds only.
+struct MetricKitPayloadView: View {
+    @State private var diagnostic: String?
+    @State private var metrics: String?
+
+    var body: some View {
+        SettingsList(title: "MetricKit payload") {
+            SectionLabel("LAST DIAGNOSTIC")
+            payload(diagnostic)
+            SectionLabel("LAST METRICS")
+            payload(metrics)
+        }
+        .task {
+            diagnostic = Self.read(AppConfig.lastDiagnosticPayloadURL)
+            metrics = Self.read(AppConfig.lastMetricPayloadURL)
+        }
+    }
+
+    @ViewBuilder private func payload(_ text: String?) -> some View {
+        Text(verbatim: text ?? "None received yet. MetricKit delivers at most once a day.")
+            .typeStyle(.foot)
+            .foregroundStyle(text == nil ? Color.dust : Color.chalk)
+            .textSelection(.enabled)
+            .padding(.horizontal, Space.margin)
+            .padding(.vertical, Space.s12)
+    }
+
+    private static func read(_ url: URL) -> String? {
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        if let object = try? JSONSerialization.jsonObject(with: data),
+           let pretty = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted, .sortedKeys]) {
+            return String(decoding: pretty, as: UTF8.self)
+        }
+        return String(decoding: data, as: UTF8.self)
+    }
+}
+#endif
