@@ -326,6 +326,10 @@ func (c *conn) run(ctx context.Context) {
 		return
 	}
 	claims, err := c.s.auth.Verify(ctx, hello.AccessToken)
+	if errors.Is(err, auth.ErrSuspended) {
+		c.closeWith(wire.Error_UNAUTHORIZED, "suspended", closeUnauthorized)
+		return
+	}
 	if err != nil {
 		c.closeWith(wire.Error_UNAUTHORIZED, "unauthorized", closeUnauthorized)
 		return

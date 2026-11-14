@@ -59,6 +59,10 @@ type Handler func(w http.ResponseWriter, r *http.Request, c auth.Claims)
 func Authed(v *auth.Verifier, h Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		c, err := v.FromRequest(r)
+		if errors.Is(err, auth.ErrSuspended) {
+			Error(w, http.StatusForbidden, "suspended")
+			return
+		}
 		if err != nil {
 			Error(w, http.StatusUnauthorized, "unauthorized")
 			return

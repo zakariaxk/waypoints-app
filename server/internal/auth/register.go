@@ -29,6 +29,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 
 	"waypoints/server/internal/app"
+	"waypoints/server/internal/store"
 )
 
 var benchFlag = flag.Bool("bench", false, "benchmark mode: accept HS256 tokens signed with WAYPOINTS_BENCH_SECRET and copy client_ms into origin_ms; requires WAYPOINTS_ENV=bench")
@@ -55,12 +56,17 @@ type Verifier struct {
 	keys      map[string]crypto.PublicKey
 	lastFetch time.Time
 	client    *http.Client
+
+	susp *suspensions // nil without a store
 }
 
 // Register provides *Verifier.
 func Register(a *app.App) {
 	log := a.Log.With("pkg", "auth")
 	v := &Verifier{keys: map[string]crypto.PublicKey{}, client: &http.Client{Timeout: 5 * time.Second}}
+	if st, ok := app.Lookup[*store.Store](a); ok {
+		v.susp = newSuspensions(st, log)
+	}
 	if u := strings.TrimRight(a.Config.SupabaseURL, "/"); u != "" {
 		v.jwksURL = u + "/auth/v1/.well-known/jwks.json"
 		v.issuer = u + "/auth/v1"
@@ -103,7 +109,7 @@ func Register(a *app.App) {
 }
 
 // Verify checks signature, expiry, and (for JWKS tokens) issuer, and returns
-// the subject.
+// the subject. A suspended account gets ErrSuspended (SAFE-7).
 func (v *Verifier) Verify(ctx context.Context, token string) (Claims, error) {
 	if token == "" {
 		return Claims{}, ErrUnauthorized
@@ -136,6 +142,9 @@ func (v *Verifier) Verify(ctx context.Context, token string) (Claims, error) {
 	})
 	if err != nil || claims.Subject == "" || claims.ExpiresAt == nil {
 		return Claims{}, ErrUnauthorized
+	}
+	if v.susp.suspended(ctx, claims.Subject) {
+		return Claims{}, ErrSuspended
 	}
 	return Claims{UserID: claims.Subject, Expiry: claims.ExpiresAt.Time}, nil
 }
