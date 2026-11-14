@@ -241,8 +241,10 @@ struct VoiceSheet: View {
                         Avatar(name: s.name, size: .s64)
                             .overlay(Circle().strokeBorder(s.speaking ? Color.xenon : .clear, lineWidth: Size.Marker.ring))
                             .opacity(session.phase == .connecting ? 0.5 : 1)
-                        Text(verbatim: s.name).typeStyle(.foot).foregroundStyle(Color.chalk).lineLimit(1)
+                        Text(verbatim: s.name).typeStyle(.foot).foregroundStyle(Color.chalk).multilineTextAlignment(.center)
                     }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(s.speaking ? Text("\(s.name), speaking", bundle: .module) : Text(verbatim: s.name))
                 }
             }
             HStack(spacing: Space.s16) {

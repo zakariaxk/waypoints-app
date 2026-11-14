@@ -1,6 +1,9 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@, speaking": {
+      "extractionState": "manual"
+    },
     "Connecting": {
       "extractionState": "manual"
     },
