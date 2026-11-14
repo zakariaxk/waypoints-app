@@ -123,6 +123,19 @@ public struct LiveGatewayService: GatewayService {
         try await client.send("POST", "v1/voice/token", body: ConvoyVoiceBody(convoyId: convoy), as: VoiceCredentials.self)
     }
 
+    public func voiceOccupants(_ channels: [ChannelID]) async throws -> [ChannelID: [VoiceOccupant]] {
+        guard !channels.isEmpty else { return [:] }
+        let query = [URLQueryItem(name: "channel_ids", value: channels.map(\.description).joined(separator: ","))]
+        let raw = try await client.send("GET", "v1/voice/occupants", body: GatewayClient.Empty?.none, query: query,
+                                        as: [String: [VoiceOccupantDTO]].self)
+        var out: [ChannelID: [VoiceOccupant]] = [:]
+        for (key, list) in raw {
+            guard let id = ChannelID(string: key) else { continue }
+            out[id] = list.map { VoiceOccupant(userID: $0.userId, name: $0.name) }
+        }
+        return out
+    }
+
     // MARK: Share ETA
 
     public func shareETA(_ share: ETAShare) async throws -> ETAShareResult {
@@ -132,3 +145,11 @@ public struct LiveGatewayService: GatewayService {
                               as: ETAShareResult.self)
     }
 }
+
+/// `GET /v1/voice/occupants` entry. The response's channel-id keys are UUID strings (hyphens,
+/// no underscores), so `convertFromSnakeCase` leaves them unchanged.
+private struct VoiceOccupantDTO: Decodable, Sendable {
+    var userId: String
+    var name: String
+}
+

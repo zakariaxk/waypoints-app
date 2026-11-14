@@ -43,6 +43,9 @@ public protocol GatewayService: Sendable {
     func voiceToken(for channel: ChannelID) async throws -> VoiceCredentials
     /// Room `cv_<convoy_id>`, current members only (CNV-11).
     func voiceToken(forConvoy convoy: ConvoyID) async throws -> VoiceCredentials
+    /// Who is in each team voice channel right now (TEAM-4). Channels the caller is not a
+    /// member of are omitted; empty when voice is not configured.
+    func voiceOccupants(_ channels: [ChannelID]) async throws -> [ChannelID: [VoiceOccupant]]
 
     // Share ETA (NAV-15). One notice to chosen friends: destination name and arrival time, no
     // position. With `meet`, marks your Going RSVP "on the way". Recipients may be empty then.

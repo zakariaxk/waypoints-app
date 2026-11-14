@@ -143,6 +143,7 @@ final class ChatModel {
                 }
             }
         } catch {
+            if case WaypointsError.rateLimited = error { self.error = "You're doing that a lot. Try again in a few minutes." }
             if let i = items.firstIndex(where: { $0.id == local.id }) { items[i].state = .failed }
         }
         return true

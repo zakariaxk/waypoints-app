@@ -233,6 +233,14 @@ extension PreviewStore: GatewayService {
         _ = try me()
         return VoiceCredentials(url: URL(string: "wss://preview.livekit.invalid")!, token: "preview")
     }
+    public func voiceOccupants(_ channels: [ChannelID]) async throws -> [ChannelID: [VoiceOccupant]] {
+        let me = try me()
+        var out: [ChannelID: [VoiceOccupant]] = [:]
+        for c in channels.prefix(1) where canRead(.channel(c), as: me) {
+            out[c] = [VoiceOccupant(userID: me.description, name: "You")]
+        }
+        return out
+    }
     public func shareETA(_ share: ETAShare) async throws -> ETAShareResult {
         let me = try me()
         var onTheWay = false

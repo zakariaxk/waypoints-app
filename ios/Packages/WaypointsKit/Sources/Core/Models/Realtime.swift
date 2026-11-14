@@ -104,6 +104,15 @@ public struct VoiceCredentials: Hashable, Sendable, Codable {
     public init(url: URL, token: String) { self.url = url; self.token = token }
 }
 
+/// One participant of a team voice room, from `GET /v1/voice/occupants` (TEAM-4).
+public struct VoiceOccupant: Hashable, Sendable, Codable, Identifiable {
+    /// LiveKit identity: the user's id for team voice rooms.
+    public var userID: String
+    public var name: String
+    public var id: String { userID }
+    public init(userID: String, name: String) { self.userID = userID; self.name = name }
+}
+
 public struct LocationSample: Hashable, Sendable {
     public var coordinate: Coordinate
     /// Degrees 0–359, `nil` when unknown.

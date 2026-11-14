@@ -38,6 +38,7 @@ func Register(a *app.App) {
 		c.SetVoice(s)
 	}
 	a.Mux.HandleFunc("POST /v1/voice/token", api.Authed(app.MustLookup[*auth.Verifier](a), s.token))
+	a.Mux.HandleFunc("GET /v1/voice/occupants", api.Authed(app.MustLookup[*auth.Verifier](a), s.occupants))
 }
 
 func (s *service) configured() bool {
@@ -121,6 +122,102 @@ func (s *service) ConvoyLeft(convoyID string, uid uint64) {
 func (s *service) ConvoyEnded(convoyID string) {
 	room := "cv_" + convoyID
 	s.roomService("DeleteRoom", room, map[string]any{"room": room})
+}
+
+type occupant struct {
+	UserID string `json:"user_id"`
+	Name   string `json:"name"`
+}
+
+// occupants answers GET /v1/voice/occupants?channel_ids=a,b (TEAM-4): who is
+// in each team voice room the caller is a member of. Channels the caller
+// cannot join are omitted; an empty object when LiveKit is not configured.
+func (s *service) occupants(w http.ResponseWriter, r *http.Request, cl auth.Claims) {
+	out := map[string][]occupant{}
+	if !s.configured() {
+		api.JSON(w, http.StatusOK, out)
+		return
+	}
+	var ids []string
+	for _, id := range strings.Split(r.URL.Query().Get("channel_ids"), ",") {
+		if id = strings.TrimSpace(id); id != "" {
+			ids = append(ids, id)
+		}
+	}
+	if len(ids) > 50 {
+		ids = ids[:50]
+	}
+	if len(ids) == 0 {
+		api.JSON(w, http.StatusOK, out)
+		return
+	}
+	pool := api.Pool(w, s.store)
+	if pool == nil {
+		return
+	}
+	for _, id := range ids {
+		var member bool
+		err := pool.QueryRow(r.Context(), `select exists (select 1 from public.channels c
+			join public.team_members m on m.team_id = c.team_id
+			where c.id = $1 and c.kind = 'voice' and m.user_id = $2)`, id, cl.UserID).Scan(&member)
+		if err != nil || !member {
+			continue
+		}
+		list, err := s.listParticipants(r.Context(), "ch_"+id)
+		if err != nil {
+			slog.Debug("livekit list participants", "room", "ch_"+id, "err", err)
+			continue
+		}
+		out[id] = list
+	}
+	api.JSON(w, http.StatusOK, out)
+}
+
+// listParticipants calls RoomService.ListParticipants. A room nobody is in
+// does not exist; LiveKit answers that with an error, read as empty.
+func (s *service) listParticipants(ctx context.Context, room string) ([]occupant, error) {
+	tok, err := s.sign("waypoints-gateway", "", time.Minute, map[string]any{"room": room, "roomAdmin": true})
+	if err != nil {
+		return nil, err
+	}
+	raw, _ := json.Marshal(map[string]any{"room": room})
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, s.twirpURL("ListParticipants"), bytes.NewReader(raw))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bearer "+tok)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := s.http.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode/100 != 2 {
+		return []occupant{}, nil
+	}
+	var body struct {
+		Participants []struct {
+			Identity string `json:"identity"`
+			Name     string `json:"name"`
+		} `json:"participants"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		return nil, err
+	}
+	list := make([]occupant, 0, len(body.Participants))
+	for _, p := range body.Participants {
+		list = append(list, occupant{UserID: p.Identity, Name: p.Name})
+	}
+	return list, nil
+}
+
+func (s *service) twirpURL(method string) string {
+	base := s.cfg.LiveKitURL
+	base = strings.Replace(base, "wss://", "https://", 1)
+	base = strings.Replace(base, "ws://", "http://", 1)
+	return strings.TrimRight(base, "/") + "/twirp/livekit.RoomService/" + method
 }
 
 // roomService calls LiveKit's Twirp RoomService. Failures are logged only: a

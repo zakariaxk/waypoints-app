@@ -36,6 +36,8 @@ final class TeamsModel {
     var friends: Set<UserID> = []
     var upcoming: Meet?
     var channelUnread: [ChannelID: Int] = [:]
+    /// TEAM-4: who is in each voice channel of the selected team.
+    var occupants: [ChannelID: [VoiceOccupant]] = [:]
     var unread = 0
     var me: UserID?
     var loaded = false
@@ -70,6 +72,14 @@ final class TeamsModel {
         if upcoming == nil, let me {
             upcoming = (try? await env.meets.upcomingMeets(for: me))?.first { $0.teamID == id }
         }
+        await loadOccupants()
+    }
+
+    /// TEAM-4: refreshed on appear and every 20 s while T1 is visible.
+    func loadOccupants() async {
+        let voice = channels.filter { $0.kind == .voice }.map(\.id)
+        guard !voice.isEmpty else { occupants = [:]; return }
+        if let found = try? await env.gateway.voiceOccupants(voice) { occupants = found }
     }
 }
 
@@ -106,6 +116,13 @@ struct TeamsHome: View {
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showFind, onDismiss: { Task { await model.load() } }) { FindOrStart(model: model, code: "") }
         .task { await model.load() }
+        .task {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(20))
+                if Task.isCancelled { break }
+                await model.loadOccupants()
+            }
+        }
         .refreshable { await model.load() }
     }
 
@@ -170,7 +187,8 @@ struct TeamsHome: View {
                 SectionLabel("VOICE")
                 ForEach(voice) { c in
                     Button { model.env.router.open(.voice(c.id)) } label: {
-                        Row(Text(verbatim: c.name), leading: { Image.symbol(Symbol.speaker).foregroundStyle(Color.dust) })
+                        Row(Text(verbatim: c.name), leading: { Image.symbol(Symbol.speaker).foregroundStyle(Color.dust) },
+                            trailing: { occupantStack(model.occupants[c.id] ?? []) })
                     }
                     .buttonStyle(RowButtonStyle())
                 }
@@ -184,6 +202,26 @@ struct TeamsHome: View {
                 }
                 .buttonStyle(RowButtonStyle())
             }
+        }
+    }
+
+    /// TEAM-4: up to 4 avatars of who is in the channel, then "+N".
+    @ViewBuilder
+    private func occupantStack(_ list: [VoiceOccupant]) -> some View {
+        if !list.isEmpty {
+            HStack(spacing: -Space.s8) {
+                ForEach(list.prefix(4)) { o in
+                    let p = UserID(string: o.userID).flatMap { model.people[$0] }
+                    Avatar(name: p?.displayName ?? o.name,
+                           url: p?.avatarPath.map { model.env.media.publicURL(bucket: .avatars, path: $0) }, size: .s28)
+                }
+                if list.count > 4 {
+                    Text(verbatim: "+\(list.count - 4)").typeStyle(.readoutS).foregroundStyle(Color.dust)
+                        .padding(.leading, Space.s12)
+                }
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("\(list.count) in voice"))
         }
     }
 
@@ -342,7 +380,9 @@ struct FindOrStart: View {
         working = true
         error = nil
         Task {
-            do { try await body() } catch WaypointsError.conflict {
+            do { try await body() } catch WaypointsError.rateLimited {
+                error = "You're doing that a lot. Try again in a few minutes."
+            } catch WaypointsError.conflict {
                 error = "That tag is taken."
             } catch WaypointsError.notFound {
                 error = "No team with that invite."
@@ -382,7 +422,7 @@ struct TeamDetail: View {
                         Text("\(t.memberCount) members").typeStyle(.foot).foregroundStyle(Color.dust)
                     }
                     .padding(Space.margin)
-                    if let code = t.inviteCode, let url = URL(string: "waypoints://invite/team/\(code)") {
+                    if let code = t.inviteCode, let url = Route.joinTeam(code: code).shareURL {
                         NavigationLink {
                             QRCodeScreen(Text("Invite people"), heading: Text(verbatim: t.name),
                                          caption: Text("Scan to join, or share the link."), url: url)
@@ -623,6 +663,8 @@ struct EditTeam: View {
                                 let saved = try await model.env.teams.updateTeam(t)
                                 onSave(saved)
                                 dismiss()
+                            } catch WaypointsError.rateLimited {
+                                self.error = "You're doing that a lot. Try again in a few minutes."
                             } catch {
                                 self.error = "Couldn't save. Check your connection and try again."
                             }
@@ -724,6 +766,8 @@ struct RoleEditor: View {
             do {
                 try await body()
                 dismiss()
+            } catch WaypointsError.rateLimited {
+                self.error = "You're doing that a lot. Try again in a few minutes."
             } catch {
                 self.error = "Couldn't save. Check your connection and try again."
             }
