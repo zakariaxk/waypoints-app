@@ -246,7 +246,8 @@ public struct VehiclePicker: View {
                     Field("Make", text: $draftCar.make, prompt: "Like 'Datsun'", limit: 40)
                 }
                 Field("Model", text: $draftCar.model, prompt: "Like 'Skyline GT-R'", limit: 60)
-                Field(mode == .full ? "Year" : "Year (optional)", text: $draftCar.year, prompt: "Like '1999'", limit: 4)
+                Field(mode == .full ? LocalizedStringKey("Year") : LocalizedStringKey("Year (optional)"),
+                      text: $draftCar.year, prompt: "Like '1999'", limit: 4)
                     .keyboardType(.numberPad)
                 if mode == .full {
                     Field("Trim (optional)", text: $draftCar.trim, prompt: "Like 'V-Spec'", limit: 40)

@@ -27,6 +27,7 @@ type override struct {
 	Redline     int
 	Gears       string
 	Source      string // page the numbers were read from (PRD GAR-8)
+	MatchOnly   bool   // label matching EPA variants but never insert a variant of its own
 }
 
 func loadOverrides(path string) ([]override, error) {
@@ -51,7 +52,7 @@ func loadOverrides(path string) ([]override, error) {
 			Make: get("make"), Model: get("model"), From: num("year_from"), To: num("year_to"),
 			Trim: get("trim"), Cyl: num("cyl"), Asp: get("aspiration"), Trans: get("trans"),
 			Drive: get("drive"), HP: num("hp"), Torque: num("torque_lbft"), Weight: num("weight_lb"),
-			Redline: num("redline"), Source: get("source_url"),
+			Redline: num("redline"), Source: get("source_url"), MatchOnly: get("match_only") == "1",
 		}
 		o.Displ, _ = strconv.ParseFloat(get("displ"), 64)
 		if e := get("epa_contains"); e != "" {
@@ -121,7 +122,7 @@ func applyOverrides(vs []variantRow, os []override) []variantRow {
 				hit[v.Year] = true
 			}
 		}
-		if o.Displ == 0 && o.Cyl == 0 {
+		if (o.Displ == 0 && o.Cyl == 0) || o.MatchOnly {
 			continue
 		}
 		for y := o.From; y <= o.To; y++ {

@@ -433,13 +433,13 @@ Every car, chosen without clutter. Plan 5.2, 10.8 (G3 to G5), 11.1.
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
 | GAR-1 | The catalog covers US-market passenger vehicles from model year 1981 to 2027 for about 90 makes, built from NHTSA vPIC and EPA data. | P0 | Coded |
-| GAR-2 | The catalog also covers what the federal data does not: classics before 1981 and popular grey-market imports. A hand-kept `tools/catalog/supplement.csv` adds at least 300 models with their year spans. | P0 | New |
-| GAR-3 | No car is ever blocked. Make, model, and trim each end with "Mine isn't listed" leading to a short free-text form, and the car is stored as text. | P0 | Partial: the plan and code offer it at the trim step only. |
+| GAR-2 | The catalog also covers what the federal data does not: classics before 1981 and popular grey-market imports. A hand-kept `tools/catalog/supplement.csv` adds at least 300 models with their year spans. | P0 | Coded: `supplement.csv`, 537 rows over 470 models, each with a source URL. |
+| GAR-3 | No car is ever blocked. Make, model, and trim each end with "Mine isn't listed" leading to a short free-text form, and the car is stored as text. | P0 | Coded |
 | GAR-4 | The picker asks one question at a time, records answers as tappable tokens, and keeps a search field on every step that parses "2019 mustang gt" in any order into at most 8 direct matches in under 30 ms. A typed search adds a car in at most 4 taps. | P0 | Coded |
 | GAR-5 | Steps: make (12 popular, then A to Z, text only), model (current first), year (a strip grouped by generation, not a wheel), trim (skipped when there is one), colour (16 families, an exact-colour wheel, an optional paint name with suggestions from other owners of that make). | P0 | Coded |
 | GAR-6 | "Use VIN" scans or accepts 17 characters and lands on the resolved step. | P0 | Coded |
-| GAR-7 | A catalog snapshot ships inside the app and the picker never waits on the network. A newer catalog is checked for at most daily and swapped in on the next launch. | P0 | Partial: the build does not put the snapshot in the app. |
-| GAR-8 | Curated specs for at least 150 enthusiast model-generations: trim names, power, torque, curb weight, redline, gear ratios. Every row has a source URL. | P0 | Missing: `overrides.csv` has no rows. |
+| GAR-7 | A catalog snapshot ships inside the app and the picker never waits on the network. A newer catalog is checked for at most daily and swapped in on the next launch. | P0 | Coded: the `ios` make target builds the snapshot into `ios/App/Resources/` when missing. |
+| GAR-8 | Curated specs for at least 150 enthusiast model-generations: trim names, power, torque, curb weight, redline, gear ratios. Every row has a source URL. | P0 | Missing: `overrides.csv` has a `source_url` and `match_only` column and still no rows. The W6-5 agent was stopped by a 403 while fetching sources. |
 | GAR-9 | A car's page shows its photos, name, four readouts with ranges (est. hp, est. torque, 0 to 60, quarter mile), its build timeline, and a specs table marking each value "stock" or "edited". | P0 | Coded |
 | GAR-10 | A garage holds several cars in a chosen order. The primary car sets your marker's paint colour and your car label. | P0 | Coded |
 | GAR-11 | Timeline entries carry a date, a title (60), details (500), one photo, and optionally a linked mod, which adds that mod to the car. | P0 | Coded |
