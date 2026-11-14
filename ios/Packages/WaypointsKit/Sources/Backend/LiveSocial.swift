@@ -371,16 +371,6 @@ struct LivePosts: PostRepository {
         return rows.map { $0.model(liked: likes.contains($0.id)) }
     }
 
-    func feed(after cursor: PageCursor?, limit: Int) async throws -> Page<Post> {
-        let rows: [PostRow] = try await ctx.run {
-            var q = ctx.table("posts").select()
-            if let cursor { q = q.lt("created_at", value: cursor.raw) }
-            return try await q.order("created_at", ascending: false).limit(limit).execute().value
-        }
-        let next = rows.count == limit ? rows.last.map { PageCursor(raw: PostgresDate.timestamp($0.createdAt)) } : nil
-        return Page(items: await models(rows), next: next)
-    }
-
     /// The cursor is the offset into `feed_for_you`'s ordering.
     func forYou(after cursor: PageCursor?, limit: Int) async throws -> Page<Post> {
         struct Params: Encodable { let after: Int; let lim: Int }

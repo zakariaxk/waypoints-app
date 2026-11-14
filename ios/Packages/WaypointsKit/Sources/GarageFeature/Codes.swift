@@ -12,7 +12,7 @@ import VisionKit
 /// `waypoints://profile/<uuid>` and the universal-link form `https://…/profile/<uuid>`.
 /// AppShell's `DeepLink` is not importable from a feature, so the one path Garage scans is parsed here.
 enum ProfileLink {
-    static func url(for user: UserID) -> URL? { URL(string: "waypoints://profile/\(user)") }
+    static func url(for user: UserID) -> URL? { Route.profile(user).shareURL }
 
     static func userID(from string: String) -> UserID? {
         guard let url = URL(string: string.trimmingCharacters(in: .whitespacesAndNewlines)) else { return nil }

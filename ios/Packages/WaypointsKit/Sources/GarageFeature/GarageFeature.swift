@@ -182,7 +182,7 @@ struct ProfileScreen: View {
             } else if let p = model.profile {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        if let url = URL(string: "waypoints://profile/\(p.userID)") { ShareLink("Share profile", item: url) }
+                        if let url = Route.profile(p.userID).shareURL { ShareLink("Share profile", item: url) }
                         Button("Block", role: .destructive) { Task { try? await ctx.env.safety.block(p.userID) } }
                         Button("Report") { ctx.env.router.open(.reportContent(.user(p.userID))) }
                     } label: { Image.symbol(Symbol.more) }

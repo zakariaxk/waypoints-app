@@ -377,7 +377,7 @@ struct VideoPage: View {
                 model.toggleLike(post)
             }
             railButton(Symbol.comment, count: post.commentCount, tint: .chalk, label: "Comments", action: comments)
-            if let url = URL(string: "waypoints://post/\(post.id)") {
+            if let url = Route.post(post.id).shareURL {
                 ShareLink(item: url) {
                     Image.symbol(Symbol.share).font(.title2).foregroundStyle(Color.chalk).frame(width: Size.hitTarget, height: Size.hitTarget)
                 }

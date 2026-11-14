@@ -2,7 +2,6 @@ import Foundation
 
 /// `posts`, `post_likes`, `post_comments`, `follows`. Section 5.5.
 public protocol PostRepository: Sendable {
-    func feed(after cursor: PageCursor?, limit: Int) async throws -> Page<Post>
     /// "For you": RPC `feed_for_you`, recency plus likes in the viewer's region, then everywhere.
     func forYou(after cursor: PageCursor?, limit: Int) async throws -> Page<Post>
     /// "Following": posts by the people the viewer follows, newest first.

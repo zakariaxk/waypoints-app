@@ -184,13 +184,6 @@ extension PreviewStore: PostRepository {
         if let me = session?.userID { p.likedByMe = likes.contains(Pair(post.id.raw, me.raw)) }
         return p
     }
-    public func feed(after cursor: PageCursor?, limit: Int) async throws -> Page<Post> {
-        let all = posts.values.filter { visible($0.authorID) }.sorted { $0.createdAt > $1.createdAt }
-        let start = cursor.flatMap { Int($0.raw) } ?? 0
-        let page = all.dropFirst(start).prefix(limit).map(decorated)
-        let next = start + page.count < all.count ? PageCursor(raw: String(start + page.count)) : nil
-        return Page(items: Array(page), next: next)
-    }
     public func forYou(after cursor: PageCursor?, limit: Int) async throws -> Page<Post> {
         let region = session.flatMap { profiles[$0.userID]?.homeRegion?.lowercased() }
         func local(_ p: Post) -> Bool { region != nil && profiles[p.authorID]?.homeRegion?.lowercased() == region }
