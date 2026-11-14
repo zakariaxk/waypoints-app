@@ -2,3 +2,540 @@
 # imports. One row is a model (optionally a named generation in trim) over its model years;
 # each year the catalog lacks gets a bare variant. source_url is the page the years were read from.
 make,model,year_from,year_to,trim,source_url
+Alfa Romeo,Alfetta,1972,1987,,https://en.wikipedia.org/wiki/Alfa_Romeo_Alfetta
+Alfa Romeo,Giulietta,1954,1965,,https://en.wikipedia.org/wiki/Alfa_Romeo_Giulietta_(1954)
+Alfa Romeo,Montreal,1970,1977,,https://en.wikipedia.org/wiki/Alfa_Romeo_Montreal
+Alfa Romeo,Spider,1966,1980,,https://en.wikipedia.org/wiki/Alfa_Romeo_Spider
+AMC,Ambassador,1958,1974,,https://en.wikipedia.org/wiki/AMC_Ambassador
+AMC,AMX,1968,1970,,https://en.wikipedia.org/wiki/AMC_AMX
+AMC,Concord,1978,1980,,https://en.wikipedia.org/wiki/AMC_Concord
+AMC,Eagle,1980,1980,,https://en.wikipedia.org/wiki/AMC_Eagle
+AMC,Gremlin,1970,1983,,https://en.wikipedia.org/wiki/AMC_Gremlin
+AMC,Hornet,1970,1977,,https://en.wikipedia.org/wiki/AMC_Hornet
+AMC,Javelin,1968,1974,,https://en.wikipedia.org/wiki/AMC_Javelin
+AMC,Marlin,1965,1967,,https://en.wikipedia.org/wiki/Rambler_Marlin
+AMC,Matador,1971,1973,,https://en.wikipedia.org/wiki/AMC_Matador
+AMC,Pacer,1975,1980,,https://en.wikipedia.org/wiki/AMC_Pacer
+AMC,Rambler American,1958,1969,,https://en.wikipedia.org/wiki/Rambler_American
+AMC,Rebel,1967,1970,,https://en.wikipedia.org/wiki/AMC_Rebel
+AMC,Spirit,1979,1980,,https://en.wikipedia.org/wiki/AMC_Spirit
+Aston Martin,DB4,1958,1963,,https://en.wikipedia.org/wiki/Aston_Martin_DB4
+Aston Martin,DB5,1963,1965,,https://en.wikipedia.org/wiki/Aston_Martin_DB5
+Aston Martin,DB6,1965,1971,,https://en.wikipedia.org/wiki/Aston_Martin_DB6
+Aston Martin,V8,1969,1980,,https://en.wikipedia.org/wiki/Aston_Martin_V8
+Audi,Quattro,1980,1991,,https://en.wikipedia.org/wiki/Audi_Quattro
+Audi,RS2 Avant,1994,1995,,https://en.wikipedia.org/wiki/Audi_RS_2_Avant
+Austin-Healey,100,1953,1956,,https://en.wikipedia.org/wiki/Austin-Healey_100
+Austin-Healey,3000,1959,1967,,https://en.wikipedia.org/wiki/Austin-Healey_3000
+Austin-Healey,Sprite,1958,1971,,https://en.wikipedia.org/wiki/Austin-Healey_Sprite
+Bentley,T-series,1965,1980,,https://en.wikipedia.org/wiki/Bentley_T-series
+BMW,1600,1962,1972,,https://en.wikipedia.org/wiki/BMW_New_Class
+BMW,2002,1966,1977,,https://en.wikipedia.org/wiki/BMW_02_Series
+BMW,3.0 CS,1968,1975,,https://en.wikipedia.org/wiki/BMW_E9
+BMW,320i,1977,1980,,https://en.wikipedia.org/wiki/BMW_3_Series_(E21)
+BMW,503,1956,1959,,https://en.wikipedia.org/wiki/BMW_503
+BMW,507,1956,1959,,https://en.wikipedia.org/wiki/BMW_507
+BMW,530i,1975,1981,,https://en.wikipedia.org/wiki/BMW_5_Series_(E12)
+BMW,633CSi,1976,1980,,https://en.wikipedia.org/wiki/BMW_6_Series_(E24)
+BMW,Bavaria,1968,1977,,https://en.wikipedia.org/wiki/BMW_E3
+BMW,Isetta,1953,1953,,https://en.wikipedia.org/wiki/Isetta
+BMW,Isetta,1955,1956,,https://en.wikipedia.org/wiki/Isetta
+BMW,M1,1978,1981,,https://en.wikipedia.org/wiki/BMW_M1
+BMW,Z1,1989,1991,,https://en.wikipedia.org/wiki/BMW_Z1
+Buick,Apollo,1973,1975,,https://en.wikipedia.org/wiki/Buick_Apollo
+Buick,Centurion,1971,1973,,https://en.wikipedia.org/wiki/Buick_Centurion
+Buick,Century,1936,1942,,https://en.wikipedia.org/wiki/Buick_Century
+Buick,Century,1954,1958,,https://en.wikipedia.org/wiki/Buick_Century
+Buick,Century,1973,1980,,https://en.wikipedia.org/wiki/Buick_Century
+Buick,Electra,1959,1960,,https://en.wikipedia.org/wiki/Buick_Electra
+Buick,LeSabre,1959,1980,,https://en.wikipedia.org/wiki/Buick_LeSabre
+Buick,Regal,1973,1980,,https://en.wikipedia.org/wiki/Buick_Regal
+Buick,Riviera,1963,1980,,https://en.wikipedia.org/wiki/Buick_Riviera
+Buick,Roadmaster,1936,1942,,https://en.wikipedia.org/wiki/Buick_Roadmaster
+Buick,Roadmaster,1946,1958,,https://en.wikipedia.org/wiki/Buick_Roadmaster
+Buick,Skylark,1953,1954,,https://en.wikipedia.org/wiki/Buick_Skylark
+Buick,Skylark,1961,1972,,https://en.wikipedia.org/wiki/Buick_Skylark
+Buick,Skylark,1975,1980,,https://en.wikipedia.org/wiki/Buick_Skylark
+Buick,Special,1934,1935,,https://en.wikipedia.org/wiki/Buick_Special
+Buick,Wildcat,1963,1964,,https://en.wikipedia.org/wiki/Buick_Wildcat
+Cadillac,Calais,1965,1970,,https://en.wikipedia.org/wiki/Cadillac_Calais
+Cadillac,DeVille,1959,1980,,https://en.wikipedia.org/wiki/Cadillac_de_Ville_series
+Cadillac,Eldorado,1952,1980,,https://en.wikipedia.org/wiki/Cadillac_Eldorado
+Cadillac,Fleetwood,1977,1980,,https://en.wikipedia.org/wiki/Cadillac_Fleetwood
+Cadillac,Series 61,1939,1939,,https://en.wikipedia.org/wiki/Cadillac_Series_61
+Cadillac,Series 61,1941,1941,,https://en.wikipedia.org/wiki/Cadillac_Series_61
+Cadillac,Series 62,1940,1941,,https://en.wikipedia.org/wiki/Cadillac_Series_62
+Cadillac,Seville,1976,1980,,https://en.wikipedia.org/wiki/Cadillac_Seville
+Cadillac,Sixty Special,1938,1941,,https://en.wikipedia.org/wiki/Cadillac_Sixty_Special
+Chevrolet,150,1953,1957,,https://en.wikipedia.org/wiki/Chevrolet_150
+Chevrolet,210,1953,1957,,https://en.wikipedia.org/wiki/Chevrolet_210
+Chevrolet,3100,1949,1958,,https://en.wikipedia.org/wiki/Chevrolet_Advance_Design
+Chevrolet,Bel Air,1950,1975,,https://en.wikipedia.org/wiki/Chevrolet_Bel_Air
+Chevrolet,Biscayne,1958,1975,,https://en.wikipedia.org/wiki/Chevrolet_Biscayne
+Chevrolet,Blazer,1969,1980,,https://en.wikipedia.org/wiki/Chevrolet_K5_Blazer
+Chevrolet,C/K Pickup,1960,1966,First generation,https://en.wikipedia.org/wiki/Chevrolet_C/K_(first_generation)
+Chevrolet,C/K Pickup,1967,1972,Second generation,https://en.wikipedia.org/wiki/Chevrolet_C/K_(second_generation)
+Chevrolet,C/K Pickup,1973,1980,Third generation,https://en.wikipedia.org/wiki/Chevrolet_C/K_(third_generation)
+Chevrolet,Camaro,1967,1969,First generation,https://en.wikipedia.org/wiki/Chevrolet_Camaro_(first_generation)
+Chevrolet,Camaro,1970,1980,Second generation,https://en.wikipedia.org/wiki/Chevrolet_Camaro_(second_generation)
+Chevrolet,Caprice,1966,1980,,https://en.wikipedia.org/wiki/Chevrolet_Caprice
+Chevrolet,Chevelle,1964,1977,,https://en.wikipedia.org/wiki/Chevrolet_Chevelle
+Chevrolet,Chevette,1976,1980,,https://en.wikipedia.org/wiki/Chevrolet_Chevette
+Chevrolet,Citation,1980,1980,,https://en.wikipedia.org/wiki/Chevrolet_Citation
+Chevrolet,Corvair,1960,1969,,https://en.wikipedia.org/wiki/Chevrolet_Corvair
+Chevrolet,Corvette,1953,1962,C1,https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C1)
+Chevrolet,Corvette,1963,1967,C2,https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C2)
+Chevrolet,Corvette,1968,1980,C3,https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C3)
+Chevrolet,Delray,1954,1958,,https://en.wikipedia.org/wiki/Chevrolet_Delray
+Chevrolet,Deluxe,1941,1955,,https://en.wikipedia.org/wiki/Chevrolet_Deluxe
+Chevrolet,El Camino,1959,1960,,https://en.wikipedia.org/wiki/Chevrolet_El_Camino
+Chevrolet,El Camino,1964,1980,,https://en.wikipedia.org/wiki/Chevrolet_El_Camino
+Chevrolet,Fleetline,1941,1942,,https://en.wikipedia.org/wiki/Chevrolet_Fleetline
+Chevrolet,Fleetline,1946,1952,,https://en.wikipedia.org/wiki/Chevrolet_Fleetline
+Chevrolet,Impala,1958,1980,,https://en.wikipedia.org/wiki/Chevrolet_Impala
+Chevrolet,Kingswood,1959,1960,,https://en.wikipedia.org/wiki/Chevrolet_Kingswood
+Chevrolet,Malibu,1964,1980,,https://en.wikipedia.org/wiki/Chevrolet_Malibu
+Chevrolet,Master,1933,1942,,https://en.wikipedia.org/wiki/Chevrolet_Master
+Chevrolet,Monte Carlo,1970,1980,,https://en.wikipedia.org/wiki/Chevrolet_Monte_Carlo
+Chevrolet,Monza,1975,1980,,https://en.wikipedia.org/wiki/Chevrolet_Monza
+Chevrolet,Nomad,1955,1961,,https://en.wikipedia.org/wiki/Chevrolet_Nomad
+Chevrolet,Nomad,1968,1972,,https://en.wikipedia.org/wiki/Chevrolet_Nomad
+Chevrolet,Nova,1962,1979,,https://en.wikipedia.org/wiki/Chevrolet_Chevy_II_/_Nova
+Chevrolet,Suburban,1935,1940,,https://en.wikipedia.org/wiki/Chevrolet_Suburban
+Chevrolet,Task Force,1955,1959,,https://en.wikipedia.org/wiki/Chevrolet_Task_Force
+Chevrolet,Vega,1971,1977,,https://en.wikipedia.org/wiki/Chevrolet_Vega
+Chrysler,300,1955,1965,,https://en.wikipedia.org/wiki/Chrysler_300_letter_series
+Chrysler,Cordoba,1975,1980,,https://en.wikipedia.org/wiki/Chrysler_Cordoba
+Chrysler,Imperial,1955,1956,,https://en.wikipedia.org/wiki/Imperial_(automobile)
+Chrysler,New Yorker,1940,1942,,https://en.wikipedia.org/wiki/Chrysler_New_Yorker
+Chrysler,New Yorker,1946,1980,,https://en.wikipedia.org/wiki/Chrysler_New_Yorker
+Chrysler,Newport,1950,1960,,https://en.wikipedia.org/wiki/Chrysler_Newport
+Chrysler,Saratoga,1939,1942,,https://en.wikipedia.org/wiki/Chrysler_Saratoga
+Chrysler,Town & Country,1941,1942,,https://en.wikipedia.org/wiki/Chrysler_Town_%26_Country_(1941%E2%80%931988)
+Chrysler,Town & Country,1946,1980,,https://en.wikipedia.org/wiki/Chrysler_Town_%26_Country_(1941%E2%80%931988)
+Chrysler,Windsor,1939,1942,,https://en.wikipedia.org/wiki/Chrysler_Windsor
+Chrysler,Windsor,1946,1966,,https://en.wikipedia.org/wiki/Chrysler_Windsor
+Citroën,2CV,1948,1990,,https://en.wikipedia.org/wiki/Citro%C3%ABn_2CV
+Citroën,DS,1955,1975,,https://en.wikipedia.org/wiki/Citro%C3%ABn_DS
+Citroën,SM,1970,1975,,https://en.wikipedia.org/wiki/Citro%C3%ABn_SM
+Daihatsu,Copen,2002,2012,,https://en.wikipedia.org/wiki/Daihatsu_Copen
+Daihatsu,Copen,2014,2026,,https://en.wikipedia.org/wiki/Daihatsu_Copen
+Daihatsu,Hijet,1960,2026,,https://en.wikipedia.org/wiki/Daihatsu_Hijet
+Daihatsu,Leeza,1986,1993,,https://en.wikipedia.org/wiki/Daihatsu_Leeza
+Daihatsu,Midget,1957,1972,,https://en.wikipedia.org/wiki/Daihatsu_Midget
+Daihatsu,Midget,1996,2001,,https://en.wikipedia.org/wiki/Daihatsu_Midget
+Daihatsu,Mira,1980,2018,,https://en.wikipedia.org/wiki/Daihatsu_Mira
+Daihatsu,Move,1995,2023,,https://en.wikipedia.org/wiki/Daihatsu_Move
+Daihatsu,Move,2025,2026,,https://en.wikipedia.org/wiki/Daihatsu_Move
+Daihatsu,Naked,1999,2003,,https://en.wikipedia.org/wiki/Daihatsu_Naked
+Daihatsu,Tanto,2003,2026,,https://en.wikipedia.org/wiki/Daihatsu_Tanto
+Daihatsu,Terios,1997,2026,,https://en.wikipedia.org/wiki/Daihatsu_Terios
+Datsun,240Z,1969,1973,,https://en.wikipedia.org/wiki/Nissan_Fairlady_Z_(S30)
+Datsun,280ZX,1978,1980,,https://en.wikipedia.org/wiki/Nissan_Fairlady_Z_(S130)
+Datsun,510,1967,1973,,https://en.wikipedia.org/wiki/Datsun_510
+Datsun,Fairlady Roadster,1959,1970,,https://en.wikipedia.org/wiki/Datsun_Sports
+Datsun,Truck,1973,1979,,https://en.wikipedia.org/wiki/Datsun_truck
+De Tomaso,Mangusta,1967,1971,,https://en.wikipedia.org/wiki/De_Tomaso_Mangusta
+De Tomaso,Pantera,1971,1992,,https://en.wikipedia.org/wiki/De_Tomaso_Pantera
+Dodge,Aspen,1976,1980,,https://en.wikipedia.org/wiki/Dodge_Aspen
+Dodge,Challenger,1970,1974,First generation,https://en.wikipedia.org/wiki/Dodge_Challenger_(1970)
+Dodge,Charger,1966,1967,First generation,https://en.wikipedia.org/wiki/Dodge_Charger_(1966)
+Dodge,Charger,1969,1969,Daytona,https://en.wikipedia.org/wiki/Dodge_Charger_Daytona
+Dodge,Coronet,1953,1954,,https://en.wikipedia.org/wiki/Dodge_Coronet
+Dodge,D-Series,1961,1980,,https://en.wikipedia.org/wiki/Dodge_D_series
+Dodge,Dart,1960,1976,,https://en.wikipedia.org/wiki/Dodge_Dart
+Dodge,Magnum,1978,1979,,https://en.wikipedia.org/wiki/Dodge_Magnum
+Dodge,Monaco,1965,1978,,https://en.wikipedia.org/wiki/Dodge_Monaco
+Dodge,Polara,1960,1973,,https://en.wikipedia.org/wiki/Dodge_Polara
+Dodge,Power Wagon,1946,1980,,https://en.wikipedia.org/wiki/Dodge_Power_Wagon
+Dodge,Power Wagon,2005,2026,,https://en.wikipedia.org/wiki/Dodge_Power_Wagon
+Dodge,Super Bee,1968,1980,,https://en.wikipedia.org/wiki/Dodge_Super_Bee
+Dodge,Super Bee,2007,2009,,https://en.wikipedia.org/wiki/Dodge_Super_Bee
+Dodge,Super Bee,2012,2013,,https://en.wikipedia.org/wiki/Dodge_Super_Bee
+Ferrari,250 GT,1952,1964,,https://en.wikipedia.org/wiki/Ferrari_250
+Ferrari,275,1964,1968,,https://en.wikipedia.org/wiki/Ferrari_275
+Ferrari,288 GTO,1984,1987,,https://en.wikipedia.org/wiki/Ferrari_288_GTO
+Ferrari,308,1975,1980,,https://en.wikipedia.org/wiki/Ferrari_308_GTB/GTS
+Ferrari,365 GTB/4 Daytona,1968,1973,,https://en.wikipedia.org/wiki/Ferrari_Daytona
+Ferrari,512 BB,1973,1980,,https://en.wikipedia.org/wiki/Ferrari_Berlinetta_Boxer
+Ferrari,F40,1987,1996,,https://en.wikipedia.org/wiki/Ferrari_F40
+Fiat,124 Spider,1966,1980,,https://en.wikipedia.org/wiki/Fiat_124_Sport_Spider
+Fiat,128,1969,2010,,https://en.wikipedia.org/wiki/Fiat_128
+Fiat,131,1974,2010,,https://en.wikipedia.org/wiki/Fiat_131
+Fiat,850,1964,1971,,https://en.wikipedia.org/wiki/Fiat_850
+Fiat,850,1973,1973,,https://en.wikipedia.org/wiki/Fiat_850
+Fiat,X 1/9,1972,1980,,https://en.wikipedia.org/wiki/Fiat_X1/9
+Ford,Anglia,1939,1967,,https://en.wikipedia.org/wiki/Ford_Anglia
+Ford,Bronco,1966,1980,,https://en.wikipedia.org/wiki/Ford_Bronco
+Ford,Capri,1968,1986,,https://en.wikipedia.org/wiki/Ford_Capri
+Ford,Cortina,1962,1984,,https://en.wikipedia.org/wiki/Ford_Cortina
+Ford,Country Squire,1950,1980,,https://en.wikipedia.org/wiki/Ford_Country_Squire
+Ford,Courier,1952,1960,,https://en.wikipedia.org/wiki/Ford_Courier
+Ford,Courier,1972,1980,,https://en.wikipedia.org/wiki/Ford_Courier
+Ford,Crestline,1952,1954,,https://en.wikipedia.org/wiki/Ford_Crestline
+Ford,Customline,1952,1956,,https://en.wikipedia.org/wiki/Ford_Customline
+Ford,Elite,1974,1976,,https://en.wikipedia.org/wiki/Ford_Elite
+Ford,Escort (Europe),1968,1980,,https://en.wikipedia.org/wiki/Ford_Escort_(Europe)
+Ford,Escort RS Cosworth,1992,1996,,https://en.wikipedia.org/wiki/Ford_Escort_RS_Cosworth
+Ford,F-100,1953,1956,Second generation,https://en.wikipedia.org/wiki/Ford_F-Series_(second_generation)
+Ford,F-100,1957,1960,Third generation,https://en.wikipedia.org/wiki/Ford_F-Series_(third_generation)
+Ford,F-100,1961,1966,Fourth generation,https://en.wikipedia.org/wiki/Ford_F-Series_(fourth_generation)
+Ford,F-100,1962,1971,Third generation,https://en.wikipedia.org/wiki/Ford_F-Series_(third_generation)
+Ford,F-100,1967,1972,Fifth generation,https://en.wikipedia.org/wiki/Ford_F-Series_(fifth_generation)
+Ford,F-100,1973,1979,Sixth generation,https://en.wikipedia.org/wiki/Ford_F-Series_(sixth_generation)
+Ford,Fairlane,1955,1970,,https://en.wikipedia.org/wiki/Ford_Fairlane_(Americas)
+Ford,Fairmont,1978,1980,,https://en.wikipedia.org/wiki/Ford_Fairmont
+Ford,Falcon,1959,1970,,https://en.wikipedia.org/wiki/Ford_Falcon_(North_America)
+Ford,Falcon (Australia),1960,2016,,https://en.wikipedia.org/wiki/Ford_Falcon_(Australia)
+Ford,Galaxie,1959,1974,,https://en.wikipedia.org/wiki/Ford_Galaxie
+Ford,Granada,1975,1980,,https://en.wikipedia.org/wiki/Ford_Granada_(North_America)
+Ford,GT40,1964,1969,,https://en.wikipedia.org/wiki/Ford_GT40
+Ford,LTD,1965,1980,,https://en.wikipedia.org/wiki/Ford_LTD_(Americas)
+Ford,Maverick,1969,1979,,https://en.wikipedia.org/wiki/Ford_Maverick_(1970%E2%80%931977)
+Ford,Model 18,1932,1934,,https://en.wikipedia.org/wiki/1932_Ford
+Ford,Model A,1928,1932,,https://en.wikipedia.org/wiki/Ford_Model_A_(1927%E2%80%931932)
+Ford,Mustang,1965,1973,First generation,https://en.wikipedia.org/wiki/Ford_Mustang_(first_generation)
+Ford,Mustang,1974,1978,Mustang II,https://en.wikipedia.org/wiki/Ford_Mustang_(second_generation)
+Ford,Mustang,1979,1980,Fox body,https://en.wikipedia.org/wiki/Ford_Mustang_(third_generation)
+Ford,Pinto,1971,1980,,https://en.wikipedia.org/wiki/Ford_Pinto
+Ford,Ranchero,1957,1979,,https://en.wikipedia.org/wiki/Ford_Ranchero
+Ford,Sierra RS Cosworth,1986,1992,,https://en.wikipedia.org/wiki/Ford_Sierra_RS_Cosworth
+Ford,Thunderbird,1955,1980,,https://en.wikipedia.org/wiki/Ford_Thunderbird
+Ford,Torino,1968,1976,,https://en.wikipedia.org/wiki/Ford_Torino
+GMC,Caballero,1978,1980,,https://en.wikipedia.org/wiki/GMC_Caballero
+GMC,Motorhome,1973,1978,,https://en.wikipedia.org/wiki/GMC_Motorhome
+GMC,Sprint,1971,1977,,https://en.wikipedia.org/wiki/GMC_Sprint
+Holden,Commodore,1978,2020,,https://en.wikipedia.org/wiki/Holden_Commodore
+Holden,Kingswood,1968,1985,,https://en.wikipedia.org/wiki/Holden_Kingswood
+Holden,Monaro,2002,2006,,https://en.wikipedia.org/wiki/Holden_Monaro
+Holden,Torana,1967,1980,,https://en.wikipedia.org/wiki/Holden_Torana
+Holden,Ute,2000,2017,,https://en.wikipedia.org/wiki/Holden_Ute
+Honda,Accord,1977,1980,,https://en.wikipedia.org/wiki/Honda_Accord
+Honda,Acty,1977,2021,,https://en.wikipedia.org/wiki/Honda_Acty
+Honda,Ascot,1989,1997,,https://en.wikipedia.org/wiki/Honda_Ascot
+Honda,Ballade,1980,2000,,https://en.wikipedia.org/wiki/Honda_Ballade
+Honda,Ballade,2011,2025,,https://en.wikipedia.org/wiki/Honda_Ballade
+Honda,Beat,1991,1996,,https://en.wikipedia.org/wiki/Honda_Beat
+Honda,City,1981,1986,,https://en.wikipedia.org/wiki/Honda_City_(AA)
+Honda,Civic,1972,1979,First generation,https://en.wikipedia.org/wiki/Honda_Civic_(first_generation)
+Honda,Civic,1980,1983,Second generation,https://en.wikipedia.org/wiki/Honda_Civic_(second_generation)
+Honda,Civic Type R,2023,2026,,https://en.wikipedia.org/wiki/Honda_Civic_Type_R
+Honda,CR-X,1984,1991,,https://en.wikipedia.org/wiki/Honda_CR-X
+Honda,Domani,1992,1997,,https://en.wikipedia.org/wiki/Honda_Domani
+Honda,Edix,2004,2009,,https://en.wikipedia.org/wiki/Honda_FR-V
+Honda,Elysion,2004,2026,,https://en.wikipedia.org/wiki/Honda_Elysion
+Honda,Inspire,1989,2012,,https://en.wikipedia.org/wiki/Honda_Inspire
+Honda,Inspire,2018,2026,,https://en.wikipedia.org/wiki/Honda_Inspire
+Honda,Integra,1986,2006,,https://en.wikipedia.org/wiki/Honda_Integra
+Honda,Integra,2023,2026,,https://en.wikipedia.org/wiki/Honda_Integra
+Honda,Legend,2005,2012,,https://en.wikipedia.org/wiki/Honda_Legend
+Honda,Life,1971,1974,,https://en.wikipedia.org/wiki/Honda_Life
+Honda,Life,1997,2014,,https://en.wikipedia.org/wiki/Honda_Life
+Honda,Life,2020,2025,,https://en.wikipedia.org/wiki/Honda_Life
+Honda,Logo,1996,2001,,https://en.wikipedia.org/wiki/Honda_Logo
+Honda,N360,1967,1972,,https://en.wikipedia.org/wiki/Honda_N360
+Honda,NSX,1991,2005,Honda badge,https://en.wikipedia.org/wiki/Honda_NSX_(first_generation)
+Honda,Orthia,1996,2006,,https://en.wikipedia.org/wiki/Honda_Orthia
+Honda,Prelude,1978,1980,,https://en.wikipedia.org/wiki/Honda_Prelude
+Honda,Quint,1980,1985,,https://en.wikipedia.org/wiki/Honda_Quint
+Honda,S500,1963,1964,,https://en.wikipedia.org/wiki/Honda_S500
+Honda,S600,1964,1966,,https://en.wikipedia.org/wiki/Honda_S600
+Honda,S800,1966,1970,,https://en.wikipedia.org/wiki/Honda_S800
+Honda,Stepwgn,1996,2026,,https://en.wikipedia.org/wiki/Honda_Stepwgn
+Honda,Stream,2000,2014,,https://en.wikipedia.org/wiki/Honda_Stream
+Honda,Today,1985,1998,,https://en.wikipedia.org/wiki/Honda_Today
+Honda,Torneo,1997,2002,,https://en.wikipedia.org/wiki/Honda_Torneo
+Honda,Vamos,1970,1973,,https://en.wikipedia.org/wiki/Honda_Vamos
+Honda,Vigor,1981,1995,,https://en.wikipedia.org/wiki/Honda_Vigor
+Honda,Z,1970,1974,,https://en.wikipedia.org/wiki/Honda_Z
+Honda,Z,1998,2002,,https://en.wikipedia.org/wiki/Honda_Z
+Hudson,Hornet,1951,1957,,https://en.wikipedia.org/wiki/Hudson_Hornet
+International,Scout,1961,1980,,https://en.wikipedia.org/wiki/International_Scout
+International,Travelall,1953,1975,,https://en.wikipedia.org/wiki/International_Travelall
+Jaguar,E-Type,1961,1974,,https://en.wikipedia.org/wiki/Jaguar_E-Type
+Jaguar,Mark 2,1959,1969,,https://en.wikipedia.org/wiki/Jaguar_Mark_2
+Jaguar,XJS,1975,1980,,https://en.wikipedia.org/wiki/Jaguar_XJS
+Jaguar,XK120,1948,1954,,https://en.wikipedia.org/wiki/Jaguar_XK120
+Jaguar,XK140,1954,1957,,https://en.wikipedia.org/wiki/Jaguar_XK140
+Jaguar,XK150,1957,1961,,https://en.wikipedia.org/wiki/Jaguar_XK150
+Jeep,Cherokee,1974,1980,SJ,https://en.wikipedia.org/wiki/Jeep_Cherokee_(SJ)
+Jeep,CJ,1955,1980,,https://en.wikipedia.org/wiki/Jeep_CJ
+Jeep,Forward Control,1956,1999,,https://en.wikipedia.org/wiki/Jeep_Forward_Control
+Jeep,J-Series,1962,1980,,https://en.wikipedia.org/wiki/Jeep_Gladiator_(SJ)
+Jeep,Jeepster Commando,1967,1973,,https://en.wikipedia.org/wiki/Jeepster_Commando
+Jeep,Wagoneer,1963,1980,,https://en.wikipedia.org/wiki/Jeep_Wagoneer_(SJ)
+Jeep,Willys Truck,1947,1965,,https://en.wikipedia.org/wiki/Willys_Jeep_Truck
+Jeep,Willys Wagon,1946,1977,,https://en.wikipedia.org/wiki/Willys_Jeep_Station_Wagon
+Lamborghini,400 GT,1966,1968,,https://en.wikipedia.org/wiki/Lamborghini_400_GT
+Lamborghini,Countach,1974,1980,,https://en.wikipedia.org/wiki/Lamborghini_Countach
+Lamborghini,Espada,1968,1978,,https://en.wikipedia.org/wiki/Lamborghini_Espada
+Lamborghini,Jarama,1970,1976,,https://en.wikipedia.org/wiki/Lamborghini_Jarama
+Lamborghini,Miura,1966,1973,,https://en.wikipedia.org/wiki/Lamborghini_Miura
+Lamborghini,Urraco,1972,1979,,https://en.wikipedia.org/wiki/Lamborghini_Urraco
+Lancia,Delta Integrale,1979,1999,,https://en.wikipedia.org/wiki/Lancia_Delta
+Lancia,Delta Integrale,2008,2014,,https://en.wikipedia.org/wiki/Lancia_Delta
+Lancia,Fulvia,1963,1976,,https://en.wikipedia.org/wiki/Lancia_Fulvia
+Lancia,Stratos,1973,1978,,https://en.wikipedia.org/wiki/Lancia_Stratos
+Lincoln,Capri,1952,1955,,https://en.wikipedia.org/wiki/Lincoln_Capri
+Lincoln,Continental,1940,1942,,https://en.wikipedia.org/wiki/Lincoln_Continental
+Lincoln,Continental,1946,1948,,https://en.wikipedia.org/wiki/Lincoln_Continental
+Lincoln,Continental,1958,1980,,https://en.wikipedia.org/wiki/Lincoln_Continental
+Lincoln,Continental Mark III,1969,1971,,https://en.wikipedia.org/wiki/Lincoln_Continental_Mark_III
+Lincoln,Continental Mark IV,1972,1976,,https://en.wikipedia.org/wiki/Lincoln_Continental_Mark_IV
+Lincoln,Continental Mark V,1977,1979,,https://en.wikipedia.org/wiki/Lincoln_Continental_Mark_V
+Lincoln,Cosmopolitan,1949,1951,,https://en.wikipedia.org/wiki/Lincoln_Cosmopolitan
+Lincoln,Premiere,1956,1957,,https://en.wikipedia.org/wiki/Lincoln_Premiere
+Lincoln,Versailles,1977,1980,,https://en.wikipedia.org/wiki/Lincoln_Versailles
+Lotus,Cortina,1963,1966,,https://en.wikipedia.org/wiki/Lotus_Cortina
+Lotus,Elan,1962,1973,,https://en.wikipedia.org/wiki/Lotus_Elan
+Lotus,Elite,1957,1963,,https://en.wikipedia.org/wiki/Lotus_Elite
+Lotus,Esprit,1976,1980,,https://en.wikipedia.org/wiki/Lotus_Esprit
+Lotus,Europa,1966,1975,,https://en.wikipedia.org/wiki/Lotus_Europa
+Lotus,Seven,1957,1973,,https://en.wikipedia.org/wiki/Lotus_Seven
+Maserati,Bora,1971,1978,,https://en.wikipedia.org/wiki/Maserati_Bora
+Maserati,Khamsin,1974,1982,,https://en.wikipedia.org/wiki/Maserati_Khamsin
+Maserati,Merak,1972,1983,,https://en.wikipedia.org/wiki/Maserati_Merak
+Maserati,Mistral,1963,1970,,https://en.wikipedia.org/wiki/Maserati_Mistral
+Mazda,Autozam AZ-1,1992,1994,,https://en.wikipedia.org/wiki/Autozam_AZ-1
+Mazda,Carol,1962,1970,,https://en.wikipedia.org/wiki/Mazda_Carol
+Mazda,Carol,1989,2026,,https://en.wikipedia.org/wiki/Mazda_Carol
+Mazda,Cosmo,1967,1995,,https://en.wikipedia.org/wiki/Mazda_Cosmo
+Mazda,Eunos 800,1993,2002,,https://en.wikipedia.org/wiki/Mazda_Millenia
+Mazda,Eunos Roadster,1989,1997,,https://en.wikipedia.org/wiki/Mazda_MX-5_(NA)
+Mazda,Familia,1963,1980,,https://en.wikipedia.org/wiki/Mazda_Familia
+Mazda,Lantis,1993,1998,,https://en.wikipedia.org/wiki/Mazda_Lantis
+Mazda,Luce,1966,1991,,https://en.wikipedia.org/wiki/Mazda_Luce
+Mazda,Persona,1988,1992,,https://en.wikipedia.org/wiki/Mazda_Persona
+Mazda,Roadpacer,1975,1977,,https://en.wikipedia.org/wiki/Mazda_Roadpacer
+Mazda,RX-3,1971,1978,,https://en.wikipedia.org/wiki/Mazda_Grand_Familia
+Mazda,RX-7,1993,1995,,https://en.wikipedia.org/wiki/Mazda_RX-7
+Mazda,Sentia,1991,2002,,https://en.wikipedia.org/wiki/Mazda_Sentia
+Mercedes-Benz,190SL,1955,1963,,https://en.wikipedia.org/wiki/Mercedes-Benz_190_SL
+Mercedes-Benz,300SL,1954,1963,,https://en.wikipedia.org/wiki/Mercedes-Benz_300_SL
+Mercedes-Benz,R107,1971,1980,,https://en.wikipedia.org/wiki/Mercedes-Benz_R107_and_C107
+Mercedes-Benz,SL Pagoda,1963,1971,,https://en.wikipedia.org/wiki/Mercedes-Benz_W113
+Mercedes-Benz,W108,1965,1972,,https://en.wikipedia.org/wiki/Mercedes-Benz_W108/W109
+Mercedes-Benz,W111,1959,1971,,https://en.wikipedia.org/wiki/Mercedes-Benz_W111
+Mercedes-Benz,W114,1968,1976,,https://en.wikipedia.org/wiki/Mercedes-Benz_W114/W115
+Mercedes-Benz,W116,1973,1980,,https://en.wikipedia.org/wiki/Mercedes-Benz_W116
+Mercedes-Benz,W123,1976,1980,,https://en.wikipedia.org/wiki/Mercedes-Benz_W123
+Mercury,Capri,1970,1974,,https://en.wikipedia.org/wiki/Mercury_Capri
+Mercury,Capri,1976,1978,,https://en.wikipedia.org/wiki/Mercury_Capri
+Mercury,Colony Park,1957,1980,,https://en.wikipedia.org/wiki/Mercury_Colony_Park
+Mercury,Comet,1960,1977,,https://en.wikipedia.org/wiki/Mercury_Comet
+Mercury,Cougar,1967,1980,,https://en.wikipedia.org/wiki/Mercury_Cougar
+Mercury,Cyclone,1964,1971,,https://en.wikipedia.org/wiki/Mercury_Cyclone
+Mercury,Eight,1939,1940,,https://en.wikipedia.org/wiki/Mercury_Eight
+Mercury,Marauder,1963,1965,,https://en.wikipedia.org/wiki/Mercury_Marauder
+Mercury,Marauder,1969,1970,,https://en.wikipedia.org/wiki/Mercury_Marauder
+Mercury,Marquis,1969,1978,,https://en.wikipedia.org/wiki/Mercury_Marquis
+Mercury,Montclair,1955,1960,,https://en.wikipedia.org/wiki/Mercury_Montclair
+Mercury,Montclair,1964,1968,,https://en.wikipedia.org/wiki/Mercury_Montclair
+Mercury,Montego,1968,1971,,https://en.wikipedia.org/wiki/Mercury_Montego
+Mercury,Monterey,1952,1954,,https://en.wikipedia.org/wiki/Mercury_Monterey
+Mercury,Park Lane,1958,1960,,https://en.wikipedia.org/wiki/Mercury_Park_Lane
+MG,MG TD,1936,1955,,https://en.wikipedia.org/wiki/MG_T-type
+MG,Midget,1961,1979,,https://en.wikipedia.org/wiki/MG_Midget
+Mini,Cooper,1959,2000,Classic,https://en.wikipedia.org/wiki/Mini
+Mitsubishi,Chariot,1998,2006,,https://en.wikipedia.org/wiki/Mitsubishi_Chariot
+Mitsubishi,Colt Galant GTO,1970,1977,,https://en.wikipedia.org/wiki/Mitsubishi_Galant_GTO
+Mitsubishi,Debonair,1964,1999,,https://en.wikipedia.org/wiki/Mitsubishi_Debonair
+Mitsubishi,Delica,1968,2026,,https://en.wikipedia.org/wiki/Mitsubishi_Delica
+Mitsubishi,FTO,1994,2000,,https://en.wikipedia.org/wiki/Mitsubishi_FTO
+Mitsubishi,Galant Lambda,1976,1984,,https://en.wikipedia.org/wiki/Mitsubishi_Galant_Lambda
+Mitsubishi,Galant VR-4,1987,2002,,https://en.wikipedia.org/wiki/Mitsubishi_Galant_VR-4
+Mitsubishi,GTO,1990,1999,,https://en.wikipedia.org/wiki/Mitsubishi_3000GT
+Mitsubishi,Lancer Celeste,1973,1985,,https://en.wikipedia.org/wiki/Mitsubishi_Lancer_(A70)
+Mitsubishi,Lancer Evolution,1992,2016,,https://en.wikipedia.org/wiki/Mitsubishi_Lancer_Evolution
+Mitsubishi,Minica,1962,2011,,https://en.wikipedia.org/wiki/Mitsubishi_Minica
+Mitsubishi,Pajero,1981,2021,,https://en.wikipedia.org/wiki/Mitsubishi_Pajero
+Mitsubishi,Pajero Evolution,1984,2007,,https://en.wikipedia.org/wiki/Mitsubishi_Pajero_Evolution
+Mitsubishi,Pajero iO,1998,2015,,https://en.wikipedia.org/wiki/Mitsubishi_Pajero_iO
+Mitsubishi,Pajero Mini,1994,2012,,https://en.wikipedia.org/wiki/Mitsubishi_Pajero_Mini
+Mitsubishi,Toppo,1990,2004,,https://en.wikipedia.org/wiki/Mitsubishi_Toppo
+Mitsubishi,Toppo,2008,2013,,https://en.wikipedia.org/wiki/Mitsubishi_Toppo
+Nash,Metropolitan,1954,1962,,https://en.wikipedia.org/wiki/Nash_Metropolitan
+Nash,Rambler,1950,1955,,https://en.wikipedia.org/wiki/Nash_Rambler
+Nash,Rambler,1958,1960,,https://en.wikipedia.org/wiki/Nash_Rambler
+Nissan,180SX,1989,1998,,https://en.wikipedia.org/wiki/Nissan_180SX
+Nissan,Avenir,1990,1998,,https://en.wikipedia.org/wiki/Nissan_Avenir
+Nissan,Be-1,1987,1988,,https://en.wikipedia.org/wiki/Nissan_Be-1
+Nissan,Bluebird,1955,2001,,https://en.wikipedia.org/wiki/Nissan_Bluebird
+Nissan,Caravan,1965,2026,,https://en.wikipedia.org/wiki/Nissan_Caravan
+Nissan,Cedric,1960,2015,,https://en.wikipedia.org/wiki/Nissan_Cedric
+Nissan,Cefiro,1996,1999,,https://en.wikipedia.org/wiki/Nissan_Cefiro
+Nissan,Cima,1988,2010,,https://en.wikipedia.org/wiki/Nissan_Cima
+Nissan,Cima,2012,2022,,https://en.wikipedia.org/wiki/Nissan_Cima
+Nissan,Elgrand,1997,2026,,https://en.wikipedia.org/wiki/Nissan_Elgrand
+Nissan,Fairlady Z,1984,1989,,https://en.wikipedia.org/wiki/Nissan_300ZX
+Nissan,Figaro,1991,1992,,https://en.wikipedia.org/wiki/Nissan_Figaro
+Nissan,Gloria,1959,2004,,https://en.wikipedia.org/wiki/Nissan_Gloria
+Nissan,Laurel,1968,2002,,https://en.wikipedia.org/wiki/Nissan_Laurel
+Nissan,Leopard,1980,2000,,https://en.wikipedia.org/wiki/Nissan_Leopard
+Nissan,March,1983,1992,,https://en.wikipedia.org/wiki/Nissan_Micra
+Nissan,Pao,1989,1991,,https://en.wikipedia.org/wiki/Nissan_Pao
+Nissan,Patrol,1951,2026,,https://en.wikipedia.org/wiki/Nissan_Patrol
+Nissan,Prairie,1990,1995,,https://en.wikipedia.org/wiki/Nissan_Prairie
+Nissan,Presea,1990,2000,,https://en.wikipedia.org/wiki/Nissan_Presea
+Nissan,President,1965,2010,,https://en.wikipedia.org/wiki/Nissan_President
+Nissan,Primera,1990,2008,,https://en.wikipedia.org/wiki/Nissan_Primera
+Nissan,Rasheen,1994,2000,,https://en.wikipedia.org/wiki/Nissan_Rasheen
+Nissan,S-Cargo,1989,1991,,https://en.wikipedia.org/wiki/Nissan_S-Cargo
+Nissan,Serena,1991,2026,,https://en.wikipedia.org/wiki/Nissan_Serena
+Nissan,Silvia,1965,1968,,https://en.wikipedia.org/wiki/Nissan_Silvia
+Nissan,Silvia,1975,2002,,https://en.wikipedia.org/wiki/Nissan_Silvia
+Nissan,Skyline,1957,2026,,https://en.wikipedia.org/wiki/Nissan_Skyline
+Nissan,Skyline GT-R,1969,1973,,https://en.wikipedia.org/wiki/Nissan_Skyline_GT-R
+Nissan,Skyline GT-R,1989,2002,,https://en.wikipedia.org/wiki/Nissan_Skyline_GT-R
+Nissan,Stagea,1996,2007,,https://en.wikipedia.org/wiki/Nissan_Stagea
+Nissan,Sunny,1966,2026,,https://en.wikipedia.org/wiki/Nissan_Sunny
+Nissan,Sylphy,2000,2026,,https://en.wikipedia.org/wiki/Nissan_Sylphy
+Oldsmobile,442,1964,1980,,https://en.wikipedia.org/wiki/Oldsmobile_442
+Oldsmobile,Cutlass,1961,1980,,https://en.wikipedia.org/wiki/Oldsmobile_Cutlass
+Oldsmobile,Delta 88,1949,1980,,https://en.wikipedia.org/wiki/Oldsmobile_88
+Oldsmobile,Ninety-Eight,1940,1942,,https://en.wikipedia.org/wiki/Oldsmobile_98
+Oldsmobile,Ninety-Eight,1946,1980,,https://en.wikipedia.org/wiki/Oldsmobile_98
+Oldsmobile,Omega,1973,1980,,https://en.wikipedia.org/wiki/Oldsmobile_Omega
+Oldsmobile,Starfire,1954,1957,,https://en.wikipedia.org/wiki/Oldsmobile_Starfire
+Oldsmobile,Toronado,1966,1980,,https://en.wikipedia.org/wiki/Oldsmobile_Toronado
+Oldsmobile,Vista Cruiser,1964,1977,,https://en.wikipedia.org/wiki/Oldsmobile_Vista_Cruiser
+Opel,GT,1968,1973,,https://en.wikipedia.org/wiki/Opel_GT
+Opel,GT,2007,2009,,https://en.wikipedia.org/wiki/Opel_GT
+Opel,Kadett,1936,1940,,https://en.wikipedia.org/wiki/Opel_Kadett
+Opel,Kadett,1962,1975,,https://en.wikipedia.org/wiki/Opel_Kadett
+Opel,Manta,1970,1975,,https://en.wikipedia.org/wiki/Opel_Manta
+Packard,Caribbean,1953,1956,,https://en.wikipedia.org/wiki/Packard_Caribbean
+Packard,Clipper,1941,1942,,https://en.wikipedia.org/wiki/Packard_Clipper
+Packard,Clipper,1946,1947,,https://en.wikipedia.org/wiki/Packard_Clipper
+Packard,Clipper,1953,1957,,https://en.wikipedia.org/wiki/Packard_Clipper
+Peugeot,205,1983,1999,,https://en.wikipedia.org/wiki/Peugeot_205
+Peugeot,404,1960,1975,,https://en.wikipedia.org/wiki/Peugeot_404
+Peugeot,504,1968,1980,,https://en.wikipedia.org/wiki/Peugeot_504
+Plymouth,Barracuda,1964,1974,,https://en.wikipedia.org/wiki/Plymouth_Barracuda
+Plymouth,Belvedere,1951,1953,,https://en.wikipedia.org/wiki/Plymouth_Belvedere
+Plymouth,Duster,1969,1976,,https://en.wikipedia.org/wiki/Plymouth_Duster
+Plymouth,Fury,1959,1978,,https://en.wikipedia.org/wiki/Plymouth_Fury
+Plymouth,GTX,1968,1970,,https://en.wikipedia.org/wiki/Plymouth_GTX
+Plymouth,Road Runner,1968,1980,,https://en.wikipedia.org/wiki/Plymouth_Road_Runner
+Plymouth,Satellite,1965,1974,,https://en.wikipedia.org/wiki/Plymouth_Satellite
+Plymouth,Savoy,1954,1965,,https://en.wikipedia.org/wiki/Plymouth_Savoy
+Plymouth,Superbird,1970,1970,,https://en.wikipedia.org/wiki/Plymouth_Superbird
+Plymouth,Valiant,1960,1962,,https://en.wikipedia.org/wiki/Plymouth_Valiant
+Pontiac,Astre,1973,1977,,https://en.wikipedia.org/wiki/Pontiac_Astre
+Pontiac,Bonneville,1958,1980,,https://en.wikipedia.org/wiki/Pontiac_Bonneville
+Pontiac,Can Am,1977,1977,,https://en.wikipedia.org/wiki/Pontiac_Can_Am
+Pontiac,Catalina,1959,1960,,https://en.wikipedia.org/wiki/Pontiac_Catalina
+Pontiac,Chieftain,1949,1954,,https://en.wikipedia.org/wiki/Pontiac_Chieftain
+Pontiac,Firebird,1967,1980,,https://en.wikipedia.org/wiki/Pontiac_Firebird
+Pontiac,Grand AM,1973,1975,,https://en.wikipedia.org/wiki/Pontiac_Grand_Am
+Pontiac,Grand Prix,1962,1980,,https://en.wikipedia.org/wiki/Pontiac_Grand_Prix
+Pontiac,GTO,1964,1974,,https://en.wikipedia.org/wiki/Pontiac_GTO
+Pontiac,Phoenix,1977,1980,,https://en.wikipedia.org/wiki/Pontiac_Phoenix
+Pontiac,Star Chief,1954,1966,,https://en.wikipedia.org/wiki/Pontiac_Star_Chief
+Pontiac,Sunbird,1976,1980,,https://en.wikipedia.org/wiki/Pontiac_Sunbird
+Pontiac,Tempest,1961,1963,,https://en.wikipedia.org/wiki/Pontiac_Tempest
+Pontiac,Ventura,1971,1977,,https://en.wikipedia.org/wiki/Pontiac_Ventura
+Porsche,356,1948,1965,,https://en.wikipedia.org/wiki/Porsche_356
+Porsche,911,1964,1980,Classic,https://en.wikipedia.org/wiki/Porsche_911_(classic)
+Porsche,912,1965,1969,,https://en.wikipedia.org/wiki/Porsche_912
+Porsche,912,1975,1976,,https://en.wikipedia.org/wiki/Porsche_912
+Porsche,914,1969,1976,,https://en.wikipedia.org/wiki/Porsche_914
+Porsche,924,1976,1980,,https://en.wikipedia.org/wiki/Porsche_924
+Porsche,928,1977,1980,,https://en.wikipedia.org/wiki/Porsche_928
+Porsche,930,1975,1980,,https://en.wikipedia.org/wiki/Porsche_911_(930)
+Porsche,959,1986,1993,,https://en.wikipedia.org/wiki/Porsche_959
+Renault,5 Turbo,1980,1984,,https://en.wikipedia.org/wiki/Renault_5_Turbo
+Rolls-Royce,Silver Cloud,1955,1966,,https://en.wikipedia.org/wiki/Rolls-Royce_Silver_Cloud
+Rolls-Royce,Silver Shadow,1965,1980,,https://en.wikipedia.org/wiki/Rolls-Royce_Silver_Shadow
+Saab,96,1960,1980,,https://en.wikipedia.org/wiki/Saab_96
+Saab,99,1968,1980,,https://en.wikipedia.org/wiki/Saab_99
+Saab,Sonett,1955,1957,,https://en.wikipedia.org/wiki/Saab_Sonett
+Saab,Sonett,1966,1974,,https://en.wikipedia.org/wiki/Saab_Sonett
+Shelby,Cobra,1962,1967,,https://en.wikipedia.org/wiki/AC_Cobra
+Shelby,GT350,1967,1968,,https://en.wikipedia.org/wiki/Shelby_Mustang
+Studebaker,Avanti,1962,1963,,https://en.wikipedia.org/wiki/Studebaker_Avanti
+Studebaker,Champion,1939,1942,,https://en.wikipedia.org/wiki/Studebaker_Champion
+Studebaker,Champion,1946,1958,,https://en.wikipedia.org/wiki/Studebaker_Champion
+Studebaker,Commander,1927,1942,,https://en.wikipedia.org/wiki/Studebaker_Commander
+Studebaker,Commander,1947,1966,,https://en.wikipedia.org/wiki/Studebaker_Commander
+Studebaker,Lark,1959,1966,,https://en.wikipedia.org/wiki/Studebaker_Lark
+Subaru,1000,1966,1969,,https://en.wikipedia.org/wiki/Subaru_1000
+Subaru,360,1958,1971,,https://en.wikipedia.org/wiki/Subaru_360
+Subaru,Alcyone SVX,1991,1996,,https://en.wikipedia.org/wiki/Subaru_SVX
+Subaru,Exiga,2008,2018,,https://en.wikipedia.org/wiki/Subaru_Exiga
+Subaru,Leone,1971,1994,,https://en.wikipedia.org/wiki/Subaru_Leone
+Subaru,Levorg,2014,2026,,https://en.wikipedia.org/wiki/Subaru_Levorg
+Subaru,Pleo,1998,2018,,https://en.wikipedia.org/wiki/Subaru_Pleo
+Subaru,R2,2003,2010,,https://en.wikipedia.org/wiki/Subaru_R2
+Subaru,Rex,1972,1992,,https://en.wikipedia.org/wiki/Subaru_Rex
+Subaru,Sambar,1961,2026,,https://en.wikipedia.org/wiki/Subaru_Sambar
+Subaru,Stella,2006,2023,,https://en.wikipedia.org/wiki/Subaru_Stella
+Subaru,Stella,2025,2026,,https://en.wikipedia.org/wiki/Subaru_Stella
+Subaru,Vivio,1992,1998,,https://en.wikipedia.org/wiki/Subaru_Vivio
+Suzuki,Alto,1979,2026,,https://en.wikipedia.org/wiki/Suzuki_Alto
+Suzuki,Cappuccino,1991,1998,,https://en.wikipedia.org/wiki/Suzuki_Cappuccino
+Suzuki,Carry,1961,2026,,https://en.wikipedia.org/wiki/Suzuki_Carry
+Suzuki,Cervo,1977,1998,,https://en.wikipedia.org/wiki/Suzuki_Cervo
+Suzuki,Cervo,2006,2009,,https://en.wikipedia.org/wiki/Suzuki_Cervo
+Suzuki,Every,1982,2026,,https://en.wikipedia.org/wiki/Suzuki_Every
+Suzuki,Fronte,1971,1976,,https://en.wikipedia.org/wiki/Suzuki_Fronte
+Suzuki,Hustler,2014,2026,,https://en.wikipedia.org/wiki/Suzuki_Hustler
+Suzuki,Jimny,1970,2026,,https://en.wikipedia.org/wiki/Suzuki_Jimny
+Suzuki,Kei,1998,2009,,https://en.wikipedia.org/wiki/Suzuki_Kei
+Suzuki,Twin,2003,2005,,https://en.wikipedia.org/wiki/Suzuki_Twin
+Suzuki,Wagon R,1993,2026,,https://en.wikipedia.org/wiki/Suzuki_Wagon_R
+Toyota,2000GT,1967,1970,,https://en.wikipedia.org/wiki/Toyota_2000GT
+Toyota,Alphard,2002,2026,,https://en.wikipedia.org/wiki/Toyota_Alphard
+Toyota,bB,2000,2016,,https://en.wikipedia.org/wiki/Toyota_bB
+Toyota,Brevis,2001,2007,,https://en.wikipedia.org/wiki/Toyota_Brevis
+Toyota,Caldina,1992,2007,,https://en.wikipedia.org/wiki/Toyota_Caldina
+Toyota,Carina,1970,2001,,https://en.wikipedia.org/wiki/Toyota_Carina
+Toyota,Carina ED,1985,1998,,https://en.wikipedia.org/wiki/Toyota_Carina_ED
+Toyota,Celica,1971,1980,,https://en.wikipedia.org/wiki/Toyota_Celica
+Toyota,Celica GT-Four,1986,1999,,https://en.wikipedia.org/wiki/Toyota_Celica_GT-Four
+Toyota,Century,1967,2026,,https://en.wikipedia.org/wiki/Toyota_Century
+Toyota,Chaser,1977,2001,,https://en.wikipedia.org/wiki/Toyota_Chaser
+Toyota,Corolla,1966,1970,E10,https://en.wikipedia.org/wiki/Toyota_Corolla_(E10)
+Toyota,Corolla,1970,1978,E20,https://en.wikipedia.org/wiki/Toyota_Corolla_(E20)
+Toyota,Corolla,1974,1981,E30,https://en.wikipedia.org/wiki/Toyota_Corolla_(E30)
+Toyota,Corona,1957,1980,,https://en.wikipedia.org/wiki/Toyota_Corona
+Toyota,Cresta,1980,2001,,https://en.wikipedia.org/wiki/Toyota_Cresta
+Toyota,Crown Majesta,1991,2020,,https://en.wikipedia.org/wiki/Toyota_Crown_Majesta
+Toyota,Curren,1994,1998,,https://en.wikipedia.org/wiki/Toyota_Curren
+Toyota,Hiace,1967,2026,,https://en.wikipedia.org/wiki/Toyota_HiAce
+Toyota,Hilux,1984,1988,,https://en.wikipedia.org/wiki/Toyota_Hilux
+Toyota,Land Cruiser,1960,1980,J40,https://en.wikipedia.org/wiki/Toyota_Land_Cruiser_(J40)
+Toyota,Land Cruiser Prado,1985,2026,,https://en.wikipedia.org/wiki/Toyota_Land_Cruiser_Prado
+Toyota,Mark II,1968,2004,,https://en.wikipedia.org/wiki/Toyota_Mark_II
+Toyota,Mark II,2007,2007,,https://en.wikipedia.org/wiki/Toyota_Mark_II
+Toyota,Mark X,2004,2019,,https://en.wikipedia.org/wiki/Toyota_Mark_X
+Toyota,Mega Cruiser,1995,2001,,https://en.wikipedia.org/wiki/Toyota_Mega_Cruiser
+Toyota,Origin,2000,2001,,https://en.wikipedia.org/wiki/Toyota_Origin
+Toyota,Progrès,1998,2007,,https://en.wikipedia.org/wiki/Toyota_Progr%C3%A8s
+Toyota,Sera,1990,1995,,https://en.wikipedia.org/wiki/Toyota_Sera
+Toyota,Soarer,1981,2005,,https://en.wikipedia.org/wiki/Toyota_Soarer
+Toyota,Sports 800,1965,1969,,https://en.wikipedia.org/wiki/Toyota_Sports_800
+Toyota,Sprinter,1968,2002,,https://en.wikipedia.org/wiki/Toyota_Sprinter
+Toyota,Sprinter Trueno,1972,2000,,https://en.wikipedia.org/wiki/Toyota_Sprinter_Trueno
+Toyota,Starlet,1973,1980,,https://en.wikipedia.org/wiki/Toyota_Starlet
+Toyota,Supra,1979,1981,,https://en.wikipedia.org/wiki/Toyota_Supra
+Toyota,Verossa,2001,2004,,https://en.wikipedia.org/wiki/Toyota_Verossa
+Triumph,GT6,1966,1973,,https://en.wikipedia.org/wiki/Triumph_GT6
+Triumph,Spitfire,1962,1980,,https://en.wikipedia.org/wiki/Triumph_Spitfire
+Triumph,TR3,1955,1962,,https://en.wikipedia.org/wiki/Triumph_TR3
+Triumph,TR6,1969,1976,,https://en.wikipedia.org/wiki/Triumph_TR6
+Triumph,TR7,1974,1981,,https://en.wikipedia.org/wiki/Triumph_TR7
+Volkswagen,Beetle,1938,1980,Type 1,https://en.wikipedia.org/wiki/Volkswagen_Beetle
+Volkswagen,Dasher,1973,1980,,https://en.wikipedia.org/wiki/Volkswagen_Passat_(B1)
+Volkswagen,Karmann Ghia,1955,1975,,https://en.wikipedia.org/wiki/Volkswagen_Karmann_Ghia
+Volkswagen,Rabbit,1974,1980,,https://en.wikipedia.org/wiki/Volkswagen_Golf_Mk1
+Volkswagen,Scirocco,1974,1980,,https://en.wikipedia.org/wiki/Volkswagen_Scirocco
+Volkswagen,Thing,1968,1983,,https://en.wikipedia.org/wiki/Volkswagen_Type_181
+Volkswagen,Type 2,1949,1979,,https://en.wikipedia.org/wiki/Volkswagen_Type_2
+Volkswagen,Type 3,1961,1973,,https://en.wikipedia.org/wiki/Volkswagen_Type_3
+Volkswagen,Type 4,1968,1974,,https://en.wikipedia.org/wiki/Volkswagen_Type_4
+Volvo,240,1975,1980,,https://en.wikipedia.org/wiki/Volvo_200_Series
+Volvo,Amazon,1956,1970,,https://en.wikipedia.org/wiki/Volvo_Amazon
+Volvo,P1800,1961,1973,,https://en.wikipedia.org/wiki/Volvo_P1800
+Volvo,PV444,1944,1965,,https://en.wikipedia.org/wiki/Volvo_PV444/544
+Willys,Aero,1952,1955,,https://en.wikipedia.org/wiki/Willys_Aero

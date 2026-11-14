@@ -2,5 +2,7 @@
 # displ, cyl, aspiration, trans, epa_contains select the EPA variants the row labels; epa_contains
 # is matched against EPA's raw model name ("|" separates alternatives). Without epa_contains only
 # untrimmed variants are labeled. Years with no matching EPA variant get the row inserted.
+# trans is "manual", "automatic", or an exact transmission ("6-speed manual") to tell apart trims
+# EPA lists with the same engine.
 # gears are ratios separated by ";". source_url is the page every number in the row was read from.
 make,model,year_from,year_to,trim,displ,cyl,aspiration,trans,epa_contains,drive,hp,torque_lbft,weight_lb,redline,gears,source_url

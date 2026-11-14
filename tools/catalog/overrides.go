@@ -19,7 +19,7 @@ type override struct {
 	Displ       float64
 	Cyl         int
 	Asp         string
-	Trans       string // "manual", "automatic", or "" for either; also the inserted transmission
+	Trans       string // "manual", "automatic", an exact "6-speed manual", or "" for any; also the inserted transmission
 	EPAContains []string
 	Drive       string
 	HP, Torque  int
@@ -85,7 +85,7 @@ func (o override) matches(v variantRow) bool {
 	if o.Asp != "" && v.Asp != o.Asp {
 		return false
 	}
-	if o.Trans != "" && transKind(v.Trans) != o.Trans {
+	if o.Trans != "" && !o.transMatches(v.Trans) {
 		return false
 	}
 	if len(o.EPAContains) > 0 {
@@ -137,17 +137,21 @@ func applyOverrides(vs []variantRow, os []override) []variantRow {
 			}
 			v.Engine = engineOf(epaRow{Make: o.Make, Model: o.Model, Displ: o.Displ, Cyl: o.Cyl,
 				Turbo: v.Asp == "turbo" || v.Asp == "twincharged", Super: v.Asp == "supercharged" || v.Asp == "twincharged"})
-			switch o.Trans {
-			case "manual":
-				v.Trans = "manual"
-			case "automatic":
-				v.Trans = "automatic"
-			}
+			v.Trans = o.Trans
 			o.fill(&v)
 			vs = append(vs, v)
 		}
 	}
 	return vs
+}
+
+// transMatches compares a transmission class ("manual", "automatic") or, when the row names
+// one ("6-speed manual"), the exact transmission, which separates trims EPA lists alike.
+func (o override) transMatches(t string) bool {
+	if strings.Contains(o.Trans, "speed") || o.Trans == "CVT" {
+		return strings.EqualFold(t, o.Trans)
+	}
+	return transKind(t) == o.Trans
 }
 
 func (o override) fill(v *variantRow) {

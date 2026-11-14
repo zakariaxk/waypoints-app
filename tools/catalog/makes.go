@@ -94,6 +94,22 @@ var curatedMakes = []curatedMake{
 	{Name: "Volvo", VPICID: 485},
 	{Name: "Yugo", VPICID: 5553},
 
+	// Makes only supplement.csv fills: classics and imports outside the federal data (GAR-2).
+	{Name: "Austin-Healey", VPICID: 0},
+	{Name: "Citroën", VPICID: 0},
+	{Name: "De Tomaso", VPICID: 0},
+	{Name: "Holden", VPICID: 0},
+	{Name: "Hudson", VPICID: 0},
+	{Name: "International", VPICID: 0},
+	{Name: "Lancia", VPICID: 0},
+	{Name: "MG", VPICID: 0},
+	{Name: "Nash", VPICID: 0},
+	{Name: "Opel", VPICID: 0},
+	{Name: "Packard", VPICID: 0},
+	{Name: "Renault", VPICID: 0},
+	{Name: "Studebaker", VPICID: 0},
+	{Name: "Willys", VPICID: 0},
+
 	{Name: "Aprilia", VPICID: 845, Bike: true},
 	{Name: "Ducati", VPICID: 568, Bike: true},
 	{Name: "Harley-Davidson", VPICID: 3888, Bike: true},
