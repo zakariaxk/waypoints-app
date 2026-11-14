@@ -47,9 +47,11 @@ public struct ReportSheet: View {
                                 Row(Text(title), trailing: {
                                     Image(systemName: reason == value ? "largecircle.fill.circle" : "circle")
                                         .foregroundStyle(reason == value ? Color.sodium : Color.gravel)
+                                        .accessibilityHidden(true)
                                 })
                             }
                             .buttonStyle(RowButtonStyle())
+                            .accessibilityAddTraits(reason == value ? .isSelected : [])
                         }
                         Field("Note", text: $note, prompt: "Optional", limit: 300)
                             .padding(.horizontal, Space.margin).padding(.top, Space.s16)
