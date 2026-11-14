@@ -63,15 +63,20 @@ public struct Meet: Identifiable, Hashable, Sendable, Codable {
     public var seriesID: UUID?
     /// Where a cruise rolls out to (MEET-13).
     public var destination: ConvoyDestination?
+    /// The saved road a cruise drives (MEET-13); Roll out starts the convoy on it.
+    public var roadID: RoadID?
+    /// People's choice winner, set when a meet or show with votes ends (MEET-14).
+    public var winnerCarID: CarID?
     public init(id: MeetID = MeetID(), hostID: UserID, title: String, kind: MeetKind, coordinate: Coordinate,
                 placeName: String, startsAt: Date, endsAt: Date, details: String = "",
                 visibility: MeetVisibility = .public, teamID: TeamID? = nil, cancelledAt: Date? = nil,
                 createdAt: Date = .now, recurrence: MeetRecurrence? = nil, seriesID: UUID? = nil,
-                destination: ConvoyDestination? = nil) {
+                destination: ConvoyDestination? = nil, roadID: RoadID? = nil, winnerCarID: CarID? = nil) {
         self.id = id; self.hostID = hostID; self.title = title; self.kind = kind; self.coordinate = coordinate
         self.placeName = placeName; self.startsAt = startsAt; self.endsAt = endsAt; self.details = details
         self.visibility = visibility; self.teamID = teamID; self.cancelledAt = cancelledAt; self.createdAt = createdAt
         self.recurrence = recurrence; self.seriesID = seriesID; self.destination = destination
+        self.roadID = roadID; self.winnerCarID = winnerCarID
     }
     public func isHappening(at date: Date = .now) -> Bool { cancelledAt == nil && startsAt <= date && date < endsAt }
 }
@@ -89,12 +94,13 @@ public struct MeetDraft: Hashable, Sendable, Codable {
     public var teamID: TeamID?
     public var recurrence: MeetRecurrence?
     public var destination: ConvoyDestination?
+    public var roadID: RoadID?
     public init(title: String, kind: MeetKind, coordinate: Coordinate, placeName: String, startsAt: Date,
                 endsAt: Date, details: String = "", visibility: MeetVisibility = .public, teamID: TeamID? = nil,
-                recurrence: MeetRecurrence? = nil, destination: ConvoyDestination? = nil) {
+                recurrence: MeetRecurrence? = nil, destination: ConvoyDestination? = nil, roadID: RoadID? = nil) {
         self.title = title; self.kind = kind; self.coordinate = coordinate; self.placeName = placeName
         self.startsAt = startsAt; self.endsAt = endsAt; self.details = details; self.visibility = visibility
-        self.teamID = teamID; self.recurrence = recurrence; self.destination = destination
+        self.teamID = teamID; self.recurrence = recurrence; self.destination = destination; self.roadID = roadID
     }
 }
 

@@ -151,8 +151,8 @@ final class NavigationModel {
 
     var destinationName: String { name.flatMap { $0.isEmpty ? nil : $0 } ?? String(localized: "Destination") }
 
-    /// Starts the reachability monitor and follows convoy membership. `ConvoyFeature` keeps the
-    /// active convoy id under `convoy.id`; convoy events from the gateway keep it current.
+    /// Starts the reachability monitor and follows convoy membership. Core's
+    /// `RealtimeService.activeConvoy()` keeps the convoy id current.
     private func watch() {
         guard !watching else { return }
         watching = true
@@ -162,13 +162,9 @@ final class NavigationModel {
             Task { @MainActor [weak self] in self?.online = ok }
         }
         monitor.start(queue: .global(qos: .utility))
-        convoyID = UserDefaults.standard.string(forKey: "convoy.id").map { ConvoyID(raw: $0) }
         let env = self.env
         convoyTask = Task { [weak self] in
-            for await event in await env.realtime.events() {
-                guard case let .convoy(s) = event else { continue }
-                self?.convoyID = s.ended ? nil : s.id
-            }
+            for await active in await env.realtime.activeConvoy() { self?.convoyID = active?.id }
         }
     }
 

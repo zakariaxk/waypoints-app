@@ -21,6 +21,7 @@ public actor PreviewStore {
     var helpStore: [HelpRequestID: HelpRequest] = [:]
     var meets: [MeetID: Meet]
     var rsvps: [MeetRSVP]
+    var meetChoices: [Pair: CarID] = [:]
     var venueNotes: [VenueNote]
     var roads: [RoadID: Road]
     var roadRatings: [Pair: RoadRating] = [:]

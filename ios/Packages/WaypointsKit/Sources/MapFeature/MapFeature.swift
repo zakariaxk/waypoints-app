@@ -256,15 +256,16 @@ final class MapModel {
                                                                  numberFormatStyle: .number.precision(.fractionLength(1))))
     }
 
-    /// The convoy this device is in. `ConvoyFeature` keeps its id under `convoy.id`.
-    var activeConvoy: ConvoyID? { UserDefaults.standard.string(forKey: "convoy.id").map { ConvoyID(raw: $0) } }
-
-    /// MAP-12: in a convoy, push its join code to this friend; otherwise open the start sheet.
+    /// MAP-12: in a convoy (Core's `RealtimeService.currentConvoy()`), push its join code to this
+    /// friend; otherwise open the start sheet.
     func inviteToConvoy(_ user: UserID) {
-        if let id = activeConvoy {
-            Task { try? await env.gateway.inviteToConvoy(id, users: [user]) }
-        } else {
-            env.router.open(.joinConvoy(code: ""))
+        let env = self.env
+        Task {
+            if let id = await env.realtime.currentConvoy()?.id {
+                try? await env.gateway.inviteToConvoy(id, users: [user])
+            } else {
+                env.router.open(.joinConvoy(code: ""))
+            }
         }
     }
 }

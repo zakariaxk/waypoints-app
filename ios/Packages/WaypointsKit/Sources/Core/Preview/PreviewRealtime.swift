@@ -15,7 +15,8 @@ public actor PreviewRealtimeService: RealtimeService {
     private let drivers: [Driver]
     private var viewport: MapRegion = PreviewSeed.region
     private var stateBroadcast = Broadcast<ConnectionState>()
-    private var convoy: ConvoyID?
+    private var convoy: ConvoyState?
+    private var convoyBroadcast = Broadcast<ConvoyState?>()
 
     public init() {
         func info(_ relation: Relation, _ user: UserID) -> EntityInfo {
@@ -77,8 +78,18 @@ public actor PreviewRealtimeService: RealtimeService {
     public func connectionState() async -> AsyncStream<ConnectionState> { stateBroadcast.subscribe(initial: .live) }
     public func setViewport(_ region: MapRegion) async { viewport = region }
     public func send(_ sample: LocationSample) async {}
-    public func joinConvoy(_ id: ConvoyID) async { convoy = id }
-    public func leaveConvoy() async { convoy = nil }
+    public func joinConvoy(_ id: ConvoyID) async {
+        guard convoy?.id != id else { return }
+        convoy = ConvoyState(id: id, leaderUID: 0, memberUIDs: [])
+        convoyBroadcast.send(convoy)
+    }
+    public func leaveConvoy() async {
+        guard convoy != nil else { return }
+        convoy = nil
+        convoyBroadcast.send(nil)
+    }
+    public func activeConvoy() async -> AsyncStream<ConvoyState?> { convoyBroadcast.subscribe(initial: .some(convoy)) }
+    public func currentConvoy() async -> ConvoyState? { convoy }
 }
 
 /// Simulated location: parked at the Cherry Hill Mall lot, permission granted.

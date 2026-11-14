@@ -58,6 +58,17 @@ extension PreviewStore: MeetRepository {
         venueNotes.filter { $0.coordinate.distance(to: coordinate) <= Double(meters) }
     }
     public func addVenueNote(_ note: VenueNote) async throws -> VenueNote { venueNotes.append(note); return note }
+    /// Preview: Going to a meet that is on counts as checked in.
+    public func isCheckedIn(_ meet: MeetID) async throws -> Bool {
+        let me = try me()
+        guard let m = meets[meet], m.isHappening() else { return false }
+        return rsvps.contains { $0.meetID == meet && $0.userID == me && $0.status == .going }
+    }
+    public func myChoice(for meet: MeetID) async throws -> CarID? { meetChoices[Pair(meet.raw, try me().raw)] }
+    public func setChoice(_ car: CarID?, for meet: MeetID) async throws {
+        guard try await isCheckedIn(meet) else { throw WaypointsError.forbidden }
+        meetChoices[Pair(meet.raw, try me().raw)] = car
+    }
 }
 
 extension PreviewStore: RoadRepository {
@@ -197,7 +208,7 @@ extension PreviewStore: GatewayService {
             meets[key]?.recurrence = nil
         }
     }
-    public func createConvoy(name: String, destination: ConvoyDestination?) async throws -> ConvoyInvite {
+    public func createConvoy(name: String, destination: ConvoyDestination?, routePolyline: String?) async throws -> ConvoyInvite {
         _ = try me()
         let code = String((0..<6).map { _ in "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".randomElement()! })
         return ConvoyInvite(id: ConvoyID(raw: UUID().uuidString.lowercased()), joinCode: code)

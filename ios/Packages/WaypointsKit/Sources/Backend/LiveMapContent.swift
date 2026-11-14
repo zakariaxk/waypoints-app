@@ -104,6 +104,42 @@ struct LiveMeets: MeetRepository {
             return row.model
         }
     }
+
+    func isCheckedIn(_ meet: MeetID) async throws -> Bool {
+        let me = try ctx.me()
+        return try await ctx.run {
+            struct Row: Decodable { let userId: UUID }
+            let rows: [Row] = try await ctx.table("meet_checkins").select("user_id").eq("meet_id", value: meet.key)
+                .eq("user_id", value: me.key).limit(1).execute().value
+            return !rows.isEmpty
+        }
+    }
+
+    func myChoice(for meet: MeetID) async throws -> CarID? {
+        let me = try ctx.me()
+        return try await ctx.run {
+            struct Row: Decodable { let carId: UUID }
+            let rows: [Row] = try await ctx.table("meet_votes").select("car_id").eq("meet_id", value: meet.key)
+                .eq("voter_id", value: me.key).limit(1).execute().value
+            return rows.first.map { CarID(raw: $0.carId) }
+        }
+    }
+
+    func setChoice(_ car: CarID?, for meet: MeetID) async throws {
+        let me = try ctx.me()
+        struct Body: Encodable { let meetId: UUID; let voterId: UUID; let carId: UUID }
+        try await ctx.run {
+            if let car {
+                _ = try await ctx.table("meet_votes")
+                    .upsert(Body(meetId: meet.raw, voterId: me.raw, carId: car.raw), onConflict: "meet_id,voter_id",
+                            returning: .minimal)
+                    .execute()
+            } else {
+                _ = try await ctx.table("meet_votes").delete(returning: .minimal).eq("meet_id", value: meet.key)
+                    .eq("voter_id", value: me.key).execute()
+            }
+        }
+    }
 }
 
 /// `reports` (read). Posting and voting go through the gateway.

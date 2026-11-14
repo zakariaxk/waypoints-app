@@ -85,9 +85,10 @@ public struct LiveGatewayService: GatewayService {
 
     // MARK: Convoys
 
-    public func createConvoy(name: String, destination: ConvoyDestination?) async throws -> ConvoyInvite {
+    public func createConvoy(name: String, destination: ConvoyDestination?, routePolyline: String?) async throws -> ConvoyInvite {
         try await client.send("POST", "v1/convoys",
-                              body: CreateConvoyBody(name: name, destination: destination.map(PlaceDTO.init)),
+                              body: CreateConvoyBody(name: name, destination: destination.map(PlaceDTO.init),
+                                                     routePolyline: routePolyline),
                               as: ConvoyInvite.self)
     }
 

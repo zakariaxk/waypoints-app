@@ -227,6 +227,9 @@ func (s *Service) changed(ctx context.Context, c *Convoy) {
 	}
 }
 
+// maxPolyline caps a convoy route: a saved road is at most a few thousand points.
+const maxPolyline = 64 << 10
+
 const codeAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
 func randomCode(n int) string {
@@ -250,8 +253,10 @@ func (s *Service) create(w http.ResponseWriter, r *http.Request, cl auth.Claims)
 	var b struct {
 		Name        string `json:"name"`
 		Destination *place `json:"destination"`
+		// Encoded polyline (precision 5) the convoy drives, e.g. a cruise's saved road (MEET-13).
+		Polyline string `json:"route_polyline"`
 	}
-	if api.Decode(r, &b) != nil || len([]rune(b.Name)) > 40 {
+	if api.Decode(r, &b) != nil || len([]rune(b.Name)) > 40 || len(b.Polyline) > maxPolyline {
 		api.Error(w, http.StatusBadRequest, "bad body")
 		return
 	}
@@ -261,7 +266,7 @@ func (s *Service) create(w http.ResponseWriter, r *http.Request, cl auth.Claims)
 		return
 	}
 	c := &Convoy{ID: randomCode(12), JoinCode: randomCode(6), Name: b.Name, LeaderID: cl.UserID, LeaderUID: uid,
-		MemberUIDs: []uint64{uid}, Destination: b.Destination}
+		MemberUIDs: []uint64{uid}, Destination: b.Destination, Polyline: b.Polyline}
 	s.mu.Lock()
 	s.byID[c.ID] = c
 	s.byCode[c.JoinCode] = c.ID

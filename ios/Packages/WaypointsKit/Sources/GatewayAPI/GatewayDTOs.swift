@@ -74,6 +74,7 @@ struct PlaceDTO: Codable, Sendable {
 struct CreateConvoyBody: Encodable, Sendable {
     var name: String
     var destination: PlaceDTO?
+    var routePolyline: String?
 }
 
 struct MeetBody: Encodable, Sendable {
@@ -91,12 +92,14 @@ struct MeetBody: Encodable, Sendable {
     /// The zone a series repeats in, so "Saturdays 8 AM" holds across daylight saving.
     var timeZone: String
     var destination: PlaceDTO?
+    var roadId: RoadID?
 
     init(_ d: MeetDraft) {
         title = d.title; kind = d.kind; lat = d.coordinate.latitude; lng = d.coordinate.longitude
         placeName = d.placeName; startsAt = d.startsAt; endsAt = d.endsAt; details = d.details
         visibility = d.visibility; teamId = d.teamID
         recurrence = d.recurrence; timeZone = TimeZone.current.identifier; destination = d.destination.map(PlaceDTO.init)
+        roadId = d.roadID
     }
 }
 
@@ -139,12 +142,15 @@ struct MeetDTO: Decodable, Sendable {
     var recurrence: MeetRecurrence?
     var seriesId: UUID?
     var destination: PlaceDTO?
+    var roadId: RoadID?
+    var winnerCarId: CarID?
 
     var model: Meet {
         Meet(id: id, hostID: hostId, title: title, kind: kind, coordinate: Coordinate(latitude: lat, longitude: lng),
              placeName: placeName, startsAt: startsAt, endsAt: endsAt, details: details ?? "", visibility: visibility,
              teamID: teamId, cancelledAt: cancelledAt, createdAt: createdAt ?? .now,
-             recurrence: recurrence, seriesID: seriesId, destination: destination?.model)
+             recurrence: recurrence, seriesID: seriesId, destination: destination?.model, roadID: roadId,
+             winnerCarID: winnerCarId)
     }
 }
 

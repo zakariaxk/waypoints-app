@@ -64,9 +64,6 @@ final class ConvoyStore {
                 switch event {
                 case let .convoy(s):
                     if s.ended {
-                        if UserDefaults.standard.string(forKey: "convoy.id") == s.id.raw {
-                            UserDefaults.standard.removeObject(forKey: "convoy.id")
-                        }
                         guard s.id == self.state?.id else { break }
                         self.state = nil
                         if !self.ending { self.ended = true }
@@ -88,6 +85,29 @@ final class ConvoyStore {
         Task { [weak self] in
             for await s in await env.location.samples() { self?.me = s.coordinate }
         }
+        // Core's active convoy: picks up a convoy joined elsewhere, e.g. a cruise's Roll out (MEET-13).
+        Task { [weak self] in
+            for await active in await env.realtime.activeConvoy() {
+                guard let self else { return }
+                guard let active, active.id != self.state?.id else { continue }
+                self.state = active.memberUIDs.isEmpty
+                    ? ConvoyState(id: active.id, leaderUID: self.myUID ?? 0, memberUIDs: self.myUID.map { [$0] } ?? [],
+                                  destination: active.destination, routePolyline: active.routePolyline)
+                    : active
+                self.ended = false
+            }
+        }
+    }
+
+    /// Takes on a convoy this device already joined, with the code it was shared under.
+    func adopt(code: String) async {
+        guard let active = await env.realtime.currentConvoy() else { return }
+        if state?.id != active.id {
+            state = active.memberUIDs.isEmpty
+                ? ConvoyState(id: active.id, leaderUID: myUID ?? 0, memberUIDs: myUID.map { [$0] } ?? [])
+                : active
+        }
+        self.code = code.uppercased()
     }
 
     var members: [Member] {
@@ -121,23 +141,20 @@ final class ConvoyStore {
         let invite = try await env.gateway.createConvoy(name: name, destination: destination)
         code = invite.joinCode
         self.name = name
-        UserDefaults.standard.set(invite.id.raw, forKey: "convoy.id")
-        await env.realtime.joinConvoy(invite.id)
         state = ConvoyState(id: invite.id, leaderUID: myUID ?? 0, memberUIDs: myUID.map { [$0] } ?? [], destination: destination)
+        await env.realtime.joinConvoy(invite.id)
     }
 
     func join(code: String) async throws {
         let s = try await env.gateway.joinConvoy(code: code)
         state = s
         self.code = code.uppercased()
-        UserDefaults.standard.set(s.id.raw, forKey: "convoy.id")
         await env.realtime.joinConvoy(s.id)
     }
 
     func leave() async {
         await env.realtime.leaveConvoy()
         state = nil
-        UserDefaults.standard.removeObject(forKey: "convoy.id")
     }
 
     func end() async {
@@ -304,7 +321,7 @@ struct ConvoySheet: View {
             VStack(alignment: .leading, spacing: Space.s16) {
                 if store.state != nil, let c = store.code {
                     Text(verbatim: c).typeStyle(.readoutL).foregroundStyle(Color.chalk)
-                    if let url = URL(string: "waypoints://invite/convoy/\(c)") {
+                    if let url = Route.joinConvoy(code: c).shareURL {
                         ShareLink(item: url) { Text("Share invite").typeStyle(.bodyStrong).foregroundStyle(Color.sodium) }
                     }
                     if !friends.isEmpty {
@@ -356,6 +373,8 @@ struct ConvoySheet: View {
         }
         .presentationDetents([.medium])
         .task {
+            // Roll out (MEET-13) joins before opening this sheet with the code: show the invite, not the join form.
+            if store.state == nil, !code.isEmpty { await store.adopt(code: code) }
             if name.isEmpty, let p = try? await store.env.profiles.myProfile() { name = "\(p.displayName)'s convoy" }
             friends = (try? await store.env.friends.friends()) ?? []
         }

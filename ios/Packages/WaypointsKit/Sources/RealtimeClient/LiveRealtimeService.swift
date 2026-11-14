@@ -53,6 +53,9 @@ public actor LiveRealtimeService: RealtimeService {
     // Desired state, replayed after every `Hello`.
     private var viewport: MapRegion?
     private var convoy: ConvoyID?
+    /// What `activeConvoy()` reports: the joined convoy's latest state.
+    private var convoyState: ConvoyState?
+    private var convoyBroadcast = Broadcast<ConvoyState?>()
     private var zones: [HomeZone] = []
 
     private var started = false
@@ -124,6 +127,7 @@ public actor LiveRealtimeService: RealtimeService {
     public func joinConvoy(_ id: ConvoyID) {
         start()
         convoy = id
+        if convoyState?.id != id { setConvoy(ConvoyState(id: id, leaderUID: 0, memberUIDs: [])) }
         outbox?.yield(WireMapping.join(id))
     }
 
@@ -131,7 +135,21 @@ public actor LiveRealtimeService: RealtimeService {
         start()
         guard convoy != nil else { return }
         convoy = nil
+        setConvoy(nil)
         outbox?.yield(WireMapping.leave())
+    }
+
+    public func activeConvoy() -> AsyncStream<ConvoyState?> {
+        start()
+        return convoyBroadcast.subscribe(initial: .some(convoyState))
+    }
+
+    public func currentConvoy() -> ConvoyState? { convoyState }
+
+    private func setConvoy(_ new: ConvoyState?) {
+        guard new != convoyState else { return }
+        convoyState = new
+        convoyBroadcast.send(new)
     }
 
     public func diagnostics() -> RealtimeDiagnostics {
@@ -330,7 +348,11 @@ public actor LiveRealtimeService: RealtimeService {
             // not worth retrying. UNAUTHORIZED retries with a freshly refreshed token.
             if error.code == .protocolVersion { throw ConnectionEnd.fatal }
         case .convoy(let state):
-            eventBroadcast.send(.convoy(WireMapping.convoy(state)))
+            let model = WireMapping.convoy(state)
+            if model.id == convoy {
+                if model.ended { convoy = nil; setConvoy(nil) } else { setConvoy(model) }
+            }
+            eventBroadcast.send(.convoy(model))
         case .mapEvent(let event):
             if let event = WireMapping.mapEvent(event) { eventBroadcast.send(.mapEvent(event)) }
         case nil:

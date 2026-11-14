@@ -30,7 +30,8 @@ public protocol GatewayService: Sendable {
     func cancelMeetAndFollowing(_ id: MeetID) async throws
 
     // Convoys
-    func createConvoy(name: String, destination: ConvoyDestination?) async throws -> ConvoyInvite
+    /// `routePolyline`: Google encoded polyline (precision 5) the convoy drives, e.g. a saved road (MEET-13).
+    func createConvoy(name: String, destination: ConvoyDestination?, routePolyline: String?) async throws -> ConvoyInvite
     func joinConvoy(code: String) async throws -> ConvoyState
     func setConvoyDestination(_ id: ConvoyID, _ destination: ConvoyDestination) async throws
     func setConvoyRegroup(_ id: ConvoyID, at coordinate: Coordinate) async throws
@@ -64,4 +65,10 @@ public struct ETAShareResult: Hashable, Sendable, Codable {
     public var sent: Int
     public var onTheWay: Bool
     public init(sent: Int, onTheWay: Bool) { self.sent = sent; self.onTheWay = onTheWay }
+}
+
+public extension GatewayService {
+    func createConvoy(name: String, destination: ConvoyDestination?) async throws -> ConvoyInvite {
+        try await createConvoy(name: name, destination: destination, routePolyline: nil)
+    }
 }

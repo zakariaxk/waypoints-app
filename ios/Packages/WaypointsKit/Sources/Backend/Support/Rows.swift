@@ -222,6 +222,8 @@ struct MeetRow: Decodable, Sendable {
     let destLat: Double?
     let destLng: Double?
     let destName: String?
+    let roadId: UUID?
+    let winnerCarId: UUID?
 
     var model: Meet {
         let coordinate = latitude.flatMap { lat in longitude.map { Coordinate(latitude: lat, longitude: $0) } }
@@ -232,7 +234,7 @@ struct MeetRow: Decodable, Sendable {
                     createdAt: createdAt ?? .distantPast, recurrence: recurrence, seriesID: seriesId,
                     destination: destLat.flatMap { lat in destLng.map {
                         ConvoyDestination(coordinate: Coordinate(latitude: lat, longitude: $0), name: destName ?? "")
-                    } })
+                    } }, roadID: roadId.map(RoadID.init(raw:)), winnerCarID: winnerCarId.map(CarID.init(raw:)))
     }
 }
 

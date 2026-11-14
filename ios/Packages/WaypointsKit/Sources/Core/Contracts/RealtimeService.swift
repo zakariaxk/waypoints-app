@@ -8,6 +8,12 @@ public protocol RealtimeService: Sendable {
     func send(_ sample: LocationSample) async
     func joinConvoy(_ id: ConvoyID) async
     func leaveConvoy() async
+    /// The convoy this device is in, nil when none (CNV). Replays the current value to each new
+    /// consumer, then follows `joinConvoy`, `leaveConvoy`, and the gateway's `ConvoyState`
+    /// frames (an ended convoy becomes nil). Until the first frame after `joinConvoy` the state
+    /// carries only the id.
+    func activeConvoy() async -> AsyncStream<ConvoyState?>
+    func currentConvoy() async -> ConvoyState?
 }
 
 public enum ServerEvent: Sendable {
