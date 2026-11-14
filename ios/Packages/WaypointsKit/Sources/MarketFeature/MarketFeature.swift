@@ -1,4 +1,5 @@
 import Core
+import CoreLocation
 import DesignSystem
 import PhotosUI
 import SwiftUI
@@ -22,6 +23,26 @@ enum Price {
     static func text(_ cents: Int) -> String {
         (Double(cents) / 100).formatted(.currency(code: Locale.current.currency?.identifier ?? "USD").precision(.fractionLength(0)))
     }
+}
+
+/// SET-3: distances follow the device's locale.
+enum Units {
+    static var metric: Bool { Locale.current.measurementSystem == .metric }
+    static var meters: Double { metric ? 1000 : 1609.344 }
+    static var name: String { metric ? "km" : "mi" }
+}
+
+/// The phone's last known position, rounded to 0.1 degree before it is used anywhere (MKT-1).
+enum Coarse {
+    static func here() -> Coordinate? {
+        guard let l = CLLocationManager().location else { return nil }
+        return Coordinate(latitude: (l.coordinate.latitude * 10).rounded() / 10, longitude: (l.coordinate.longitude * 10).rounded() / 10)
+    }
+}
+
+/// SAFE-9: the server's abuse limits get their own line; everything else gets the fallback.
+func message(for error: any Error, fallback: String) -> String {
+    (error as? WaypointsError) == .rateLimited ? String(localized: "You're doing that a lot. Try again in a few minutes.") : fallback
 }
 
 extension ListingCategory {
@@ -86,6 +107,9 @@ struct Browse: View {
     @State private var maxPrice = ""
     @State private var conditions: Set<ListingCondition> = []
     @State private var category: ListingCategory?
+    /// Distance in the locale's unit (5, 25, 50, 100), nil for any (MKT-1).
+    @State private var within: Int?
+    @State private var here: Coordinate?
 
     /// Price and condition narrow the loaded results (K1 filter sheet).
     private var shown: [Listing] {
@@ -98,7 +122,9 @@ struct Browse: View {
     private var filter: ListingFilter {
         ListingFilter(kind: kind, query: query.isEmpty ? nil : query,
                       fits: kind != .car ? fitsCar.map { Fitment(make: $0.make, model: $0.model, yearFrom: $0.year, yearTo: $0.year) } : nil,
-                      category: kind != .car ? category : nil)
+                      near: within == nil ? nil : here,
+                      category: kind != .car ? category : nil,
+                      radiusMeters: within.map { Int(Double($0) * Units.meters) })
     }
 
     var body: some View {
@@ -180,13 +206,25 @@ struct Browse: View {
                             }
                         }
                     }
-                    QuietButton("Clear") { minPrice = ""; maxPrice = ""; conditions = []; category = nil }
+                    Text("Distance").typeStyle(.foot).foregroundStyle(Color.dust)
+                    HStack(spacing: Space.s8) {
+                        ForEach([5, 25, 50, 100], id: \.self) { n in
+                            Chip("\(n) \(Units.name)", isSelected: within == n) { within = n; if here == nil { here = Coarse.here() } }
+                        }
+                        Chip("Any", isSelected: within == nil) { within = nil }
+                    }
+                    if within != nil {
+                        Text(here == nil ? "Turn on location to filter by distance." : "Distance is approximate.")
+                            .typeStyle(.foot).foregroundStyle(Color.dust)
+                    }
+                    QuietButton("Clear") { minPrice = ""; maxPrice = ""; conditions = []; category = nil; within = nil }
                 }
                 .padding(Space.margin)
             }
             .presentationDetents([.medium])
         }
         .task {
+            here = Coarse.here()
             if let me = await env.auth.currentSession()?.userID {
                 cars = (try? await env.garage.cars(of: me)) ?? []
                 if fitsCar == nil { fitsCar = cars.first }
@@ -272,6 +310,9 @@ struct ListingScreen: View {
                             if l.status == .sold {
                                 Text(l.kind == .wanted ? "Found" : "Sold").typeStyle(.label).foregroundStyle(Color.brake)
                             }
+                            if l.sellerID == me, l.isExpired() {
+                                Text("Expired").typeStyle(.label).foregroundStyle(Color.dust)
+                            }
                         }
                         if l.kind == .wanted {
                             Text(verbatim: l.region).typeStyle(.sub).foregroundStyle(Color.dust)
@@ -323,7 +364,10 @@ struct ListingScreen: View {
             Text("Meet in a public place. Waypoints doesn't handle payment.").typeStyle(.foot).foregroundStyle(Color.dust)
             HStack(spacing: Space.s12) {
                 if l.sellerID == me {
-                    if l.status != .sold {
+                    if l.isExpired() {
+                        PrimaryButton("Relist") { Task { try? await env.market.relist(l.id); await load() } }
+                        SecondaryButton("Edit") { editing = true }
+                    } else if l.status != .sold {
                         PrimaryButton(l.kind == .wanted ? "Mark as found" : "Mark as sold") {
                             Task { try? await env.market.setStatus(.sold, for: l.id); await load() }
                         }
@@ -409,10 +453,32 @@ struct ListSomething: View {
                 VStack(alignment: .leading, spacing: Space.s16) {
                     ScrollView(.horizontal) {
                         HStack(spacing: Space.s8) {
-                            ForEach(Array(images.enumerated()), id: \.offset) { _, d in
+                            ForEach(Array(images.enumerated()), id: \.offset) { i, d in
                                 if let ui = UIImage(data: d) {
                                     Image(uiImage: ui).resizable().scaledToFill().frame(width: Size.row * 1.6, height: Size.row * 1.6)
                                         .clipShape(RoundedRectangle(cornerRadius: Radius.r12))
+                                        .overlay(alignment: .bottomLeading) {
+                                            if i == 0 {
+                                                Text("Cover").typeStyle(.label).foregroundStyle(Color.chalk)
+                                                    .padding(Space.s4).background(Color.asphalt, in: RoundedRectangle(cornerRadius: Radius.r6))
+                                                    .padding(Space.s4)
+                                            }
+                                        }
+                                        .draggable(String(i)) {
+                                            Image(uiImage: ui).resizable().scaledToFill().frame(width: Size.row, height: Size.row)
+                                                .clipShape(RoundedRectangle(cornerRadius: Radius.r6))
+                                        }
+                                        .dropDestination(for: String.self) { dropped, _ in
+                                            guard let from = dropped.first.flatMap { Int($0) }, images.indices.contains(from), from != i else { return false }
+                                            images.move(fromOffsets: IndexSet(integer: from), toOffset: from < i ? i + 1 : i)
+                                            return true
+                                        }
+                                        .accessibilityLabel(i == 0 ? Text("Cover photo") : Text("Photo \(i + 1)"))
+                                        .accessibilityActions {
+                                            if i > 0 { Button("Make cover") { images.move(fromOffsets: IndexSet(integer: i), toOffset: 0) } }
+                                            if i > 0 { Button("Move left") { images.swapAt(i, i - 1) } }
+                                            if i < images.count - 1 { Button("Move right") { images.swapAt(i, i + 1) } }
+                                        }
                                 }
                             }
                             if images.count < 8, editing == nil {
@@ -424,6 +490,9 @@ struct ListSomething: View {
                                 .accessibilityLabel(Text("Add photos"))
                             }
                         }
+                    }
+                    if images.count > 1 {
+                        Text("Drag to reorder. The first photo is the cover.").typeStyle(.foot).foregroundStyle(Color.dust)
                     }
                     Text("What is it?").typeStyle(.foot).foregroundStyle(Color.dust)
                     SegmentedSwitch(selection: $kind, options: [(.part, "Part"), (.car, "Car"), (.wanted, "Wanted")])
@@ -511,7 +580,7 @@ struct ListSomething: View {
                     _ = try await env.market.updateListing(l)
                     dismiss()
                 } catch {
-                    self.error = "Couldn't save it. Check your connection and try again."
+                    self.error = message(for: error, fallback: "Couldn't save it. Check your connection and try again.")
                 }
                 saving = false
                 return
@@ -523,10 +592,10 @@ struct ListSomething: View {
                                                                    condition: condition, description: description,
                                                                    fits: kind == .car ? nil : fits,
                                                                    carID: kind == .car ? car?.id : nil, region: region,
-                                                                   photoPaths: paths, category: cat))
+                                                                   photoPaths: paths, category: cat, near: Coarse.here()))
                 dismiss()
             } catch {
-                self.error = "Couldn't list it. Check your connection and try again."
+                self.error = message(for: error, fallback: "Couldn't list it. Check your connection and try again.")
             }
             saving = false
         }
@@ -540,15 +609,24 @@ struct Yours: View {
     @State private var tab = 0
     @State private var selling: [Listing] = []
     @State private var saved: [Listing] = []
+    @State private var error: String?
+    @State private var listing = false
 
     var body: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 0) {
+        // A plain List only for its swipe actions (K4); rows keep the Row look on asphalt.
+        List {
+            Group {
                 SegmentedSwitch(selection: $tab, options: [(0, "Selling"), (1, "Saved")]).padding(Space.margin)
+                if let error {
+                    Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake).padding(.horizontal, Space.margin)
+                }
                 let list = tab == 0 ? selling : saved
                 if list.isEmpty {
-                    Text(tab == 0 ? "You haven't listed anything." : "Nothing saved yet.").typeStyle(.body).foregroundStyle(Color.dust)
-                        .padding(Space.margin)
+                    VStack(alignment: .leading, spacing: Space.s8) {
+                        Text(tab == 0 ? "You haven't listed anything." : "Nothing saved yet.").typeStyle(.body).foregroundStyle(Color.dust)
+                        if tab == 0 { QuietButton("List something") { listing = true } }
+                    }
+                    .padding(Space.margin)
                 }
                 ForEach(list) { l in
                     Button { env.router.open(.listing(l.id)) } label: {
@@ -557,22 +635,53 @@ struct Yours: View {
                                       cornerRadius: Radius.r6, label: Text(verbatim: l.title))
                                 .frame(width: Size.hitTarget, height: Size.hitTarget)
                         }, trailing: {
-                            Text(verbatim: l.kind == .wanted && l.status == .sold ? "Found" : l.status.rawValue.capitalized).typeStyle(.foot)
+                            status(l).typeStyle(.foot)
                         })
                     }
                     .buttonStyle(RowButtonStyle())
-                    .contextMenu {
-                        if tab == 0 {
-                            Button("Sold") { Task { try? await env.market.setStatus(.sold, for: l.id); await load() } }
-                            Button("Remove", role: .destructive) { Task { try? await env.market.setStatus(.removed, for: l.id); await load() } }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        if tab == 0, l.status != .removed {
+                            Button("Remove", role: .destructive) { act { try await env.market.setStatus(.removed, for: l.id) } }
+                                .tint(Color.brake)
+                            if l.isExpired() {
+                                Button("Relist") { act { try await env.market.relist(l.id) } }.tint(Color.sodium)
+                            } else if l.status != .sold {
+                                Button(l.kind == .wanted ? "Found" : "Sold") { act { try await env.market.setStatus(.sold, for: l.id) } }
+                                    .tint(Color.sodium)
+                            }
                         }
                     }
                 }
             }
+            .listRowInsets(EdgeInsets())
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.asphalt)
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
         .background(Color.asphalt.ignoresSafeArea())
         .navigationTitle("Yours")
+        .sheet(isPresented: $listing, onDismiss: { Task { await load() } }) { ListSomething(env: env) }
         .task { await load() }
+        .refreshable { await load() }
+    }
+
+    private func status(_ l: Listing) -> Text {
+        if l.isExpired() { return Text("Expired") }
+        if l.status == .sold { return l.kind == .wanted ? Text("Found") : Text("Sold") }
+        return Text(verbatim: l.status.rawValue.capitalized)
+    }
+
+    private func act(_ op: @escaping @Sendable @MainActor () async throws -> Void) {
+        Task {
+            do {
+                try await op()
+                error = nil
+            } catch {
+                self.error = message(for: error, fallback: "Couldn't change it. Check your connection and try again.")
+            }
+            await load()
+        }
     }
 
     private func load() async {
