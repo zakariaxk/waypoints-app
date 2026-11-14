@@ -459,6 +459,8 @@ RPCs (security definer, `stable`): `reports_in_bbox(min_lng, min_lat, max_lng, m
 
 Storage buckets: `avatars`, `cars`, `posts`, `listings`, `spots`, `teams`, `messages` (public read, owner write under `<user_id>/`), and `catalog` (public read, service write).
 
+Contract change: (W6-8) RPC `feed_for_you(after int, lim int) returns setof posts` serves "For you": posts whose author shares the viewer's `profiles.home_region` (case-insensitive), or whose author's last presence cell has the same H3 resolution-4 parent as the viewer's (`h3_parent_r4`), come first; inside each tier the order is `ln(1 + like_count) - age_in_days`, then newest. Blocked pairs are excluded; paging is by offset (`PageCursor.raw` is the offset). `PostRepository` gains `forYou(after:limit:)` (this RPC) and `followingFeed(after:limit:)` (posts by `follows` followees, newest first). RPC `showdown_week_top(cls, week_start default this week, lim) returns (car_id, week_wins)` defines the Showdown week: votes won from Monday 00:00 UTC to the next Monday, ties by rating; `rankings(period: .week)` reads it. `showdown_close_week(week_start default last week)` (service role only) awards `showdown_top10` to the owners of each class's top 10 and is scheduled by pg_cron as `showdown-close-week`, `0 0 * * 1` (pg_cron must be enabled on the project).
+
 ---
 
 ## 6. Wire protocol
