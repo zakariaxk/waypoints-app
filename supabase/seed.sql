@@ -1,7 +1,9 @@
 -- W0-C: local seed data. Philadelphia and South Jersey.
 -- 12 drivers, 20 cars, 6 meets, 30 reports, 3 teams, plus friendships,
 -- RSVPs, channel messages, roads, venue notes, and listings.
--- Sign in locally with any seeded email and the one-time code from Inbucket.
+-- Sign in locally with any seeded email and the password `waypoints-dev` (the app's
+-- `-wp-login <handle>` launch argument does this in debug builds), or with the
+-- one-time code from Inbucket.
 -- Times are relative to now() so meets stay upcoming and reports stay live.
 -- h3_* columns are left null; the gateway fills them on write.
 
@@ -34,7 +36,7 @@ insert into auth.users (
 select
   '00000000-0000-0000-0000-000000000000',
   format('a0000000-0000-4000-8000-%s', lpad(n::text, 12, '0'))::uuid,
-  'authenticated', 'authenticated', email, '', now() - interval '60 days',
+  'authenticated', 'authenticated', email, extensions.crypt('waypoints-dev', extensions.gen_salt('bf')), now() - interval '60 days',
   '{"provider": "email", "providers": ["email"]}',
   jsonb_build_object('handle', handle, 'display_name', display_name),
   now() - interval '60 days' + n * interval '2 days', now(),
@@ -351,3 +353,176 @@ values
    'Bought a spare set and never needed it. Still sealed.', 'Volkswagen', 'Jetta', 1999, 2005, 'Haddonfield'),
   ('a0000000-0000-4000-8000-000000000010', 'part', 'Enkei RPF1 17x9 +35, 5x114.3', 95000, 'used',
    'Set of four, minor rash on one. Tires are bald, priced as wheels only.', 'Nissan', '350Z', 2003, 2008, 'Deptford');
+
+-- Since W0-C ----------------------------------------------------------------
+-- Rows for every table and column added after the first seed: listing
+-- categories and a wanted listing (W7-6), a recurring meet series and a cruise
+-- destination (W7-3), meet check-ins (W5-5), help requests (W7-4),
+-- notifications (W7-2), moderation columns (W7-1), a live convoy (W2-1),
+-- plus a few posts and Showdown entries so those screens are not empty.
+
+-- Market categories (MKT-7) and a wanted listing (MKT-8, price is the budget).
+update public.listings set category = 'suspension'       where title like 'Bilstein%';
+update public.listings set category = 'engine'           where title like 'Coil pack%';
+update public.listings set category = 'wheels_tires'     where title like 'Enkei%';
+
+insert into public.listings (seller_id, kind, category, title, price_cents, condition, description, fits_make, fits_model, fits_year_from, fits_year_to, region)
+values
+  ('a0000000-0000-4000-8000-000000000005', 'wanted', 'drivetrain', 'Wanted: E30 Getrag 260 five-speed', 120000, 'used',
+   'Swapping the 318is from auto. Bellhousing, shifter, and driveshaft a plus.', 'BMW', '318is', 1987, 1991, 'Voorhees'),
+  ('a0000000-0000-4000-8000-000000000008', 'part', 'exhaust', 'Tomei Expreme Ti cat-back, FA20', 65000, 'used',
+   'Off the 86. Loud on cold starts, tolerable on the highway. No dents.', 'Toyota', '86', 2017, 2020, 'Moorestown'),
+  ('a0000000-0000-4000-8000-000000000011', 'part', 'lighting', 'OEM Supra smoked tail lights', 30000, 'new',
+   'Dealer take-offs from a 2023, still in the boxes.', 'Toyota', 'GR Supra', 2020, 2024, 'Medford');
+
+-- A recurring weekly meet (MEET-12): last week's occurrence has ended, this
+-- week's is upcoming, same series. And a cruise destination for Roll out (MEET-13).
+insert into public.meets (id, host_id, title, kind, geom, place_name, starts_at, ends_at, details, visibility,
+                          recurrence, series_id, time_zone)
+values
+  ('d0000000-0000-4000-8000-000000000007', 'a0000000-0000-4000-8000-000000000009',
+   'Thursday night Wawa run', 'hangout',
+   st_setsrid(st_makepoint(-74.9221, 39.8731), 4326)::geography, 'Wawa, Marlton Pike, Cherry Hill',
+   date_trunc('day', now()) - interval '7 days' + interval '23 hours 30 minutes',
+   date_trunc('day', now()) - interval '7 days' + interval '25 hours 30 minutes',
+   'Every Thursday. Coffee, a lap of Route 70, home by midnight.', 'public',
+   'weekly', '5e000000-0000-4000-8000-000000000001', 'America/New_York'),
+  ('d0000000-0000-4000-8000-000000000008', 'a0000000-0000-4000-8000-000000000009',
+   'Thursday night Wawa run', 'hangout',
+   st_setsrid(st_makepoint(-74.9221, 39.8731), 4326)::geography, 'Wawa, Marlton Pike, Cherry Hill',
+   date_trunc('day', now()) + interval '23 hours 30 minutes',
+   date_trunc('day', now()) + interval '25 hours 30 minutes',
+   'Every Thursday. Coffee, a lap of Route 70, home by midnight.', 'public',
+   'weekly', '5e000000-0000-4000-8000-000000000001', 'America/New_York');
+
+update public.meets
+set dest_lat = 39.6469, dest_lng = -74.6368, dest_name = 'Batsto Village'
+where id = 'd0000000-0000-4000-8000-000000000002';
+
+insert into public.meet_rsvps (meet_id, user_id, status, car_id)
+select ('d0000000-0000-4000-8000-00000000000' || r.m)::uuid, format('a0000000-0000-4000-8000-%s', lpad(r.u::text, 12, '0'))::uuid,
+       'going', (select id from public.cars where owner_id = format('a0000000-0000-4000-8000-%s', lpad(r.u::text, 12, '0'))::uuid order by sort limit 1)
+from (values (7, 9), (7, 1), (7, 10), (7, 3), (7, 5), (8, 9), (8, 1), (8, 10)) as r(m, u);
+
+-- Check-ins at last week's run (MEET-7): first_meet for each, host_3 progress for the host.
+insert into public.meet_checkins (meet_id, user_id, created_at)
+select 'd0000000-0000-4000-8000-000000000007', format('a0000000-0000-4000-8000-%s', lpad(u::text, 12, '0'))::uuid,
+       date_trunc('day', now()) - interval '7 days' + interval '23 hours 45 minutes'
+from unnest(array[9, 1, 10, 3, 5]) as u;
+
+-- Help requests (HELP-1..7): one active flat tire on Route 130 shown nearby, one ended.
+insert into public.help_requests (id, requester_id, kind, geom, note, show_nearby, expires_at, ended_at, created_at)
+values
+  ('4e000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000007', 'flat_tire',
+   st_setsrid(st_makepoint(-75.0402, 39.9622), 4326)::geography,
+   'Right rear on the Fox, pulled into the Sunoco on 130. Have a spare, no jack.', true,
+   now() + interval '45 minutes', null, now() - interval '15 minutes'),
+  ('4e000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000004', 'jump_start',
+   st_setsrid(st_makepoint(-75.1307, 39.9726), 4326)::geography,
+   'Miata battery died at the Frankford Ave lot.', false,
+   now() - interval '2 days' + interval '60 minutes', now() - interval '2 days' + interval '25 minutes', now() - interval '2 days');
+
+insert into public.help_responses (request_id, user_id, created_at)
+values
+  ('4e000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000004', now() - interval '10 minutes'),
+  ('4e000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000012', now() - interval '2 days' + interval '5 minutes');
+
+-- Posts (FEED). Video paths point at the posts bucket; the files are not seeded.
+insert into public.posts (id, author_id, car_id, video_path, poster_path, caption, duration_ms, created_at)
+values
+  ('90000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001', 'c0000000-0000-4000-8000-000000000001',
+   'a0000000-0000-4000-8000-000000000001/90000000-0000-4000-8000-000000000001.mp4',
+   'a0000000-0000-4000-8000-000000000001/90000000-0000-4000-8000-000000000001.jpg',
+   'F20C at 9k on the 206 on-ramp. Nothing else sounds like this.', 14000, now() - interval '5 hours'),
+  ('90000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000011', 'c0000000-0000-4000-8000-000000000018',
+   'a0000000-0000-4000-8000-000000000011/90000000-0000-4000-8000-000000000002.mp4',
+   'a0000000-0000-4000-8000-000000000011/90000000-0000-4000-8000-000000000002.jpg',
+   'Renaissance Red at golden hour, Batsto lake.', 9000, now() - interval '1 day'),
+  ('90000000-0000-4000-8000-000000000003', 'a0000000-0000-4000-8000-000000000008', 'c0000000-0000-4000-8000-000000000014',
+   'a0000000-0000-4000-8000-000000000008/90000000-0000-4000-8000-000000000003.mp4',
+   'a0000000-0000-4000-8000-000000000008/90000000-0000-4000-8000-000000000003.jpg',
+   'First start after the 4A-GE rebuild.', 22000, now() - interval '3 days');
+
+insert into public.post_likes (post_id, user_id)
+select ('90000000-0000-4000-8000-00000000000' || l.p)::uuid, format('a0000000-0000-4000-8000-%s', lpad(l.u::text, 12, '0'))::uuid
+from (values (1, 3), (1, 5), (1, 9), (2, 2), (2, 8), (3, 3), (3, 11)) as l(p, u);
+
+insert into public.post_comments (post_id, author_id, body)
+values
+  ('90000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000003', 'That VTEC crossover through the trees. Chills.'),
+  ('90000000-0000-4000-8000-000000000003', 'a0000000-0000-4000-8000-000000000012', 'Sounds healthy. How many break-in miles left?');
+
+-- Showdown (SHOW): a few entries in two classes.
+insert into public.showdown_entries (car_id, rating, wins, losses, class)
+values
+  ('c0000000-0000-4000-8000-000000000001', 1264, 14, 6, 'street'),
+  ('c0000000-0000-4000-8000-000000000015', 1241, 11, 7, 'street'),
+  ('c0000000-0000-4000-8000-000000000018', 1228, 9, 6, 'street'),
+  ('c0000000-0000-4000-8000-000000000003', 1190, 5, 8, 'street'),
+  ('c0000000-0000-4000-8000-000000000011', 1255, 12, 5, 'built'),
+  ('c0000000-0000-4000-8000-000000000017', 1212, 8, 7, 'built'),
+  ('c0000000-0000-4000-8000-000000000014', 1236, 10, 6, 'classic'),
+  ('c0000000-0000-4000-8000-000000000009', 1201, 6, 6, 'classic');
+
+-- Notifications (NTF-6): the triggers already wrote friend request, RSVP, like,
+-- and comment rows; these are the kinds only the gateway writes.
+insert into public.notifications (user_id, kind, actor_id, subject_url, title, body, dedupe_key, read_at, created_at)
+values
+  ('a0000000-0000-4000-8000-000000000001', 'meet_nearby', 'a0000000-0000-4000-8000-000000000012',
+   'waypoints://meet/d0000000-0000-4000-8000-000000000006', 'NJMP Thunderbolt open track', 'A meet near you, in 13 days.',
+   'seed:meet_nearby:1:6', null, now() - interval '40 minutes'),
+  ('a0000000-0000-4000-8000-000000000001', 'convoy_invite', 'a0000000-0000-4000-8000-000000000005',
+   'waypoints://invite/convoy/R70RUN', 'Jaylen Brooks invited you to a convoy', 'Route 70 loop',
+   'seed:convoy_invite:1', null, now() - interval '20 minutes'),
+  ('a0000000-0000-4000-8000-000000000001', 'meet_changed', 'a0000000-0000-4000-8000-000000000003',
+   'waypoints://meet/d0000000-0000-4000-8000-000000000002', 'Route 206 Pine Barrens cruise changed', 'Now rolling out to Batsto Village.',
+   'seed:meet_changed:1:2', now() - interval '1 hour', now() - interval '2 hours'),
+  ('a0000000-0000-4000-8000-000000000004', 'help_nearby', 'a0000000-0000-4000-8000-000000000007',
+   null, 'Ray Delgado needs a hand', 'Flat tire on Route 130.', 'seed:help:4:1', null, now() - interval '15 minutes');
+
+-- A live convoy (CNV), as the gateway mirrors it: Jaylen leads, Marcus joined.
+insert into public.convoys (id, join_code, state, ended)
+select 'R70RUNCONVOY', 'R70RUN',
+       jsonb_build_object(
+         'id', 'R70RUNCONVOY', 'join_code', 'R70RUN', 'name', 'Route 70 loop',
+         'leader_id', 'a0000000-0000-4000-8000-000000000005', 'leader_uid', l.uid,
+         'member_uids', jsonb_build_array(l.uid, m.uid),
+         'destination', jsonb_build_object('lat', 39.8905, 'lng', -74.8960, 'name', 'Marlton Circle'),
+         'route_polyline', '', 'ended', false),
+       false
+from public.profiles l, public.profiles m
+where l.user_id = 'a0000000-0000-4000-8000-000000000005' and m.user_id = 'a0000000-0000-4000-8000-000000000001';
+
+-- Moderation (SAFE-6..8): a suspended account whose listing is hidden, and an
+-- open content report against it. Written before the suspension, which blocks writes.
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+  confirmation_token, recovery_token, email_change_token_new, email_change
+)
+values ('00000000-0000-0000-0000-000000000000', 'a0000000-0000-4000-8000-000000000013',
+        'authenticated', 'authenticated', 'deals.wheels@waypoints.test',
+        extensions.crypt('waypoints-dev', extensions.gen_salt('bf')), now() - interval '10 days',
+        '{"provider": "email", "providers": ["email"]}',
+        '{"handle": "deals4wheels", "display_name": "Wheel Deals"}', now() - interval '10 days', now(),
+        '', '', '', '');
+
+insert into auth.identities (id, provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
+values (gen_random_uuid(), 'a0000000-0000-4000-8000-000000000013', 'a0000000-0000-4000-8000-000000000013',
+        '{"sub": "a0000000-0000-4000-8000-000000000013", "email": "deals.wheels@waypoints.test", "email_verified": true}',
+        'email', now(), now() - interval '10 days', now());
+
+insert into public.listings (id, seller_id, kind, category, title, price_cents, condition, description, region)
+values ('70000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000013', 'part', 'wheels_tires',
+        'Brand new forged wheels, wire deposit first', 20000, 'new',
+        'DM me your email. Shipping only, deposit by wire.', 'Camden');
+
+insert into public.content_reports (reporter_id, target_kind, target_id, reason, note)
+values
+  ('a0000000-0000-4000-8000-000000000010', 'listing', '70000000-0000-4000-8000-000000000001', 'scam', 'Wire-only deposit, new account.'),
+  ('a0000000-0000-4000-8000-000000000012', 'listing', '70000000-0000-4000-8000-000000000001', 'scam', null),
+  ('a0000000-0000-4000-8000-000000000002', 'profile', 'a0000000-0000-4000-8000-000000000013', 'spam', 'Same listing in every team.');
+
+update public.listings set hidden_at = now() - interval '1 day' where id = '70000000-0000-4000-8000-000000000001';
+update public.profiles set accepted_terms_at = now() - interval '10 days', suspended_at = now() - interval '1 day'
+where user_id = 'a0000000-0000-4000-8000-000000000013';
