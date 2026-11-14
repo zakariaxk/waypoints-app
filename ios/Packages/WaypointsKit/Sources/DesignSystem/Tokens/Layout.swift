@@ -86,6 +86,15 @@ public enum Size {
         public static let alternate: CGFloat = 4
     }
 
+    /// Power and torque curves (G6): stock thin and dashed, modded at full weight.
+    public enum Chart {
+        public static let stock: CGFloat = 1
+        public static let modded: CGFloat = 2
+        /// Dash pattern of torque lines, so hp and torque differ by more than colour.
+        public static let stockDash: [CGFloat] = [4, 3]
+        public static let moddedDash: [CGFloat] = [5, 3]
+    }
+
     /// The wide text button in a bottom bar ("End" in guidance).
     public static let wideButton: CGFloat = 90
 }
@@ -104,6 +113,8 @@ public enum Opacity {
     public static let pressed: Double = 0.6
     /// Unlit steps of the loading indicator.
     public static let inactive: Double = 0.4
+    /// Fill of an area drawn on the map, such as a home zone circle.
+    public static let areaFill: Double = 0.2
 }
 
 /// Depth (plan 9.4). Surfaces separate by fill step and a hairline; only things floating over

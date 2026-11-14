@@ -3,7 +3,7 @@ import DesignSystem
 import MapKit
 import SwiftUI
 
-/// "Add a zone" (S2): tap the map to place a 300 m circle, name it, save.
+/// "Add a zone" (S2): tap the map to place a 300 m circle, name it, save. Shown in the locale's units.
 struct HomeZoneEditor: View {
     let onSave: (HomeZone) -> Void
     @Environment(\.dismiss) private var dismiss
@@ -19,7 +19,7 @@ struct HomeZoneEditor: View {
                         UserAnnotation()
                         if let center {
                             MapCircle(center: center, radius: CLLocationDistance(HomeZone.radius))
-                                .foregroundStyle(Color.sodium.opacity(0.2))
+                                .foregroundStyle(Color.sodium.opacity(Opacity.areaFill))
                                 .stroke(Color.sodium, lineWidth: Size.Marker.ring)
                         }
                     }

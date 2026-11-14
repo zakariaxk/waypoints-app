@@ -134,7 +134,7 @@ struct PrivacyView: View {
             SectionLabel("HOME ZONES")
             ForEach(model.zones) { zone in
                 Row(Text(verbatim: zone.name), trailing: {
-                    Text(verbatim: "\(zone.radiusMeters)\(thinSpace)m").typeStyle(.readoutS)
+                    Text(verbatim: SettingsUnits.short(meters: Double(zone.radiusMeters))).typeStyle(.readoutS)
                 })
                 .contextMenu {
                     Button("Remove", role: .destructive) { model.saveZones(model.zones.filter { $0.id != zone.id }) }
@@ -287,7 +287,7 @@ struct NotificationsView: View {
                         let p = privacy
                         Task { try? await env.gateway.updatePrivacy(p) }
                     }), in: 5...50, step: 5) {
-                        Text(verbatim: "\(privacy.notifyRadiusKm)\(thinSpace)km").typeStyle(.readoutS)
+                        Text(verbatim: SettingsUnits.radius(km: privacy.notifyRadiusKm)).typeStyle(.readoutS)
                     }
                 })
             }
@@ -475,3 +475,22 @@ struct MetricKitPayloadView: View {
     }
 }
 #endif
+
+/// Distances in the device locale's units (SET-3). Stored values stay metric.
+enum SettingsUnits {
+    static var metric: Bool { Locale.current.measurementSystem == .metric }
+
+    /// The meets-nearby radius: "25 km", or "16 mi".
+    static func radius(km: Int) -> String {
+        let m = Measurement(value: Double(km), unit: UnitLength.kilometers)
+        let v = metric ? m : m.converted(to: .miles)
+        return v.formatted(.measurement(width: .abbreviated, usage: .asProvided, numberFormatStyle: .number.precision(.fractionLength(0))))
+    }
+
+    /// A short distance such as a home zone: "300 m", or "980 ft".
+    static func short(meters: Double) -> String {
+        let m = Measurement(value: meters, unit: UnitLength.meters)
+        let v = metric ? m : Measurement(value: (m.converted(to: .feet).value / 10).rounded() * 10, unit: UnitLength.feet)
+        return v.formatted(.measurement(width: .abbreviated, usage: .asProvided, numberFormatStyle: .number.precision(.fractionLength(0))))
+    }
+}

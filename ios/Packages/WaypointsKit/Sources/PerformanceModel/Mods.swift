@@ -70,7 +70,13 @@ public struct Mod: Sendable, Hashable, Identifiable {
     /// "+10 to +18 hp" on a given base power.
     public func rangeText(base: Double) -> String {
         if let abs = absolute { return "\(Int(abs.hp)) hp" }
-        if category == .weight { return "\(Int(weightDeltaLb)) lb" }
+        if category == .weight {
+            // Weight in the locale's unit (SET-3): "-25 lb" or "-11 kg".
+            let lb = Measurement(value: weightDeltaLb, unit: UnitMass.pounds)
+            let v = Locale.current.measurementSystem == .metric ? lb.converted(to: .kilograms) : lb
+            return v.formatted(.measurement(width: .abbreviated, usage: .asProvided,
+                                            numberFormatStyle: .number.precision(.fractionLength(0))))
+        }
         let lo = Int((base * hpGainPct.lowerBound / 100).rounded()), hi = Int((base * hpGainPct.upperBound / 100).rounded())
         return lo == hi ? "+\(hi) hp" : "+\(lo) to +\(hi) hp"
     }

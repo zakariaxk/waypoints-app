@@ -233,15 +233,19 @@ struct ModSimView: View {
         .onDisappear { model.synth.stop() }
     }
 
+    static var metric: Bool { Locale.current.measurementSystem == .metric }
+
     private var specsForm: some View {
         VStack(alignment: .leading, spacing: Space.s16) {
             Text("We don't have specs for this car. Enter power and weight to simulate it.").typeStyle(.body).foregroundStyle(Color.chalk)
             Field("Horsepower", text: $hp).keyboardType(.numberPad)
-            Field("Weight (lb)", text: $weight).keyboardType(.numberPad)
+            Field(Self.metric ? "Weight (kg)" : "Weight (lb)", text: $weight).keyboardType(.numberPad)
             Field("Torque (lb-ft)", text: $torque).keyboardType(.numberPad)
             Field("Redline", text: $redline).keyboardType(.numberPad)
             PrimaryButton("Enter specs") {
-                guard let h = Int(hp), let w = Int(weight) else { return }
+                guard let h = Int(hp), let entered = Int(weight) else { return }
+                // Stored in pounds; entered in the locale's unit (SET-3).
+                let w = Self.metric ? Int((Double(entered) * 2.20462).rounded()) : entered
                 Task { await model.useSpecs(hp: h, weight: w, torque: Int(torque) ?? Int(Double(h) * 0.9), redline: Int(redline) ?? 6500) }
             }
             .disabled(Int(hp) == nil || Int(weight) == nil)
@@ -256,12 +260,12 @@ struct ModSimView: View {
             ForEach(stockCurve, id: \.rpm) { p in
                 LineMark(x: .value("rpm", p.rpm), y: .value("hp", p.hp), series: .value("s", "stock hp")).foregroundStyle(Color.dust)
                 LineMark(x: .value("rpm", p.rpm), y: .value("tq", p.torque), series: .value("s", "stock tq")).foregroundStyle(Color.dust)
-                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                    .lineStyle(StrokeStyle(lineWidth: Size.Chart.stock, dash: Size.Chart.stockDash))
             }
             ForEach(modCurve, id: \.rpm) { p in
                 LineMark(x: .value("rpm", p.rpm), y: .value("hp", p.hp), series: .value("s", "hp")).foregroundStyle(Color.sodium)
                 LineMark(x: .value("rpm", p.rpm), y: .value("tq", p.torque), series: .value("s", "tq")).foregroundStyle(Color.sodium)
-                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [5, 3]))
+                    .lineStyle(StrokeStyle(lineWidth: Size.Chart.modded, dash: Size.Chart.moddedDash))
             }
             if let rpm = model.scrubRpm {
                 RuleMark(x: .value("rpm", rpm)).foregroundStyle(Color.chalk)
