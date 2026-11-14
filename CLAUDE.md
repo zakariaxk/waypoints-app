@@ -4,7 +4,12 @@ Native iOS social map for the car community. Swift 6 and SwiftUI client (iOS 18+
 
 ## Source of truth
 
-`docs/PLAN.md`. Read sections 1, 4, and 9.11 before any work, then the sections your work package names. If code and the plan disagree, fix one of them in the same commit and say which.
+Two documents, in this order of authority:
+
+1. `docs/PRD.md`: what to build, priority, the status of every requirement, and the work packages (waves 6 on). Read sections 0 and 2, your package's entry in section 8, and the requirements it names.
+2. `docs/PLAN.md`: how it is built (architecture, contracts, schema, wire protocol, design system, every screen). Read sections 1, 4, and 9.11, then the sections your requirements cite.
+
+If the PRD, the plan, and the code disagree, the higher one wins; fix the lower one in the same commit and say which. Every task names the requirement ids it serves, and updates their status in the PRD in the same commit.
 
 ## Workflow
 
@@ -13,7 +18,7 @@ Native iOS social map for the car community. Swift 6 and SwiftUI client (iOS 18+
 - The only gate: `make build` exits 0 (see plan section 12).
 - Before committing: `git pull --rebase`, then `make build`.
 - Commit messages start with the work package id, for example `W1-5: map markers and clustering`.
-- Edit only the files your work package owns. Other agents are working on `main` at the same time.
+- Edit only the files your work package owns. Other agents are working on `main` at the same time. PRD section 8.1 covers shared files.
 - No attribution trailers in commits.
 
 ## Rules that are easy to break

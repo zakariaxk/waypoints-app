@@ -2,7 +2,7 @@
 
 Native iOS social map for the car community. Swift 6 client, Go realtime gateway, Supabase for everything durable.
 
-This document is the single source of truth. Each work package in section 12 is written so one agent can execute it from that package's entry plus the sections it names. If a package and a shared section disagree, the shared section wins; fix the package.
+This document is the source of truth for how Waypoints is built. `docs/PRD.md` sits above it: it decides scope, priority, the status of every requirement, and all work from wave 6 on, and it wins where the two disagree. The work packages in section 12 (waves 0 to 5) have been coded and are kept as a record. If a package and a shared section disagree, the shared section wins; fix the package.
 
 Written 2026-11-09. Facts marked *(verify)* came from research that could not be confirmed against a primary source; the package that depends on one must check it first.
 

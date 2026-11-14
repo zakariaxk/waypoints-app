@@ -2,7 +2,7 @@
 
 A native iOS social map for the car community: live friends on the map, meets, teams, builds, a mod simulator, and a virtual drag strip. Swift 6 client, Go realtime gateway, Supabase.
 
-The project is being rewritten from scratch. [docs/PLAN.md](docs/PLAN.md) is the source of truth: product, architecture, wire protocol, design system, every screen, and the work packages. The previous Expo app and TypeScript WebSocket service are in git history before the cleanup commit.
+The project is being rewritten from scratch. [docs/PRD.md](docs/PRD.md) is the source of truth for what is built: every requirement, its priority and status, and the remaining work packages. [docs/PLAN.md](docs/PLAN.md) is the source of truth for how: architecture, wire protocol, design system, and every screen. The previous Expo app and TypeScript WebSocket service are in git history before the cleanup commit.
 
 ## Build
 
