@@ -12,13 +12,28 @@ public enum RoadsFeature: FeatureModule {
     @MainActor
     public static func register(in registry: FeatureRegistry, env: AppEnvironment) {
         registry.registerMapLayer(RoadsLayer(env: env))
+        registry.registerMapLayer(DrivenLayer())
         registry.registerMapSheetSection(DrivesSection(env: env))
         DriveRecorder.shared.start(env: env)
     }
 }
 
+/// SET-3: lengths follow the device's locale.
+enum Units {
+    static var metric: Bool { Locale.current.measurementSystem == .metric }
+    static func length(_ meters: Int) -> (value: String, unit: String) {
+        let v = Double(meters) / (metric ? 1000 : 1609.344)
+        return (v.formatted(.number.precision(.fractionLength(1))), metric ? "km" : "mi")
+    }
+}
+
+/// SAFE-9: the server's abuse limits get their own line; everything else gets the fallback.
+func message(for error: any Error, fallback: String) -> String {
+    (error as? WaypointsError) == .rateLimited ? String(localized: "You're doing that a lot. Try again in a few minutes.") : fallback
+}
+
 /// One recorded drive, stored as a file in Application Support.
-struct Drive: Identifiable, Codable, Hashable {
+struct Drive: Identifiable, Codable, Hashable, Sendable {
     var id: String
     var startedAt: Date
     var points: [Coordinate]
@@ -31,7 +46,9 @@ final class DriveRecorder {
     private var lastAt: Date?
     private var started = false
 
-    private var folder: URL {
+    private var folder: URL { Self.folder }
+
+    nonisolated static var folder: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appending(path: "drives")
         try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
         return base
@@ -62,12 +79,104 @@ final class DriveRecorder {
         try? data.write(to: folder.appending(path: "\(d.id).json"), options: .atomic)
     }
 
-    func drives() -> [Drive] {
+    func drives() -> [Drive] { Self.load() }
+
+    /// Reads every saved trace; callable off the main actor (ROAD-5).
+    nonisolated static func load() -> [Drive] {
         let files = (try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil)) ?? []
         return files.compactMap { try? JSONDecoder().decode(Drive.self, from: Data(contentsOf: $0)) }.sorted { $0.startedAt > $1.startedAt }
     }
 
     func delete(_ d: Drive) { try? FileManager.default.removeItem(at: folder.appending(path: "\(d.id).json")) }
+}
+
+// MARK: ROAD-5 Driven map
+
+/// A plain lat/lng grid (0.0025 degree, about 280 m north to south), computed on this phone
+/// from the drive traces. Nothing here leaves the device. Counts cells, never speed or time.
+enum DrivenGrid {
+    struct Cell: Hashable, Sendable { let i: Int; let j: Int }
+    static let step = 0.0025
+
+    static func cell(_ c: Coordinate) -> Cell { Cell(i: Int((c.latitude / step).rounded(.down)), j: Int((c.longitude / step).rounded(.down))) }
+    static func center(_ c: Cell) -> Coordinate { Coordinate(latitude: (Double(c.i) + 0.5) * step, longitude: (Double(c.j) + 0.5) * step) }
+
+    /// Cells a path passes through, filling gaps between points every 100 m.
+    static func cells(along path: [Coordinate]) -> Set<Cell> {
+        var out = Set<Cell>()
+        guard let first = path.first else { return out }
+        out.insert(cell(first))
+        for (a, b) in zip(path, path.dropFirst()) {
+            let n = max(1, Int(a.distance(to: b) / 100))
+            for k in 1...n {
+                let t = Double(k) / Double(n)
+                out.insert(cell(Coordinate(latitude: a.latitude + (b.latitude - a.latitude) * t,
+                                           longitude: a.longitude + (b.longitude - a.longitude) * t)))
+            }
+        }
+        return out
+    }
+
+    static func contains(_ r: MapRegion, _ c: Cell) -> Bool {
+        let p = center(c)
+        return (r.minLatitude...r.maxLatitude).contains(p.latitude) && (r.minLongitude...r.maxLongitude).contains(p.longitude)
+    }
+
+    static func driven() -> Set<Cell> { DriveRecorder.load().reduce(into: Set<Cell>()) { $0.formUnion(cells(along: $1.points)) } }
+}
+
+/// Shades the cells you have driven in view. Off when drive recording is off.
+struct DrivenLayer: MapLayerProvider {
+    var id: String { "driven_map" }
+    static let maxItems = 400
+
+    func items(in region: MapRegion) -> AsyncStream<[MapItem]> {
+        AsyncStream { c in
+            let task = Task.detached(priority: .utility) {
+                guard UserDefaults.standard.bool(forKey: "recordDrives") else { c.yield([]); c.finish(); return }
+                let cells = DrivenGrid.driven().filter { DrivenGrid.contains(region, $0) }.sorted { ($0.i, $0.j) < ($1.i, $1.j) }
+                let every = max(1, cells.count / Self.maxItems)
+                let shown = cells.enumerated().filter { $0.offset % every == 0 }.map(\.element)
+                c.yield(shown.map { cell in
+                    MapItem(id: "driven.\(cell.i).\(cell.j)", coordinate: DrivenGrid.center(cell), glyph: "driven", tint: .sodium,
+                            title: String(localized: "Driven"), priority: 0)
+                })
+                c.finish()
+            }
+            c.onTermination = { _ in task.cancel() }
+        }
+    }
+
+    @MainActor func detail(for item: MapItem) -> AnyView? { nil }
+}
+
+/// The number: the share of rated-road cells in view that you have driven.
+struct DrivenShare: View {
+    let env: AppEnvironment
+    let region: MapRegion
+    @State private var share: (driven: Int, total: Int)?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Space.s4) {
+            if let share, share.total > 0 {
+                SectionLabel("DRIVEN MAP")
+                Readout("\(share.driven * 100 / share.total)", unit: "%", label: "OF RATED ROADS IN VIEW")
+                    .padding(.horizontal, Space.margin)
+                Text("\(share.driven) of \(share.total) stretches of road here. Counted on this phone only.")
+                    .typeStyle(.foot).foregroundStyle(Color.dust).padding(.horizontal, Space.margin)
+            }
+        }
+        .task(id: region) {
+            guard UserDefaults.standard.bool(forKey: "recordDrives") else { share = nil; return }
+            let roads = (try? await env.roads.roads(in: region)) ?? []
+            let r = region
+            share = await Task.detached(priority: .utility) {
+                let road = roads.reduce(into: Set<DrivenGrid.Cell>()) { $0.formUnion(DrivenGrid.cells(along: $1.path)) }
+                    .filter { DrivenGrid.contains(r, $0) }
+                return (road.intersection(DrivenGrid.driven()).count, road.count)
+            }.value
+        }
+    }
 }
 
 struct RoadsLayer: MapLayerProvider {
@@ -102,12 +211,14 @@ struct RoadDetail: View {
     @State private var rating = RoadRating(surface: 3, scenery: 3, traffic: 3)
     @State private var ratingOpen = false
     @State private var done = 0
+    @State private var error: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.s12) {
             if let r = road {
                 Text(verbatim: r.name).typeStyle(.title).foregroundStyle(Color.chalk)
-                Readout(String(format: "%.1f", Double(r.lengthMeters) / 1609.344), unit: "mi", label: "LENGTH")
+                let len = Units.length(r.lengthMeters)
+                Readout(len.value, unit: len.unit, label: "LENGTH")
                 bar("Surface", r.ratings.surface, count: r.ratings.count)
                 bar("Scenery", r.ratings.scenery, count: r.ratings.count)
                 bar("Traffic", r.ratings.traffic, count: r.ratings.count)
@@ -117,12 +228,18 @@ struct RoadDetail: View {
                 }
                 if ratingOpen {
                     RatingSteppers(rating: $rating)
+                    if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                     PrimaryButton("Save") {
                         Task {
-                            try? await env.roads.rate(roadID, rating)
-                            done += 1
-                            ratingOpen = false
-                            road = try? await env.roads.road(roadID)
+                            do {
+                                try await env.roads.rate(roadID, rating)
+                                error = nil
+                                done += 1
+                                ratingOpen = false
+                                road = try? await env.roads.road(roadID)
+                            } catch {
+                                self.error = message(for: error, fallback: "Couldn't save the rating. Check your connection and try again.")
+                            }
                         }
                     }
                 }
@@ -178,7 +295,12 @@ struct DrivesSection: MapSheetSection {
     let env: AppEnvironment
     var id: String { "drives" }
     var order: Int { 60 }
-    @MainActor func view(region: MapRegion) -> AnyView { AnyView(DrivesView(env: env)) }
+    @MainActor func view(region: MapRegion) -> AnyView {
+        AnyView(VStack(alignment: .leading, spacing: 0) {
+            DrivenShare(env: env, region: region)
+            DrivesView(env: env)
+        })
+    }
 }
 
 struct DrivesView: View {
@@ -214,6 +336,15 @@ struct SaveStretch: View {
     @State private var rating = RoadRating(surface: 3, scenery: 3, traffic: 3)
     @State private var saving = false
     @State private var error: String?
+    @State private var zones: [HomeZone] = []
+
+    /// ROAD-3: a stretch may not start or end inside one of your home zones.
+    private var endsAtHome: Bool {
+        guard let a = stretch.first, let b = stretch.last else { return false }
+        return zones.contains { z in
+            a.distance(to: z.center) <= Double(z.radiusMeters) || b.distance(to: z.center) <= Double(z.radiusMeters)
+        }
+    }
 
     private var stretch: [Coordinate] {
         let n = drive.points.count
@@ -240,8 +371,13 @@ struct SaveStretch: View {
                     Slider(value: $to, in: min(1, from + 0.02)...1).tint(.sodium)
                     Field("Name", text: $name, prompt: "Like 'Route 9 through the pines'", limit: 50)
                     RatingSteppers(rating: $rating)
+                    if endsAtHome {
+                        Text("A road can't start or end in one of your home zones. Move the handles.")
+                            .typeStyle(.foot).foregroundStyle(Color.brake)
+                    }
                     if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                     PrimaryButton("Save road", isLoading: saving) {
+                        guard !endsAtHome else { return }
                         saving = true
                         Task {
                             do {
@@ -249,12 +385,12 @@ struct SaveStretch: View {
                                 try await env.roads.rate(road.id, rating)
                                 dismiss()
                             } catch {
-                                self.error = "Couldn't save the road. Check your connection and try again."
+                                self.error = message(for: error, fallback: "Couldn't save the road. Check your connection and try again.")
                             }
                             saving = false
                         }
                     }
-                    .disabled(name.isEmpty || stretch.count < 2)
+                    .disabled(name.isEmpty || stretch.count < 2 || endsAtHome)
                     DestructiveButton("Delete this drive", confirmTitle: "Delete drive", consequence: "The trace is removed from this phone.") {
                         DriveRecorder.shared.delete(drive)
                         dismiss()
@@ -264,5 +400,6 @@ struct SaveStretch: View {
             }
         }
         .presentationDetents([.large])
+        .task { for await z in await env.location.homeZones() { zones = z } }
     }
 }

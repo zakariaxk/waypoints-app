@@ -347,6 +347,11 @@ struct MapItemView: View {
                     .frame(width: Size.hitTarget, height: Size.hitTarget)
                     .background(Color.tarmac, in: Circle())
                     .mapShadow()
+            } else if item.glyph.name == "driven" {
+                // ROAD-5 driven map: one soft square per driven grid cell.
+                RoundedRectangle(cornerRadius: Radius.r6).fill(item.tint.color.opacity(Opacity.inactive))
+                    .frame(width: Space.s12, height: Space.s12)
+                    .allowsHitTesting(false)
             } else if item.glyph.name == "pin" {
                 Image(systemName: "mappin.circle.fill").font(.largeTitle).foregroundStyle(item.tint.color).mapShadow()
             } else {

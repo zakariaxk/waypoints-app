@@ -236,7 +236,10 @@ struct SpotFlow: View {
                 shot = blurred
                 withMotion(.win, reduceMotion: reduceMotion) { result = "\(make) \(model) · \(ordinal) spotted" }
             } catch {
-                self.error = "Couldn't add it. Check your connection and try again."
+                // SAFE-9: the server's abuse limits get their own line.
+                self.error = (error as? WaypointsError) == .rateLimited
+                    ? String(localized: "You're doing that a lot. Try again in a few minutes.")
+                    : String(localized: "Couldn't add it. Check your connection and try again.")
             }
             saving = false
         }
