@@ -581,7 +581,7 @@ Parts and cars. Listings and messages, never payment. Plan 5.5, 10.6.
 | MKT-6 | There is no checkout, shipping, fee, or promoted placement. | P0 | Coded |
 | MKT-7 | Parts have a category: wheels and tires, exhaust, intake and fuel, forced induction, engine, drivetrain, suspension, brakes, exterior and aero, interior, lighting, electronics and tuning, tools, apparel, other. Browse filters by it. | P1 | Coded |
 | MKT-8 | Wanted. A third listing kind for something you are looking for, with a budget instead of a price. Shown under its own switch position. | P1 | Coded |
-| MKT-9 | A listing untouched for 90 days leaves browse and reads "Expired" to its seller, with "Relist". | P2 | New |
+| MKT-9 | A listing untouched for 90 days leaves browse and reads "Expired" to its seller, with "Relist". | P2 | Coded |
 
 ### 4.20 Car spotting (SPOT)
 
@@ -604,9 +604,9 @@ Good roads, rated by people who drove them. Plan 10.3 (M11).
 |---|---|---|---|
 | ROAD-1 | With drive recording on, recent drives are listed in Garage. Opening one lets the user mark a stretch with two handles, name it (50), rate surface, scenery, and traffic from 1 to 5, and save it. | P0 | Coded |
 | ROAD-2 | Only the saved stretch is uploaded. | P0 | Coded |
-| ROAD-3 | A stretch cannot start or end inside one of the user's home zones. | P0 | New |
+| ROAD-3 | A stretch cannot start or end inside one of the user's home zones. | P0 | Coded |
 | ROAD-4 | Rated roads draw on the map as a layer. A road's sheet shows its length, three averages with the count, "Drive it" (routes to its start, then along it), and "Rate". | P0 | Coded |
-| ROAD-5 | Driven map. On the device only, the share of road cells in your region you have driven, shown as a number and a map shading. It rewards exploring, never speed or distance. | P2 | New |
+| ROAD-5 | Driven map. On the device only, the share of road cells in your region you have driven, shown as a number and a map shading. It rewards exploring, never speed or distance. | P2 | Coded: a 0.0025 degree lat/lng grid on the device; the share counts the cells of rated roads in view that your traces cross (the only road data on the phone), shaded through the `driven_map` layer. |
 
 ### 4.22 Notifications (NTF)
 
@@ -638,7 +638,7 @@ Required by App Review for any app with user content, and by the kind of place t
 | SAFE-6 | Content reported by three different people within 7 days is hidden from everyone but its author until reviewed. | P0 | Coded |
 | SAFE-7 | A person can be suspended. A suspended account cannot connect to the gateway or write anything, and its content is hidden. Signing in shows "This account is suspended." with the contact address. | P0 | Partial: a gateway connection already open stays up until its next token refresh. |
 | SAFE-8 | The reviewer works from the Supabase SQL editor with four documented functions: hide, restore, suspend, unsuspend. No admin app. | P0 | Coded |
-| SAFE-9 | Abuse limits, enforced on the server: 3 meets a day, 10 map reports in 10 minutes, 3 help requests a day, 10 posts a day, 30 comments an hour, 10 listings a day, 30 friend requests a day, 3 teams a day, 20 content reports a day, 5 messages in 5 seconds. Over a limit the client says "You're doing that a lot. Try again in a few minutes." | P1 | Partial: the gateway limits help requests to 6 an hour, not 3 a day; map reports are limited per gateway node in memory; only SafetyKit shows the copy, other features still show their generic error on `rateLimited`. |
+| SAFE-9 | Abuse limits, enforced on the server: 3 meets a day, 10 map reports in 10 minutes, 3 help requests a day, 10 posts a day, 30 comments an hour, 10 listings a day, 30 friend requests a day, 3 teams a day, 20 content reports a day, 5 messages in 5 seconds. Over a limit the client says "You're doing that a lot. Try again in a few minutes." | P1 | Partial: the gateway limits help requests to 6 an hour, not 3 a day; map reports are limited per gateway node in memory; SafetyKit, Market, Roads, and Spots show the copy on `rateLimited`, other features still show their generic error. |
 | SAFE-10 | Minimum age 17, asked at sign-up. | P0 | Coded |
 | SAFE-11 | The contact address is shown in About and in the suspension message. | P0 | Coded |
 
@@ -650,7 +650,7 @@ Plan 10.9.
 |---|---|---|---|
 | SET-1 | Settings holds Privacy and location, Notifications, Blocked people, Account, and About (version, Terms, Privacy Policy, Contact, licences). Debug builds add the design gallery. | P0 | Coded |
 | SET-2 | Every change saves at once. A failed save reverts the control and says why. | P0 | Coded |
-| SET-3 | Distances, speeds, and weights follow the device's locale everywhere they appear. | P0 | Partial: navigation and the map format distance and speed by locale; other features not checked. |
+| SET-3 | Distances, speeds, and weights follow the device's locale everywhere they appear. | P0 | Partial: navigation, the map, Market (distance filter), and Roads (road length) format by locale; other features not checked. |
 
 ### 4.25 Links and sharing (LINK)
 
