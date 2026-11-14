@@ -43,8 +43,10 @@ const (
 	// NotifyRadiusM bounds the push to friends and teammates (HELP-4).
 	NotifyRadiusM  = 25_000
 	deliverSubject = "help.deliver"
-	// pushKind has no notification_prefs column, so it is always delivered.
-	pushKind push.Kind = "help_requests"
+	// Neither kind has a notification_prefs column, so both are always delivered. They are
+	// also the Activity kinds (notifications.kind).
+	requestKind  push.Kind = "help_request"
+	responseKind push.Kind = "help_response"
 )
 
 var kinds = map[string]string{
@@ -255,7 +257,7 @@ func (s *Service) notifyNearby(ctx context.Context, r requestJSON) {
 	if p, err := s.store.Profile(ctx, r.requester); err == nil && p.DisplayName != "" {
 		name = p.DisplayName
 	}
-	s.push.Send(ctx, ids, push.Note{Kind: pushKind, Title: name + " needs a hand",
+	s.push.Send(ctx, ids, push.Note{Kind: requestKind, Title: name + " needs a hand",
 		Body: kinds[r.Kind] + ". Tap to see where.", URL: "waypoints://help/" + r.ID,
 		ActorID: r.requester, Dedupe: "help:" + r.ID})
 }
@@ -426,7 +428,7 @@ func (s *Service) respond(w http.ResponseWriter, r *http.Request, c auth.Claims)
 			if p, err := s.store.Profile(ctx, c.UserID); err == nil && p.DisplayName != "" {
 				name = p.DisplayName
 			}
-			go s.push.Send(bg, []string{x.requester}, push.Note{Kind: pushKind, Title: name + " is on the way",
+			go s.push.Send(bg, []string{x.requester}, push.Note{Kind: responseKind, Title: name + " is on the way",
 				Body: "Tap to see your request.", URL: "waypoints://help/" + x.ID,
 				ActorID: c.UserID, Dedupe: "help:" + x.ID + ":" + c.UserID})
 		}
