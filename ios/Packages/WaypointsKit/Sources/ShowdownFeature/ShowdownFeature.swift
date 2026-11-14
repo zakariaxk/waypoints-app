@@ -98,13 +98,13 @@ struct ShowdownView: View {
                 Button { env.router.open(.car(c.car.id)) } label: { CarBadge(c.car.shortLabel, icon: c.owner.markerIcon, paint: paint) }
                 Text(verbatim: "@\(c.owner.handle)").typeStyle(.foot).foregroundStyle(Color.chalk)
                 HStack(spacing: Space.s16) {
-                    if let est { Readout(String(format: "%.0f", (est.hp.lowerBound + est.hp.upperBound) / 2), label: "est. hp", token: .readoutS) }
-                    Readout("\(c.entry.wins)", label: "wins", token: .readoutS)
+                    if let est { Readout(String(format: "%.0f–%.0f", est.hp.lowerBound, est.hp.upperBound), label: "est. hp", token: .readoutS) }
+                    Readout("\(entryCounts[c.car.id] ?? 0)", label: "build entries", token: .readoutS)
                 }
                 if isWinner, let movement { Text(verbatim: movement).typeStyle(.readoutM).foregroundStyle(Color.go) }
             }
             .padding(Space.s12)
-            .background(Color.asphalt.opacity(0.7), in: RoundedRectangle(cornerRadius: Radius.r12))
+            .background(Color.tarmac, in: RoundedRectangle(cornerRadius: Radius.r12))
             .padding(Space.s12)
         }
         .frame(height: hidden ? 0 : (isWinner ? height * 2 : height))
@@ -114,8 +114,9 @@ struct ShowdownView: View {
         .onTapGesture { pick(c) }
         .gesture(DragGesture()
             .onChanged { v in
+                let past = abs(drag) > Size.row
                 drag = v.translation.height
-                if abs(drag) > Size.row && abs(drag - v.translation.height) < 1 { set += 1 }
+                if !past && abs(drag) > Size.row { set += 1 }
             }
             .onEnded { v in
                 let toward = top ? v.translation.height > Size.row : v.translation.height < -Size.row
@@ -139,7 +140,7 @@ struct ShowdownView: View {
                 let moved = (before ?? 100) - after
                 movement = moved > 0 ? "▲ \(moved) in \(cls.rawValue.capitalized)" : "#\(after + 1) in \(cls.rawValue.capitalized)"
             }
-            try? await Task.sleep(for: .milliseconds(500))
+            try? await Task.sleep(for: .seconds(Timing.winHold))
             await next()
         }
     }
@@ -150,6 +151,9 @@ struct ShowdownView: View {
         movement = nil
         pair = try? await env.showdown.nextPair(in: cls)
         loading = false
+        for c in [pair?.left, pair?.right].compactMap({ $0 }) where entryCounts[c.car.id] == nil {
+            entryCounts[c.car.id] = (try? await env.garage.buildEntries(of: c.car.id))?.count
+        }
     }
 }
 

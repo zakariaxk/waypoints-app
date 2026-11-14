@@ -1,4 +1,5 @@
 import AVFoundation
+import Combine
 import Core
 import DesignSystem
 import PhotosUI
@@ -26,7 +27,13 @@ public enum FeedFeature: FeatureModule {
 final class PlayerPool {
     private var players: [Int: AVPlayer] = [:]
     private var looper: [Int: NSObjectProtocol] = [:]
-    var muted = true { didSet { players.values.forEach { $0.isMuted = muted } } }
+    /// Unmuting once holds for the rest of the session, across modes and pools (FEED-1).
+    private static var sessionMuted = true
+    var muted = true {
+        didSet { PlayerPool.sessionMuted = muted; players.values.forEach { $0.isMuted = muted } }
+    }
+
+    init() { muted = PlayerPool.sessionMuted }
 
     func player(for index: Int, url: URL) -> AVPlayer {
         if let p = players[index] { return p }
@@ -36,15 +43,34 @@ final class PlayerPool {
             if let o = looper[key] { NotificationCenter.default.removeObserver(o) }
             looper[key] = nil
         }
-        let item = AVPlayerItem(url: url)
-        item.preferredForwardBufferDuration = 2
+        let item = Self.item(url)
         let p = AVPlayer(playerItem: item)
         p.isMuted = muted
+        loop(index, item: item, player: p)
+        players[index] = p
+        return p
+    }
+
+    /// FEED-8: "Try again" loads the video afresh into the same player.
+    func retry(_ index: Int, url: URL) {
+        guard let p = players[index] else { return }
+        if let o = looper[index] { NotificationCenter.default.removeObserver(o) }
+        let item = Self.item(url)
+        p.replaceCurrentItem(with: item)
+        loop(index, item: item, player: p)
+        p.play()
+    }
+
+    private static func item(_ url: URL) -> AVPlayerItem {
+        let item = AVPlayerItem(url: url)
+        item.preferredForwardBufferDuration = 2
+        return item
+    }
+
+    private func loop(_ index: Int, item: AVPlayerItem, player p: AVPlayer) {
         looper[index] = NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: item, queue: .main) { _ in
             MainActor.assumeIsolated { p.seek(to: .zero); p.play() }
         }
-        players[index] = p
-        return p
     }
 
     func play(_ index: Int) {
@@ -82,31 +108,49 @@ final class FeedModel {
     var next: PageCursor?
     var loading = false
     var failed = false
+    var offline = false
+    var exhausted = false
     var me: UserID?
+    /// Following reads `follows`; For you reads `feed_for_you` (FEED-2).
+    let followingOnly: Bool
 
-    init(env: AppEnvironment) { self.env = env }
+    init(env: AppEnvironment, followingOnly: Bool = false) { self.env = env; self.followingOnly = followingOnly }
 
     func refresh() async {
-        posts = []
+        guard !loading else { return }
         next = nil
-        await more()
+        exhausted = false
+        await load(replacing: true)
     }
 
     func more() async {
-        guard !loading else { return }
+        guard !loading, !exhausted else { return }
+        await load(replacing: false)
+    }
+
+    private func load(replacing: Bool) async {
         loading = true
         me = await env.auth.currentSession()?.userID
         do {
-            let page = try await env.posts.feed(after: next, limit: 10)
-            posts += page.items
+            let page: Page<Post>
+            if followingOnly {
+                page = try await env.posts.followingFeed(after: next, limit: 10)
+            } else {
+                page = try await env.posts.forYou(after: next, limit: 10)
+            }
+            if replacing { posts = [] }
+            let seen = Set(posts.map(\.id))
+            posts += page.items.filter { !seen.contains($0.id) }
             next = page.next
+            exhausted = page.next == nil
             failed = false
+            offline = false
             let missing = Set(page.items.map(\.authorID)).filter { authors[$0] == nil }
             for p in (try? await env.profiles.profiles(Array(missing))) ?? [] { authors[p.userID] = p }
             for a in missing where following[a] == nil { following[a] = (try? await env.posts.isFollowing(a)) ?? false }
             for id in page.items.compactMap(\.carID) where cars[id] == nil { cars[id] = try? await env.garage.car(id) }
         } catch {
-            failed = true
+            if case WaypointsError.offline = error { offline = true } else { failed = true }
         }
         loading = false
     }
@@ -132,13 +176,17 @@ struct FeedHome: View {
     let registry: FeatureRegistry
     let uploader: Uploader
     @State private var mode = "foryou"
-    @State private var model: FeedModel
+    @State private var forYou: FeedModel
+    @State private var followingFeed: FeedModel
     @State private var posting = false
 
     init(env: AppEnvironment, registry: FeatureRegistry, uploader: Uploader) {
         self.env = env; self.registry = registry; self.uploader = uploader
-        _model = State(initialValue: FeedModel(env: env))
+        _forYou = State(initialValue: FeedModel(env: env))
+        _followingFeed = State(initialValue: FeedModel(env: env, followingOnly: true))
     }
+
+    private var model: FeedModel { mode == "following" ? followingFeed : forYou }
 
     private var options: [(value: String, title: LocalizedStringKey)] {
         [("following", "Following"), ("foryou", "For you")] + registry.feedModes.prefix(1).map { ($0.id, LocalizedStringKey($0.title)) }
@@ -150,6 +198,7 @@ struct FeedHome: View {
                 extra.view().padding(.top, Size.row)
             } else {
                 Pager(model: model, followingOnly: mode == "following", switchToForYou: { mode = "foryou" }, post: { posting = true })
+                    .id(mode)
             }
             HStack {
                 Spacer()
@@ -168,7 +217,7 @@ struct FeedHome: View {
         .toolbar(.hidden, for: .navigationBar)
         .toast(Binding(get: { uploader.toast }, set: { uploader.toast = $0 }))
         .sheet(isPresented: $posting) { PostVideo(env: env, uploader: uploader) }
-        .task { if model.posts.isEmpty { await model.refresh() } }
+        .task(id: mode) { if registry.feedModes.allSatisfy({ $0.id != mode }) && model.posts.isEmpty { await model.refresh() } }
     }
 }
 
@@ -182,19 +231,17 @@ struct Pager: View {
     @State private var commentsFor: Post?
     @State private var overflow: Post?
 
-    private var posts: [Post] {
-        followingOnly ? model.posts.filter { model.following[$0.authorID] == true } : model.posts
-    }
+    private var posts: [Post] { model.posts }
 
     var body: some View {
         Group {
             if posts.isEmpty && !model.loading {
                 VStack {
                     Spacer()
-                    if followingOnly {
-                        EmptyState("Nobody you follow has posted yet.", actionTitle: "See For you", action: switchToForYou)
-                    } else if model.failed {
+                    if model.failed || model.offline {
                         ErrorState(Text("Couldn't load the feed.")) { Task { await model.refresh() } }
+                    } else if followingOnly {
+                        EmptyState("Nobody you follow has posted yet.", actionTitle: "See For you", action: switchToForYou)
                     } else {
                         EmptyState("No videos near you yet. Post the first one.", actionTitle: "Post a video", action: post)
                     }
@@ -204,8 +251,10 @@ struct Pager: View {
                 ScrollView(.vertical) {
                     LazyVStack(spacing: 0) {
                         ForEach(Array(posts.enumerated()), id: \.element.id) { i, p in
-                            VideoPage(model: model, post: p, player: pool.player(for: i, url: model.env.media.publicURL(bucket: .posts, path: p.videoPath)),
-                                      pool: pool, comments: { commentsFor = p }, overflow: { overflow = p })
+                            let url = model.env.media.publicURL(bucket: .posts, path: p.videoPath)
+                            VideoPage(model: model, post: p, player: pool.player(for: i, url: url),
+                                      pool: pool, comments: { commentsFor = p }, overflow: { overflow = p },
+                                      retry: { pool.retry(i, url: url) })
                                 .containerRelativeFrame([.horizontal, .vertical])
                                 .id(i)
                                 .onAppear { if i >= posts.count - 3 { Task { await model.more() } } }
@@ -221,6 +270,7 @@ struct Pager: View {
                 .onDisappear { pool.pauseAll() }
             }
         }
+        .connectionBanner(model.offline ? .offline : nil)
         .sheet(item: $commentsFor) { p in Comments(env: model.env, post: p) }
         .confirmationDialog("", isPresented: Binding(get: { overflow != nil }, set: { if !$0 { overflow = nil } })) {
             if let p = overflow {
@@ -241,27 +291,43 @@ struct VideoPage: View {
     let pool: PlayerPool
     let comments: () -> Void
     let overflow: () -> Void
+    let retry: () -> Void
     @State private var paused = false
     @State private var heart: CGPoint?
     @State private var expanded = false
+    /// FEED-8: the item failed to load or to play; the poster stays with "Try again".
+    @State private var failed = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
             MediaView(url: model.env.media.publicURL(bucket: .posts, path: post.posterPath), cornerRadius: 0, label: Text(verbatim: post.caption))
-            PlayerLayerView(player: player)
-                .onTapGesture(count: 2) { loc in
-                    if !post.likedByMe { model.toggleLike(post) }
-                    heart = loc
-                    Task { try? await Task.sleep(for: .milliseconds(600)); heart = nil }
+            if failed {
+                VStack(spacing: Space.s12) {
+                    Text("Couldn't play this.").typeStyle(.body).foregroundStyle(Color.chalk)
+                    SecondaryButton("Try again") { failed = false; retry() }
                 }
-                .onTapGesture {
-                    paused.toggle()
-                    if paused { player.pause() } else { player.play() }
-                    pool.muted = false
-                }
+                .padding(Space.s16)
+                .background(Color.tarmac, in: RoundedRectangle(cornerRadius: Radius.r12))
+                .padding(.horizontal, Space.margin)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .contentShape(Rectangle())
                 .onLongPressGesture { overflow() }
+            } else {
+                PlayerLayerView(player: player)
+                    .onTapGesture(count: 2) { loc in
+                        if !post.likedByMe { model.toggleLike(post) }
+                        heart = loc
+                        Task { try? await Task.sleep(for: .seconds(Timing.likeHeart)); heart = nil }
+                    }
+                    .onTapGesture {
+                        paused.toggle()
+                        if paused { player.pause() } else { player.play() }
+                        pool.muted = false
+                    }
+                    .onLongPressGesture { overflow() }
+            }
             if let heart {
-                Image(systemName: "heart.fill").font(.system(size: Size.row * 1.6)).foregroundStyle(Color.brake)
+                Image(systemName: "heart.fill").font(.system(size: Size.likeHeart)).foregroundStyle(Color.brake)
                     .position(heart).transition(.scale.combined(with: .opacity))
             }
             Gradients.scrim.frame(height: Size.row * 4).allowsHitTesting(false)
@@ -275,6 +341,10 @@ struct VideoPage: View {
         }
         .clipped()
         .motion(.quick, value: heart)
+        .onReceive(player.publisher(for: \.currentItem?.status).receive(on: DispatchQueue.main)) { failed = $0 == .failed }
+        .onReceive(NotificationCenter.default.publisher(for: AVPlayerItem.failedToPlayToEndTimeNotification).receive(on: DispatchQueue.main)) {
+            if ($0.object as? AVPlayerItem) === player.currentItem { failed = true }
+        }
     }
 
     private var info: some View {
@@ -342,8 +412,9 @@ struct SinglePost: View {
     var body: some View {
         Group {
             if let p = model.posts.first {
-                VideoPage(model: model, post: p, player: pool.player(for: 0, url: env.media.publicURL(bucket: .posts, path: p.videoPath)),
-                          pool: pool, comments: { comments = p }, overflow: {})
+                let url = env.media.publicURL(bucket: .posts, path: p.videoPath)
+                VideoPage(model: model, post: p, player: pool.player(for: 0, url: url),
+                          pool: pool, comments: { comments = p }, overflow: {}, retry: { pool.retry(0, url: url) })
                     .onAppear { pool.play(0) }
                     .onDisappear { pool.pauseAll() }
             } else {
@@ -439,13 +510,14 @@ final class Uploader {
         Task {
             do {
                 let exported = try await Self.export(video)
-                let data = try Data(contentsOf: exported)
+                let data = try Data(contentsOf: exported.url)
+                let seconds = max(0.001, min(duration, exported.duration))
                 let posterMedia = try await env.media.upload(poster, contentType: "image/jpeg", to: .posts) { _ in }
                 let videoMedia = try await env.media.upload(data, contentType: "video/mp4", to: .posts) { p in
                     Task { @MainActor in self.progress = p }
                 }
                 _ = try await env.posts.createPost(NewPost(carID: car, videoPath: videoMedia.path, posterPath: posterMedia.path,
-                                                           caption: caption, durationMs: Int(duration * 1000)))
+                                                           caption: caption, durationMs: Int(seconds * 1000)))
                 toast = ToastMessage(Text("Posted"))
             } catch {
                 let drafts = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appending(path: "drafts")
@@ -457,14 +529,44 @@ final class Uploader {
         }
     }
 
-    /// 720p, capped at 30 s.
-    nonisolated static func export(_ url: URL) async throws -> URL {
+    /// Upload cap (FEED-7, plan F3).
+    nonisolated static let maxBytes: Int64 = 12 * 1024 * 1024
+
+    /// HEVC, short side scaled to 720, capped at 30 s and 12 MB, with no metadata (SEC-4: no
+    /// location). `fileLengthLimit` ends the file early rather than exceed the cap, so the
+    /// returned duration is read back from the export.
+    nonisolated static func export(_ url: URL) async throws -> (url: URL, duration: Double) {
         let asset = AVURLAsset(url: url)
-        guard let session = AVAssetExportSession(asset: asset, presetName: AVAssetExportPreset1280x720) else { return url }
+        guard let session = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHEVCHighestQuality),
+              let track = try await asset.loadTracks(withMediaType: .video).first else { throw WaypointsError.invalid("video") }
+        let length = min(try await asset.load(.duration), CMTime(seconds: 30, preferredTimescale: 600))
+        let natural = try await track.load(.naturalSize)
+        let transform = try await track.load(.preferredTransform)
+        let rect = CGRect(origin: .zero, size: natural).applying(transform)
+        let scale = min(1, 720 / max(1, min(abs(rect.width), abs(rect.height))))
+        let layer = AVMutableVideoCompositionLayerInstruction(assetTrack: track)
+        layer.setTransform(transform.concatenating(CGAffineTransform(translationX: -rect.minX, y: -rect.minY))
+            .concatenating(CGAffineTransform(scaleX: scale, y: scale)), at: .zero)
+        let instruction = AVMutableVideoCompositionInstruction()
+        instruction.timeRange = CMTimeRange(start: .zero, duration: length)
+        instruction.layerInstructions = [layer]
+        let composition = AVMutableVideoComposition()
+        composition.renderSize = CGSize(width: (abs(rect.width) * scale / 2).rounded() * 2, height: (abs(rect.height) * scale / 2).rounded() * 2)
+        composition.frameDuration = CMTime(value: 1, timescale: 30)
+        composition.instructions = [instruction]
+
         let out = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString + ".mp4")
-        session.timeRange = CMTimeRange(start: .zero, duration: CMTime(seconds: 30, preferredTimescale: 600))
+        session.videoComposition = composition
+        session.timeRange = CMTimeRange(start: .zero, duration: length)
+        session.fileLengthLimit = maxBytes
+        session.metadata = []
+        session.metadataItemFilter = .forSharing()
+        session.shouldOptimizeForNetworkUse = true
         try await session.export(to: out, as: .mp4)
-        return out
+        let size = (try? FileManager.default.attributesOfItem(atPath: out.path)[.size] as? Int64) ?? 0
+        guard size > 0, size <= maxBytes else { throw WaypointsError.invalid("video") }
+        let exported = try await AVURLAsset(url: out).load(.duration).seconds
+        return (out, exported)
     }
 }
 
