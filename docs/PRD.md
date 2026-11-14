@@ -297,7 +297,7 @@ The home screen: who is out, what is happening, how to get there. Plan 9.8, 10.3
 | MAP-9 | One add button opens a menu of actions at the map centre: report a hazard, start a meet, start a convoy, spot a car. Long-press on the map opens the same menu at that point. | P0 | Coded |
 | MAP-10 | Recenter cycles between free, following, and heading-up. Tapping the Map tab again recenters. | P0 | Coded |
 | MAP-11 | Layers: Friends, Drivers nearby, Meets, Reports, Rated roads, Traffic. | P0 | Coded |
-| MAP-12 | A friend's peek shows distance and bearing, and offers Directions, Message, View profile, Invite to convoy, Remove friend, Block, Report. | P0 | Partial: "Invite to convoy" is not in the source. |
+| MAP-12 | A friend's peek shows distance and bearing, and offers Directions, Message, View profile, Invite to convoy, Remove friend, Block, Report. | P0 | Coded |
 | MAP-13 | Every state is designed: location off, nobody around, connecting (last snapshot at 50%), reconnecting (banner after 3 s), offline. | P0 | Coded |
 | MAP-14 | 200 moving markers animate at 60 fps on an iPhone 16 simulator using under 40% of one core. | P0 | Coded |
 | MAP-15 | Everything on the map is also reachable as a list in the sheet, for VoiceOver. | P0 | Coded |
@@ -323,19 +323,19 @@ Waze-grade guidance built on MapKit, with the one thing nobody else has: routes 
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| NAV-1 | Search finds places, people, and meets. Before typing it offers the last 5 recents, up to 3 meets tonight, and up to 3 saved roads. Offline it shows recents and says "Search needs a connection." | P0 | Partial: saved roads and the offline line are not in the source. |
+| NAV-1 | Search finds places, people, and meets. Before typing it offers the last 5 recents, up to 3 meets tonight, and up to 3 saved roads. Offline it shows recents and says "Search needs a connection." | P0 | Coded |
 | NAV-2 | Route preview draws up to three routes with time, distance, and main road. | P0 | Coded |
-| NAV-3 | Low-car routing. Each car has a clearance profile. For a lowered or slammed car, each route lists the reports that matter along it ("2 speed bumps, 1 steep entrance") or reads "Clear for a lowered car". Among routes within 20% of the fastest, the one with the fewest is preselected and labelled "Best for your car". When none is clean, the screen says Apple Maps routing cannot be steered around them. | P0 | Partial: the clear-route line is not in the source. |
+| NAV-3 | Low-car routing. Each car has a clearance profile. For a lowered or slammed car, each route lists the reports that matter along it ("2 speed bumps, 1 steep entrance") or reads "Clear for a lowered car". Among routes within 20% of the fastest, the one with the fewest is preselected and labelled "Best for your car". When none is clean, the screen says Apple Maps routing cannot be steered around them. | P0 | Coded |
 | NAV-4 | Tapping the car in route preview switches which garage car is being scored. | P0 | Coded |
 | NAV-5 | Guidance shows the next maneuver, the distance to it, and the road name; the following maneuver when it is within 300 m; a heading-up, pitched, following map. | P0 | Coded |
 | NAV-6 | Spoken guidance at 800 m, 200 m, and at the maneuver, built from our own templates in the locale's units, ducking other audio. Mute persists. | P0 | Coded |
 | NAV-7 | Leaving the route (40 m off for 5 s) recalculates without asking. At most one request per 8 s. | P0 | Coded |
-| NAV-8 | For a non-stock car, a clearance report within 250 m ahead shows a strip ("Speed bump in 250 ft"), one haptic, and one spoken line. | P0 | Partial: the strip is not in the source. |
+| NAV-8 | For a non-stock car, a clearance report within 250 m ahead shows a strip ("Speed bump in 250 ft"), one haptic, and one spoken line. | P0 | Coded |
 | NAV-9 | Your own speed appears on your navigation screen and nowhere else. | P0 | Coded |
 | NAV-10 | Arrival reads "You've arrived" and ends guidance after 10 s. | P0 | Coded |
 | NAV-11 | While moving, the only controls are mute, End, and the "Still there?" prompt. | P0 | Coded |
-| NAV-12 | Offline, guidance continues on the loaded route and reads "Offline. Follow the route line." when it cannot reroute. | P0 | Partial: the line is not in the source. |
-| NAV-13 | With a convoy active, route preview offers "Share with convoy". | P0 | Partial: not in the source. |
+| NAV-12 | Offline, guidance continues on the loaded route and reads "Offline. Follow the route line." when it cannot reroute. | P0 | Coded |
+| NAV-13 | With a convoy active, route preview offers "Share with convoy". | P0 | Coded |
 | NAV-14 | Directions is offered wherever a place appears: a friend, a meet, a road, a regroup point, a help request. | P0 | Coded |
 | NAV-15 | Share ETA. While navigating, the user can send chosen friends one notice with the destination name and arrival time. No position is shared. Navigating to a meet you are Going to shows you as "on the way" in its list. | P2 | New |
 
@@ -650,7 +650,7 @@ Plan 10.9.
 |---|---|---|---|
 | SET-1 | Settings holds Privacy and location, Notifications, Blocked people, Account, and About (version, Terms, Privacy Policy, Contact, licences). Debug builds add the design gallery. | P0 | Coded |
 | SET-2 | Every change saves at once. A failed save reverts the control and says why. | P0 | Coded |
-| SET-3 | Distances, speeds, and weights follow the device's locale everywhere they appear. | P0 | Partial: only navigation formats by locale. |
+| SET-3 | Distances, speeds, and weights follow the device's locale everywhere they appear. | P0 | Partial: navigation and the map format distance and speed by locale; other features not checked. |
 
 ### 4.25 Links and sharing (LINK)
 
@@ -674,7 +674,7 @@ Plan section 9 is the law. These make it checkable.
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| DES-1 | Feature code contains no literal colour, font size, radius, spacing, or duration. Only `DesignSystem` tokens. | P0 | Partial: three places size things outside the token scale (the like heart in Feed, the maneuver arrow in Navigation, a rectangle in the Strip). |
+| DES-1 | Feature code contains no literal colour, font size, radius, spacing, or duration. Only `DesignSystem` tokens. | P0 | Partial: two places size things outside the token scale (the like heart in Feed, a rectangle in the Strip). |
 | DES-2 | Features build screens only from `DesignSystem` components. None draws its own button, row, field, or sheet. | P0 | Coded |
 | DES-3 | No pattern banned by plan 9.11 appears anywhere. | P0 | Coded |
 | DES-4 | Every screen in plan section 10 has its loading, empty, error, and offline states, with the plan's copy. | P0 | Coded |
