@@ -1,0 +1,84 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "All ten house cars are open.": {
+      "extractionState": "manual"
+    },
+    "BENCH RACE": {
+      "extractionState": "manual"
+    },
+    "Bench race": {
+      "extractionState": "manual"
+    },
+    "Change opponent": {
+      "extractionState": "manual"
+    },
+    "EST. ¼ MILE": {
+      "extractionState": "manual"
+    },
+    "LADDER": {
+      "extractionState": "manual"
+    },
+    "MODS": {
+      "extractionState": "manual"
+    },
+    "OPPONENT": {
+      "extractionState": "manual"
+    },
+    "Past runs": {
+      "extractionState": "manual"
+    },
+    "Pick another car": {
+      "extractionState": "manual"
+    },
+    "Pro": {
+      "extractionState": "manual"
+    },
+    "Quit": {
+      "extractionState": "manual"
+    },
+    "Race this car": {
+      "extractionState": "manual"
+    },
+    "Restart": {
+      "extractionState": "manual"
+    },
+    "Resume": {
+      "extractionState": "manual"
+    },
+    "Run again": {
+      "extractionState": "manual"
+    },
+    "Share": {
+      "extractionState": "manual"
+    },
+    "Sportsman": {
+      "extractionState": "manual"
+    },
+    "Stage": {
+      "extractionState": "manual"
+    },
+    "TREE": {
+      "extractionState": "manual"
+    },
+    "The Strip": {
+      "extractionState": "manual"
+    },
+    "The catalog has no power figure for that car. Pick another.": {
+      "extractionState": "manual"
+    },
+    "This car needs power and weight before it can run. Add them in the Mod simulator.": {
+      "extractionState": "manual"
+    },
+    "Throttle": {
+      "extractionState": "manual"
+    },
+    "VIRTUAL RUN · WAYPOINTS": {
+      "extractionState": "manual"
+    },
+    "Virtual drag strip. A game, not a challenge. Keep it off the street.": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

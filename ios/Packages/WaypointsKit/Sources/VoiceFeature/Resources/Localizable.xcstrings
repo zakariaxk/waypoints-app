@@ -1,0 +1,45 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Connecting": {
+      "extractionState": "manual"
+    },
+    "Convoy": {
+      "extractionState": "manual"
+    },
+    "Leave": {
+      "extractionState": "manual"
+    },
+    "Leave voice": {
+      "extractionState": "manual"
+    },
+    "Microphone is off for Waypoints.": {
+      "extractionState": "manual"
+    },
+    "Open Settings": {
+      "extractionState": "manual"
+    },
+    "Reconnecting": {
+      "extractionState": "manual"
+    },
+    "Voice": {
+      "extractionState": "manual"
+    },
+    "Voice disconnected.": {
+      "extractionState": "manual"
+    },
+    "You": {
+      "extractionState": "manual"
+    },
+    "You're muted. Tap to talk.": {
+      "extractionState": "manual"
+    },
+    "You're not in this convoy.": {
+      "extractionState": "manual"
+    },
+    "You're not in this team.": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

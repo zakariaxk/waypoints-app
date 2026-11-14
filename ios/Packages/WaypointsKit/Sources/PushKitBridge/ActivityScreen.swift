@@ -46,11 +46,11 @@ struct ActivityScreen: View {
                     VStack(spacing: 0) { ForEach(0..<6, id: \.self) { _ in SkeletonRow() } }
                 }
             case .failed:
-                ErrorState(Text("Couldn't load activity. Check your connection and try again.")) {
+                ErrorState(Text("Couldn't load activity. Check your connection and try again.", bundle: .module)) {
                     Task { await model.load() }
                 }
             case .loaded where model.items.isEmpty:
-                Text("Nothing yet. Friend requests, likes, comments, and RSVPs to your meets show up here.")
+                Text("Nothing yet. Friend requests, likes, comments, and RSVPs to your meets show up here.", bundle: .module)
                     .typeStyle(.body)
                     .foregroundStyle(Color.dust)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -89,7 +89,7 @@ private struct ActivityRow: View {
             VStack(alignment: .trailing, spacing: Space.s4) {
                 Text(verbatim: item.createdAt.formatted(.relative(presentation: .numeric))).typeStyle(.readoutS)
                 if item.isUnread {
-                    Text("New").typeStyle(.label).foregroundStyle(Color.sodium)
+                    Text("New", bundle: .module).typeStyle(.label).foregroundStyle(Color.sodium)
                 }
             }
         })

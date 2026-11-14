@@ -227,7 +227,7 @@ public struct ClusterMarker: View {
             .background(Color.tarmac, in: Circle())
             .overlay(Circle().strokeBorder(Color.seam, lineWidth: Size.Marker.innerStroke))
             .mapShadow()
-            .accessibilityLabel(Text("\(count) drivers"))
+            .accessibilityLabel(Text("\(count) drivers", bundle: .module))
     }
 }
 

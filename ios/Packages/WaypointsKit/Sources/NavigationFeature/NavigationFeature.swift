@@ -149,7 +149,7 @@ final class NavigationModel {
         Task { _ = try? await gateway.shareETA(share) }
     }
 
-    var destinationName: String { name.flatMap { $0.isEmpty ? nil : $0 } ?? String(localized: "Destination") }
+    var destinationName: String { name.flatMap { $0.isEmpty ? nil : $0 } ?? String(localized: "Destination", bundle: .module) }
 
     /// Starts the reachability monitor and follows convoy membership. Core's
     /// `RealtimeService.activeConvoy()` keeps the convoy id current.
@@ -178,7 +178,7 @@ final class NavigationModel {
     func shareWithConvoy() async {
         guard let id = convoyID else { return }
         do {
-            try await env.gateway.setConvoyDestination(id, ConvoyDestination(coordinate: destination, name: name ?? String(localized: "Destination")))
+            try await env.gateway.setConvoyDestination(id, ConvoyDestination(coordinate: destination, name: name ?? String(localized: "Destination", bundle: .module)))
             sharedWithConvoy = true
             shareFailed = false
         } catch {
@@ -478,7 +478,7 @@ struct RoutePreview: View {
             if model.loading {
                 SkeletonRow(); SkeletonRow()
             } else if model.error {
-                ErrorState(Text("Couldn't find a route there.")) { model.calculate(from: nil) }
+                ErrorState(Text("Couldn't find a route there.", bundle: .module)) { model.calculate(from: nil) }
             } else {
                 let best = model.bestIndex()
                 ForEach(Array(model.routes.enumerated()), id: \.element.id) { i, r in
@@ -486,18 +486,18 @@ struct RoutePreview: View {
                         .buttonStyle(RowButtonStyle())
                 }
                 if model.clearance != .stock, model.routes.allSatisfy({ !$0.clearanceHazards(for: model.clearance).isEmpty }) {
-                    Text("No route avoids these. Apple Maps routing can't be steered around them.")
+                    Text("No route avoids these. Apple Maps routing can't be steered around them.", bundle: .module)
                         .typeStyle(.foot).foregroundStyle(Color.dust)
                 }
                 PrimaryButton("Go") { model.start() }
                 if model.convoyID != nil {
                     if model.sharedWithConvoy {
-                        Text("Shared with your convoy.").typeStyle(.sub).foregroundStyle(Color.go)
+                        Text("Shared with your convoy.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.go)
                     } else {
                         QuietButton("Share with convoy") { Task { await model.shareWithConvoy() } }
                     }
                     if model.shareFailed {
-                        Text("Couldn't share the destination. Try again.").typeStyle(.foot).foregroundStyle(Color.brake)
+                        Text("Couldn't share the destination. Try again.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.brake)
                     }
                 }
             }
@@ -512,12 +512,12 @@ struct RoutePreview: View {
             HStack {
                 Text(verbatim: "\(Int(r.route.expectedTravelTime / 60)) min").typeStyle(.readoutL)
                     .foregroundStyle(selected ? Color.sodium : Color.chalk)
-                if best { Text("Best for your car").typeStyle(.label).foregroundStyle(Color.go) }
+                if best { Text("Best for your car", bundle: .module).typeStyle(.label).foregroundStyle(Color.go) }
             }
             Text(verbatim: "\(NavigationModel.distance(r.route.distance)) · \(r.route.name)").typeStyle(.sub).foregroundStyle(Color.dust)
             if model.clearance != .stock {
                 if hazards.isEmpty {
-                    Text("Clear for a lowered car").typeStyle(.sub).foregroundStyle(Color.go)
+                    Text("Clear for a lowered car", bundle: .module).typeStyle(.sub).foregroundStyle(Color.go)
                 } else {
                     let counts = Dictionary(grouping: hazards, by: \.kind).map { "\($0.value.count) \(NavigationModel.kindName($0.key).lowercased())\($0.value.count > 1 ? "s" : "")" }
                     Text(verbatim: counts.joined(separator: ", ")).typeStyle(.sub).foregroundStyle(Color.sodium)
@@ -580,12 +580,12 @@ struct GuidanceView: View {
                 .foregroundStyle(Color.sodium).frame(width: Size.hitTarget)
             VStack(alignment: .leading, spacing: Space.s2) {
                 if model.arrived {
-                    Text("You've arrived").typeStyle(.title).foregroundStyle(Color.chalk)
+                    Text("You've arrived", bundle: .module).typeStyle(.title).foregroundStyle(Color.chalk)
                     Text(verbatim: model.name ?? "").typeStyle(.bodyStrong).foregroundStyle(Color.dust)
                 } else {
                     Text(verbatim: NavigationModel.distance(model.toManeuver)).typeStyle(.readoutL).foregroundStyle(Color.chalk)
-                    Text(verbatim: model.offRoute && !model.online ? String(localized: "Offline. Follow the route line.")
-                         : model.rerouting ? String(localized: "Rerouting") : (next?.instructions ?? "")).typeStyle(.bodyStrong)
+                    Text(verbatim: model.offRoute && !model.online ? String(localized: "Offline. Follow the route line.", bundle: .module)
+                         : model.rerouting ? String(localized: "Rerouting", bundle: .module) : (next?.instructions ?? "")).typeStyle(.bodyStrong)
                         .foregroundStyle(Color.chalk).lineLimit(2)
                 }
             }
@@ -638,9 +638,9 @@ struct ShareETASheet: View {
     @State private var chosen: Set<UserID> = []
 
     var body: some View {
-        Sheet(Text("Share ETA")) {
+        Sheet(Text("Share ETA", bundle: .module)) {
             VStack(alignment: .leading, spacing: Space.s16) {
-                Text("They get one notice: \(model.destinationName), arriving \(model.arrival.formatted(date: .omitted, time: .shortened)). Not your location.")
+                Text("They get one notice: \(model.destinationName), arriving \(model.arrival.formatted(date: .omitted, time: .shortened)). Not your location.", bundle: .module)
                     .typeStyle(.sub).foregroundStyle(Color.dust)
                 ScrollView {
                     ForEach(model.friends) { f in
@@ -657,7 +657,7 @@ struct ShareETASheet: View {
                     }
                 }
                 if model.etaFailed {
-                    Text("Couldn't send it. Try again.").typeStyle(.foot).foregroundStyle(Color.brake)
+                    Text("Couldn't send it. Try again.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.brake)
                 }
                 PrimaryButton("Send", isLoading: model.sendingETA) {
                     let users = Array(chosen)

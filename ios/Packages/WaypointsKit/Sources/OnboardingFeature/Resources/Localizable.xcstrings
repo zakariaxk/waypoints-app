@@ -1,0 +1,84 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "6 digits": {
+      "extractionState": "manual"
+    },
+    "Available": {
+      "extractionState": "manual"
+    },
+    "Birth year": {
+      "extractionState": "manual"
+    },
+    "By continuing you agree to the [Terms](https://waypoints.app/terms) and [Privacy Policy](https://waypoints.app/privacy).": {
+      "extractionState": "manual"
+    },
+    "Code": {
+      "extractionState": "manual"
+    },
+    "Continue": {
+      "extractionState": "manual"
+    },
+    "Continue with email": {
+      "extractionState": "manual"
+    },
+    "Email": {
+      "extractionState": "manual"
+    },
+    "Friends see where you are. Everyone else sees nothing unless you say so. You can go ghost any time.": {
+      "extractionState": "manual"
+    },
+    "Handle": {
+      "extractionState": "manual"
+    },
+    "Name": {
+      "extractionState": "manual"
+    },
+    "Not now": {
+      "extractionState": "manual"
+    },
+    "See who's out. Find the meet. Show the build.": {
+      "extractionState": "manual"
+    },
+    "Send code": {
+      "extractionState": "manual"
+    },
+    "Send it again": {
+      "extractionState": "manual"
+    },
+    "Skip for now": {
+      "extractionState": "manual"
+    },
+    "Taken": {
+      "extractionState": "manual"
+    },
+    "Turn on location": {
+      "extractionState": "manual"
+    },
+    "Waypoints": {
+      "extractionState": "manual"
+    },
+    "Waypoints is for drivers 17 and up.": {
+      "extractionState": "manual"
+    },
+    "What do you drive?": {
+      "extractionState": "manual"
+    },
+    "What friends call you": {
+      "extractionState": "manual"
+    },
+    "Who sees you": {
+      "extractionState": "manual"
+    },
+    "You": {
+      "extractionState": "manual"
+    },
+    "lowercase, numbers, _": {
+      "extractionState": "manual"
+    },
+    "you@example.com": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

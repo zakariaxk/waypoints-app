@@ -138,7 +138,7 @@ struct EarnedIconStrip: View {
                         Text(verbatim: MapIconSet.title(name)).typeStyle(.foot).foregroundStyle(Color.dust)
                     }
                     .accessibilityElement(children: .ignore)
-                    .accessibilityLabel(Text("\(MapIconSet.title(name)) icon, earned"))
+                    .accessibilityLabel(Text("\(MapIconSet.title(name)) icon, earned", bundle: .module))
                 }
             }
             .padding(.horizontal, Space.margin)
@@ -183,7 +183,7 @@ struct BuildCard: View {
                     cell(e.zeroToSixty, "EST. 0–60", fmt: "%.1f", unit: "s")
                     cell(e.quarterET, "EST. ¼ MILE", fmt: "%.1f", unit: "s")
                 }
-                Text("Estimates from stock specs and listed mods.").typeStyle(.foot).foregroundStyle(Color.dust)
+                Text("Estimates from stock specs and listed mods.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
             }
             HStack {
                 if let handle { Text(verbatim: "@\(handle)").typeStyle(.readoutS).foregroundStyle(Color.sodium) }

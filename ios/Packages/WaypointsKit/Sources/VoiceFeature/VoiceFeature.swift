@@ -69,10 +69,10 @@ final class VoiceSession {
             let creds: VoiceCredentials
             switch target {
             case let .channel(id):
-                title = (try? await env.teams.channel(id))?.name ?? String(localized: "Voice")
+                title = (try? await env.teams.channel(id))?.name ?? String(localized: "Voice", bundle: .module)
                 creds = try await env.gateway.voiceToken(for: id)
             case let .convoy(id):
-                title = String(localized: "Convoy")
+                title = String(localized: "Convoy", bundle: .module)
                 creds = try await env.gateway.voiceToken(forConvoy: id)
                 watchConvoy(id)
             }
@@ -84,8 +84,8 @@ final class VoiceSession {
             phase = .live
             startPolling()
         } catch WaypointsError.forbidden {
-            if case .convoy = target { phase = .failed(String(localized: "You're not in this convoy.")) }
-            else { phase = .failed(String(localized: "You're not in this team.")) }
+            if case .convoy = target { phase = .failed(String(localized: "You're not in this convoy.", bundle: .module)) }
+            else { phase = .failed(String(localized: "You're not in this team.", bundle: .module)) }
         } catch {
             phase = .failed("Voice is unavailable right now. Try again later.")
         }
@@ -111,7 +111,7 @@ final class VoiceSession {
         closing = true
         await leave()
         if lost {
-            toast = ToastMessage(Text("Voice disconnected."))
+            toast = ToastMessage(Text("Voice disconnected.", bundle: .module))
             try? await Task.sleep(for: .seconds(Timing.toast))
         }
         closed += 1
@@ -130,7 +130,7 @@ final class VoiceSession {
         guard let room else { return }
         var list: [Speaker] = []
         let local = room.localParticipant
-        list.append(Speaker(id: "me", name: String(localized: "You"), speaking: local.isSpeaking, muted: muted))
+        list.append(Speaker(id: "me", name: String(localized: "You", bundle: .module), speaking: local.isSpeaking, muted: muted))
         for (_, p) in room.remoteParticipants {
             list.append(Speaker(id: p.identity?.stringValue ?? UUID().uuidString, name: p.name ?? "Driver",
                                 speaking: p.isSpeaking, muted: !p.isMicrophoneEnabled()))
@@ -223,15 +223,15 @@ struct VoiceSheet: View {
             case let .failed(message):
                 Text(verbatim: message).typeStyle(.body).foregroundStyle(Color.dust)
             case .connecting:
-                Text("Connecting").typeStyle(.sub).foregroundStyle(Color.dust)
+                Text("Connecting", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
             case .reconnecting:
-                Text("Reconnecting").typeStyle(.sub).foregroundStyle(Color.sodium)
+                Text("Reconnecting", bundle: .module).typeStyle(.sub).foregroundStyle(Color.sodium)
             default:
-                if session.muted { Text("You're muted. Tap to talk.").typeStyle(.sub).foregroundStyle(Color.dust) }
+                if session.muted { Text("You're muted. Tap to talk.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust) }
             }
             if session.micDenied {
                 HStack {
-                    Text("Microphone is off for Waypoints.").typeStyle(.sub).foregroundStyle(Color.chalk)
+                    Text("Microphone is off for Waypoints.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.chalk)
                     QuietButton("Open Settings") { openURL(URL(string: UIApplication.openSettingsURLString)!) }
                 }
             }

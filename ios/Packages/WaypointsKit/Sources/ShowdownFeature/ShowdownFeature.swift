@@ -16,7 +16,7 @@ public enum ShowdownFeature: FeatureModule {
 struct ShowdownMode: FeedMode {
     let env: AppEnvironment
     var id: String { "showdown" }
-    var title: String { String(localized: "Showdown") }
+    var title: String { String(localized: "Showdown", bundle: .module) }
     var order: Int { 10 }
     @MainActor func view() -> AnyView { AnyView(NavigationStack { ShowdownView(env: env) }) }
 }
@@ -124,7 +124,7 @@ struct ShowdownView: View {
                 if toward { pick(c) }
             })
         .accessibilityAddTraits(.isButton)
-        .accessibilityLabel(Text("Pick \(c.car.fullLabel)"))
+        .accessibilityLabel(Text("Pick \(c.car.fullLabel)", bundle: .module))
     }
 
     private func pick(_ c: ShowdownContender) {

@@ -1,0 +1,159 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ %@": {
+      "extractionState": "manual"
+    },
+    "Add photos": {
+      "extractionState": "manual"
+    },
+    "All parts": {
+      "extractionState": "manual"
+    },
+    "Any": {
+      "extractionState": "manual"
+    },
+    "Budget": {
+      "extractionState": "manual"
+    },
+    "Budget %@": {
+      "extractionState": "manual"
+    },
+    "Budget %@ · %@": {
+      "extractionState": "manual"
+    },
+    "Cancel": {
+      "extractionState": "manual"
+    },
+    "Category": {
+      "extractionState": "manual"
+    },
+    "Choose from your garage": {
+      "extractionState": "manual"
+    },
+    "Choose one": {
+      "extractionState": "manual"
+    },
+    "Clear": {
+      "extractionState": "manual"
+    },
+    "Condition": {
+      "extractionState": "manual"
+    },
+    "Cover": {
+      "extractionState": "manual"
+    },
+    "Cover photo": {
+      "extractionState": "manual"
+    },
+    "Description": {
+      "extractionState": "manual"
+    },
+    "Distance": {
+      "extractionState": "manual"
+    },
+    "Drag to reorder. The first photo is the cover.": {
+      "extractionState": "manual"
+    },
+    "Edit": {
+      "extractionState": "manual"
+    },
+    "Expired": {
+      "extractionState": "manual"
+    },
+    "Filter": {
+      "extractionState": "manual"
+    },
+    "Fits": {
+      "extractionState": "manual"
+    },
+    "For parts": {
+      "extractionState": "manual"
+    },
+    "Found": {
+      "extractionState": "manual"
+    },
+    "Like 'South Jersey'": {
+      "extractionState": "manual"
+    },
+    "List something": {
+      "extractionState": "manual"
+    },
+    "Make cover": {
+      "extractionState": "manual"
+    },
+    "Market": {
+      "extractionState": "manual"
+    },
+    "Meet in a public place. Waypoints doesn't handle payment.": {
+      "extractionState": "manual"
+    },
+    "Move left": {
+      "extractionState": "manual"
+    },
+    "Move right": {
+      "extractionState": "manual"
+    },
+    "New": {
+      "extractionState": "manual"
+    },
+    "Nobody has posted a wanted ad yet.": {
+      "extractionState": "manual"
+    },
+    "Nobody is looking for %@ parts yet.": {
+      "extractionState": "manual"
+    },
+    "Nothing for sale near you yet.": {
+      "extractionState": "manual"
+    },
+    "Nothing listed for a %@ yet.": {
+      "extractionState": "manual"
+    },
+    "Photo %@": {
+      "extractionState": "manual"
+    },
+    "Post what you want": {
+      "extractionState": "manual"
+    },
+    "Region": {
+      "extractionState": "manual"
+    },
+    "Relist": {
+      "extractionState": "manual"
+    },
+    "Remove": {
+      "extractionState": "manual"
+    },
+    "Report": {
+      "extractionState": "manual"
+    },
+    "Search": {
+      "extractionState": "manual"
+    },
+    "Search all cars": {
+      "extractionState": "manual"
+    },
+    "Search parts and cars": {
+      "extractionState": "manual"
+    },
+    "Sold": {
+      "extractionState": "manual"
+    },
+    "Title": {
+      "extractionState": "manual"
+    },
+    "Used": {
+      "extractionState": "manual"
+    },
+    "What is it?": {
+      "extractionState": "manual"
+    },
+    "You're doing that a lot. Try again in a few minutes.": {
+      "extractionState": "manual"
+    },
+    "Yours": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

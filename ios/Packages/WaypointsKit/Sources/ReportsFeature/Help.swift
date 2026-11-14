@@ -10,15 +10,15 @@ import SwiftUI
 enum HelpText {
     static func name(_ k: HelpKind) -> String {
         switch k {
-        case .flatTire: String(localized: "Flat tire")
-        case .jumpStart: String(localized: "Jump start")
-        case .outOfFuel: String(localized: "Out of fuel")
-        case .stuck: String(localized: "Stuck")
-        case .other: String(localized: "Something else")
+        case .flatTire: String(localized: "Flat tire", bundle: .module)
+        case .jumpStart: String(localized: "Jump start", bundle: .module)
+        case .outOfFuel: String(localized: "Out of fuel", bundle: .module)
+        case .stuck: String(localized: "Stuck", bundle: .module)
+        case .other: String(localized: "Something else", bundle: .module)
         }
     }
 
-    static let anonymous = String(localized: "A driver needs a hand")
+    static let anonymous = String(localized: "A driver needs a hand", bundle: .module)
     static var disclosure: LocalizedStringKey {
         "This shares your exact spot with the people you pick until you clear it. For an emergency, call emergency services."
     }
@@ -26,7 +26,7 @@ enum HelpText {
         "You're inside a home zone. Home zones don't apply to a help request: the people you pick see this exact spot."
     }
 
-    static func who(_ r: HelpRequest) -> String { r.isMine ? String(localized: "You") : (r.displayName ?? anonymous) }
+    static func who(_ r: HelpRequest) -> String { r.isMine ? String(localized: "You", bundle: .module) : (r.displayName ?? anonymous) }
 }
 
 extension MapGlyph {
@@ -90,7 +90,7 @@ struct HelpSectionView: View {
                             leading: { ReportBadge(kind: "help") },
                             trailing: {
                                 if r.responderCount > 0 {
-                                    Text("\(r.responderCount) coming").typeStyle(.readoutS)
+                                    Text("\(r.responderCount) coming", bundle: .module).typeStyle(.readoutS)
                                 } else {
                                     Disclosure()
                                 }
@@ -113,7 +113,7 @@ struct HelpSectionView: View {
 
 struct HelpAction: MapAction {
     var id: String { "help" }
-    var title: String { String(localized: "Ask for a hand") }
+    var title: String { String(localized: "Ask for a hand", bundle: .module) }
     var symbol: String { "hand.raised" }
     var order: Int { 15 }
     @MainActor func perform(at coordinate: Coordinate, router: any Router) { router.open(.askForHelp(coordinate)) }
@@ -154,13 +154,13 @@ struct AskForHelp: View {
     }
 
     private var form: some View {
-        Sheet(Text("Ask for a hand")) {
+        Sheet(Text("Ask for a hand", bundle: .module)) {
             ScrollView {
                 VStack(alignment: .leading, spacing: Space.s16) {
                     FlowChips(kinds: HelpKind.allCases, selected: $kind)
                     Field("Note", text: $note, prompt: "Optional", limit: 120)
-                    Row(Text("Also show drivers nearby"),
-                        subtitle: Text("Without your name, as \"A driver needs a hand\""),
+                    Row(Text("Also show drivers nearby", bundle: .module),
+                        subtitle: Text("Without your name, as \"A driver needs a hand\"", bundle: .module),
                         showsDivider: false,
                         trailing: { Toggle("", isOn: $showNearby).labelsHidden().tint(.sodium) })
                         .padding(.horizontal, -Space.margin)
@@ -218,13 +218,13 @@ struct AskForHelp: View {
                 posted = try await env.gateway.postHelp(draft)
                 done += 1
             } catch WaypointsError.conflict {
-                error = String(localized: "You already have a request out. Clear it before asking again.")
+                error = String(localized: "You already have a request out. Clear it before asking again.", bundle: .module)
                 failed += 1
             } catch WaypointsError.rateLimited {
-                error = String(localized: "That's a lot of requests. Try again later.")
+                error = String(localized: "That's a lot of requests. Try again later.", bundle: .module)
                 failed += 1
             } catch {
-                self.error = String(localized: "Couldn't ask for a hand. Check your connection and try again.")
+                self.error = String(localized: "Couldn't ask for a hand. Check your connection and try again.", bundle: .module)
                 failed += 1
             }
         }
@@ -277,7 +277,7 @@ struct HelpDetail: View {
             if let r = request {
                 content(r)
             } else if gone {
-                Text("This request has ended.").typeStyle(.body).foregroundStyle(Color.dust)
+                Text("This request has ended.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
             } else {
                 SkeletonRow()
             }
@@ -311,11 +311,11 @@ struct HelpDetail: View {
                         Button("Report person") { env.router.open(.reportContent(.user(requester))) }
                     }
                 } label: { Image.symbol(Symbol.more).frame(width: Size.hitTarget, height: Size.hitTarget) }
-                .accessibilityLabel(Text("More"))
+                .accessibilityLabel(Text("More", bundle: .module))
             }
         }
         if r.isMine {
-            Text("Your request").typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+            Text("Your request", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
         } else if let name = r.displayName {
             Text(verbatim: name).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
             if let car = r.carLabel { CarBadge(car) }
@@ -327,7 +327,7 @@ struct HelpDetail: View {
         if let note = r.note { Text(verbatim: note).typeStyle(.body).foregroundStyle(Color.chalk) }
         if r.isMine {
             if r.responders.isEmpty {
-                Text("Nobody is on the way yet.").typeStyle(.sub).foregroundStyle(Color.dust)
+                Text("Nobody is on the way yet.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
             } else {
                 Text("On the way: \(r.responders.map(\.displayName).formatted(.list(type: .and)))")
                     .typeStyle(.sub).foregroundStyle(Color.go)
@@ -338,11 +338,11 @@ struct HelpDetail: View {
             }
         } else {
             if r.isComing {
-                Text("They know you're on the way.").typeStyle(.bodyStrong).foregroundStyle(Color.go)
+                Text("They know you're on the way.", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.go)
                 PrimaryButton("Directions") { directions(r) }
             } else {
                 if r.responderCount > 0 {
-                    Text("\(r.responderCount) on the way").typeStyle(.sub).foregroundStyle(Color.dust)
+                    Text("\(r.responderCount) on the way", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
                 }
                 HStack(spacing: Space.s12) {
                     PrimaryButton("On my way", isLoading: busy) { respond(r) }
@@ -374,7 +374,7 @@ struct HelpDetail: View {
                 request = try await env.gateway.respondToHelp(r.id)
                 done += 1
             } catch {
-                self.error = String(localized: "Couldn't send that. Check your connection and try again.")
+                self.error = String(localized: "Couldn't send that. Check your connection and try again.", bundle: .module)
             }
         }
     }
@@ -388,7 +388,7 @@ struct HelpDetail: View {
                 done += 1
                 dismiss()
             } catch {
-                self.error = String(localized: "Couldn't clear it. Check your connection and try again.")
+                self.error = String(localized: "Couldn't clear it. Check your connection and try again.", bundle: .module)
             }
         }
     }
@@ -398,7 +398,7 @@ struct HelpDetail: View {
             do {
                 request = try await env.gateway.extendHelp(r.id)
             } catch {
-                self.error = String(localized: "Couldn't extend it. Check your connection and try again.")
+                self.error = String(localized: "Couldn't extend it. Check your connection and try again.", bundle: .module)
             }
         }
     }

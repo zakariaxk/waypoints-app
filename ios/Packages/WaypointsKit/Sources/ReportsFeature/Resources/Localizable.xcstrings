@@ -1,0 +1,129 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ coming": {
+      "extractionState": "manual"
+    },
+    "%@ on the way": {
+      "extractionState": "manual"
+    },
+    "A driver needs a hand": {
+      "extractionState": "manual"
+    },
+    "Add a note": {
+      "extractionState": "manual"
+    },
+    "Add an hour": {
+      "extractionState": "manual"
+    },
+    "Also show drivers nearby": {
+      "extractionState": "manual"
+    },
+    "Ask for a hand": {
+      "extractionState": "manual"
+    },
+    "Confirmed by %@": {
+      "extractionState": "manual"
+    },
+    "Couldn't ask for a hand. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't clear it. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't extend it. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't send that. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Directions": {
+      "extractionState": "manual"
+    },
+    "Flat tire": {
+      "extractionState": "manual"
+    },
+    "Gone": {
+      "extractionState": "manual"
+    },
+    "I'm good": {
+      "extractionState": "manual"
+    },
+    "Jump start": {
+      "extractionState": "manual"
+    },
+    "More": {
+      "extractionState": "manual"
+    },
+    "NEEDS A HAND": {
+      "extractionState": "manual"
+    },
+    "Nobody is on the way yet.": {
+      "extractionState": "manual"
+    },
+    "Note": {
+      "extractionState": "manual"
+    },
+    "On my way": {
+      "extractionState": "manual"
+    },
+    "Optional": {
+      "extractionState": "manual"
+    },
+    "Out of fuel": {
+      "extractionState": "manual"
+    },
+    "REPORTS NEARBY": {
+      "extractionState": "manual"
+    },
+    "Report": {
+      "extractionState": "manual"
+    },
+    "Report a hazard": {
+      "extractionState": "manual"
+    },
+    "Report person": {
+      "extractionState": "manual"
+    },
+    "Something else": {
+      "extractionState": "manual"
+    },
+    "Still there": {
+      "extractionState": "manual"
+    },
+    "Stuck": {
+      "extractionState": "manual"
+    },
+    "Thanks. Counted.": {
+      "extractionState": "manual"
+    },
+    "That's a lot of requests. Try again later.": {
+      "extractionState": "manual"
+    },
+    "They know you're on the way.": {
+      "extractionState": "manual"
+    },
+    "This request has ended.": {
+      "extractionState": "manual"
+    },
+    "Undo": {
+      "extractionState": "manual"
+    },
+    "What's here?": {
+      "extractionState": "manual"
+    },
+    "Without your name, as \"A driver needs a hand\"": {
+      "extractionState": "manual"
+    },
+    "You": {
+      "extractionState": "manual"
+    },
+    "You already have a request out. Clear it before asking again.": {
+      "extractionState": "manual"
+    },
+    "Your request": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

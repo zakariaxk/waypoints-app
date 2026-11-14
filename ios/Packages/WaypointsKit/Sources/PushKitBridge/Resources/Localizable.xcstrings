@@ -1,0 +1,18 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Activity": {
+      "extractionState": "manual"
+    },
+    "Couldn't load activity. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "New": {
+      "extractionState": "manual"
+    },
+    "Nothing yet. Friend requests, likes, comments, and RSVPs to your meets show up here.": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

@@ -109,7 +109,7 @@ struct CarScreen: View {
             Button("Delete car", role: .destructive) {
                 Task { try? await ctx.env.garage.deleteCar(model.carID); dismiss() }
             }
-        } message: { Text("Its photos and timeline are deleted too.") }
+        } message: { Text("Its photos and timeline are deleted too.", bundle: .module) }
         .sheet(isPresented: $addEntry) {
             TimelineEntrySheet(ctx: ctx, car: model.car!) { Task { await model.load() } }
         }
@@ -121,7 +121,7 @@ struct CarScreen: View {
                     }
                 }
             }
-        } message: { Text("Needs at least one photo.") }
+        } message: { Text("Needs at least one photo.", bundle: .module) }
         .sheet(item: $shared) { ShareSheet(items: [$0.image]).presentationDetents([.medium, .large]) }
         .photosPicker(isPresented: $pickPhoto, selection: $photoItem, matching: .images)
         .onChange(of: photoItem) { if let item = photoItem { Task { await model.addPhoto(item); photoItem = nil } } }
@@ -164,7 +164,7 @@ struct CarScreen: View {
                         .overMapMaterial(in: Circle())
                 }
                 .padding(Space.s12)
-                .accessibilityLabel(Text("Add a photo"))
+                .accessibilityLabel(Text("Add a photo", bundle: .module))
             }
         }
     }
@@ -189,7 +189,7 @@ struct CarScreen: View {
                     readout(e.zeroToSixty, "0–60", fmt: "%.1f", unit: "s", bounds: 2...12)
                     readout(e.quarterET, "¼ MILE", fmt: "%.1f", unit: "s", bounds: 8...18)
                 }
-                Text("Estimates from stock specs and listed mods.").typeStyle(.foot).foregroundStyle(Color.dust)
+                Text("Estimates from stock specs and listed mods.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
             }
             .padding(.horizontal, Space.margin)
             .padding(.top, Space.s24)
@@ -213,14 +213,14 @@ struct CarScreen: View {
                 actionRow("Run the strip") { ctx.env.router.open(.race(car.id)) }
             }
             if let entry = model.showdown {
-                Row(Text("In Showdown · \(entry.showdownClass.rawValue.capitalized)"),
+                Row(Text("In Showdown · \(entry.showdownClass.rawValue.capitalized)", bundle: .module),
                     trailing: { Text(verbatim: "\(entry.rating)").typeStyle(.readoutS) })
             } else if !ctx.registry.feedModes.isEmpty {
                 actionRow("Enter Showdown") { askShowdown = true }
                     .disabled(model.photos.isEmpty)
             }
             actionRow("Edit car") { ctx.env.router.open(.vehiclePicker(forCar: car.id)) }
-            if model.uploading { Text("Uploading photo").typeStyle(.foot).foregroundStyle(Color.dust).padding(Space.margin) }
+            if model.uploading { Text("Uploading photo", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust).padding(Space.margin) }
         }
         .padding(.top, Space.s16)
     }
@@ -253,7 +253,7 @@ struct CarScreen: View {
         SectionLabel("TIMELINE")
         if model.entries.isEmpty && model.own {
             VStack(alignment: .leading, spacing: Space.s12) {
-                Text("No entries yet. Log the first thing you did to it.").typeStyle(.body).foregroundStyle(Color.dust)
+                Text("No entries yet. Log the first thing you did to it.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
                 SecondaryButton("Add an entry") { addEntry = true }
             }
             .padding(.horizontal, Space.margin)
@@ -266,7 +266,7 @@ struct CarScreen: View {
                         let odo = e.odometer.map { GarageUnits.odometer($0, e.odometerUnit ?? GarageUnits.defaultOdometer) }
                         Text(odo.map { "Service · \($0)" } ?? "Service").typeStyle(.sub).foregroundStyle(Color.dust)
                         if let day = e.remindOn, day >= Calendar.current.startOfDay(for: .now) {
-                            Text("Reminder \(day.formatted(date: .abbreviated, time: .omitted))").typeStyle(.sub).foregroundStyle(Color.dust)
+                            Text("Reminder \(day.formatted(date: .abbreviated, time: .omitted))", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
                         }
                     }
                     if !e.body.isEmpty { Text(verbatim: e.body).typeStyle(.body).foregroundStyle(Color.chalk) }
@@ -313,7 +313,7 @@ struct CarScreen: View {
                             Task { model.car = try? await ctx.env.garage.updateCar(updated) }
                         }
                     }
-                } label: { Row(Text("Change clearance"), showsDivider: false, trailing: { Disclosure() }) }
+                } label: { Row(Text("Change clearance", bundle: .module), showsDivider: false, trailing: { Disclosure() }) }
             }
         }
     }
@@ -342,7 +342,7 @@ struct TimelineEntrySheet: View {
     @State private var error: String?
 
     var body: some View {
-        Sheet(Text("Add to timeline")) {
+        Sheet(Text("Add to timeline", bundle: .module)) {
             Color.clear.frame(height: 0).photosPicker(isPresented: $pick, selection: $photo, matching: .images)
             ScrollView {
                 VStack(alignment: .leading, spacing: Space.s16) {
@@ -358,7 +358,7 @@ struct TimelineEntrySheet: View {
                         Button("None") { modID = nil }
                         ForEach(ModCatalog.all, id: \.id) { m in Button(m.name) { modID = m.id } }
                     } label: {
-                        Row(Text("Link a mod"), showsDivider: false, trailing: {
+                        Row(Text("Link a mod", bundle: .module), showsDivider: false, trailing: {
                             Text(verbatim: modID.flatMap { ModCatalog.mod($0)?.name } ?? "").typeStyle(.sub)
                         })
                     }
@@ -523,18 +523,18 @@ struct FriendsScreen: View {
                         }
                     } else {
                         if let url = URL(string: "https://waypoints.app/u/\(handle)") {
-                            ShareLink(item: url) { Row(Text("Invite a friend"), trailing: { Image.symbol(Symbol.share) }) }
+                            ShareLink(item: url) { Row(Text("Invite a friend", bundle: .module), trailing: { Image.symbol(Symbol.share) }) }
                         }
                         if let meID, let link = ProfileLink.url(for: meID) {
                             NavigationLink {
-                                QRCodeScreen(Text("My code"), heading: Text(verbatim: "@\(handle)"),
-                                             caption: Text("Have them scan it in Friends to add you."), url: link)
-                            } label: { Row(Text("My code"), trailing: { Disclosure() }) }
+                                QRCodeScreen(Text("My code", bundle: .module), heading: Text(verbatim: "@\(handle)"),
+                                             caption: Text("Have them scan it in Friends to add you.", bundle: .module), url: link)
+                            } label: { Row(Text("My code", bundle: .module), trailing: { Disclosure() }) }
                             .buttonStyle(RowButtonStyle())
                         }
                         if CodeScanner.isAvailable {
                             Button { scanning = true } label: {
-                                Row(Text("Scan"), subtitle: Text("Add someone from their code"), trailing: { Image.symbol(Symbol.camera) })
+                                Row(Text("Scan", bundle: .module), subtitle: Text("Add someone from their code", bundle: .module), trailing: { Image.symbol(Symbol.camera) })
                             }
                             .buttonStyle(RowButtonStyle())
                         }
@@ -549,7 +549,7 @@ struct FriendsScreen: View {
                             }
                         } else {
                             if requests.isEmpty {
-                                Text("No requests.").typeStyle(.body).foregroundStyle(Color.dust).padding(Space.margin)
+                                Text("No requests.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust).padding(Space.margin)
                             }
                             ForEach(requests) { r in
                                 Row(Text(verbatim: r.profile.displayName), subtitle: Text(verbatim: "@\(r.profile.handle)"), leading: {

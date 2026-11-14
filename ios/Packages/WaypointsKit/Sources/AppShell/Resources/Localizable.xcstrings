@@ -1,0 +1,12 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "See who's out. Find the meet. Show the build.": {
+      "extractionState": "manual"
+    },
+    "Waypoints": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

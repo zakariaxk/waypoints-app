@@ -29,7 +29,7 @@ enum Units {
 
 /// SAFE-9: the server's abuse limits get their own line; everything else gets the fallback.
 func message(for error: any Error, fallback: String) -> String {
-    (error as? WaypointsError) == .rateLimited ? String(localized: "You're doing that a lot. Try again in a few minutes.") : fallback
+    (error as? WaypointsError) == .rateLimited ? String(localized: "You're doing that a lot. Try again in a few minutes.", bundle: .module) : fallback
 }
 
 /// One recorded drive, stored as a file in Application Support.
@@ -139,7 +139,7 @@ struct DrivenLayer: MapLayerProvider {
                 let shown = cells.enumerated().filter { $0.offset % every == 0 }.map(\.element)
                 c.yield(shown.map { cell in
                     MapItem(id: "driven.\(cell.i).\(cell.j)", coordinate: DrivenGrid.center(cell), glyph: "driven", tint: .sodium,
-                            title: String(localized: "Driven"), priority: 0)
+                            title: String(localized: "Driven", bundle: .module), priority: 0)
                 })
                 c.finish()
             }
@@ -162,7 +162,7 @@ struct DrivenShare: View {
                 SectionLabel("DRIVEN MAP")
                 Readout("\(share.driven * 100 / share.total)", unit: "%", label: "OF RATED ROADS IN VIEW")
                     .padding(.horizontal, Space.margin)
-                Text("\(share.driven) of \(share.total) stretches of road here. Counted on this phone only.")
+                Text("\(share.driven) of \(share.total) stretches of road here. Counted on this phone only.", bundle: .module)
                     .typeStyle(.foot).foregroundStyle(Color.dust).padding(.horizontal, Space.margin)
             }
         }
@@ -353,7 +353,7 @@ struct SaveStretch: View {
     }
 
     var body: some View {
-        Sheet(Text("Save a road")) {
+        Sheet(Text("Save a road", bundle: .module)) {
             ScrollView {
                 VStack(alignment: .leading, spacing: Space.s16) {
                     Map {
@@ -365,14 +365,14 @@ struct SaveStretch: View {
                     .frame(height: Size.row * 4)
                     .clipShape(RoundedRectangle(cornerRadius: Radius.r20))
                     .environment(\.colorScheme, .dark)
-                    Text("Start").typeStyle(.foot).foregroundStyle(Color.dust)
+                    Text("Start", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     Slider(value: $from, in: 0...max(0, to - 0.02)).tint(.sodium)
-                    Text("End").typeStyle(.foot).foregroundStyle(Color.dust)
+                    Text("End", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     Slider(value: $to, in: min(1, from + 0.02)...1).tint(.sodium)
                     Field("Name", text: $name, prompt: "Like 'Route 9 through the pines'", limit: 50)
                     RatingSteppers(rating: $rating)
                     if endsAtHome {
-                        Text("A road can't start or end in one of your home zones. Move the handles.")
+                        Text("A road can't start or end in one of your home zones. Move the handles.", bundle: .module)
                             .typeStyle(.foot).foregroundStyle(Color.brake)
                     }
                     if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }

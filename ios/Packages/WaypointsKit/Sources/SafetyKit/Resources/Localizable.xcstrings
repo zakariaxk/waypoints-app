@@ -1,0 +1,36 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Agree": {
+      "extractionState": "manual"
+    },
+    "Also block @%@": {
+      "extractionState": "manual"
+    },
+    "Done": {
+      "extractionState": "manual"
+    },
+    "Note": {
+      "extractionState": "manual"
+    },
+    "Optional": {
+      "extractionState": "manual"
+    },
+    "Read the full Terms": {
+      "extractionState": "manual"
+    },
+    "Report %@": {
+      "extractionState": "manual"
+    },
+    "Reported. We review reports within 24 hours.": {
+      "extractionState": "manual"
+    },
+    "Send report": {
+      "extractionState": "manual"
+    },
+    "The rules": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

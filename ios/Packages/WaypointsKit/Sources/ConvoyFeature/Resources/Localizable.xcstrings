@@ -1,0 +1,81 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ drivers": {
+      "extractionState": "manual"
+    },
+    "6 characters": {
+      "extractionState": "manual"
+    },
+    "CONVOY": {
+      "extractionState": "manual"
+    },
+    "Code": {
+      "extractionState": "manual"
+    },
+    "Convoy ended.": {
+      "extractionState": "manual"
+    },
+    "Destination": {
+      "extractionState": "manual"
+    },
+    "Directions": {
+      "extractionState": "manual"
+    },
+    "End convoy": {
+      "extractionState": "manual"
+    },
+    "End the convoy for all %@ drivers?": {
+      "extractionState": "manual"
+    },
+    "Everyone in the convoy sees your exact location until you leave.": {
+      "extractionState": "manual"
+    },
+    "Heading to %@": {
+      "extractionState": "manual"
+    },
+    "INVITE FRIENDS": {
+      "extractionState": "manual"
+    },
+    "Join convoy": {
+      "extractionState": "manual"
+    },
+    "Join with code": {
+      "extractionState": "manual"
+    },
+    "Leave": {
+      "extractionState": "manual"
+    },
+    "Lost signal": {
+      "extractionState": "manual"
+    },
+    "Name": {
+      "extractionState": "manual"
+    },
+    "Optional: where you're headed": {
+      "extractionState": "manual"
+    },
+    "Regroup": {
+      "extractionState": "manual"
+    },
+    "Set regroup point": {
+      "extractionState": "manual"
+    },
+    "Share invite": {
+      "extractionState": "manual"
+    },
+    "Start a convoy": {
+      "extractionState": "manual"
+    },
+    "Start convoy": {
+      "extractionState": "manual"
+    },
+    "Talk": {
+      "extractionState": "manual"
+    },
+    "The group has split. Set a regroup point?": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

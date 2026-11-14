@@ -1,0 +1,48 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Add Stage 1 tune too": {
+      "extractionState": "manual"
+    },
+    "Enter specs": {
+      "extractionState": "manual"
+    },
+    "Estimates. Real results depend on the tune, the dyno, and the day.": {
+      "extractionState": "manual"
+    },
+    "Hold to rev": {
+      "extractionState": "manual"
+    },
+    "Horsepower": {
+      "extractionState": "manual"
+    },
+    "Not now": {
+      "extractionState": "manual"
+    },
+    "Redline": {
+      "extractionState": "manual"
+    },
+    "Reference cars": {
+      "extractionState": "manual"
+    },
+    "Save": {
+      "extractionState": "manual"
+    },
+    "Save and add to timeline": {
+      "extractionState": "manual"
+    },
+    "Save to car": {
+      "extractionState": "manual"
+    },
+    "Synthesized sound": {
+      "extractionState": "manual"
+    },
+    "Torque (lb-ft)": {
+      "extractionState": "manual"
+    },
+    "We don't have specs for this car. Enter power and weight to simulate it.": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

@@ -196,7 +196,7 @@ final class ConvoyStore {
 
 struct StartConvoyAction: MapAction {
     var id: String { "convoy" }
-    var title: String { String(localized: "Start a convoy") }
+    var title: String { String(localized: "Start a convoy", bundle: .module) }
     var symbol: String { "car.rear.and.tire.marks" }
     var order: Int { 30 }
     @MainActor func perform(at coordinate: Coordinate, router: any Router) { router.open(.joinConvoy(code: "")) }
@@ -245,7 +245,7 @@ struct ConvoySectionView: View {
                 HStack {
                     VStack(alignment: .leading) {
                         Text(verbatim: store.name.isEmpty ? "Convoy" : store.name).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
-                        Text("\(s.memberUIDs.count) drivers").typeStyle(.foot).foregroundStyle(Color.dust)
+                        Text("\(s.memberUIDs.count) drivers", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     }
                     Spacer()
                     QuietButton("Talk") { store.talk() }
@@ -260,7 +260,7 @@ struct ConvoySectionView: View {
                 .background(Color.sodiumDim)
                 if store.shouldOfferRegroup {
                     VStack(alignment: .leading, spacing: Space.s8) {
-                        Text("The group has split. Set a regroup point?").typeStyle(.body).foregroundStyle(Color.chalk)
+                        Text("The group has split. Set a regroup point?", bundle: .module).typeStyle(.body).foregroundStyle(Color.chalk)
                         SecondaryButton("Set regroup point") { Task { await store.regroup() } }
                     }
                     .padding(Space.margin)
@@ -279,7 +279,7 @@ struct ConvoySectionView: View {
                         if m.uid == s.leaderUID { Image(systemName: "flag.fill").foregroundStyle(Color.sodium) }
                     }, trailing: {
                         if let fix = m.fixAt, Date.now.timeIntervalSince(fix) > 60 {
-                            Text("Lost signal").typeStyle(.foot)
+                            Text("Lost signal", bundle: .module).typeStyle(.foot)
                         } else if let g = store.gap(m) {
                             Text(verbatim: "+\(Int(g)) s").typeStyle(.readoutS)
                         }
@@ -290,7 +290,7 @@ struct ConvoySectionView: View {
                 Button("End convoy", role: .destructive) { Task { await store.end() } }
             }
         } else if store.ended {
-            Text("Convoy ended.").typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+            Text("Convoy ended.", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, Space.margin)
                 .padding(.vertical, Space.s8)
@@ -322,7 +322,7 @@ struct ConvoySheet: View {
                 if store.state != nil, let c = store.code {
                     Text(verbatim: c).typeStyle(.readoutL).foregroundStyle(Color.chalk)
                     if let url = Route.joinConvoy(code: c).shareURL {
-                        ShareLink(item: url) { Text("Share invite").typeStyle(.bodyStrong).foregroundStyle(Color.sodium) }
+                        ShareLink(item: url) { Text("Share invite", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.sodium) }
                     }
                     if !friends.isEmpty {
                         SectionLabel("INVITE FRIENDS")
@@ -351,7 +351,7 @@ struct ConvoySheet: View {
                     }
                 } else if !code.isEmpty || joining {
                     Field("Code", text: $code, prompt: "6 characters", limit: 6).textInputAutocapitalization(.characters)
-                    Text("Everyone in the convoy sees your exact location until you leave.").typeStyle(.sub).foregroundStyle(Color.dust)
+                    Text("Everyone in the convoy sees your exact location until you leave.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
                     PrimaryButton("Join convoy", isLoading: working) {
                         run { try await store.join(code: code); dismiss() }
                     }
@@ -361,9 +361,9 @@ struct ConvoySheet: View {
                     Field("Destination", text: $place, prompt: "Optional: where you're headed")
                         .onSubmit { findDestination() }
                     if let destination {
-                        Text("Heading to \(destination.name)").typeStyle(.sub).foregroundStyle(Color.go)
+                        Text("Heading to \(destination.name)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.go)
                     }
-                    Text("Everyone in the convoy sees your exact location until you leave.").typeStyle(.sub).foregroundStyle(Color.dust)
+                    Text("Everyone in the convoy sees your exact location until you leave.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
                     PrimaryButton("Start convoy", isLoading: working) { run { try await store.create(name: name, destination: destination) } }
                     QuietButton("Join with code") { joining = true }
                 }

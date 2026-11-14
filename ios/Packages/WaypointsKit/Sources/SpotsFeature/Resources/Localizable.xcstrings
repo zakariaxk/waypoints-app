@@ -1,0 +1,45 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Add to collection": {
+      "extractionState": "manual"
+    },
+    "Blurred area": {
+      "extractionState": "manual"
+    },
+    "Cancel": {
+      "extractionState": "manual"
+    },
+    "Change": {
+      "extractionState": "manual"
+    },
+    "Choose from library": {
+      "extractionState": "manual"
+    },
+    "Couldn't add it. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Done": {
+      "extractionState": "manual"
+    },
+    "Plates and faces are blurred. Tap a box to remove it. Tap the photo to blur more.": {
+      "extractionState": "manual"
+    },
+    "Removes the blur": {
+      "extractionState": "manual"
+    },
+    "Spot a car": {
+      "extractionState": "manual"
+    },
+    "Take a photo": {
+      "extractionState": "manual"
+    },
+    "What is it?": {
+      "extractionState": "manual"
+    },
+    "You're doing that a lot. Try again in a few minutes.": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

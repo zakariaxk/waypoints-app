@@ -61,7 +61,7 @@ enum ServiceReminder {
         }
         let content = UNMutableNotificationContent()
         content.title = car.nickname ?? car.shortLabel
-        content.body = String(localized: "Service reminder: \(entry.title)")
+        content.body = String(localized: "Service reminder: \(entry.title)", bundle: .module)
         content.sound = .default
         if let url = Route.car(car.id).shareURL(host: nil) { content.userInfo = ["url": url.absoluteString] }
         let request = UNNotificationRequest(identifier: identifier(entry.id), content: content,

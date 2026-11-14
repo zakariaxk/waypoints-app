@@ -76,7 +76,7 @@ struct Lobby: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Space.s16) {
-                Text("Virtual drag strip. A game, not a challenge. Keep it off the street.")
+                Text("Virtual drag strip. A game, not a challenge. Keep it off the street.", bundle: .module)
                     .typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
                 if let car, let spec {
                     let est = estimate(base: spec, mods: car.mods.compactMap(ModCatalog.mod))
@@ -96,7 +96,7 @@ struct Lobby: View {
                         Text(verbatim: "Beat house car \(openRung + 1) to open house car \(openRung + 2).")
                             .typeStyle(.foot).foregroundStyle(Color.dust)
                     } else {
-                        Text("All ten house cars are open.").typeStyle(.foot).foregroundStyle(Color.dust)
+                        Text("All ten house cars are open.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     }
                     SectionLabel("TREE")
                     SegmentedSwitch(selection: $tree, options: [(value: TreeKind.sportsman, title: "Sportsman"),
@@ -105,7 +105,7 @@ struct Lobby: View {
                     PrimaryButton("Stage") { running = true }.disabled(opponent == nil)
                     if !past.isEmpty { QuietButton("Past runs") { showPast = true } }
                 } else if car != nil {
-                    Text("This car needs power and weight before it can run. Add them in the Mod simulator.")
+                    Text("This car needs power and weight before it can run. Add them in the Mod simulator.", bundle: .module)
                         .typeStyle(.body).foregroundStyle(Color.dust)
                 } else {
                     SkeletonRow()
@@ -127,7 +127,7 @@ struct Lobby: View {
             }
         }
         .sheet(isPresented: $showPast) {
-            Sheet(Text("Past runs")) {
+            Sheet(Text("Past runs", bundle: .module)) {
                 ScrollView {
                     ForEach(past) { r in
                         // Trap stays in mph everywhere: it is the drag strip's unit, as on a real time slip (SET-3).
@@ -438,7 +438,7 @@ struct RunView: View {
                         Spacer()
                         tach
                         Spacer()
-                        Text("Throttle").typeStyle(.bodyStrong).foregroundStyle(Color.asphalt)
+                        Text("Throttle", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.asphalt)
                             .frame(width: Size.row * 2, height: Size.row * 2)
                             .background(model.throttle ? Color.go : Color.sodium, in: Circle())
                             .gesture(DragGesture(minimumDistance: 0).onChanged { _ in model.setThrottle(true) }.onEnded { _ in model.setThrottle(false) })
@@ -494,7 +494,7 @@ struct TimeSlip: View {
                 slip
                 if let image = ImageRenderer(content: slip.frame(width: Size.row * 6)).uiImage {
                     ShareLink(item: Image(uiImage: image), preview: SharePreview("Virtual run · Waypoints", image: Image(uiImage: image))) {
-                        Text("Share").typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
+                        Text("Share", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
                     }
                 }
                 if model.won, let rung = model.houseRung {
@@ -514,7 +514,7 @@ struct TimeSlip: View {
         let red = model.phase == .redLight
         let won = !red && model.won
         return VStack(alignment: .leading, spacing: Space.s4) {
-            Text("VIRTUAL RUN · WAYPOINTS").typeStyle(.readoutS)
+            Text("VIRTUAL RUN · WAYPOINTS", bundle: .module).typeStyle(.readoutS)
             Text(verbatim: model.car.fullLabel).typeStyle(.readoutM)
             line("", "YOU", "OPP")
             line("R/T", red ? "RED" : String(format: "%.3f", Double(a.reactionMs) / 1000), String(format: "%.3f", Double(b.reactionMs) / 1000))

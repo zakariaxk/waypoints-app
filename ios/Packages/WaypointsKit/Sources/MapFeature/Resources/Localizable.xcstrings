@@ -1,0 +1,159 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "A driver nearby": {
+      "extractionState": "manual"
+    },
+    "Add": {
+      "extractionState": "manual"
+    },
+    "Add here": {
+      "extractionState": "manual"
+    },
+    "Approximate location": {
+      "extractionState": "manual"
+    },
+    "Back": {
+      "extractionState": "manual"
+    },
+    "Block": {
+      "extractionState": "manual"
+    },
+    "Cancel": {
+      "extractionState": "manual"
+    },
+    "Directions": {
+      "extractionState": "manual"
+    },
+    "Drivers who aren't your friends choose whether to show up at all, and when they do, only a half-mile area is shared. Your own setting works the same way.": {
+      "extractionState": "manual"
+    },
+    "FRIENDS": {
+      "extractionState": "manual"
+    },
+    "Go ghost for 1 hour": {
+      "extractionState": "manual"
+    },
+    "I'm a passenger": {
+      "extractionState": "manual"
+    },
+    "Icon and trail": {
+      "extractionState": "manual"
+    },
+    "Invite a friend": {
+      "extractionState": "manual"
+    },
+    "Invite to convoy": {
+      "extractionState": "manual"
+    },
+    "Layers": {
+      "extractionState": "manual"
+    },
+    "Location is off. You're not on the map.": {
+      "extractionState": "manual"
+    },
+    "Meets": {
+      "extractionState": "manual"
+    },
+    "Meets tonight": {
+      "extractionState": "manual"
+    },
+    "Message": {
+      "extractionState": "manual"
+    },
+    "More": {
+      "extractionState": "manual"
+    },
+    "No friends on the map yet.": {
+      "extractionState": "manual"
+    },
+    "Nothing found for '%@'.": {
+      "extractionState": "manual"
+    },
+    "People": {
+      "extractionState": "manual"
+    },
+    "Recent": {
+      "extractionState": "manual"
+    },
+    "Recenter": {
+      "extractionState": "manual"
+    },
+    "Remove %@ as a friend?": {
+      "extractionState": "manual"
+    },
+    "Remove friend": {
+      "extractionState": "manual"
+    },
+    "Report": {
+      "extractionState": "manual"
+    },
+    "Saved roads": {
+      "extractionState": "manual"
+    },
+    "Search": {
+      "extractionState": "manual"
+    },
+    "Search needs a connection.": {
+      "extractionState": "manual"
+    },
+    "Stop ghost mode": {
+      "extractionState": "manual"
+    },
+    "Turn on": {
+      "extractionState": "manual"
+    },
+    "Until I turn it off": {
+      "extractionState": "manual"
+    },
+    "Until tomorrow": {
+      "extractionState": "manual"
+    },
+    "View profile": {
+      "extractionState": "manual"
+    },
+    "Where to?": {
+      "extractionState": "manual"
+    },
+    "Why can't I see more?": {
+      "extractionState": "manual"
+    },
+    "YOUR MARKER": {
+      "extractionState": "manual"
+    },
+    "Your marker": {
+      "extractionState": "manual"
+    },
+    "Your privacy settings": {
+      "extractionState": "manual"
+    },
+    "Zoom in to see drivers.": {
+      "extractionState": "manual"
+    },
+    "east": {
+      "extractionState": "manual"
+    },
+    "north": {
+      "extractionState": "manual"
+    },
+    "north east": {
+      "extractionState": "manual"
+    },
+    "north west": {
+      "extractionState": "manual"
+    },
+    "south": {
+      "extractionState": "manual"
+    },
+    "south east": {
+      "extractionState": "manual"
+    },
+    "south west": {
+      "extractionState": "manual"
+    },
+    "west": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

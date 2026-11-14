@@ -1,0 +1,114 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ characters left": {
+      "extractionState": "manual"
+    },
+    "%@ drivers": {
+      "extractionState": "manual"
+    },
+    "%@ on %@": {
+      "extractionState": "manual"
+    },
+    "Add": {
+      "extractionState": "manual"
+    },
+    "Built": {
+      "extractionState": "manual"
+    },
+    "Close": {
+      "extractionState": "manual"
+    },
+    "Continue with email": {
+      "extractionState": "manual"
+    },
+    "Delete car": {
+      "extractionState": "manual"
+    },
+    "Design gallery": {
+      "extractionState": "manual"
+    },
+    "EST. HP": {
+      "extractionState": "manual"
+    },
+    "Email": {
+      "extractionState": "manual"
+    },
+    "Handle": {
+      "extractionState": "manual"
+    },
+    "Invite a friend": {
+      "extractionState": "manual"
+    },
+    "List it": {
+      "extractionState": "manual"
+    },
+    "Loading": {
+      "extractionState": "manual"
+    },
+    "Meet title": {
+      "extractionState": "manual"
+    },
+    "Nearby": {
+      "extractionState": "manual"
+    },
+    "No friends on the map yet.": {
+      "extractionState": "manual"
+    },
+    "Not now": {
+      "extractionState": "manual"
+    },
+    "Offline. Showing what was saved.": {
+      "extractionState": "manual"
+    },
+    "Photos and timeline go too.": {
+      "extractionState": "manual"
+    },
+    "Post report": {
+      "extractionState": "manual"
+    },
+    "Power": {
+      "extractionState": "manual"
+    },
+    "QR code": {
+      "extractionState": "manual"
+    },
+    "Recenter": {
+      "extractionState": "manual"
+    },
+    "Reconnecting": {
+      "extractionState": "manual"
+    },
+    "Share link": {
+      "extractionState": "manual"
+    },
+    "Skip for now": {
+      "extractionState": "manual"
+    },
+    "Start meet": {
+      "extractionState": "manual"
+    },
+    "Street": {
+      "extractionState": "manual"
+    },
+    "The build timeline and photos for this car are deleted.": {
+      "extractionState": "manual"
+    },
+    "Try again": {
+      "extractionState": "manual"
+    },
+    "Undo": {
+      "extractionState": "manual"
+    },
+    "asphalt on chalk": {
+      "extractionState": "manual"
+    },
+    "asphalt on sodium": {
+      "extractionState": "manual"
+    },
+    "¼ MILE": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

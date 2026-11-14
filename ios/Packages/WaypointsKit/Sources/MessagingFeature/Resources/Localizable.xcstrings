@@ -1,0 +1,36 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Copy": {
+      "extractionState": "manual"
+    },
+    "Delete": {
+      "extractionState": "manual"
+    },
+    "Members": {
+      "extractionState": "manual"
+    },
+    "Message": {
+      "extractionState": "manual"
+    },
+    "Message deleted": {
+      "extractionState": "manual"
+    },
+    "Not sent. Tap to retry.": {
+      "extractionState": "manual"
+    },
+    "Photo": {
+      "extractionState": "manual"
+    },
+    "Reply": {
+      "extractionState": "manual"
+    },
+    "Report": {
+      "extractionState": "manual"
+    },
+    "Send": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

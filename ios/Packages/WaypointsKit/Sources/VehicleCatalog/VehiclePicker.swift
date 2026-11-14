@@ -260,7 +260,7 @@ public struct VehiclePicker: View {
             Button {
                 draftCar = UnlistedCar()
                 unlistedAt = step
-            } label: { Row(Text("Mine isn't listed"), showsDivider: false) }
+            } label: { Row(Text("Mine isn't listed", bundle: .module), showsDivider: false) }
                 .buttonStyle(RowButtonStyle())
         }
     }
@@ -371,7 +371,7 @@ public struct VehiclePicker: View {
                 }
                 .padding(Space.margin)
             } else {
-                Button { showManual = true } label: { Row(Text("Mine isn't listed"), showsDivider: false) }
+                Button { showManual = true } label: { Row(Text("Mine isn't listed", bundle: .module), showsDivider: false) }
                     .buttonStyle(RowButtonStyle())
             }
         }
@@ -404,7 +404,7 @@ public struct VehiclePicker: View {
                 }
             }
             ColorPicker(selection: $customColor, supportsOpacity: false) {
-                Text("Exact color").typeStyle(.body).foregroundStyle(Color.chalk)
+                Text("Exact color", bundle: .module).typeStyle(.body).foregroundStyle(Color.chalk)
             }
             .onChange(of: customColor) { useCustom = true }
             Field("Paint name", text: $paintName, prompt: "Like 'Grabber Blue'", limit: 40)
@@ -429,7 +429,7 @@ public struct VehiclePicker: View {
     private var searchResults: some View {
         LazyVStack(alignment: .leading, spacing: 0) {
             if results.isEmpty {
-                Text("Nothing found for '\(query)'.").typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin)
+                Text("Nothing found for '\(query)'.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin)
             }
             ForEach(results) { v in
                 Button { jump(to: v) } label: {
@@ -461,7 +461,7 @@ public struct VehiclePicker: View {
     // MARK: VIN
 
     private var vinSheet: some View {
-        Sheet(Text("Use VIN")) {
+        Sheet(Text("Use VIN", bundle: .module)) {
             VStack(spacing: Space.s16) {
                 Field("VIN", text: $vin, prompt: "17 characters", limit: 17,
                       error: vinError.map { Text(verbatim: $0) })

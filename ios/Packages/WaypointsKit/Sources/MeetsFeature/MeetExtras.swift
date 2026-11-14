@@ -52,8 +52,8 @@ enum MeetReminder {
         let content = UNMutableNotificationContent()
         content.title = meet.title
         content.body = meet.placeName.isEmpty
-            ? String(localized: "Starts in 30 minutes.")
-            : String(localized: "Starts in 30 minutes at \(meet.placeName).")
+            ? String(localized: "Starts in 30 minutes.", bundle: .module)
+            : String(localized: "Starts in 30 minutes at \(meet.placeName).", bundle: .module)
         content.sound = .default
         content.userInfo = ["url": "waypoints://meet/\(meet.id)"]
         let parts = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: fireAt)
@@ -79,10 +79,10 @@ struct GoingSheet: View {
     }
 
     var body: some View {
-        Sheet(Text("Going")) {
+        Sheet(Text("Going", bundle: .module)) {
             VStack(alignment: .leading, spacing: Space.s16) {
                 if askCar {
-                    Text("Which car are you bringing?").typeStyle(.foot).foregroundStyle(Color.dust)
+                    Text("Which car are you bringing?", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     VStack(spacing: 0) {
                         ForEach(cars) { c in
                             Button { car = c.id } label: {
@@ -93,7 +93,7 @@ struct GoingSheet: View {
                             .buttonStyle(RowButtonStyle())
                         }
                         Button { car = nil } label: {
-                            Row(Text("Not sure yet"), showsDivider: false, trailing: {
+                            Row(Text("Not sure yet", bundle: .module), showsDivider: false, trailing: {
                                 if car == nil { Image(systemName: "checkmark").foregroundStyle(Color.sodium) }
                             })
                         }
@@ -101,7 +101,7 @@ struct GoingSheet: View {
                     }
                 }
                 if askRemind {
-                    Row(Text("Remind you before it starts?"), subtitle: Text("30 minutes before"), showsDivider: false, trailing: {
+                    Row(Text("Remind you before it starts?", bundle: .module), subtitle: Text("30 minutes before", bundle: .module), showsDivider: false, trailing: {
                         Toggle("", isOn: $remind).labelsHidden().tint(.sodium)
                     })
                 }
@@ -133,13 +133,13 @@ extension MeetFormat {
         guard let r = m.recurrence else { return nil }
         let day = m.startsAt.formatted(.dateTime.weekday(.wide))
         switch r {
-        case .weekly: return String(localized: "Every \(day)")
-        case .biweekly: return String(localized: "Every other \(day)")
+        case .weekly: return String(localized: "Every \(day)", bundle: .module)
+        case .biweekly: return String(localized: "Every other \(day)", bundle: .module)
         case .monthly:
             let nth = (Calendar.current.component(.day, from: m.startsAt) - 1) / 7
-            let ordinal = [String(localized: "First"), String(localized: "Second"), String(localized: "Third"),
-                           String(localized: "Fourth"), String(localized: "Last")][min(nth, 4)]
-            return String(localized: "\(ordinal) \(day) of the month")
+            let ordinal = [String(localized: "First", bundle: .module), String(localized: "Second", bundle: .module), String(localized: "Third", bundle: .module),
+                           String(localized: "Fourth", bundle: .module), String(localized: "Last", bundle: .module)][min(nth, 4)]
+            return String(localized: "\(ordinal) \(day) of the month", bundle: .module)
         }
     }
 }
@@ -176,7 +176,7 @@ struct MeetShareCard: View {
                 if let r = MeetFormat.repeats(meet) {
                     Text(verbatim: r).typeStyle(.sub).foregroundStyle(Color.dust)
                 }
-                Text("Waypoints").typeStyle(.label).foregroundStyle(Color.gravel).padding(.top, Space.s8)
+                Text("Waypoints", bundle: .module).typeStyle(.label).foregroundStyle(Color.gravel).padding(.top, Space.s8)
             }
             .padding(Space.s16)
             .frame(width: Self.width, alignment: .leading)
@@ -221,7 +221,7 @@ struct MeetPostsStrip: View {
         Group {
             if !posts.isEmpty {
                 VStack(alignment: .leading, spacing: Space.s8) {
-                    Text("Posts").typeStyle(.label).foregroundStyle(Color.dust)
+                    Text("Posts", bundle: .module).typeStyle(.label).foregroundStyle(Color.dust)
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: Space.s8) {
                             ForEach(posts) { p in

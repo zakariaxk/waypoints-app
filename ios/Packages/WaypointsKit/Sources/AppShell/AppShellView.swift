@@ -81,11 +81,11 @@ struct SignedOutPlaceholder: View {
         GeometryReader { proxy in
             VStack(alignment: .leading, spacing: Space.s8) {
                 Spacer().frame(height: proxy.size.height / 3 - Space.s48)
-                Text("Waypoints")
+                Text("Waypoints", bundle: .module)
                     .typeStyle(.display)
                     .foregroundStyle(Color.chalk)
                     .accessibilityAddTraits(.isHeader)
-                Text("See who's out. Find the meet. Show the build.")
+                Text("See who's out. Find the meet. Show the build.", bundle: .module)
                     .typeStyle(.body)
                     .foregroundStyle(Color.dust)
                 Spacer()

@@ -240,9 +240,9 @@ final class MapModel {
         let dLat = c.latitude - me.coordinate.latitude
         let dLng = c.longitude - me.coordinate.longitude
         let angle = (atan2(dLng, dLat) * 180 / .pi + 360).truncatingRemainder(dividingBy: 360)
-        let dirs = [String(localized: "north"), String(localized: "north east"), String(localized: "east"),
-                    String(localized: "south east"), String(localized: "south"), String(localized: "south west"),
-                    String(localized: "west"), String(localized: "north west")]
+        let dirs = [String(localized: "north", bundle: .module), String(localized: "north east", bundle: .module), String(localized: "east", bundle: .module),
+                    String(localized: "south east", bundle: .module), String(localized: "south", bundle: .module), String(localized: "south west", bundle: .module),
+                    String(localized: "west", bundle: .module), String(localized: "north west", bundle: .module)]
         let dir = dirs[Int((angle + 22.5) / 45) % 8]
         return "\(distanceText(to: c)) \(dir)"
     }

@@ -34,7 +34,7 @@ struct BenchPicker: View {
                 } else {
                     VStack(alignment: .leading, spacing: 0) {
                         if noSpec {
-                            Text("The catalog has no power figure for that car. Pick another.")
+                            Text("The catalog has no power figure for that car. Pick another.", bundle: .module)
                                 .typeStyle(.foot).foregroundStyle(Color.brake).padding(.horizontal, Space.margin)
                         }
                         VehiclePicker(catalog: env.catalog, actionTitle: "Race this car") { picked in

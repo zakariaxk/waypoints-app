@@ -194,7 +194,7 @@ struct ModSimView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     chart
                     readouts
-                    Text("Estimates. Real results depend on the tune, the dyno, and the day.")
+                    Text("Estimates. Real results depend on the tune, the dyno, and the day.", bundle: .module)
                         .typeStyle(.foot).foregroundStyle(Color.dust).padding(.horizontal, Space.margin)
                     soundControls
                     modList
@@ -237,7 +237,7 @@ struct ModSimView: View {
 
     private var specsForm: some View {
         VStack(alignment: .leading, spacing: Space.s16) {
-            Text("We don't have specs for this car. Enter power and weight to simulate it.").typeStyle(.body).foregroundStyle(Color.chalk)
+            Text("We don't have specs for this car. Enter power and weight to simulate it.", bundle: .module).typeStyle(.body).foregroundStyle(Color.chalk)
             Field("Horsepower", text: $hp).keyboardType(.numberPad)
             Field(Self.metric ? "Weight (kg)" : "Weight (lb)", text: $weight).keyboardType(.numberPad)
             Field("Torque (lb-ft)", text: $torque).keyboardType(.numberPad)
@@ -327,7 +327,7 @@ struct ModSimView: View {
 
     private var soundControls: some View {
         VStack(alignment: .leading, spacing: Space.s12) {
-            Text("Hold to rev").typeStyle(.bodyStrong).foregroundStyle(Color.asphalt)
+            Text("Hold to rev", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.asphalt)
                 .frame(maxWidth: .infinity, minHeight: Size.row * 1.6)
                 .background(Color.sodium, in: RoundedRectangle(cornerRadius: Radius.r20))
                 .gesture(DragGesture(minimumDistance: 0)
@@ -336,7 +336,7 @@ struct ModSimView: View {
                 .opacity(model.soundOn ? 1 : Opacity.inactive)
                 .accessibilityAddTraits(.isButton)
             Text(verbatim: "\(Int(model.revRpm)) rpm").typeStyle(.readoutM).foregroundStyle(Color.chalk)
-            Row(Text("Synthesized sound"), showsDivider: false, trailing: {
+            Row(Text("Synthesized sound", bundle: .module), showsDivider: false, trailing: {
                 Toggle("", isOn: Binding(get: { model.soundOn }, set: { model.setSound($0) })).labelsHidden().tint(.sodium)
             })
         }

@@ -1,0 +1,108 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "17 characters": {
+      "extractionState": "manual"
+    },
+    "All makes": {
+      "extractionState": "manual"
+    },
+    "Any year": {
+      "extractionState": "manual"
+    },
+    "Close": {
+      "extractionState": "manual"
+    },
+    "Drive": {
+      "extractionState": "manual"
+    },
+    "Engine": {
+      "extractionState": "manual"
+    },
+    "Exact color": {
+      "extractionState": "manual"
+    },
+    "Like '1999'": {
+      "extractionState": "manual"
+    },
+    "Like '5.0 L V8'": {
+      "extractionState": "manual"
+    },
+    "Like 'Datsun'": {
+      "extractionState": "manual"
+    },
+    "Like 'GT Premium'": {
+      "extractionState": "manual"
+    },
+    "Like 'Grabber Blue'": {
+      "extractionState": "manual"
+    },
+    "Like 'Skyline GT-R'": {
+      "extractionState": "manual"
+    },
+    "Like 'V-Spec'": {
+      "extractionState": "manual"
+    },
+    "Look up": {
+      "extractionState": "manual"
+    },
+    "Make": {
+      "extractionState": "manual"
+    },
+    "Mine isn't listed": {
+      "extractionState": "manual"
+    },
+    "Model": {
+      "extractionState": "manual"
+    },
+    "Nothing found for '%@'.": {
+      "extractionState": "manual"
+    },
+    "Older models": {
+      "extractionState": "manual"
+    },
+    "Paint name": {
+      "extractionState": "manual"
+    },
+    "Popular": {
+      "extractionState": "manual"
+    },
+    "RWD, FWD, AWD, or 4WD": {
+      "extractionState": "manual"
+    },
+    "Scan with the camera": {
+      "extractionState": "manual"
+    },
+    "Search": {
+      "extractionState": "manual"
+    },
+    "Search, like '2019 mustang gt'": {
+      "extractionState": "manual"
+    },
+    "To": {
+      "extractionState": "manual"
+    },
+    "Trim": {
+      "extractionState": "manual"
+    },
+    "Trim (optional)": {
+      "extractionState": "manual"
+    },
+    "Use VIN": {
+      "extractionState": "manual"
+    },
+    "Use this": {
+      "extractionState": "manual"
+    },
+    "VIN": {
+      "extractionState": "manual"
+    },
+    "Year": {
+      "extractionState": "manual"
+    },
+    "Year (optional)": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

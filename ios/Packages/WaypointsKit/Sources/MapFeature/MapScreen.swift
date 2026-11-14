@@ -122,17 +122,17 @@ struct MapScreen: View {
                 Button { showSearch = true } label: {
                     HStack {
                         Image.symbol(Symbol.search).foregroundStyle(Color.dust)
-                        Text("Where to?").typeStyle(.body).foregroundStyle(Color.dust)
+                        Text("Where to?", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
                         Spacer()
                     }
                     .padding(.horizontal, Space.s16)
                     .frame(height: Size.hitTarget)
                     .overMapMaterial(in: RoundedRectangle(cornerRadius: Radius.r12))
                 }
-                .accessibilityLabel(Text("Search"))
+                .accessibilityLabel(Text("Search", bundle: .module))
             }
             if model.aggregateCount > 0 && model.entities.isEmpty {
-                Text("Zoom in to see drivers.").typeStyle(.foot).foregroundStyle(Color.chalk)
+                Text("Zoom in to see drivers.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.chalk)
                     .padding(.horizontal, Space.s12).padding(.vertical, Space.s4)
                     .overMapMaterial(in: Capsule())
             }
@@ -166,7 +166,7 @@ struct MapScreen: View {
                             .background(Color.sodium, in: Circle())
                             .mapShadow()
                     }
-                    .accessibilityLabel(Text("Add"))
+                    .accessibilityLabel(Text("Add", bundle: .module))
                 }
             }
             .padding(.bottom, Size.row * 1.8)
@@ -262,7 +262,7 @@ struct MapScreen: View {
         Group {
             if !model.authorization.allowsUse {
                 HStack {
-                    Text("Location is off. You're not on the map.").typeStyle(.sub).foregroundStyle(Color.chalk)
+                    Text("Location is off. You're not on the map.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.chalk)
                     Spacer()
                     QuietButton("Turn on") {
                         if model.authorization == .denied {
@@ -292,9 +292,9 @@ struct MapScreen: View {
         SectionLabel("FRIENDS")
         if model.friendsOut.isEmpty {
             VStack(alignment: .leading, spacing: Space.s12) {
-                Text("No friends on the map yet.").typeStyle(.body).foregroundStyle(Color.dust)
+                Text("No friends on the map yet.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
                 if let handle = model.profile?.handle, let url = URL(string: "https://waypoints.app/u/\(handle)") {
-                    ShareLink(item: url) { Text("Invite a friend").typeStyle(.bodyStrong).foregroundStyle(Color.sodium) }
+                    ShareLink(item: url) { Text("Invite a friend", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.sodium) }
                 }
             }
             .padding(.horizontal, Space.margin)

@@ -215,7 +215,7 @@ Found by the audit. Each is carried by the requirement in the last column.
 | No meet reminder | The RSVP flow never asks, and nothing schedules a notification before a meet starts. | MEET-4, MEET-6 |
 | No universal links | No entitlements file, no associated domain, no landing page. Shared links are `waypoints://` only, which Messages does not make tappable. | LINK-2 |
 | No app icon | The icon set has no image. | CMP-6 |
-| No String Catalogs | Strings are inline in every module. | L10N-1 |
+| No String Catalogs | Strings are inline in every module. | Partial: every module with copy has a String Catalog (703 keys, `tools/l10n/extract.py`), and plain `Text` and `String(localized:)` resolve from `.module`. Keys passed into DesignSystem components (`PrimaryButton("…")` and the like) still resolve from the main bundle; they need a `bundle:` parameter threaded through before a second language. |
 | No MetricKit | Nothing subscribes to it. | OBS-2 |
 | No realtime debug client | Done (W6-A): `server/cmd/rtdebug` and `make check-rt` script the eight W1-2 scenarios (precise, approximate, hidden, ghost, nearby anonymity, viewport swap, slow consumer, convoy) and print PASS or FAIL. Not yet run. | W6-A |
 | "For you" is not ranked | The repository has one feed query ordered by recency. | FEED-2 |

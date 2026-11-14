@@ -22,7 +22,7 @@ public enum SpotsFeature: FeatureModule {
 
 struct SpotAction: MapAction {
     var id: String { "spot" }
-    var title: String { String(localized: "Spot a car") }
+    var title: String { String(localized: "Spot a car", bundle: .module) }
     var symbol: String { "camera" }
     var order: Int { 40 }
     @MainActor func perform(at coordinate: Coordinate, router: any Router) { router.open(.spotCar) }
@@ -142,8 +142,8 @@ struct SpotFlow: View {
                                     .frame(width: b.rect.width * size.width, height: b.rect.height * size.height)
                                     .offset(x: b.rect.minX * size.width, y: b.rect.minY * size.height)
                                     .onTapGesture { boxes.removeAll { $0.id == b.id } }
-                                    .accessibilityLabel(Text("Blurred area"))
-                                    .accessibilityHint(Text("Removes the blur"))
+                                    .accessibilityLabel(Text("Blurred area", bundle: .module))
+                                    .accessibilityHint(Text("Removes the blur", bundle: .module))
                                     .accessibilityAddTraits(.isButton)
                             }
                         }
@@ -155,7 +155,7 @@ struct SpotFlow: View {
                         .matchedGeometryEffect(id: "shot", in: collection)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
-                    Text("Plates and faces are blurred. Tap a box to remove it. Tap the photo to blur more.")
+                    Text("Plates and faces are blurred. Tap a box to remove it. Tap the photo to blur more.", bundle: .module)
                         .typeStyle(.foot).foregroundStyle(Color.dust)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
@@ -238,8 +238,8 @@ struct SpotFlow: View {
             } catch {
                 // SAFE-9: the server's abuse limits get their own line.
                 self.error = (error as? WaypointsError) == .rateLimited
-                    ? String(localized: "You're doing that a lot. Try again in a few minutes.")
-                    : String(localized: "Couldn't add it. Check your connection and try again.")
+                    ? String(localized: "You're doing that a lot. Try again in a few minutes.", bundle: .module)
+                    : String(localized: "Couldn't add it. Check your connection and try again.", bundle: .module)
             }
             saving = false
         }

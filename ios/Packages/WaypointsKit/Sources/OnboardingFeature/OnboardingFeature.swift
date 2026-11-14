@@ -77,12 +77,12 @@ struct SignInView: View {
         GeometryReader { proxy in
             VStack(alignment: .leading, spacing: Space.s8) {
                 Spacer().frame(height: proxy.size.height / 3 - Space.s48)
-                Text("Waypoints").typeStyle(.display).foregroundStyle(Color.chalk).accessibilityAddTraits(.isHeader)
-                Text("See who's out. Find the meet. Show the build.").typeStyle(.body).foregroundStyle(Color.dust)
+                Text("Waypoints", bundle: .module).typeStyle(.display).foregroundStyle(Color.chalk).accessibilityAddTraits(.isHeader)
+                Text("See who's out. Find the meet. Show the build.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
                 Spacer()
                 if showEmail { emailForm } else { buttons }
                 if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
-                Text("By continuing you agree to the [Terms](https://waypoints.app/terms) and [Privacy Policy](https://waypoints.app/privacy).")
+                Text("By continuing you agree to the [Terms](https://waypoints.app/terms) and [Privacy Policy](https://waypoints.app/privacy).", bundle: .module)
                     .typeStyle(.foot).foregroundStyle(Color.gravel).tint(.sodium)
                     .padding(.top, Space.s8)
             }
@@ -201,7 +201,7 @@ struct YouView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Space.s16) {
-                Text("You").typeStyle(.display).foregroundStyle(Color.chalk).padding(.top, Space.s24)
+                Text("You", bundle: .module).typeStyle(.display).foregroundStyle(Color.chalk).padding(.top, Space.s24)
                 VStack(alignment: .leading, spacing: Space.s4) {
                     Field("Handle", text: $handle, prompt: "lowercase, numbers, _", limit: 20)
                         .textInputAutocapitalization(.never).autocorrectionDisabled()
@@ -210,20 +210,20 @@ struct YouView: View {
                         if available {
                             Label("Available", systemImage: Symbol.confirm).typeStyle(.foot).foregroundStyle(Color.go)
                         } else {
-                            Text("Taken").typeStyle(.foot).foregroundStyle(Color.brake)
+                            Text("Taken", bundle: .module).typeStyle(.foot).foregroundStyle(Color.brake)
                         }
                     }
                 }
                 Field("Name", text: $name, prompt: "What friends call you", limit: 30)
                 VStack(alignment: .leading, spacing: Space.s8) {
-                    Text("Birth year").typeStyle(.foot).foregroundStyle(Color.dust)
+                    Text("Birth year", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     Picker("Birth year", selection: $birthYear) {
                         ForEach((1930...currentYear).reversed(), id: \.self) { Text(verbatim: String($0)).tag($0) }
                     }
                     .pickerStyle(.wheel)
                     .frame(maxHeight: Size.row * 2.5)
                     if !oldEnough {
-                        Text("Waypoints is for drivers 17 and up.").typeStyle(.foot).foregroundStyle(Color.brake)
+                        Text("Waypoints is for drivers 17 and up.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.brake)
                     }
                 }
                 if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
@@ -265,7 +265,7 @@ struct CarStepView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("What do you drive?").typeStyle(.title).foregroundStyle(Color.chalk)
+            Text("What do you drive?", bundle: .module).typeStyle(.title).foregroundStyle(Color.chalk)
                 .padding(.horizontal, Space.margin)
             if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake).padding(.horizontal, Space.margin) }
             VehiclePicker(catalog: env.catalog) { picked in
@@ -310,8 +310,8 @@ struct LocationStepView: View {
             .frame(maxHeight: .infinity)
             .clipShape(RoundedRectangle(cornerRadius: Radius.r20))
             .environment(\.colorScheme, .dark)
-            Text("Who sees you").typeStyle(.title).foregroundStyle(Color.chalk)
-            Text("Friends see where you are. Everyone else sees nothing unless you say so. You can go ghost any time.")
+            Text("Who sees you", bundle: .module).typeStyle(.title).foregroundStyle(Color.chalk)
+            Text("Friends see where you are. Everyone else sees nothing unless you say so. You can go ghost any time.", bundle: .module)
                 .typeStyle(.body).foregroundStyle(Color.dust)
             VStack(spacing: 0) {
                 radio("Hide me from drivers nearby", selected: !showNearby) { showNearby = false }

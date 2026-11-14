@@ -1,0 +1,198 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ %@ of the month": {
+      "extractionState": "manual"
+    },
+    "30 minutes before": {
+      "extractionState": "manual"
+    },
+    "Add details": {
+      "extractionState": "manual"
+    },
+    "Add to Calendar": {
+      "extractionState": "manual"
+    },
+    "Add what you know": {
+      "extractionState": "manual"
+    },
+    "Cancel meet": {
+      "extractionState": "manual"
+    },
+    "Cancel this meet? %@ people who RSVP'd will be told.": {
+      "extractionState": "manual"
+    },
+    "Cancelled": {
+      "extractionState": "manual"
+    },
+    "Details": {
+      "extractionState": "manual"
+    },
+    "Directions": {
+      "extractionState": "manual"
+    },
+    "Edit": {
+      "extractionState": "manual"
+    },
+    "Entrance": {
+      "extractionState": "manual"
+    },
+    "Entrance: %@": {
+      "extractionState": "manual"
+    },
+    "Every %@": {
+      "extractionState": "manual"
+    },
+    "Every other %@": {
+      "extractionState": "manual"
+    },
+    "First": {
+      "extractionState": "manual"
+    },
+    "Fourth": {
+      "extractionState": "manual"
+    },
+    "Going": {
+      "extractionState": "manual"
+    },
+    "Happening now": {
+      "extractionState": "manual"
+    },
+    "Hosted by %@": {
+      "extractionState": "manual"
+    },
+    "I'm going": {
+      "extractionState": "manual"
+    },
+    "Last": {
+      "extractionState": "manual"
+    },
+    "Lit at night": {
+      "extractionState": "manual"
+    },
+    "Lot": {
+      "extractionState": "manual"
+    },
+    "Lot: %@": {
+      "extractionState": "manual"
+    },
+    "MEETS": {
+      "extractionState": "manual"
+    },
+    "No road": {
+      "extractionState": "manual"
+    },
+    "Not sure yet": {
+      "extractionState": "manual"
+    },
+    "Note": {
+      "extractionState": "manual"
+    },
+    "Now": {
+      "extractionState": "manual"
+    },
+    "On the way": {
+      "extractionState": "manual"
+    },
+    "Optional": {
+      "extractionState": "manual"
+    },
+    "PEOPLE'S CHOICE": {
+      "extractionState": "manual"
+    },
+    "People's choice: %@": {
+      "extractionState": "manual"
+    },
+    "Pick a time": {
+      "extractionState": "manual"
+    },
+    "Pick one car here. The winner shows when it ends.": {
+      "extractionState": "manual"
+    },
+    "Place": {
+      "extractionState": "manual"
+    },
+    "Posts": {
+      "extractionState": "manual"
+    },
+    "Remind you before it starts?": {
+      "extractionState": "manual"
+    },
+    "Repeats": {
+      "extractionState": "manual"
+    },
+    "Report": {
+      "extractionState": "manual"
+    },
+    "Roll out": {
+      "extractionState": "manual"
+    },
+    "Rolling out to": {
+      "extractionState": "manual"
+    },
+    "Rolling out to %@": {
+      "extractionState": "manual"
+    },
+    "Route": {
+      "extractionState": "manual"
+    },
+    "Save": {
+      "extractionState": "manual"
+    },
+    "Second": {
+      "extractionState": "manual"
+    },
+    "Start a meet": {
+      "extractionState": "manual"
+    },
+    "Starts in 30 minutes at %@.": {
+      "extractionState": "manual"
+    },
+    "Starts in 30 minutes.": {
+      "extractionState": "manual"
+    },
+    "Third": {
+      "extractionState": "manual"
+    },
+    "This and every one after": {
+      "extractionState": "manual"
+    },
+    "This meet": {
+      "extractionState": "manual"
+    },
+    "Tonight 8 PM": {
+      "extractionState": "manual"
+    },
+    "Wawa and chill": {
+      "extractionState": "manual"
+    },
+    "Waypoints": {
+      "extractionState": "manual"
+    },
+    "What is it?": {
+      "extractionState": "manual"
+    },
+    "When": {
+      "extractionState": "manual"
+    },
+    "Where does the cruise end?": {
+      "extractionState": "manual"
+    },
+    "Where is it?": {
+      "extractionState": "manual"
+    },
+    "Which car are you bringing?": {
+      "extractionState": "manual"
+    },
+    "Who can see it": {
+      "extractionState": "manual"
+    },
+    "Who's going": {
+      "extractionState": "manual"
+    },
+    "Who's going · %@": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

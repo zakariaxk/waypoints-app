@@ -1,0 +1,183 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ in voice": {
+      "extractionState": "manual"
+    },
+    "%@ members": {
+      "extractionState": "manual"
+    },
+    "2–5 letters": {
+      "extractionState": "manual"
+    },
+    "About": {
+      "extractionState": "manual"
+    },
+    "Accept": {
+      "extractionState": "manual"
+    },
+    "Add": {
+      "extractionState": "manual"
+    },
+    "Add role": {
+      "extractionState": "manual"
+    },
+    "Anyone can find and join": {
+      "extractionState": "manual"
+    },
+    "Block": {
+      "extractionState": "manual"
+    },
+    "CHANNELS": {
+      "extractionState": "manual"
+    },
+    "COLOR": {
+      "extractionState": "manual"
+    },
+    "Cancel": {
+      "extractionState": "manual"
+    },
+    "Change role": {
+      "extractionState": "manual"
+    },
+    "Channels, roles, and messages are deleted.": {
+      "extractionState": "manual"
+    },
+    "Delete": {
+      "extractionState": "manual"
+    },
+    "Delete role": {
+      "extractionState": "manual"
+    },
+    "Delete team": {
+      "extractionState": "manual"
+    },
+    "Direct messages": {
+      "extractionState": "manual"
+    },
+    "Edit team": {
+      "extractionState": "manual"
+    },
+    "Find a team": {
+      "extractionState": "manual"
+    },
+    "Find or start a team": {
+      "extractionState": "manual"
+    },
+    "Invite people": {
+      "extractionState": "manual"
+    },
+    "Join": {
+      "extractionState": "manual"
+    },
+    "Join with this invite": {
+      "extractionState": "manual"
+    },
+    "Leave team": {
+      "extractionState": "manual"
+    },
+    "MEMBERS": {
+      "extractionState": "manual"
+    },
+    "MESSAGES": {
+      "extractionState": "manual"
+    },
+    "Meets": {
+      "extractionState": "manual"
+    },
+    "Members": {
+      "extractionState": "manual"
+    },
+    "Members with this role keep their place in the team without it.": {
+      "extractionState": "manual"
+    },
+    "Move down": {
+      "extractionState": "manual"
+    },
+    "Move up": {
+      "extractionState": "manual"
+    },
+    "Name": {
+      "extractionState": "manual"
+    },
+    "New channel": {
+      "extractionState": "manual"
+    },
+    "No meets planned for this team.": {
+      "extractionState": "manual"
+    },
+    "No messages yet.": {
+      "extractionState": "manual"
+    },
+    "PERMISSIONS": {
+      "extractionState": "manual"
+    },
+    "REQUESTS": {
+      "extractionState": "manual"
+    },
+    "ROLES": {
+      "extractionState": "manual"
+    },
+    "Remove": {
+      "extractionState": "manual"
+    },
+    "Rename": {
+      "extractionState": "manual"
+    },
+    "Rename channel": {
+      "extractionState": "manual"
+    },
+    "Save": {
+      "extractionState": "manual"
+    },
+    "Save role": {
+      "extractionState": "manual"
+    },
+    "Scan to join, or share the link.": {
+      "extractionState": "manual"
+    },
+    "Search": {
+      "extractionState": "manual"
+    },
+    "Search teams or paste an invite": {
+      "extractionState": "manual"
+    },
+    "Start a team": {
+      "extractionState": "manual"
+    },
+    "Start team": {
+      "extractionState": "manual"
+    },
+    "TEXT": {
+      "extractionState": "manual"
+    },
+    "Tag": {
+      "extractionState": "manual"
+    },
+    "Teams": {
+      "extractionState": "manual"
+    },
+    "Teams are where your people talk. Join one or start your own.": {
+      "extractionState": "manual"
+    },
+    "They'll need an invite to come back to a private team.": {
+      "extractionState": "manual"
+    },
+    "Type the team name to delete it": {
+      "extractionState": "manual"
+    },
+    "UPCOMING": {
+      "extractionState": "manual"
+    },
+    "VOICE": {
+      "extractionState": "manual"
+    },
+    "You'll need an invite to come back to a private team.": {
+      "extractionState": "manual"
+    },
+    "lowercase-with-hyphens": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

@@ -222,7 +222,7 @@ struct ChatView: View {
             }
         }
         .sheet(item: Binding(get: { zoom.map(ZoomURL.init) }, set: { zoom = $0?.url })) { z in
-            MediaView(url: z.url, label: Text("Photo")).background(Color.asphalt)
+            MediaView(url: z.url, label: Text("Photo", bundle: .module)).background(Color.asphalt)
         }
         .task { await model.load() }
         .task { await model.listen() }
@@ -258,20 +258,20 @@ struct ChatView: View {
                     }
                 }
                 if item.message.deletedAt != nil {
-                    Text("Message deleted").typeStyle(.sub).italic().foregroundStyle(Color.gravel)
+                    Text("Message deleted", bundle: .module).typeStyle(.sub).italic().foregroundStyle(Color.gravel)
                 } else {
                     if !item.message.body.isEmpty { Text(verbatim: item.message.body).typeStyle(.body).foregroundStyle(Color.chalk) }
                     if let path = item.message.attachmentPath {
                         let url = model.env.media.publicURL(bucket: .messages, path: path)
                         Button { zoom = url } label: {
-                            MediaView(url: url, aspectRatio: 4.0 / 3.0, cornerRadius: Radius.r12, label: Text("Photo"))
+                            MediaView(url: url, aspectRatio: 4.0 / 3.0, cornerRadius: Radius.r12, label: Text("Photo", bundle: .module))
                                 .frame(maxWidth: Size.row * 4)
                         }
                     }
                 }
                 if item.state == .failed {
                     Button { Task { await model.retry(item) } } label: {
-                        Text("Not sent. Tap to retry.").typeStyle(.foot).foregroundStyle(Color.brake)
+                        Text("Not sent. Tap to retry.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.brake)
                     }
                 }
             }

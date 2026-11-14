@@ -120,7 +120,7 @@ struct PrivacyView: View {
     var body: some View {
         SettingsList(title: "Privacy and location") {
             previews
-            Row(Text("Ghost mode"), subtitle: ghostLine, trailing: {
+            Row(Text("Ghost mode", bundle: .module), subtitle: ghostLine, trailing: {
                 Toggle("", isOn: Binding(get: { model.settings.isGhost() }, set: { on in
                     if on { askGhost = true } else {
                         var s = model.settings; s.ghostUntil = nil; model.save(s)
@@ -141,18 +141,18 @@ struct PrivacyView: View {
                 }
             }
             if model.zones.count < HomeZone.maximumCount {
-                Button { addZone = true } label: { Row(Text("Add a zone"), trailing: { Disclosure() }) }
+                Button { addZone = true } label: { Row(Text("Add a zone", bundle: .module), trailing: { Disclosure() }) }
                     .buttonStyle(RowButtonStyle())
             }
-            Text("Inside a zone, nobody gets your exact position. Zones are stored on this phone.")
+            Text("Inside a zone, nobody gets your exact position. Zones are stored on this phone.", bundle: .module)
                 .typeStyle(.foot).foregroundStyle(Color.dust).padding(.horizontal, Space.margin).padding(.top, Space.s8)
             SectionLabel("BACKGROUND")
-            Row(Text("Keep sharing when the app is closed"), trailing: {
+            Row(Text("Keep sharing when the app is closed", bundle: .module), trailing: {
                 Toggle("", isOn: Binding(get: { model.background }, set: { on in
                     if on { askBackground = true } else { model.background = false }
                 })).labelsHidden().tint(.sodium)
             })
-            Row(Text("Record my drives on this phone"), showsDivider: false, trailing: {
+            Row(Text("Record my drives on this phone", bundle: .module), showsDivider: false, trailing: {
                 Toggle("", isOn: $recordDrives).labelsHidden().tint(.sodium)
             })
             if let error = model.error {
@@ -172,7 +172,7 @@ struct PrivacyView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("This uses more battery. Sharing stops by itself after 5 minutes parked.")
+            Text("This uses more battery. Sharing stops by itself after 5 minutes parked.", bundle: .module)
         }
         .sheet(isPresented: $addZone) {
             HomeZoneEditor { zone in model.saveZones(model.zones + [zone]) }
@@ -193,8 +193,8 @@ struct PrivacyView: View {
 
     private var ghostLine: Text? {
         guard let until = model.settings.ghostUntil, model.settings.isGhost() else { return nil }
-        if until == .distantFuture { return Text("Ghost until you turn it off. Nobody sees you.") }
-        return Text("Ghost until \(until.formatted(date: .omitted, time: .shortened)). Nobody sees you.")
+        if until == .distantFuture { return Text("Ghost until you turn it off. Nobody sees you.", bundle: .module) }
+        return Text("Ghost until \(until.formatted(date: .omitted, time: .shortened)). Nobody sees you.", bundle: .module)
     }
 
     private func levelRow(_ title: LocalizedStringKey, _ key: WritableKeyPath<PrivacySettings, PrivacyLevel>,
@@ -246,7 +246,7 @@ struct PrivacyView: View {
                 switch level {
                 case .precise: VehicleMarker(icon: "coupe", paint: .sodium, role: .friend(name: ""))
                 case .approx: VehicleMarker(icon: "coupe", paint: .sodium, role: .approximate)
-                case .hidden: Text("Nothing").typeStyle(.foot).foregroundStyle(Color.gravel)
+                case .hidden: Text("Nothing", bundle: .module).typeStyle(.foot).foregroundStyle(Color.gravel)
                 }
             }
             .frame(maxWidth: .infinity, minHeight: Size.Marker.approximateRing + Space.s16)
@@ -269,7 +269,7 @@ struct NotificationsView: View {
         SettingsList(title: "Notifications") {
             if systemOff {
                 VStack(alignment: .leading, spacing: Space.s8) {
-                    Text("Notifications are off for Waypoints.").typeStyle(.body).foregroundStyle(Color.chalk)
+                    Text("Notifications are off for Waypoints.", bundle: .module).typeStyle(.body).foregroundStyle(Color.chalk)
                     QuietButton("Open Settings") { openURL(URL(string: UIApplication.openSettingsURLString)!) }
                 }
                 .padding(Space.margin)
@@ -281,7 +281,7 @@ struct NotificationsView: View {
                 Task { try? await env.gateway.updatePrivacy(p) }
             }))
             if privacy.notifyMeetsNearby {
-                Row(Text("Radius"), trailing: {
+                Row(Text("Radius", bundle: .module), trailing: {
                     Stepper(value: Binding(get: { privacy.notifyRadiusKm }, set: { v in
                         privacy.notifyRadiusKm = v
                         let p = privacy
@@ -329,7 +329,7 @@ struct BlockedView: View {
         SettingsList(title: "Blocked people") {
             if let people {
                 if people.isEmpty {
-                    Text("You haven't blocked anyone.").typeStyle(.body).foregroundStyle(Color.dust).padding(Space.margin)
+                    Text("You haven't blocked anyone.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust).padding(Space.margin)
                 }
                 ForEach(people) { p in
                     Row(Text(verbatim: p.displayName), subtitle: Text(verbatim: "@\(p.handle)"), leading: {
@@ -363,12 +363,12 @@ struct AccountView: View {
 
     var body: some View {
         SettingsList(title: "Account") {
-            Row(Text("Email"), trailing: { Text(verbatim: email ?? "Apple ID").typeStyle(.sub) })
-            Button { Task { try? await env.auth.signOut() } } label: { Row(Text("Sign out")) }
+            Row(Text("Email", bundle: .module), trailing: { Text(verbatim: email ?? "Apple ID").typeStyle(.sub) })
+            Button { Task { try? await env.auth.signOut() } } label: { Row(Text("Sign out", bundle: .module)) }
                 .buttonStyle(RowButtonStyle())
             VStack(alignment: .leading, spacing: Space.s12) {
                 if confirming {
-                    Text("This deletes your profile, cars, posts, messages you sent, and listings. Type your handle to confirm.")
+                    Text("This deletes your profile, cars, posts, messages you sent, and listings. Type your handle to confirm.", bundle: .module)
                         .typeStyle(.sub).foregroundStyle(Color.dust)
                     Field("Handle", text: $typed, prompt: "\(handle)").textInputAutocapitalization(.never)
                     DestructiveButton("Delete account", confirmTitle: "Delete account",
@@ -399,7 +399,7 @@ struct AccountView: View {
 struct AboutView: View {
     var body: some View {
         SettingsList(title: "About") {
-            Row(Text("Version"), trailing: {
+            Row(Text("Version", bundle: .module), trailing: {
                 Text(verbatim: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "")
                     .typeStyle(.readoutS)
             })
@@ -414,7 +414,7 @@ struct AboutView: View {
                 }
                 .background(Color.asphalt.ignoresSafeArea())
                 .navigationTitle("Licences")
-            } label: { Row(Text("Open-source licences"), showsDivider: false, trailing: { Disclosure() }) }
+            } label: { Row(Text("Open-source licences", bundle: .module), showsDivider: false, trailing: { Disclosure() }) }
                 .buttonStyle(RowButtonStyle())
         }
     }

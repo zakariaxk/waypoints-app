@@ -12,7 +12,7 @@ struct HomeZoneEditor: View {
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
 
     var body: some View {
-        Sheet(Text("Add a zone")) {
+        Sheet(Text("Add a zone", bundle: .module)) {
             VStack(spacing: Space.s16) {
                 MapReader { proxy in
                     Map(position: $position) {

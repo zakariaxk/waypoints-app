@@ -39,7 +39,7 @@ struct DriverPeek: View {
                     Button("Block", role: .destructive) { Task { try? await model.env.safety.block(f.profile.userID) } }
                     Button("Report") { model.env.router.open(.reportContent(.user(f.profile.userID))) }
                 } label: { Image.symbol(Symbol.more).frame(width: Size.hitTarget, height: Size.hitTarget) }
-                    .accessibilityLabel(Text("More"))
+                    .accessibilityLabel(Text("More", bundle: .module))
             }
             Text(verbatim: entity.tier == .approximate
                  ? "\(model.distanceLine(to: entity.coordinate)) · approximate"
@@ -69,13 +69,13 @@ struct DriverPeek: View {
             HStack(spacing: Space.s12) {
                 SilhouetteIcon(entity.info?.markerIcon ?? "coupe", paint: .dust).frame(width: Size.Marker.you, height: Size.Marker.you)
                 VStack(alignment: .leading, spacing: Space.s2) {
-                    Text("A driver nearby").typeStyle(.title).foregroundStyle(Color.chalk)
-                    Text("Approximate location").typeStyle(.sub).foregroundStyle(Color.dust)
+                    Text("A driver nearby", bundle: .module).typeStyle(.title).foregroundStyle(Color.chalk)
+                    Text("Approximate location", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
                 }
             }
             QuietButton("Why can't I see more?") { whyOpen.toggle() }
             if whyOpen {
-                Text("Drivers who aren't your friends choose whether to show up at all, and when they do, only a half-mile area is shared. Your own setting works the same way.")
+                Text("Drivers who aren't your friends choose whether to show up at all, and when they do, only a half-mile area is shared. Your own setting works the same way.", bundle: .module)
                     .typeStyle(.sub).foregroundStyle(Color.dust)
                 QuietButton("Your privacy settings") { model.env.router.open(.settingsPrivacy) }
             }
@@ -91,7 +91,7 @@ struct LayersSheet: View {
     let openMarkerPicker: () -> Void
 
     var body: some View {
-        Sheet(Text("Layers")) {
+        Sheet(Text("Layers", bundle: .module)) {
             ScrollView {
                 VStack(spacing: 0) {
                     toggle("Friends", "friends")
@@ -102,7 +102,7 @@ struct LayersSheet: View {
                     toggle("Traffic", "traffic")
                     SectionLabel("YOUR MARKER")
                     Button(action: openMarkerPicker) {
-                        Row(Text("Icon and trail"), leading: {
+                        Row(Text("Icon and trail", bundle: .module), leading: {
                             SilhouetteIcon(model.profile?.markerIcon ?? "coupe", paint: model.primaryCar?.paint ?? .dust)
                                 .frame(width: Size.Marker.stranger, height: Size.Marker.stranger)
                         }, trailing: { Disclosure() })
@@ -155,7 +155,7 @@ struct MarkerPicker: View {
     ]
 
     var body: some View {
-        Sheet(Text("Your marker")) {
+        Sheet(Text("Your marker", bundle: .module)) {
             VStack(spacing: Space.s16) {
                 VehicleMarker(icon: model.profile?.markerIcon ?? "coupe", paint: model.primaryCar?.paint ?? .dust, role: .you)
                     .scaleEffect(2)
@@ -328,7 +328,7 @@ struct SearchView: View {
                             ForEach(meets) { meetRow($0) }
                         }
                         if search.results.isEmpty && search.people.isEmpty && meets.isEmpty {
-                            Text("Nothing found for '\(search.query)'.").typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin)
+                            Text("Nothing found for '\(search.query)'.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin)
                         }
                     }
                 }
@@ -358,7 +358,7 @@ struct SearchView: View {
     }
 
     private var offlineLine: some View {
-        Text("Search needs a connection.").typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin)
+        Text("Search needs a connection.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin)
     }
 
     /// A saved road opens directions to where it starts.

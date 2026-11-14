@@ -138,7 +138,7 @@ struct ProfileScreen: View {
     var body: some View {
         ScrollView {
             if model.failed {
-                ErrorState(Text("This profile isn't available.")) { Task { await model.load() } }
+                ErrorState(Text("This profile isn't available.", bundle: .module)) { Task { await model.load() } }
             } else if let p = model.profile {
                 VStack(alignment: .leading, spacing: 0) {
                     header(p)
@@ -274,7 +274,7 @@ struct ProfileScreen: View {
         SectionLabel("CARS")
         if model.cars.isEmpty && own {
             VStack(alignment: .leading, spacing: Space.s12) {
-                Text("Your garage is empty.").typeStyle(.body).foregroundStyle(Color.dust)
+                Text("Your garage is empty.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
                 PrimaryButton("Add your car") { ctx.env.router.open(.vehiclePicker(forCar: nil)) }
             }
             .padding(.horizontal, Space.margin)
@@ -299,7 +299,7 @@ struct ProfileScreen: View {
             Row(Text(verbatim: make), trailing: { Text(verbatim: "\(spots.count)").typeStyle(.readoutS) })
         }
         NavigationLink { SpottedView(ctx: ctx, spots: model.spots) } label: {
-            Row(Text("See all"), showsDivider: false, trailing: { Disclosure() })
+            Row(Text("See all", bundle: .module), showsDivider: false, trailing: { Disclosure() })
         }
         .buttonStyle(RowButtonStyle())
     }

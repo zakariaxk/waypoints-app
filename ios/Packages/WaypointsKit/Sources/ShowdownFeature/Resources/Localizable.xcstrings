@@ -1,0 +1,36 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "ALL": {
+      "extractionState": "manual"
+    },
+    "Next class": {
+      "extractionState": "manual"
+    },
+    "Pick %@": {
+      "extractionState": "manual"
+    },
+    "Rankings": {
+      "extractionState": "manual"
+    },
+    "Showdown": {
+      "extractionState": "manual"
+    },
+    "Skip": {
+      "extractionState": "manual"
+    },
+    "YOURS": {
+      "extractionState": "manual"
+    },
+    "You've judged every pair in %@. Try another class.": {
+      "extractionState": "manual"
+    },
+    "build entries": {
+      "extractionState": "manual"
+    },
+    "est. hp": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

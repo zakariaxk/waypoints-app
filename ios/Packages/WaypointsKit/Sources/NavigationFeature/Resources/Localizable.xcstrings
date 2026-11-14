@@ -1,0 +1,60 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Best for your car": {
+      "extractionState": "manual"
+    },
+    "Clear for a lowered car": {
+      "extractionState": "manual"
+    },
+    "Close": {
+      "extractionState": "manual"
+    },
+    "Couldn't find a route there.": {
+      "extractionState": "manual"
+    },
+    "Couldn't send it. Try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't share the destination. Try again.": {
+      "extractionState": "manual"
+    },
+    "Destination": {
+      "extractionState": "manual"
+    },
+    "End": {
+      "extractionState": "manual"
+    },
+    "Go": {
+      "extractionState": "manual"
+    },
+    "No route avoids these. Apple Maps routing can't be steered around them.": {
+      "extractionState": "manual"
+    },
+    "Offline. Follow the route line.": {
+      "extractionState": "manual"
+    },
+    "Rerouting": {
+      "extractionState": "manual"
+    },
+    "Send": {
+      "extractionState": "manual"
+    },
+    "Share ETA": {
+      "extractionState": "manual"
+    },
+    "Share with convoy": {
+      "extractionState": "manual"
+    },
+    "Shared with your convoy.": {
+      "extractionState": "manual"
+    },
+    "They get one notice: %@, arriving %@. Not your location.": {
+      "extractionState": "manual"
+    },
+    "You've arrived": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

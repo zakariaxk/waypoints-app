@@ -1,0 +1,99 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Add a comment": {
+      "extractionState": "manual"
+    },
+    "At %@": {
+      "extractionState": "manual"
+    },
+    "Block": {
+      "extractionState": "manual"
+    },
+    "Cancel": {
+      "extractionState": "manual"
+    },
+    "Caption": {
+      "extractionState": "manual"
+    },
+    "Choose a video": {
+      "extractionState": "manual"
+    },
+    "Choose photos": {
+      "extractionState": "manual"
+    },
+    "Comment": {
+      "extractionState": "manual"
+    },
+    "Comments": {
+      "extractionState": "manual"
+    },
+    "Couldn't load the feed.": {
+      "extractionState": "manual"
+    },
+    "Couldn't play this.": {
+      "extractionState": "manual"
+    },
+    "Couldn't post. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't post. Saved as a draft.": {
+      "extractionState": "manual"
+    },
+    "Cover frame": {
+      "extractionState": "manual"
+    },
+    "Delete": {
+      "extractionState": "manual"
+    },
+    "Follow": {
+      "extractionState": "manual"
+    },
+    "Like": {
+      "extractionState": "manual"
+    },
+    "No car": {
+      "extractionState": "manual"
+    },
+    "No comments yet.": {
+      "extractionState": "manual"
+    },
+    "No meet": {
+      "extractionState": "manual"
+    },
+    "No posts near you yet. Post the first one.": {
+      "extractionState": "manual"
+    },
+    "Nobody you follow has posted yet.": {
+      "extractionState": "manual"
+    },
+    "Not interested": {
+      "extractionState": "manual"
+    },
+    "Post": {
+      "extractionState": "manual"
+    },
+    "Posted": {
+      "extractionState": "manual"
+    },
+    "Report": {
+      "extractionState": "manual"
+    },
+    "See For you": {
+      "extractionState": "manual"
+    },
+    "Send": {
+      "extractionState": "manual"
+    },
+    "Tag a car": {
+      "extractionState": "manual"
+    },
+    "Tag a meet": {
+      "extractionState": "manual"
+    },
+    "Try again": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

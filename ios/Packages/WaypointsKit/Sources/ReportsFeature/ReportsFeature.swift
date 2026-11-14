@@ -96,7 +96,7 @@ struct ReportsSectionView: View {
                 ForEach(reports.sorted { $0.createdAt > $1.createdAt }.prefix(5)) { r in
                     Button { env.router.open(.report(r.id)) } label: {
                         Row(Text(verbatim: ReportText.name(r.kind)),
-                            subtitle: Text("Confirmed by \(r.confirmations)"),
+                            subtitle: Text("Confirmed by \(r.confirmations)", bundle: .module),
                             leading: { ReportBadge(kind: r.kind.rawValue) },
                             trailing: { Text(verbatim: r.createdAt.formatted(.relative(presentation: .numeric))).typeStyle(.readoutS) })
                     }
@@ -110,7 +110,7 @@ struct ReportsSectionView: View {
 
 struct ReportAction: MapAction {
     var id: String { "report" }
-    var title: String { String(localized: "Report a hazard") }
+    var title: String { String(localized: "Report a hazard", bundle: .module) }
     var symbol: String { "exclamationmark.triangle" }
     var order: Int { 10 }
     @MainActor func perform(at coordinate: Coordinate, router: any Router) { router.open(.createReport(coordinate)) }
@@ -130,7 +130,7 @@ struct PostReport: View {
     @State private var posted: Report?
 
     var body: some View {
-        Sheet(Text("What's here?")) {
+        Sheet(Text("What's here?", bundle: .module)) {
             if let posted {
                 HStack {
                     Text(verbatim: "\(ReportText.name(posted.kind)) reported").typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
@@ -211,7 +211,7 @@ struct ReportDetail: View {
                     .typeStyle(.foot).foregroundStyle(Color.dust)
                 if let note = r.note { Text(verbatim: note).typeStyle(.body).foregroundStyle(Color.chalk) }
                 if voted {
-                    Text("Thanks. Counted.").typeStyle(.bodyStrong).foregroundStyle(Color.go)
+                    Text("Thanks. Counted.", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.go)
                 } else {
                     HStack(spacing: Space.s12) {
                         SecondaryButton("Still there") { vote(true) }

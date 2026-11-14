@@ -1,0 +1,207 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ icon, earned": {
+      "extractionState": "manual"
+    },
+    "Accept": {
+      "extractionState": "manual"
+    },
+    "Activity": {
+      "extractionState": "manual"
+    },
+    "Activity, new": {
+      "extractionState": "manual"
+    },
+    "Add": {
+      "extractionState": "manual"
+    },
+    "Add a car": {
+      "extractionState": "manual"
+    },
+    "Add a photo": {
+      "extractionState": "manual"
+    },
+    "Add an entry": {
+      "extractionState": "manual"
+    },
+    "Add someone from their code": {
+      "extractionState": "manual"
+    },
+    "Add to timeline": {
+      "extractionState": "manual"
+    },
+    "Add your car": {
+      "extractionState": "manual"
+    },
+    "Bio": {
+      "extractionState": "manual"
+    },
+    "Block": {
+      "extractionState": "manual"
+    },
+    "CARS": {
+      "extractionState": "manual"
+    },
+    "Cancel": {
+      "extractionState": "manual"
+    },
+    "Change clearance": {
+      "extractionState": "manual"
+    },
+    "Decline": {
+      "extractionState": "manual"
+    },
+    "Delete car": {
+      "extractionState": "manual"
+    },
+    "Delete this car?": {
+      "extractionState": "manual"
+    },
+    "Details": {
+      "extractionState": "manual"
+    },
+    "Edit profile": {
+      "extractionState": "manual"
+    },
+    "Enter Showdown": {
+      "extractionState": "manual"
+    },
+    "Estimates from stock specs and listed mods.": {
+      "extractionState": "manual"
+    },
+    "Find people": {
+      "extractionState": "manual"
+    },
+    "Friend requests": {
+      "extractionState": "manual"
+    },
+    "Friends": {
+      "extractionState": "manual"
+    },
+    "Handle": {
+      "extractionState": "manual"
+    },
+    "Have them scan it in Friends to add you.": {
+      "extractionState": "manual"
+    },
+    "Home region": {
+      "extractionState": "manual"
+    },
+    "ICONS": {
+      "extractionState": "manual"
+    },
+    "In Showdown · %@": {
+      "extractionState": "manual"
+    },
+    "Invite a friend": {
+      "extractionState": "manual"
+    },
+    "Its photos and timeline are deleted too.": {
+      "extractionState": "manual"
+    },
+    "Like 'South Jersey'": {
+      "extractionState": "manual"
+    },
+    "Link a mod": {
+      "extractionState": "manual"
+    },
+    "Message": {
+      "extractionState": "manual"
+    },
+    "Message about this car": {
+      "extractionState": "manual"
+    },
+    "My code": {
+      "extractionState": "manual"
+    },
+    "Name": {
+      "extractionState": "manual"
+    },
+    "Needs at least one photo.": {
+      "extractionState": "manual"
+    },
+    "No entries yet. Log the first thing you did to it.": {
+      "extractionState": "manual"
+    },
+    "No requests.": {
+      "extractionState": "manual"
+    },
+    "None": {
+      "extractionState": "manual"
+    },
+    "Odometer": {
+      "extractionState": "manual"
+    },
+    "Optional": {
+      "extractionState": "manual"
+    },
+    "POSTS": {
+      "extractionState": "manual"
+    },
+    "Remind me": {
+      "extractionState": "manual"
+    },
+    "Reminder %@": {
+      "extractionState": "manual"
+    },
+    "Remove": {
+      "extractionState": "manual"
+    },
+    "Report": {
+      "extractionState": "manual"
+    },
+    "SPECS": {
+      "extractionState": "manual"
+    },
+    "SPOTTED": {
+      "extractionState": "manual"
+    },
+    "Save": {
+      "extractionState": "manual"
+    },
+    "Scan": {
+      "extractionState": "manual"
+    },
+    "Search by handle": {
+      "extractionState": "manual"
+    },
+    "See all": {
+      "extractionState": "manual"
+    },
+    "Service": {
+      "extractionState": "manual"
+    },
+    "Service reminder: %@": {
+      "extractionState": "manual"
+    },
+    "Settings": {
+      "extractionState": "manual"
+    },
+    "Share build": {
+      "extractionState": "manual"
+    },
+    "Spotted": {
+      "extractionState": "manual"
+    },
+    "TIMELINE": {
+      "extractionState": "manual"
+    },
+    "That code isn't a Waypoints profile.": {
+      "extractionState": "manual"
+    },
+    "This profile isn't available.": {
+      "extractionState": "manual"
+    },
+    "Uploading photo": {
+      "extractionState": "manual"
+    },
+    "What did you do?": {
+      "extractionState": "manual"
+    },
+    "Your garage is empty.": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

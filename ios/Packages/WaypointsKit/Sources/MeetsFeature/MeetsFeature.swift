@@ -97,7 +97,7 @@ struct MeetsSectionView: View {
 
 struct StartMeetAction: MapAction {
     var id: String { "startMeet" }
-    var title: String { String(localized: "Start a meet") }
+    var title: String { String(localized: "Start a meet", bundle: .module) }
     var symbol: String { "car.2" }
     var order: Int { 20 }
     @MainActor func perform(at coordinate: Coordinate, router: any Router) { router.open(.createMeet(coordinate)) }
@@ -170,7 +170,7 @@ struct CreateMeet: View {
                             Chip(MeetFormat.kindTitle(k), isSelected: kind == k) { kind = k }
                         }
                     }
-                    Text("When").typeStyle(.foot).foregroundStyle(Color.dust)
+                    Text("When", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     HStack(spacing: Space.s8) {
                         Chip("Now", isSelected: when == 0) { when = 0; startsAt = .now; endsAt = .now.addingTimeInterval(7200) }
                         Chip("Tonight 8 PM", isSelected: when == 1) {
@@ -183,7 +183,7 @@ struct CreateMeet: View {
                             .onChange(of: startsAt) { endsAt = startsAt.addingTimeInterval(7200) }
                     }
                     DatePicker("Ends", selection: $endsAt, in: startsAt...).tint(.sodium).foregroundStyle(Color.chalk)
-                    Text("Repeats").typeStyle(.foot).foregroundStyle(Color.dust)
+                    Text("Repeats", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: Space.s8) {
                             ForEach(Self.repeatOptions, id: \.self) { r in
@@ -195,7 +195,7 @@ struct CreateMeet: View {
                         Field("Rolling out to", text: $destName, prompt: "Where does the cruise end?", limit: 80)
                         if !myRoads.isEmpty {
                             // MEET-13: one of your saved roads as the cruise's route.
-                            Text("Route").typeStyle(.foot).foregroundStyle(Color.dust)
+                            Text("Route", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: Space.s8) {
                                     Chip("No road", isSelected: roadID == nil) { roadID = nil }
@@ -206,7 +206,7 @@ struct CreateMeet: View {
                             }
                         }
                     }
-                    Text("Who can see it").typeStyle(.foot).foregroundStyle(Color.dust)
+                    Text("Who can see it", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     SegmentedSwitch(selection: $visibility, options: [(.public, "Everyone"), (.friends, "Friends")]
                                     + (hostTeam.map { [(MeetVisibility.team, LocalizedStringKey($0.tag))] } ?? []))
                     if showDetails {
@@ -371,7 +371,7 @@ struct MeetDetail: View {
             }
         }
         .sheet(isPresented: $showGoing) {
-            Sheet(Text("Who's going")) {
+            Sheet(Text("Who's going", bundle: .module)) {
                 ScrollView {
                     ForEach(goingPeople) { p in
                         let rsvp = rsvps.first { $0.userID == p.userID }
@@ -382,7 +382,7 @@ struct MeetDetail: View {
                                 trailing: {
                                     // NAV-15: set while they navigate here. No position, only the label.
                                     if rsvp?.isOnTheWay() == true {
-                                        Text("On the way").typeStyle(.label).foregroundStyle(Color.go)
+                                        Text("On the way", bundle: .module).typeStyle(.label).foregroundStyle(Color.go)
                                     }
                                 })
                         }
@@ -422,9 +422,9 @@ struct MeetDetail: View {
                 } label: { Image.symbol(Symbol.more).frame(width: Size.hitTarget, height: Size.hitTarget) }
             }
             if m.cancelledAt != nil {
-                Text("Cancelled").typeStyle(.bodyStrong).foregroundStyle(Color.brake)
+                Text("Cancelled", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.brake)
             } else if m.isHappening() {
-                Text("Happening now").typeStyle(.bodyStrong).foregroundStyle(Color.go)
+                Text("Happening now", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.go)
             }
             Text(verbatim: m.title).typeStyle(.title).foregroundStyle(Color.chalk)
             Text(verbatim: MeetFormat.when(m)).typeStyle(.readoutM).foregroundStyle(Color.chalk)
@@ -433,7 +433,7 @@ struct MeetDetail: View {
                 Text(verbatim: repeats).typeStyle(.sub).foregroundStyle(Color.dust)
             }
             if let dest = m.destination {
-                Text("Rolling out to \(dest.name)").typeStyle(.sub).foregroundStyle(Color.dust)
+                Text("Rolling out to \(dest.name)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
             }
             if let road {
                 Text("Driving \(road.name) · \(MeetFormat.distance(Double(road.lengthMeters)))").typeStyle(.sub).foregroundStyle(Color.dust)
@@ -442,7 +442,7 @@ struct MeetDetail: View {
                 Button { env.router.open(.profile(host.userID)) } label: {
                     HStack(spacing: Space.s8) {
                         Avatar(name: host.displayName, size: .s28)
-                        Text("Hosted by \(host.displayName)").typeStyle(.sub).foregroundStyle(Color.chalk)
+                        Text("Hosted by \(host.displayName)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.chalk)
                     }
                 }
             }
@@ -467,7 +467,7 @@ struct MeetDetail: View {
         let count = rsvps.filter { $0.status == .going }.count
         if count > 0 {
             Button { showGoing = true } label: {
-                Text("Who's going · \(count)").typeStyle(.label).foregroundStyle(Color.dust)
+                Text("Who's going · \(count)", bundle: .module).typeStyle(.label).foregroundStyle(Color.dust)
             }
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: Space.s12) {
@@ -482,8 +482,8 @@ struct MeetDetail: View {
     @ViewBuilder private var venue: some View {
         if let n = notes.first {
             VStack(alignment: .leading, spacing: Space.s2) {
-                Text("Entrance: \(n.entrance.rawValue)").typeStyle(.sub).foregroundStyle(Color.chalk)
-                Text("Lot: \(n.lotSize.rawValue)").typeStyle(.sub).foregroundStyle(Color.chalk)
+                Text("Entrance: \(n.entrance.rawValue)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.chalk)
+                Text("Lot: \(n.lotSize.rawValue)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.chalk)
                 Text(n.lit ? "Lit: yes" : "Lit: no").typeStyle(.sub).foregroundStyle(Color.chalk)
             }
         }
@@ -587,13 +587,13 @@ struct MeetDetail: View {
             Button { env.router.open(.car(winner.id)) } label: {
                 HStack(spacing: Space.s8) {
                     Image(systemName: "trophy.fill").foregroundStyle(Color.sodium)
-                    Text("People's choice: \(winner.shortLabel)").typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                    Text("People's choice: \(winner.shortLabel)", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
                 }
             }
         } else if MeetFormat.hasChoice(m), m.isHappening(), checkedIn, !goingCars.isEmpty {
             VStack(alignment: .leading, spacing: Space.s8) {
                 SectionLabel("PEOPLE'S CHOICE")
-                Text("Pick one car here. The winner shows when it ends.").typeStyle(.sub).foregroundStyle(Color.dust)
+                Text("Pick one car here. The winner shows when it ends.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: Space.s8) {
                         ForEach(goingCars) { car in
@@ -631,13 +631,13 @@ struct VenueNoteSheet: View {
     @State private var note = ""
 
     var body: some View {
-        Sheet(Text("Add what you know")) {
+        Sheet(Text("Add what you know", bundle: .module)) {
             VStack(alignment: .leading, spacing: Space.s16) {
-                Text("Entrance").typeStyle(.foot).foregroundStyle(Color.dust)
+                Text("Entrance", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                 SegmentedSwitch(selection: $entrance, options: [(.flat, "Flat"), (.moderate, "Moderate"), (.steep, "Steep")])
-                Text("Lot").typeStyle(.foot).foregroundStyle(Color.dust)
+                Text("Lot", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                 SegmentedSwitch(selection: $lot, options: [(.small, "Small"), (.medium, "Medium"), (.large, "Large")])
-                Row(Text("Lit at night"), showsDivider: false, trailing: { Toggle("", isOn: $lit).labelsHidden().tint(.sodium) })
+                Row(Text("Lit at night", bundle: .module), showsDivider: false, trailing: { Toggle("", isOn: $lit).labelsHidden().tint(.sodium) })
                 Field("Note", text: $note, prompt: "Optional", limit: 120)
                 PrimaryButton("Save") {
                     guard let at else { return }

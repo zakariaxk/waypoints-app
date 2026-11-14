@@ -45,7 +45,7 @@ public struct QRCodeView: View {
         .padding(Space.s16)
         .background(Color.chalk, in: RoundedRectangle(cornerRadius: Radius.r20, style: .continuous))
         .accessibilityElement()
-        .accessibilityLabel(Text("QR code"))
+        .accessibilityLabel(Text("QR code", bundle: .module))
         .accessibilityValue(Text(verbatim: payload))
     }
 }
@@ -79,7 +79,7 @@ public struct QRCodeScreen: View {
                 .padding(.top, Space.s16)
                 .padding(.horizontal, Space.margin)
                 ShareLink(item: url) {
-                    Row(Text("Share link"), showsDivider: false, trailing: { Image.symbol(Symbol.share) })
+                    Row(Text("Share link", bundle: .module), showsDivider: false, trailing: { Image.symbol(Symbol.share) })
                 }
                 .buttonStyle(RowButtonStyle())
             }

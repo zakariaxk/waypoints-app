@@ -11,6 +11,9 @@ let featureDependencies: [Target.Dependency] = [
     "Core", "DesignSystem", "SafetyKit", "VehicleCatalog", "PerformanceModel", "EngineAudio",
 ]
 
+// Each module's copy lives in its own String Catalog (plan 9.10, PRD L10N-1; tools/l10n/extract.py).
+let stringCatalog: [Resource] = [.process("Resources/Localizable.xcstrings")]
+
 let featureNames = [
     "MapFeature", "NavigationFeature", "ReportsFeature", "MeetsFeature", "ConvoyFeature",
     "MessagingFeature", "TeamsFeature", "VoiceFeature", "FeedFeature", "ShowdownFeature",
@@ -20,39 +23,42 @@ let featureNames = [
 
 let infrastructure: [Target] = [
     // Layer 0
-    .target(name: "Core"),
+    .target(name: "Core", resources: [.process("Resources/Localizable.xcstrings")]),
     .target(name: "WireProtocol", dependencies: [.product(name: "SwiftProtobuf", package: "swift-protobuf")]),
     // Layer 1
     // Resources: the embedded B612 Mono readout face and its licence (W0-D).
-    .target(name: "DesignSystem", resources: [.copy("Resources/Fonts")]),
+    .target(name: "DesignSystem", resources: [.copy("Resources/Fonts"), .process("Resources/Localizable.xcstrings")]),
     .target(name: "Backend", dependencies: ["Core", .product(name: "Supabase", package: "supabase-swift")]),
     .target(name: "GatewayAPI", dependencies: ["Core"]),
     .target(name: "RealtimeClient", dependencies: ["Core", "WireProtocol"]),
     .target(name: "LocationKit", dependencies: ["Core"]),
     // GRDB.swift (plan 4.4) is added here by W1-6 together with the catalog reader.
-    .target(name: "VehicleCatalog", dependencies: ["Core", "DesignSystem"]),
+    .target(name: "VehicleCatalog", dependencies: ["Core", "DesignSystem"], resources: [.process("Resources/Localizable.xcstrings")]),
     .target(name: "PerformanceModel", dependencies: ["Core"]),
     .target(name: "EngineAudio", dependencies: ["Core"]),
-    .target(name: "SafetyKit", dependencies: ["Core", "DesignSystem"]),
+    .target(name: "SafetyKit", dependencies: ["Core", "DesignSystem"], resources: [.process("Resources/Localizable.xcstrings")]),
 ]
 
 // LiveKit client-sdk-swift (plan 4.4) goes to VoiceFeature only: it ships a large WebRTC binary.
 let features: [Target] = featureNames.map { name in
     name == "VoiceFeature"
-        ? .target(name: name, dependencies: featureDependencies + [.product(name: "LiveKit", package: "client-sdk-swift")])
-        : .target(name: name, dependencies: featureDependencies)
+        ? .target(name: name, dependencies: featureDependencies + [.product(name: "LiveKit", package: "client-sdk-swift")],
+                  resources: stringCatalog)
+        : .target(name: name, dependencies: featureDependencies, resources: stringCatalog)
 }
 
 // Layer 3
 let shell: Target = .target(
     name: "AppShell",
-    dependencies: ["Core", "DesignSystem"] + featureNames.map { Target.Dependency(stringLiteral: $0) }
+    dependencies: ["Core", "DesignSystem"] + featureNames.map { Target.Dependency(stringLiteral: $0) },
+    resources: stringCatalog
 )
 
 let allTargets = infrastructure + features + [shell]
 
 let package = Package(
     name: "WaypointsKit",
+    defaultLocalization: "en",
     platforms: [.iOS(.v18)],
     products: [
         .library(name: "WaypointsKit", targets: allTargets.map(\.name)),

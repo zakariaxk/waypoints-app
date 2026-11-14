@@ -248,7 +248,7 @@ struct Pager: View {
                 VStack {
                     Spacer()
                     if model.failed || model.offline {
-                        ErrorState(Text("Couldn't load the feed.")) { Task { await model.refresh() } }
+                        ErrorState(Text("Couldn't load the feed.", bundle: .module)) { Task { await model.refresh() } }
                     } else if followingOnly {
                         EmptyState("Nobody you follow has posted yet.", actionTitle: "See For you", action: switchToForYou)
                     } else {
@@ -317,7 +317,7 @@ struct VideoPage: View {
             MediaView(url: model.env.media.publicURL(bucket: .posts, path: post.posterPath), cornerRadius: 0, label: Text(verbatim: post.caption))
             if failed {
                 VStack(spacing: Space.s12) {
-                    Text("Couldn't play this.").typeStyle(.body).foregroundStyle(Color.chalk)
+                    Text("Couldn't play this.", bundle: .module).typeStyle(.body).foregroundStyle(Color.chalk)
                     SecondaryButton("Try again") { failed = false; retry() }
                 }
                 .padding(Space.s16)
@@ -399,7 +399,7 @@ struct PostOverlay: View {
             }
             if let id = post.meetID, let meet = model.meets[id] {
                 Button { model.env.router.open(.meet(id)) } label: {
-                    Text("At \(meet.title)").typeStyle(.sub).foregroundStyle(Color.chalk)
+                    Text("At \(meet.title)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.chalk)
                 }
             }
         }
@@ -519,11 +519,11 @@ struct Comments: View {
     @State private var error: String?
 
     var body: some View {
-        Sheet(Text("Comments")) {
+        Sheet(Text("Comments", bundle: .module)) {
             VStack(spacing: 0) {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        if comments.isEmpty { Text("No comments yet.").typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin) }
+                        if comments.isEmpty { Text("No comments yet.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin) }
                         ForEach(comments) { c in
                             let a = authors[c.authorID]
                             Row(Text(verbatim: "@\(a?.handle ?? "")  \(c.body)"),
@@ -603,11 +603,11 @@ final class Uploader {
                 guard let first = paths.first else { throw WaypointsError.invalid("photo") }
                 _ = try await env.posts.createPost(NewPost(carID: car, meetID: meet, videoPath: nil, photoPaths: paths,
                                                            posterPath: first, caption: caption, durationMs: 0))
-                toast = ToastMessage(Text("Posted"))
+                toast = ToastMessage(Text("Posted", bundle: .module))
             } catch WaypointsError.rateLimited {
                 toast = ToastMessage(Text(FeedCopy.rateLimited))
             } catch {
-                toast = ToastMessage(Text("Couldn't post. Check your connection and try again."))
+                toast = ToastMessage(Text("Couldn't post. Check your connection and try again.", bundle: .module))
             }
             progress = nil
         }
@@ -627,14 +627,14 @@ final class Uploader {
                 _ = try await env.posts.createPost(NewPost(carID: car, meetID: meet, videoPath: videoMedia.path,
                                                            posterPath: posterMedia.path, caption: caption,
                                                            durationMs: Int(seconds * 1000)))
-                toast = ToastMessage(Text("Posted"))
+                toast = ToastMessage(Text("Posted", bundle: .module))
             } catch WaypointsError.rateLimited {
                 toast = ToastMessage(Text(FeedCopy.rateLimited))
             } catch {
                 let drafts = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appending(path: "drafts")
                 try? FileManager.default.createDirectory(at: drafts, withIntermediateDirectories: true)
                 try? FileManager.default.copyItem(at: video, to: drafts.appending(path: video.lastPathComponent))
-                toast = ToastMessage(Text("Couldn't post. Saved as a draft."))
+                toast = ToastMessage(Text("Couldn't post. Saved as a draft.", bundle: .module))
             }
             progress = nil
         }
@@ -730,7 +730,7 @@ struct PostVideo: View {
                     } else if let poster {
                         Image(uiImage: poster).resizable().aspectRatio(9.0 / 16.0, contentMode: .fit)
                             .frame(maxHeight: Size.row * 6).clipShape(RoundedRectangle(cornerRadius: Radius.r12))
-                        Text("Cover frame").typeStyle(.foot).foregroundStyle(Color.dust)
+                        Text("Cover frame", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                         Slider(value: $cover, in: 0...max(duration, 0.1)).tint(.sodium)
                             .onChange(of: cover) { Task { await makePoster() } }
                     } else {
@@ -742,7 +742,7 @@ struct PostVideo: View {
                         Button("No car") { car = nil }
                         ForEach(cars) { c in Button(c.shortLabel) { car = c.id } }
                     } label: {
-                        Row(Text("Tag a car"), showsDivider: false, trailing: {
+                        Row(Text("Tag a car", bundle: .module), showsDivider: false, trailing: {
                             Text(verbatim: cars.first { $0.id == car }?.shortLabel ?? "").typeStyle(.sub)
                         })
                     }
@@ -751,7 +751,7 @@ struct PostVideo: View {
                             Button("No meet") { meet = nil }
                             ForEach(meets) { m in Button(m.title) { meet = m.id } }
                         } label: {
-                            Row(Text("Tag a meet"), showsDivider: false, trailing: {
+                            Row(Text("Tag a meet", bundle: .module), showsDivider: false, trailing: {
                                 Text(verbatim: meets.first { $0.id == meet }?.title ?? "").typeStyle(.sub)
                             })
                         }

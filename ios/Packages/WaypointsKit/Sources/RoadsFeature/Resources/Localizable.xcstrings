@@ -1,0 +1,66 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ of %@ stretches of road here. Counted on this phone only.": {
+      "extractionState": "manual"
+    },
+    "A road can't start or end in one of your home zones. Move the handles.": {
+      "extractionState": "manual"
+    },
+    "DRIVEN MAP": {
+      "extractionState": "manual"
+    },
+    "Delete drive": {
+      "extractionState": "manual"
+    },
+    "Delete this drive": {
+      "extractionState": "manual"
+    },
+    "Drive it": {
+      "extractionState": "manual"
+    },
+    "Driven": {
+      "extractionState": "manual"
+    },
+    "End": {
+      "extractionState": "manual"
+    },
+    "LENGTH": {
+      "extractionState": "manual"
+    },
+    "Like 'Route 9 through the pines'": {
+      "extractionState": "manual"
+    },
+    "Name": {
+      "extractionState": "manual"
+    },
+    "OF RATED ROADS IN VIEW": {
+      "extractionState": "manual"
+    },
+    "Rate": {
+      "extractionState": "manual"
+    },
+    "Save": {
+      "extractionState": "manual"
+    },
+    "Save a road": {
+      "extractionState": "manual"
+    },
+    "Save road": {
+      "extractionState": "manual"
+    },
+    "Start": {
+      "extractionState": "manual"
+    },
+    "The trace is removed from this phone.": {
+      "extractionState": "manual"
+    },
+    "YOUR DRIVES": {
+      "extractionState": "manual"
+    },
+    "You're doing that a lot. Try again in a few minutes.": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

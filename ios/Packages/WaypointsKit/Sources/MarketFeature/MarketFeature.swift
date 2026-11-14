@@ -42,7 +42,7 @@ enum Coarse {
 
 /// SAFE-9: the server's abuse limits get their own line; everything else gets the fallback.
 func message(for error: any Error, fallback: String) -> String {
-    (error as? WaypointsError) == .rateLimited ? String(localized: "You're doing that a lot. Try again in a few minutes.") : fallback
+    (error as? WaypointsError) == .rateLimited ? String(localized: "You're doing that a lot. Try again in a few minutes.", bundle: .module) : fallback
 }
 
 extension ListingCategory {
@@ -78,7 +78,7 @@ struct CategoryPicker: View {
             Button(noneTitle) { selection = nil }
             ForEach(ListingCategory.allCases, id: \.self) { c in Button(c.title) { selection = c } }
         } label: {
-            Row(Text("Category"), showsDivider: false, trailing: {
+            Row(Text("Category", bundle: .module), showsDivider: false, trailing: {
                 HStack(spacing: Space.s4) {
                     Text(selection?.title ?? noneTitle).typeStyle(.sub)
                     Disclosure()
@@ -148,9 +148,9 @@ struct Browse: View {
                     if let c = fitsCar, kind != .car {
                         Group {
                             if kind == .wanted {
-                                Text("Nobody is looking for \(c.shortLabel) parts yet.")
+                                Text("Nobody is looking for \(c.shortLabel) parts yet.", bundle: .module)
                             } else {
-                                Text("Nothing listed for a \(c.shortLabel) yet.")
+                                Text("Nothing listed for a \(c.shortLabel) yet.", bundle: .module)
                             }
                         }
                         .typeStyle(.body).foregroundStyle(Color.dust)
@@ -189,7 +189,7 @@ struct Browse: View {
         .sheet(isPresented: $listing, onDismiss: { Task { await load(more: false) } }) { ListSomething(env: env, initialKind: kind) }
         .navigationDestination(isPresented: $yours) { Yours(env: env) }
         .sheet(isPresented: $showFilter) {
-            Sheet(Text("Filter")) {
+            Sheet(Text("Filter", bundle: .module)) {
                 VStack(alignment: .leading, spacing: Space.s16) {
                     HStack(spacing: Space.s12) {
                         Field(kind == .wanted ? "Min budget" : "Min price", text: $minPrice, prompt: "$").keyboardType(.numberPad)
@@ -198,7 +198,7 @@ struct Browse: View {
                     if kind != .car {
                         CategoryPicker(selection: $category, noneTitle: "All parts").padding(.horizontal, -Space.margin)
                     }
-                    Text("Condition").typeStyle(.foot).foregroundStyle(Color.dust)
+                    Text("Condition", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     HStack(spacing: Space.s8) {
                         ForEach([(ListingCondition.new, LocalizedStringKey("New")), (.used, "Used"), (.forParts, "For parts")], id: \.0) { c, t in
                             Chip(t, isSelected: conditions.contains(c)) {
@@ -206,7 +206,7 @@ struct Browse: View {
                             }
                         }
                     }
-                    Text("Distance").typeStyle(.foot).foregroundStyle(Color.dust)
+                    Text("Distance", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     HStack(spacing: Space.s8) {
                         ForEach([5, 25, 50, 100], id: \.self) { n in
                             Chip("\(n) \(Units.name)", isSelected: within == n) { within = n; if here == nil { here = Coarse.here() } }
@@ -261,7 +261,7 @@ struct Browse: View {
 
     private func wantedRow(_ l: Listing) -> some View {
         Button { env.router.open(.listing(l.id)) } label: {
-            Row(Text(verbatim: l.title), subtitle: Text("Budget \(Price.text(l.priceCents)) · \(l.region)"), trailing: { Disclosure() })
+            Row(Text(verbatim: l.title), subtitle: Text("Budget \(Price.text(l.priceCents)) · \(l.region)", bundle: .module), trailing: { Disclosure() })
                 .padding(.horizontal, -Space.margin)
         }
         .buttonStyle(RowButtonStyle())
@@ -303,7 +303,7 @@ struct ListingScreen: View {
                     .aspectRatio(4.0 / 3.0, contentMode: .fit)
                     VStack(alignment: .leading, spacing: Space.s8) {
                         Text(verbatim: l.title).typeStyle(.title).foregroundStyle(Color.chalk)
-                        if l.kind == .wanted { Text("Budget").typeStyle(.foot).foregroundStyle(Color.dust) }
+                        if l.kind == .wanted { Text("Budget", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust) }
                         HStack {
                             Text(verbatim: Price.text(l.priceCents)).typeStyle(.readoutL).foregroundStyle(Color.chalk)
                                 .strikethrough(l.status == .sold)
@@ -311,7 +311,7 @@ struct ListingScreen: View {
                                 Text(l.kind == .wanted ? "Found" : "Sold").typeStyle(.label).foregroundStyle(Color.brake)
                             }
                             if l.sellerID == me, l.isExpired() {
-                                Text("Expired").typeStyle(.label).foregroundStyle(Color.dust)
+                                Text("Expired", bundle: .module).typeStyle(.label).foregroundStyle(Color.dust)
                             }
                         }
                         if l.kind == .wanted {
@@ -361,7 +361,7 @@ struct ListingScreen: View {
 
     private func bar(_ l: Listing) -> some View {
         VStack(spacing: Space.s8) {
-            Text("Meet in a public place. Waypoints doesn't handle payment.").typeStyle(.foot).foregroundStyle(Color.dust)
+            Text("Meet in a public place. Waypoints doesn't handle payment.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
             HStack(spacing: Space.s12) {
                 if l.sellerID == me {
                     if l.isExpired() {
@@ -459,7 +459,7 @@ struct ListSomething: View {
                                         .clipShape(RoundedRectangle(cornerRadius: Radius.r12))
                                         .overlay(alignment: .bottomLeading) {
                                             if i == 0 {
-                                                Text("Cover").typeStyle(.label).foregroundStyle(Color.chalk)
+                                                Text("Cover", bundle: .module).typeStyle(.label).foregroundStyle(Color.chalk)
                                                     .padding(Space.s4).background(Color.asphalt, in: RoundedRectangle(cornerRadius: Radius.r6))
                                                     .padding(Space.s4)
                                             }
@@ -473,7 +473,7 @@ struct ListSomething: View {
                                             images.move(fromOffsets: IndexSet(integer: from), toOffset: from < i ? i + 1 : i)
                                             return true
                                         }
-                                        .accessibilityLabel(i == 0 ? Text("Cover photo") : Text("Photo \(i + 1)"))
+                                        .accessibilityLabel(i == 0 ? Text("Cover photo", bundle: .module) : Text("Photo \(i + 1)", bundle: .module))
                                         .accessibilityActions {
                                             if i > 0 { Button("Make cover") { images.move(fromOffsets: IndexSet(integer: i), toOffset: 0) } }
                                             if i > 0 { Button("Move left") { images.swapAt(i, i - 1) } }
@@ -487,14 +487,14 @@ struct ListSomething: View {
                                         .frame(width: Size.row * 1.6, height: Size.row * 1.6)
                                         .background(Color.concrete, in: RoundedRectangle(cornerRadius: Radius.r12))
                                 }
-                                .accessibilityLabel(Text("Add photos"))
+                                .accessibilityLabel(Text("Add photos", bundle: .module))
                             }
                         }
                     }
                     if images.count > 1 {
-                        Text("Drag to reorder. The first photo is the cover.").typeStyle(.foot).foregroundStyle(Color.dust)
+                        Text("Drag to reorder. The first photo is the cover.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     }
-                    Text("What is it?").typeStyle(.foot).foregroundStyle(Color.dust)
+                    Text("What is it?", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     SegmentedSwitch(selection: $kind, options: [(.part, "Part"), (.car, "Car"), (.wanted, "Wanted")])
                     Field("Title", text: $title, prompt: kind == .wanted ? "What you're looking for" : nil, limit: 70)
                     Field(kind == .wanted ? "Budget" : "Price", text: $price, prompt: "$").keyboardType(.numberPad)
@@ -510,7 +510,7 @@ struct ListSomething: View {
                     }
                     if kind != .car {
                         Button { picking = true } label: {
-                            Row(Text("Fits"), showsDivider: false, trailing: {
+                            Row(Text("Fits", bundle: .module), showsDivider: false, trailing: {
                                 Text(verbatim: fits.map { "\($0.make) \($0.model ?? "")" } ?? "Any car").typeStyle(.sub)
                             })
                         }
@@ -523,7 +523,7 @@ struct ListSomething: View {
                                 }
                             }
                         } label: {
-                            Row(Text("Choose from your garage"), showsDivider: false, trailing: { Text(verbatim: car?.shortLabel ?? "").typeStyle(.sub) })
+                            Row(Text("Choose from your garage", bundle: .module), showsDivider: false, trailing: { Text(verbatim: car?.shortLabel ?? "").typeStyle(.sub) })
                         }
                     }
                     Field("Description", text: $description, limit: 1500, axis: .vertical)
@@ -630,7 +630,7 @@ struct Yours: View {
                 }
                 ForEach(list) { l in
                     Button { env.router.open(.listing(l.id)) } label: {
-                        Row(Text(verbatim: l.title), subtitle: l.kind == .wanted ? Text("Budget \(Price.text(l.priceCents))") : Text(verbatim: Price.text(l.priceCents)), leading: {
+                        Row(Text(verbatim: l.title), subtitle: l.kind == .wanted ? Text("Budget \(Price.text(l.priceCents))", bundle: .module) : Text(verbatim: Price.text(l.priceCents)), leading: {
                             MediaView(url: l.photos.first.map { env.media.publicURL(bucket: .listings, path: $0.path) }, aspectRatio: 1,
                                       cornerRadius: Radius.r6, label: Text(verbatim: l.title))
                                 .frame(width: Size.hitTarget, height: Size.hitTarget)
@@ -667,8 +667,8 @@ struct Yours: View {
     }
 
     private func status(_ l: Listing) -> Text {
-        if l.isExpired() { return Text("Expired") }
-        if l.status == .sold { return l.kind == .wanted ? Text("Found") : Text("Sold") }
+        if l.isExpired() { return Text("Expired", bundle: .module) }
+        if l.status == .sold { return l.kind == .wanted ? Text("Found", bundle: .module) : Text("Sold", bundle: .module) }
         return Text(verbatim: l.status.rawValue.capitalized)
     }
 

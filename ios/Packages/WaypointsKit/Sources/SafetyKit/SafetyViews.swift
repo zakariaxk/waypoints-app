@@ -29,11 +29,11 @@ public struct ReportSheet: View {
     ]
 
     public var body: some View {
-        Sheet(Text("Report \(thing)")) {
+        Sheet(Text("Report \(thing)", bundle: .module)) {
             ScrollView {
                 VStack(spacing: 0) {
                     if done {
-                        Text("Reported. We review reports within 24 hours.")
+                        Text("Reported. We review reports within 24 hours.", bundle: .module)
                             .typeStyle(.body).foregroundStyle(Color.chalk)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(Space.margin)
@@ -54,7 +54,7 @@ public struct ReportSheet: View {
                         Field("Note", text: $note, prompt: "Optional", limit: 300)
                             .padding(.horizontal, Space.margin).padding(.top, Space.s16)
                         if let handle, blockUser != nil {
-                            Row(Text("Also block @\(handle)"), showsDivider: false, trailing: {
+                            Row(Text("Also block @\(handle)", bundle: .module), showsDivider: false, trailing: {
                                 Toggle("", isOn: $alsoBlock).labelsHidden().tint(.sodium)
                             })
                         }
@@ -118,7 +118,7 @@ public struct TermsGate: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: Space.s16) {
-            Text("The rules").typeStyle(.display).foregroundStyle(Color.chalk).padding(.top, Space.s48)
+            Text("The rules", bundle: .module).typeStyle(.display).foregroundStyle(Color.chalk).padding(.top, Space.s48)
             ForEach(Array(Self.rules.enumerated()), id: \.offset) { _, rule in
                 Text(rule).typeStyle(.body).foregroundStyle(Color.chalk)
             }

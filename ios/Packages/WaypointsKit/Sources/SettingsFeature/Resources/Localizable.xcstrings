@@ -1,0 +1,144 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@": {
+      "extractionState": "manual"
+    },
+    "About": {
+      "extractionState": "manual"
+    },
+    "Account": {
+      "extractionState": "manual"
+    },
+    "Add a zone": {
+      "extractionState": "manual"
+    },
+    "BACKGROUND": {
+      "extractionState": "manual"
+    },
+    "Blocked people": {
+      "extractionState": "manual"
+    },
+    "Cancel": {
+      "extractionState": "manual"
+    },
+    "Delete account": {
+      "extractionState": "manual"
+    },
+    "Design gallery": {
+      "extractionState": "manual"
+    },
+    "Email": {
+      "extractionState": "manual"
+    },
+    "Everything you own in Waypoints is deleted now.": {
+      "extractionState": "manual"
+    },
+    "For 1 hour": {
+      "extractionState": "manual"
+    },
+    "Ghost mode": {
+      "extractionState": "manual"
+    },
+    "Ghost until %@. Nobody sees you.": {
+      "extractionState": "manual"
+    },
+    "Ghost until you turn it off. Nobody sees you.": {
+      "extractionState": "manual"
+    },
+    "Go ghost": {
+      "extractionState": "manual"
+    },
+    "HOME ZONES": {
+      "extractionState": "manual"
+    },
+    "Handle": {
+      "extractionState": "manual"
+    },
+    "Inside a zone, nobody gets your exact position. Zones are stored on this phone.": {
+      "extractionState": "manual"
+    },
+    "Keep sharing when the app is closed": {
+      "extractionState": "manual"
+    },
+    "LAST DIAGNOSTIC": {
+      "extractionState": "manual"
+    },
+    "LAST METRICS": {
+      "extractionState": "manual"
+    },
+    "Licences": {
+      "extractionState": "manual"
+    },
+    "MetricKit payload": {
+      "extractionState": "manual"
+    },
+    "Name": {
+      "extractionState": "manual"
+    },
+    "Nothing": {
+      "extractionState": "manual"
+    },
+    "Notifications": {
+      "extractionState": "manual"
+    },
+    "Notifications are off for Waypoints.": {
+      "extractionState": "manual"
+    },
+    "Open Settings": {
+      "extractionState": "manual"
+    },
+    "Open-source licences": {
+      "extractionState": "manual"
+    },
+    "Privacy and location": {
+      "extractionState": "manual"
+    },
+    "Radius": {
+      "extractionState": "manual"
+    },
+    "Record my drives on this phone": {
+      "extractionState": "manual"
+    },
+    "Remove": {
+      "extractionState": "manual"
+    },
+    "Save zone": {
+      "extractionState": "manual"
+    },
+    "Settings": {
+      "extractionState": "manual"
+    },
+    "Sign out": {
+      "extractionState": "manual"
+    },
+    "This deletes your profile, cars, posts, messages you sent, and listings. Type your handle to confirm.": {
+      "extractionState": "manual"
+    },
+    "This uses more battery. Sharing stops by itself after 5 minutes parked.": {
+      "extractionState": "manual"
+    },
+    "Turn on": {
+      "extractionState": "manual"
+    },
+    "Unblock": {
+      "extractionState": "manual"
+    },
+    "Until I turn it off": {
+      "extractionState": "manual"
+    },
+    "Until tomorrow": {
+      "extractionState": "manual"
+    },
+    "Version": {
+      "extractionState": "manual"
+    },
+    "WHO SEES YOU": {
+      "extractionState": "manual"
+    },
+    "You haven't blocked anyone.": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

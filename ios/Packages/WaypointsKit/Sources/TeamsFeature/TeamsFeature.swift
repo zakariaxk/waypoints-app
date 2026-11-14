@@ -103,7 +103,7 @@ struct TeamsHome: View {
                     teamPane(team)
                 } else {
                     VStack(alignment: .leading, spacing: Space.s16) {
-                        Text("Teams are where your people talk. Join one or start your own.").typeStyle(.body).foregroundStyle(Color.chalk)
+                        Text("Teams are where your people talk. Join one or start your own.", bundle: .module).typeStyle(.body).foregroundStyle(Color.chalk)
                         PrimaryButton("Find a team") { showFind = true }
                         SecondaryButton("Start a team") { showFind = true }
                     }
@@ -141,7 +141,7 @@ struct TeamsHome: View {
                             }
                         }
                 }
-                .accessibilityLabel(Text("Direct messages"))
+                .accessibilityLabel(Text("Direct messages", bundle: .module))
                 Hairline().frame(width: Size.hitTarget)
                 ForEach(model.teams) { t in
                     Button {
@@ -165,7 +165,7 @@ struct TeamsHome: View {
                     Text(verbatim: team.name).typeStyle(.title).foregroundStyle(Color.chalk)
                     HStack {
                         Text(verbatim: team.tag).typeStyle(.readoutS).foregroundStyle(Color.sodium)
-                        Text("\(team.memberCount) members").typeStyle(.foot).foregroundStyle(Color.dust)
+                        Text("\(team.memberCount) members", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -221,7 +221,7 @@ struct TeamsHome: View {
                 }
             }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text("\(list.count) in voice"))
+            .accessibilityLabel(Text("\(list.count) in voice", bundle: .module))
         }
     }
 
@@ -230,7 +230,7 @@ struct TeamsHome: View {
         let rest = model.threads.filter { t in !requests.contains(t) }
         return VStack(alignment: .leading, spacing: 0) {
             if model.threads.isEmpty {
-                Text("No messages yet.").typeStyle(.body).foregroundStyle(Color.dust).padding(Space.margin)
+                Text("No messages yet.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust).padding(Space.margin)
             }
             if !requests.isEmpty {
                 SectionLabel("REQUESTS")
@@ -360,7 +360,7 @@ struct FindOrStart: View {
                 .textInputAutocapitalization(.characters)
                 .onChange(of: tag) { tag = String(tag.uppercased().filter(\.isLetter).prefix(5)) }
             Field("About", text: $about, limit: 300, axis: .vertical)
-            Row(Text("Anyone can find and join"), showsDivider: false, trailing: { Toggle("", isOn: $isPublic).labelsHidden().tint(.sodium) })
+            Row(Text("Anyone can find and join", bundle: .module), showsDivider: false, trailing: { Toggle("", isOn: $isPublic).labelsHidden().tint(.sodium) })
             PrimaryButton("Start team", isLoading: working) {
                 run {
                     let t = try await model.env.teams.createTeam(TeamDraft(name: name, tag: tag, about: about, iconPath: iconPath, isPublic: isPublic))
@@ -419,26 +419,26 @@ struct TeamDetail: View {
                         Text(verbatim: t.name).typeStyle(.title).foregroundStyle(Color.chalk)
                         Text(verbatim: t.tag).typeStyle(.readoutS).foregroundStyle(Color.sodium)
                         if !t.about.isEmpty { Text(verbatim: t.about).typeStyle(.body).foregroundStyle(Color.chalk) }
-                        Text("\(t.memberCount) members").typeStyle(.foot).foregroundStyle(Color.dust)
+                        Text("\(t.memberCount) members", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     }
                     .padding(Space.margin)
                     if let code = t.inviteCode, let url = Route.joinTeam(code: code).shareURL {
                         NavigationLink {
-                            QRCodeScreen(Text("Invite people"), heading: Text(verbatim: t.name),
-                                         caption: Text("Scan to join, or share the link."), url: url)
-                        } label: { Row(Text("Invite people"), trailing: { Disclosure() }) }
+                            QRCodeScreen(Text("Invite people", bundle: .module), heading: Text(verbatim: t.name),
+                                         caption: Text("Scan to join, or share the link.", bundle: .module), url: url)
+                        } label: { Row(Text("Invite people", bundle: .module), trailing: { Disclosure() }) }
                         .buttonStyle(RowButtonStyle())
                     }
                     NavigationLink { MembersView(model: model, teamID: teamID, ownerID: t.ownerID, perms: perms, roles: roles) } label: {
-                        Row(Text("Members"), trailing: { Disclosure() })
+                        Row(Text("Members", bundle: .module), trailing: { Disclosure() })
                     }
                     .buttonStyle(RowButtonStyle())
                     NavigationLink { TeamMeets(model: model, teamID: teamID) } label: {
-                        Row(Text("Meets"), trailing: { Disclosure() })
+                        Row(Text("Meets", bundle: .module), trailing: { Disclosure() })
                     }
                     .buttonStyle(RowButtonStyle())
                     if perms.contains(.manageTeam) {
-                        Button { editingTeam = true } label: { Row(Text("Edit team"), trailing: { Disclosure() }) }
+                        Button { editingTeam = true } label: { Row(Text("Edit team", bundle: .module), trailing: { Disclosure() }) }
                             .buttonStyle(RowButtonStyle())
                     }
                     if perms.contains(.manageChannels) { channelsSection }
@@ -530,7 +530,7 @@ struct TeamDetail: View {
                 let rank = min(99, (roles.filter { $0.rank < 100 }.map(\.rank).max() ?? 0) + 10)
                 editingRole = TeamRole(teamID: teamID, name: "", rank: rank, permissions: [])
             } label: {
-                Row(Text("Add role"), leading: { Image.symbol(Symbol.add).foregroundStyle(Color.sodium) })
+                Row(Text("Add role", bundle: .module), leading: { Image.symbol(Symbol.add).foregroundStyle(Color.sodium) })
             }
             .buttonStyle(RowButtonStyle())
         }
@@ -646,13 +646,13 @@ struct EditTeam: View {
     }
 
     var body: some View {
-        Sheet(Text("Edit team")) {
+        Sheet(Text("Edit team", bundle: .module)) {
             ScrollView {
                 VStack(alignment: .leading, spacing: Space.s16) {
                     IconPicker(model: model, team: draft, photo: $photo, iconPath: $iconPath)
                     Field("Name", text: $name, limit: 40)
                     Field("About", text: $about, limit: 300, axis: .vertical)
-                    Row(Text("Anyone can find and join"), showsDivider: false, trailing: { Toggle("", isOn: $isPublic).labelsHidden().tint(.sodium) })
+                    Row(Text("Anyone can find and join", bundle: .module), showsDivider: false, trailing: { Toggle("", isOn: $isPublic).labelsHidden().tint(.sodium) })
                     if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                     PrimaryButton("Save", isLoading: working) {
                         working = true
@@ -787,7 +787,7 @@ struct TeamMeets: View {
             LazyVStack(alignment: .leading, spacing: 0) {
                 if let meets {
                     if meets.isEmpty {
-                        Text("No meets planned for this team.").typeStyle(.body).foregroundStyle(Color.dust).padding(Space.margin)
+                        Text("No meets planned for this team.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust).padding(Space.margin)
                     }
                     ForEach(meets) { m in
                         Button { model.env.router.open(.meet(m.id)) } label: {
@@ -862,7 +862,7 @@ struct MembersView: View {
                 removing = nil
             }
         } message: {
-            Text("They'll need an invite to come back to a private team.")
+            Text("They'll need an invite to come back to a private team.", bundle: .module)
         }
         .task { await load() }
     }
@@ -888,7 +888,7 @@ struct MembersView: View {
     }
 
     private func rolePicker(_ m: TeamMember) -> some View {
-        Sheet(Text("Change role")) {
+        Sheet(Text("Change role", bundle: .module)) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(roles) { r in
