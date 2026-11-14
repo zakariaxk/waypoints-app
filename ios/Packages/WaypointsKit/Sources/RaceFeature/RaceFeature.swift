@@ -32,22 +32,21 @@ struct InputLog: Codable, Hashable {
 enum Opponent: Hashable {
     case ghost(RaceResult)
     case friend(name: String, RaceResult, VehicleSpec)
-    case house(String, VehicleSpec)
+    case house(HouseCar)
 
     var title: String {
         switch self {
         case .ghost: "Your best run"
         case let .friend(name, r, _): "\(name)'s run · \(String(format: "%.2f", Double(r.etMs) / 1000)) s"
-        case let .house(name, _): name
+        case let .house(h): h.title
         }
     }
-}
 
-let houseCars: [(String, VehicleSpec)] = [
-    ("House car: commuter", VehicleSpec(hpCrank: 180, torqueLbFt: 180, weightLb: 3100, drivetrain: .fwd, redline: 6500, automatic: true)),
-    ("House car: hot hatch", VehicleSpec(hpCrank: 300, torqueLbFt: 280, weightLb: 3200, drivetrain: .awd, aspiration: .turbo, redline: 6800)),
-    ("House car: muscle", VehicleSpec(hpCrank: 480, torqueLbFt: 420, weightLb: 3800, redline: 7200, cylinders: 8, layout: .v, crankPlane: .cross)),
-]
+    var subtitle: String? {
+        if case let .house(h) = self { return h.specLine }
+        return nil
+    }
+}
 
 // MARK: G7 Lobby
 
@@ -62,6 +61,8 @@ struct Lobby: View {
     @State private var friendRuns: [Opponent] = []
     @State private var running = false
     @State private var showPast = false
+    @AppStorage(Ladder.openedKey) private var opened = 0
+    @AppStorage(Ladder.treeKey) private var tree = TreeKind.sportsman
 
     var body: some View {
         ScrollView {
@@ -77,7 +78,18 @@ struct Lobby: View {
                     SectionLabel("OPPONENT")
                     if let best { opponentRow(.ghost(best)) }
                     ForEach(friendRuns, id: \.self) { opponentRow($0) }
-                    ForEach(houseCars, id: \.0) { opponentRow(.house($0.0, $0.1)) }
+                    SectionLabel("LADDER")
+                    ForEach(Ladder.cars.prefix(openRung + 1)) { opponentRow(.house($0)) }
+                    if openRung + 1 < Ladder.cars.count {
+                        Text(verbatim: "Beat house car \(openRung + 1) to open house car \(openRung + 2).")
+                            .typeStyle(.foot).foregroundStyle(Color.dust)
+                    } else {
+                        Text("All ten house cars are open.").typeStyle(.foot).foregroundStyle(Color.dust)
+                    }
+                    SectionLabel("TREE")
+                    SegmentedSwitch(selection: $tree, options: [(value: TreeKind.sportsman, title: "Sportsman"),
+                                                               (value: TreeKind.pro, title: "Pro")])
+                    Text(verbatim: tree.detail).typeStyle(.foot).foregroundStyle(Color.dust)
                     PrimaryButton("Stage") { running = true }.disabled(opponent == nil)
                     if !past.isEmpty { QuietButton("Past runs") { showPast = true } }
                 } else if car != nil {
@@ -93,7 +105,7 @@ struct Lobby: View {
         .navigationTitle("The Strip")
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(isPresented: $running, onDismiss: { Task { await load() } }) {
-            if let car, let spec, let opponent { RunView(env: env, car: car, spec: spec, opponent: opponent) }
+            if let car, let spec, let opponent { RunView(env: env, car: car, spec: spec, opponent: opponent, tree: tree) }
         }
         .sheet(isPresented: $showPast) {
             Sheet(Text("Past runs")) {
@@ -110,9 +122,11 @@ struct Lobby: View {
         .task { await load() }
     }
 
+    private var openRung: Int { max(0, min(opened, Ladder.cars.count - 1)) }
+
     private func opponentRow(_ o: Opponent) -> some View {
         Button { opponent = o } label: {
-            Row(Text(verbatim: o.title), trailing: {
+            Row(Text(verbatim: o.title), subtitle: o.subtitle.map { Text(verbatim: $0) }, trailing: {
                 Image(systemName: opponent == o ? "largecircle.fill.circle" : "circle").foregroundStyle(opponent == o ? Color.sodium : Color.gravel)
             })
         }
@@ -126,7 +140,7 @@ struct Lobby: View {
         if let car { spec = VehicleSpec.from(variant: variant, car: car) }
         past = (try? await env.progress.raceResults(for: carID)) ?? []
         best = past.min { $0.etMs < $1.etMs }
-        if opponent == nil { opponent = best.map(Opponent.ghost) ?? .house(houseCars[1].0, houseCars[1].1) }
+        if opponent == nil { opponent = best.map(Opponent.ghost) ?? .house(Ladder.cars[openRung]) }
         var runs: [Opponent] = []
         for f in ((try? await env.friends.friends()) ?? []).prefix(10) {
             guard let r = try? await env.progress.raceResults(by: f.id, limit: 1).first,
@@ -149,6 +163,9 @@ final class RaceModel {
     enum Phase: Equatable { case staging, tree(Int), racing, done, redLight }
     let car: Car
     let mods: [Mod]
+    let tree: TreeKind
+    /// The ladder rung being raced, when the opponent is a house car.
+    let houseRung: Int?
     var me: RunState
     var them: RunState
     var phase: Phase = .staging
@@ -167,8 +184,10 @@ final class RaceModel {
     @ObservationIgnored let synth = EngineSynth()
     static let dt = 1.0 / 240
 
-    init(car: Car, spec: VehicleSpec, opponent: Opponent) {
+    init(car: Car, spec: VehicleSpec, opponent: Opponent, tree: TreeKind) {
         self.car = car
+        self.tree = tree
+        if case let .house(h) = opponent { houseRung = h.rung } else { houseRung = nil }
         mods = car.mods.compactMap(ModCatalog.mod)
         let mine = modified(spec, mods: mods, high: false)
         me = RunState(spec: mine, launchRpm: 1000)
@@ -179,7 +198,8 @@ final class RaceModel {
         case let .friend(_, r, s):
             themLog = InputLog.decode(r.inputLog)
             them = RunState(spec: s, launchRpm: themLog?.launchRpm ?? 3500)
-        case let .house(_, s):
+        case let .house(h):
+            let s = h.spec
             them = RunState(spec: s, launchRpm: min(s.redline * 0.55, 4500))
             themLaunchTick = 60 + Int.random(in: 0...20)
         }
@@ -197,10 +217,10 @@ final class RaceModel {
             }
         }
         Task {
-            for i in 0...3 {
-                try? await Task.sleep(for: .milliseconds(i == 0 ? 1500 : 500))
+            for step in tree.sequence {
+                try? await Task.sleep(for: .milliseconds(step.ms))
                 if phase == .redLight { return }
-                phase = i < 3 ? .tree(i) : .racing
+                phase = step.lit > 3 ? .racing : .tree(step.lit - 1)
             }
             greenTick = tick
         }
@@ -285,6 +305,13 @@ final class RaceModel {
     }
 
     var meResult: RunResult { me.result(reactionMs: reactionMs) }
+
+    /// Your lane reached the finish first, counting reaction time, without a red light.
+    var won: Bool {
+        guard phase == .done else { return false }
+        let a = meResult, b = themResult
+        return a.quarterET + Double(a.reactionMs) / 1000 <= b.quarterET + Double(b.reactionMs) / 1000
+    }
     var themResult: RunResult { them.result(reactionMs: themLog == nil ? Int(Double(themLaunchTick) * Self.dt * 1000) : (themLog?.launchTick ?? 0) * 1000 / 240) }
 }
 
@@ -294,13 +321,14 @@ struct RunView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var saved = false
     @State private var thud = 0
-    @State private var setup: (Car, VehicleSpec, Opponent)
+    @State private var setup: (Car, VehicleSpec, Opponent, TreeKind)
     @State private var run = 0
+    @AppStorage(Ladder.openedKey) private var opened = 0
 
-    init(env: AppEnvironment, car: Car, spec: VehicleSpec, opponent: Opponent) {
+    init(env: AppEnvironment, car: Car, spec: VehicleSpec, opponent: Opponent, tree: TreeKind) {
         self.env = env
-        _model = State(initialValue: RaceModel(car: car, spec: spec, opponent: opponent))
-        _setup = State(initialValue: (car, spec, opponent))
+        _model = State(initialValue: RaceModel(car: car, spec: spec, opponent: opponent, tree: tree))
+        _setup = State(initialValue: (car, spec, opponent, tree))
     }
 
     var body: some View {
@@ -331,6 +359,7 @@ struct RunView: View {
         .onChange(of: model.phase) {
             if model.phase == .done && !saved {
                 saved = true
+                if model.won, let rung = model.houseRung, rung >= opened, rung + 1 < Ladder.cars.count { opened = rung + 1 }
                 let r = model.meResult
                 Task {
                     guard let me = await env.auth.currentSession()?.userID else { return }
@@ -344,7 +373,7 @@ struct RunView: View {
 
     private func restart() {
         model.synth.stop()
-        model = RaceModel(car: setup.0, spec: setup.1, opponent: setup.2)
+        model = RaceModel(car: setup.0, spec: setup.1, opponent: setup.2, tree: setup.3)
         saved = false
         model.start()
     }
@@ -359,10 +388,14 @@ struct RunView: View {
                         let y = size.height * 0.35 + CGFloat(i) * laneH * 1.3
                         ctx.fill(Path(CGRect(x: 0, y: y, width: size.width, height: laneH)), with: .color(Color.tarmac))
                         let x = size.width * 0.08 + CGFloat(min(d, 402.336)) * scale
-                        ctx.fill(Path(roundedRect: CGRect(x: x - 30, y: y + laneH * 0.25, width: 60, height: laneH * 0.5), cornerRadius: 6),
+                        // The car is drawn at its lane's proportions: half the lane tall, twice that long.
+                        let carH = laneH * 0.5, carW = carH * 2
+                        ctx.fill(Path(roundedRect: CGRect(x: x - carW / 2, y: y + laneH * 0.25, width: carW, height: carH),
+                                      cornerRadius: Radius.r6),
                                  with: .color(i == 0 ? Color.sodium : Color.dust))
                     }
-                    ctx.fill(Path(CGRect(x: size.width * 0.08 + 402.336 * scale, y: size.height * 0.3, width: 3, height: laneH * 2.8)),
+                    ctx.fill(Path(CGRect(x: size.width * 0.08 + 402.336 * scale, y: size.height * 0.3, width: Size.paintBar,
+                                         height: laneH * 2.8)),
                              with: .color(Color.chalk))
                 }
                 VStack {
@@ -431,10 +464,14 @@ struct TimeSlip: View {
         ScrollView {
             VStack(spacing: Space.s16) {
                 slip
-                if let image = ImageRenderer(content: slip.frame(width: 340)).uiImage {
+                if let image = ImageRenderer(content: slip.frame(width: Size.row * 6)).uiImage {
                     ShareLink(item: Image(uiImage: image), preview: SharePreview("Virtual run · Waypoints", image: Image(uiImage: image))) {
                         Text("Share").typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
                     }
+                }
+                if model.won, let rung = model.houseRung {
+                    Text(verbatim: rung + 1 < Ladder.cars.count ? "House car \(rung + 2) is open." : "That was the top of the ladder.")
+                        .typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
                 }
                 PrimaryButton("Run again", action: again)
                 SecondaryButton("Change opponent", action: close)
@@ -446,7 +483,7 @@ struct TimeSlip: View {
     private var slip: some View {
         let a = model.meResult, b = model.themResult
         let red = model.phase == .redLight
-        let won = !red && a.quarterET + Double(a.reactionMs) / 1000 <= b.quarterET + Double(b.reactionMs) / 1000
+        let won = !red && model.won
         return VStack(alignment: .leading, spacing: Space.s4) {
             Text("VIRTUAL RUN · WAYPOINTS").typeStyle(.readoutS)
             Text(verbatim: model.car.fullLabel).typeStyle(.readoutM)
@@ -467,7 +504,7 @@ struct TimeSlip: View {
 
     private func line(_ k: String, _ a: String, _ b: String) -> some View {
         HStack {
-            Text(verbatim: k).frame(width: 70, alignment: .leading)
+            Text(verbatim: k).frame(width: Size.row + Space.s16, alignment: .leading)
             Text(verbatim: a).frame(maxWidth: .infinity, alignment: .trailing)
             Text(verbatim: b).frame(maxWidth: .infinity, alignment: .trailing)
         }

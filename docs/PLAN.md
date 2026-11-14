@@ -1209,7 +1209,7 @@ Meets appear in the map sheet's Meets section as rows (glyph, title, time in `re
 
 **G7 Strip lobby.** Purpose: set up a virtual run.
 - Header line, always: "Virtual drag strip. A game, not a challenge. Keep it off the street."
-- Your car card with est. ¼ mile. Opponent choice as rows: "Your best run" (ghost), "A friend's run" (friends with results), "House car" (three fixed difficulty cars defined by plain specs).
+- Your car card with est. ¼ mile. Opponent choice as rows: "Your best run" (ghost), "A friend's run" (friends with results), the ladder (STR-9: ten house cars from about 16.5 s to about 9 s, each row its plain specs; beating the highest open car opens the next, kept on the phone), and a "TREE" switch: Sportsman (ambers 0.5 s apart) or Pro (all ambers, green 0.4 s later).
 - `PrimaryButton` "Stage" → G8. `QuietButton` "Past runs" (list of time slips).
 
 **G8 Run.** Landscape-locked SpriteKit scene.
