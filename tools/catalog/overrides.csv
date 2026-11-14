@@ -557,3 +557,28 @@ Volkswagen,Golf R,2026,2026,,2.0,4,turbo,7-speed dual-clutch,,awd,328,295,3461,,
 Volkswagen,Jetta,2019,2019,GLI,2.0,4,turbo,6-speed manual, gli ,fwd,228,258,3217,,3.76;2.08;1.46;1.08;1.09;0.91,https://www.caranddriver.com/volkswagen/jetta-gli/specs/2019/volkswagen_jetta-gli_volkswagen-jetta-gli_2019,
 Volkswagen,Jetta,2020,2020,GLI,2.0,4,turbo,6-speed manual,,fwd,228,258,3217,,3.77;2.09;1.47;1.09;1.10;0.91,https://www.caranddriver.com/volkswagen/jetta-gli/specs/2020/volkswagen_jetta-gli_volkswagen-jetta-gli_2020,
 Volkswagen,Jetta GLI,2021,2021,GLI,2.0,4,turbo,6-speed manual,,fwd,228,258,3228,,3.77;2.09;1.47;1.09;1.10;0.91,https://www.caranddriver.com/volkswagen/jetta-gli/specs/2021/volkswagen_jetta-gli_volkswagen-jetta-gli_2021,
+Chevrolet,Corvette,1997,2000,,5.7,8,natural,,,rwd,345,,,,,https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C5),1
+Chevrolet,Corvette,2001,2004,,5.7,8,natural,,,rwd,350,,,,,https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C5),1
+Chevrolet,Corvette,2001,2001,Z06,5.7,8,natural,6-speed manual, z06 ,rwd,385,,3118,,,https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C5),
+Chevrolet,Corvette,2002,2004,Z06,5.7,8,natural,6-speed manual, z06 ,rwd,405,400,3118,,,https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C5),
+Chevrolet,Corvette,2005,2007,,6.0,8,natural,,,rwd,400,400,,,,https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C6),1
+Chevrolet,Corvette,2008,2013,,6.2,8,natural,,,rwd,430,424,,,,https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C6),1
+Chevrolet,Corvette,2006,2013,Z06,7.0,8,natural,6-speed manual,,rwd,505,470,3147,,,https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C6),
+Chevrolet,Corvette,2009,2013,ZR1,6.2,8,supercharged,6-speed manual,,rwd,638,604,3350,,,https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C6),
+Chevrolet,Corvette,2019,2019,ZR1,6.2,8,supercharged,, zr1 ,rwd,755,715,3560,,,https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C7),1
+Chevrolet,Corvette,2015,2019,Z06,6.2,8,supercharged,, z06 ,rwd,650,650,3523,,,https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C7),1
+Chevrolet,Corvette,2014,2019,Stingray,6.2,8,natural,,,rwd,455,460,3347,,,https://en.wikipedia.org/wiki/Chevrolet_Corvette_(C7),1
+Chevrolet,Camaro,2010,2015,SS,6.2,8,natural,automatic,,rwd,400,,,,,https://en.wikipedia.org/wiki/Chevrolet_Camaro_(fifth_generation),1
+Chevrolet,Camaro,2012,2015,ZL1,6.2,8,supercharged,automatic,,rwd,580,556,,,,https://en.wikipedia.org/wiki/Chevrolet_Camaro_(fifth_generation),1
+Chevrolet,Camaro,2016,2019,SS,6.2,8,natural,automatic,,rwd,455,455,3760,,,https://en.wikipedia.org/wiki/Chevrolet_Camaro_(sixth_generation),1
+Chevrolet,Camaro,2017,2024,ZL1,6.2,8,supercharged,automatic,,rwd,650,650,,,,https://en.wikipedia.org/wiki/Chevrolet_Camaro_(sixth_generation),1
+Chevrolet,Camaro,2016,2024,LT,3.6,6,natural,,,rwd,335,284,3435,,,https://en.wikipedia.org/wiki/Chevrolet_Camaro_(sixth_generation),1
+Chevrolet,Camaro,2016,2024,LT,2.0,4,turbo,,,rwd,275,295,3339,,,https://en.wikipedia.org/wiki/Chevrolet_Camaro_(sixth_generation),1
+Dodge,Challenger,2008,2010,SRT8,6.1,8,natural,,,rwd,425,,,,,https://en.wikipedia.org/wiki/Dodge_Challenger_(2008),
+Dodge,Challenger,2009,2009,R/T,5.7,8,natural,5-speed automatic,,rwd,372,398,,,,https://en.wikipedia.org/wiki/Dodge_Challenger_(2008),1
+Dodge,Challenger,2009,2009,R/T,5.7,8,natural,6-speed manual,,rwd,375,404,,,,https://en.wikipedia.org/wiki/Dodge_Challenger_(2008),1
+Dodge,Challenger,2011,2014,SRT8 392,6.4,8,natural,, srt8 ,rwd,470,470,,,,https://en.wikipedia.org/wiki/Dodge_Challenger_(2008),1
+Dodge,Challenger,2020,2023,R/T Scat Pack Widebody,6.4,8,natural,, widebody ,rwd,485,475,,,,https://en.wikipedia.org/wiki/Dodge_Challenger_(2008),1
+Dodge,Challenger,2015,2023,R/T Scat Pack,6.4,8,natural,,,rwd,485,475,,,,https://en.wikipedia.org/wiki/Dodge_Challenger_(2008),1
+Dodge,Challenger,2015,2018,SRT 392,6.4,8,natural,, srt8 | srt ,rwd,485,475,,,,https://en.wikipedia.org/wiki/Dodge_Challenger_(2008),1
+Dodge,Challenger,2023,2023,SRT Demon 170,6.2,8,supercharged,, demon 170 ,rwd,1025,945,,,,https://en.wikipedia.org/wiki/Dodge_Challenger_(2008),1
