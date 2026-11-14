@@ -95,6 +95,9 @@ archive: generate
 screenshots:
 	tools/screenshots/shots.sh
 
+# Optional knobs for the harness scripts (empty means the script's default).
+export SPEED INTERVAL WAIT BUILD LOCATION TICK
+
 dev-install:
 	brew install supabase/tap/supabase nats-server
 
