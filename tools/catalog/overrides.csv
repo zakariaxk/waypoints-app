@@ -508,3 +508,28 @@ Toyota,GR Corolla,2025,2025,GR Core,1.6,3,turbo,6-speed manual,,awd,300,295,3274
 Toyota,Supra,2022,2024,2.0,2.0,4,turbo,8-speed automatic, gr ,rwd,255,295,3181,,5.25;3.36;2.17;1.72;1.32;1.00;0.82;0.64,https://www.caranddriver.com/toyota/supra/specs/2022/toyota_supra_toyota-supra_2022,
 Toyota,Supra,2020,2020,3.0,3.0,6,turbo,8-speed automatic, gr ,rwd,335,365,3397,,5.25;3.36;2.17;1.72;1.32;1.00;0.82;0.64,https://www.caranddriver.com/toyota/supra/specs/2020/toyota_supra_toyota-supra_2020,
 Toyota,Supra,2021,2021,3.0,3.0,6,turbo,8-speed automatic, gr ,rwd,382,368,3400,,5.25;3.36;2.17;1.72;1.32;1.00;0.82;0.64,https://www.caranddriver.com/toyota/supra/specs/2021/toyota_supra_toyota-supra_2021,
+Toyota,Supra,2025,2025,3.0,3.0,6,turbo,8-speed automatic, gr ,rwd,382,368,3411,,5.25;3.36;2.17;1.72;1.32;1.00;0.82;0.64,https://www.caranddriver.com/toyota/supra/specs/2025/toyota_supra_toyota-supra_2025,
+Toyota,Tacoma,2024,2024,,2.4,4,turbo,8-speed automatic,,,228,243,,,4.41;2.81;1.95;1.51;1.27;1.00;0.79;0.65,https://www.caranddriver.com/toyota/tacoma/specs/2024/toyota_tacoma_toyota-tacoma_2024,1
+Toyota,Tacoma,2025,2025,,2.4,4,turbo,8-speed automatic,,,228,243,,,4.41;2.81;1.95;1.51;1.27;1.00;0.79;0.65,https://www.caranddriver.com/toyota/tacoma/specs/2025/toyota_tacoma_toyota-tacoma_2025,1
+Toyota,Tacoma,2007,2013,,2.7,4,natural,5-speed manual,,,159,180,,,3.95;2.06;1.44;1.00;0.81,https://www.caranddriver.com/toyota/tacoma/specs/2007/toyota_tacoma_toyota-tacoma_2007,1
+Toyota,Tacoma,2014,2014,,2.7,4,natural,5-speed manual,,,159,180,,,3.95;2.06;1.44;1.00;0.81,https://www.caranddriver.com/toyota/tacoma/specs/2014/toyota_tacoma_toyota-tacoma_2014,1
+Toyota,Tacoma,2017,2020,,2.7,4,natural,6-speed automatic,,,159,180,,,3.60;2.09;1.49;1.00;0.69;0.58,https://www.caranddriver.com/toyota/tacoma/specs/2017/toyota_tacoma_toyota-tacoma_2017,1
+Toyota,Tacoma,2021,2023,,2.7,4,natural,6-speed automatic,,,159,180,,,3.60;2.09;1.49;1.00;0.69;0.58,https://www.caranddriver.com/toyota/tacoma/specs/2021/toyota_tacoma_toyota-tacoma_2021,1
+Toyota,Tacoma,2016,2016,,3.5,6,natural,6-speed automatic,,,278,265,,,3.60;2.09;1.49;1.00;0.69;0.58,https://www.caranddriver.com/toyota/tacoma/specs/2016/toyota_tacoma_toyota-tacoma_2016,1
+Toyota,Tacoma,2015,2015,,4.0,6,natural,5-speed automatic,,,236,266,,,3.52;2.04;1.40;1.00;0.72,https://www.caranddriver.com/toyota/tacoma/specs/2015/toyota_tacoma_toyota-tacoma_2015,1
+Toyota,Tundra,2022,2022,,3.4,6,turbo,10-speed automatic,,,348,405,,,,https://www.caranddriver.com/toyota/tundra/specs/2022/toyota_tundra_toyota-tundra_2022,1
+Toyota,Tundra,2023,2023,,3.4,6,turbo,10-speed automatic,,,358,406,,,,https://www.caranddriver.com/toyota/tundra/specs/2023/toyota_tundra_toyota-tundra_2023,1
+Toyota,Tundra,2024,2026,,3.4,6,turbo,10-speed automatic,,,358,406,,,,https://www.caranddriver.com/toyota/tundra/specs/2024/toyota_tundra_toyota-tundra_2024,1
+Toyota,Tundra,2007,2012,,4.0,6,natural,5-speed automatic,,,236,266,,,3.52;2.04;1.40;1.00;0.72,https://www.caranddriver.com/toyota/tundra/specs/2007/toyota_tundra_toyota-tundra_2007,1
+Toyota,Tundra,2014,2014,,4.0,6,natural,5-speed automatic,,,270,278,,,3.52;2.04;1.40;1.00;0.72,https://www.caranddriver.com/toyota/tundra/specs/2014/toyota_tundra_toyota-tundra_2014,1
+Toyota,Tundra,2018,2019,,4.6,8,natural,6-speed automatic,,,310,327,,,3.52;2.04;1.40;1.00;0.72;0.59,https://www.caranddriver.com/toyota/tundra/specs/2018/toyota_tundra_toyota-tundra_2018,1
+Toyota,Tundra,2013,2013,,5.7,8,natural,6-speed automatic,,,381,401,,,3.333;1.960;1.353;1.000;0.728;0.588,https://www.caranddriver.com/toyota/tundra/specs/2013/toyota_tundra_toyota-tundra_2013,1
+Toyota,Tundra,2015,2015,,5.7,8,natural,6-speed automatic,,,381,401,,,3.33;1.96;1.35;1.00;0.73;0.59,https://www.caranddriver.com/toyota/tundra/specs/2015/toyota_tundra_toyota-tundra_2015,1
+Toyota,Tundra,2016,2016,,5.7,8,natural,6-speed automatic,,,381,401,,,3.33;1.96;1.35;1.00;0.73;0.59,https://www.caranddriver.com/toyota/tundra/specs/2016/toyota_tundra_toyota-tundra_2016,1
+Toyota,Tundra,2017,2017,,5.7,8,natural,6-speed automatic,,,381,401,,,3.33;1.96;1.35;1.00;0.73;0.59,https://www.caranddriver.com/toyota/tundra/specs/2017/toyota_tundra_toyota-tundra_2017,1
+Toyota,Tundra,2020,2021,,5.7,8,natural,6-speed automatic,,,381,401,,,3.33;1.96;1.35;1.00;0.73;0.59,https://www.caranddriver.com/toyota/tundra/specs/2020/toyota_tundra_toyota-tundra_2020,1
+Volkswagen,GLI,2022,2023,GLI,2.0,4,turbo,6-speed manual,,fwd,228,258,3272,,3.77;2.09;1.47;1.09;1.10;0.91,https://www.caranddriver.com/volkswagen/jetta-gli/specs/2022/volkswagen_jetta-gli_volkswagen-jetta-gli_2022,
+Volkswagen,GLI,2024,2024,GLI,2.0,4,turbo,6-speed manual,,fwd,228,258,3274,,3.77;2.09;1.47;1.09;1.10;0.91,https://www.caranddriver.com/volkswagen/jetta-gli/specs/2024/volkswagen_jetta-gli_volkswagen-jetta-gli_2024,
+Volkswagen,GLI,2025,2025,GLI,2.0,4,turbo,6-speed manual,,fwd,228,258,3241,,3.77;2.09;1.47;1.09;1.10;0.91,https://www.caranddriver.com/volkswagen/jetta-gli/specs/2025/volkswagen_jetta-gli_volkswagen-jetta-gli_2025,
+Volkswagen,GTI,2007,2009,,2.0,4,turbo,6-speed manual,,fwd,200,207,3162,,3.36;2.09;1.47;1.10;1.11;0.93,https://www.caranddriver.com/volkswagen/golf-gti/specs/2007/volkswagen_golf-gti_volkswagen-gti-5-door_2007,
+Volkswagen,GTI,2010,2013,,2.0,4,turbo,6-speed manual,,fwd,200,207,3113,,3.36;2.09;1.47;1.10;1.11;0.93,https://www.caranddriver.com/volkswagen/golf-gti/specs/2010/volkswagen_golf-gti_volkswagen-gti-5-door_2010,
