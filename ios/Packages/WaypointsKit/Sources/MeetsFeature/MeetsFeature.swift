@@ -420,6 +420,7 @@ struct MeetDetail: View {
                         Button("Report") { env.router.open(.reportContent(ContentRef(kind: .meet, id: m.id.description))) }
                     }
                 } label: { Image.symbol(Symbol.more).frame(width: Size.hitTarget, height: Size.hitTarget) }
+                .accessibilityLabel(Text("More options", bundle: .module))
             }
             if m.cancelledAt != nil {
                 Text("Cancelled", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.brake)
@@ -586,7 +587,7 @@ struct MeetDetail: View {
         if let winner {
             Button { env.router.open(.car(winner.id)) } label: {
                 HStack(spacing: Space.s8) {
-                    Image(systemName: "trophy.fill").foregroundStyle(Color.sodium)
+                    Image(systemName: "trophy.fill").foregroundStyle(Color.sodium).accessibilityHidden(true)
                     Text("People's choice: \(winner.shortLabel)", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
                 }
             }

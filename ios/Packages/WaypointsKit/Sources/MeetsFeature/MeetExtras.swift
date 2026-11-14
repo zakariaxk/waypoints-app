@@ -87,16 +87,18 @@ struct GoingSheet: View {
                         ForEach(cars) { c in
                             Button { car = c.id } label: {
                                 Row(Text(verbatim: c.shortLabel), trailing: {
-                                    if car == c.id { Image(systemName: "checkmark").foregroundStyle(Color.sodium) }
+                                    if car == c.id { Image(systemName: "checkmark").foregroundStyle(Color.sodium).accessibilityHidden(true) }
                                 })
                             }
                             .buttonStyle(RowButtonStyle())
+                            .accessibilityAddTraits(car == c.id ? .isSelected : [])
                         }
                         Button { car = nil } label: {
                             Row(Text("Not sure yet", bundle: .module), showsDivider: false, trailing: {
-                                if car == nil { Image(systemName: "checkmark").foregroundStyle(Color.sodium) }
+                                if car == nil { Image(systemName: "checkmark").foregroundStyle(Color.sodium).accessibilityHidden(true) }
                             })
                         }
+                        .accessibilityAddTraits(car == nil ? .isSelected : [])
                         .buttonStyle(RowButtonStyle())
                     }
                 }

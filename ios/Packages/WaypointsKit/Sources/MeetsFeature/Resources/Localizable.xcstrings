@@ -82,6 +82,9 @@
     "MEETS": {
       "extractionState": "manual"
     },
+    "More options": {
+      "extractionState": "manual"
+    },
     "No road": {
       "extractionState": "manual"
     },
