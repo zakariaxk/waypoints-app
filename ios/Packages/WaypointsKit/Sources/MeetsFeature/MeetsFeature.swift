@@ -154,11 +154,11 @@ struct CreateMeet: View {
     }
 
     var body: some View {
-        Sheet(Text(editing == nil ? "Start a meet" : "Edit meet")) {
+        Sheet(editing == nil ? Text("Start a meet", bundle: .module) : Text("Edit meet", bundle: .module)) {
             ScrollView {
                 VStack(alignment: .leading, spacing: Space.s16) {
                     Map(position: $position, interactionModes: [.pan, .zoom]) {}
-                        .overlay { Image(systemName: "mappin").font(.title).foregroundStyle(Color.sodium).offset(y: -Space.s12) }
+                        .overlay { Image(systemName: "mappin").font(.title).foregroundStyle(Color.sodium).offset(y: -Space.s12).accessibilityHidden(true) }
                         .onMapCameraChange(frequency: .onEnd) { ctx in center = ctx.region.center; resolvePlace() }
                         .frame(height: Size.row * 3)
                         .clipShape(RoundedRectangle(cornerRadius: Radius.r20))
