@@ -52,6 +52,15 @@ public final class ShellModel {
         return true
     }
 
+    /// SAFE-7: when the gateway closes the connection because the account is suspended, sign
+    /// out; the sign-in screen then shows `AccountSuspension.message`.
+    func observeSuspension() async {
+        for await _ in await environment.realtime.suspensions() {
+            UserDefaults.standard.set(true, forKey: AccountSuspension.defaultsKey)
+            try? await environment.auth.signOut()
+        }
+    }
+
     /// Runs for the life of the root view.
     func observeAuth() async {
         for await session in await environment.auth.sessions() {

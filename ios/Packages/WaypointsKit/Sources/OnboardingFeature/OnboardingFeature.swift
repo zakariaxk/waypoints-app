@@ -91,6 +91,13 @@ struct SignInView: View {
         }
         .background(Color.asphalt.ignoresSafeArea())
         .haptic(.fail, trigger: failed)
+        .onAppear {
+            // SAFE-7: the shell signed a suspended account out.
+            if UserDefaults.standard.bool(forKey: AccountSuspension.defaultsKey) {
+                UserDefaults.standard.removeObject(forKey: AccountSuspension.defaultsKey)
+                error = AccountSuspension.message
+            }
+        }
     }
 
     private var buttons: some View {
@@ -162,7 +169,7 @@ struct SignInView: View {
         case .offline: error = "You're offline. Connect to sign in."
         case .invalid("code"): error = "That code didn't match. Check the email and try again."
         case .rateLimited: error = "Too many tries. Wait a minute and try again."
-        case .suspended: error = "This account is suspended. Write to support@waypoints.app."
+        case .suspended: error = AccountSuspension.message
         default: error = "Couldn't sign in. Check your connection and try again."
         }
     }

@@ -12,6 +12,7 @@ public struct AppShellView: View {
         content
             .preferredColorScheme(.dark)
             .task { await shell.observeAuth() }
+            .task { await shell.observeSuspension() }
             .onOpenURL { shell.open(url: $0) }
             // Universal links usually arrive through onOpenURL; some launch paths deliver
             // them only as a browsing-web user activity, so handle both (LINK-2).

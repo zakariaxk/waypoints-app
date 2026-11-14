@@ -46,6 +46,7 @@ public actor LiveRealtimeService: RealtimeService {
 
     private var eventBroadcast = Broadcast<ServerEvent>(buffering: .bufferingNewest(256))
     private var stateBroadcast = Broadcast<ConnectionState>()
+    private var suspensionBroadcast = Broadcast<Void>()
     private var pathBroadcast = Broadcast<Bool>()
     private var state: ConnectionState = .offline
     private var pathSatisfied = true
@@ -102,6 +103,11 @@ public actor LiveRealtimeService: RealtimeService {
     public func events() -> AsyncStream<ServerEvent> {
         start()
         return eventBroadcast.subscribe()
+    }
+
+    public func suspensions() -> AsyncStream<Void> {
+        start()
+        return suspensionBroadcast.subscribe()
     }
 
     public func connectionState() -> AsyncStream<ConnectionState> {
@@ -347,6 +353,12 @@ public actor LiveRealtimeService: RealtimeService {
             // The server closes after errors it considers terminal; only a protocol mismatch is
             // not worth retrying. UNAUTHORIZED retries with a freshly refreshed token.
             if error.code == .protocolVersion { throw ConnectionEnd.fatal }
+            // SAFE-7: a suspended account is refused on connect and closed while open. Retrying
+            // cannot help; tell the shell, which signs out.
+            if error.code == .unauthorized && error.message == "suspended" {
+                suspensionBroadcast.send(())
+                throw ConnectionEnd.fatal
+            }
         case .convoy(let state):
             let model = WireMapping.convoy(state)
             if model.id == convoy {
