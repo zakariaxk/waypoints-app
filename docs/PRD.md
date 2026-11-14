@@ -364,7 +364,7 @@ A driver who is stuck asks the people who would actually come. Nobody in this sp
 | HELP-1 | From the add menu, "Ask for a hand" posts a help request at your position with one of five kinds: flat tire, jump start, out of fuel, stuck, something else. Optional note (120). | P1 | Coded |
 | HELP-2 | It is shown to friends and teammates with your name and car. A switch, off by default, also shows it to drivers nearby as "A driver needs a hand" with no name. | P1 | Coded |
 | HELP-3 | The sheet says, before posting: "This shares your exact spot with the people you pick until you clear it. For an emergency, call emergency services." | P1 | Coded |
-| HELP-4 | Friends and teammates within 25 km are notified. | P1 | Partial: the push opens `waypoints://help/<id>`, which AppShell `DeepLink` and PushKitBridge `ActivityLink` do not parse yet (should map to `Route.help`). |
+| HELP-4 | Friends and teammates within 25 km are notified. | P1 | Coded |
 | HELP-5 | A viewer can tap "On my way"; the requester is told who is coming. Directions is offered. | P1 | Coded |
 | HELP-6 | It ends when the requester taps "I'm good", or after 60 minutes unless extended. One active request per person. | P1 | Coded |
 | HELP-7 | Home zones do not apply to a help request (the user chose to share the spot), and the sheet says so when posting from inside one. | P1 | Coded |
@@ -619,7 +619,7 @@ Told when it matters, at the moment it has a reason. Plan 6, 10.9 (S3).
 | NTF-3 | Tapping a notification opens the thing it is about. | P0 | Coded |
 | NTF-4 | When system permission is off, the settings screen says so and links to Settings. | P0 | Coded |
 | NTF-5 | The device token is registered after permission is granted and removed on sign-out. | P0 | Coded |
-| NTF-6 | Activity. A bell in the Garage bar opens a list of what happened to you: friend requests and acceptances, likes, comments, mentions, RSVPs to your meet, changes to meets you are going to, convoy invites, unlocks earned, help responses. Each row opens its subject. Kept 90 days. The bell carries an unread dot. | P1 | Partial: coded except help responses, which wait for the HELP tables. |
+| NTF-6 | Activity. A bell in the Garage bar opens a list of what happened to you: friend requests and acceptances, likes, comments, mentions, RSVPs to your meet, changes to meets you are going to, convoy invites, unlocks earned, help responses. Each row opens its subject. Kept 90 days. The bell carries an unread dot. | P1 | Coded |
 | NTF-7 | Restraint. One notification per event, never a marketing push, and at most three meets-nearby alerts per person per day. | P1 | Coded |
 
 Build note for NTF-6: a `notifications` table written by the same triggers and gateway calls that push today, read by the client with row-level security. The screen lives in `PushKitBridge`, which becomes the notifications module. It works with no Apple account, so the app is coherent in the simulator.
@@ -660,7 +660,7 @@ Growth here is one person sending a link to another. Plan 10.10 (X3).
 |---|---|---|---|
 | LINK-1 | `waypoints://` opens a profile, car, meet, team, listing, post, team invite, or convoy invite. | P0 | Coded |
 | LINK-2 | The same paths work as HTTPS universal links, so a shared link is tappable in Messages and opens the app. Without the app it opens a plain page saying what the link is and where to get Waypoints. | P0 | Partial: no host chosen yet (`LINK_HOST`, section 9.1 step 6) and `TEAMID` in the association file is a placeholder. |
-| LINK-3 | Everything shareable shares the HTTPS link once LINK-2 is configured. | P0 | Partial: `Route.shareURL` gives the https form; Convoy, Garage, Feed, Teams, and Meets still build `waypoints://` strings themselves. |
+| LINK-3 | Everything shareable shares the HTTPS link once LINK-2 is configured. | P0 | Partial: `Route.shareURL` gives the https form for every shareable route (profile, car, meet, team, listing, post, help, thread, channel, team and convoy invites) and `Route(url:host:)` parses them all; Convoy, Garage, Feed, Teams, and Meets still build `waypoints://` strings themselves. |
 | LINK-4 | A static site in `site/` holds the link landing page, the association file, the Terms, and the Privacy Policy. Plain HTML, no build step, free hosting (section 9.1). | P0 | Partial: not yet published to a host. |
 | LINK-5 | Share cards. A meet shares as an image (title, time, place, a map snapshot) alongside its link. Builds and time slips have theirs (GAR-15, STR-5). | P1 | Partial: the meet card is coded; builds and time slips belong to GAR-15, STR-5. |
 
