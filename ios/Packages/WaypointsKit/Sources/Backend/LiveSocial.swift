@@ -381,6 +381,33 @@ struct LivePosts: PostRepository {
         return Page(items: await models(rows), next: next)
     }
 
+    /// The cursor is the offset into `feed_for_you`'s ordering.
+    func forYou(after cursor: PageCursor?, limit: Int) async throws -> Page<Post> {
+        struct Params: Encodable { let after: Int; let lim: Int }
+        let start = cursor.flatMap { Int($0.raw) } ?? 0
+        let rows: [PostRow] = try await ctx.run {
+            try await ctx.client.rpc("feed_for_you", params: Params(after: start, lim: limit)).execute().value
+        }
+        let next = rows.count == limit ? PageCursor(raw: String(start + rows.count)) : nil
+        return Page(items: await models(rows), next: next)
+    }
+
+    func followingFeed(after cursor: PageCursor?, limit: Int) async throws -> Page<Post> {
+        let me = try ctx.me()
+        struct Row: Decodable { let followeeId: UUID }
+        let followees: [Row] = try await ctx.run {
+            try await ctx.table("follows").select("followee_id").eq("follower_id", value: me.key).limit(1000).execute().value
+        }
+        guard !followees.isEmpty else { return Page(items: [], next: nil) }
+        let rows: [PostRow] = try await ctx.run {
+            var q = ctx.table("posts").select().in("author_id", values: followees.map { $0.followeeId.uuidString.lowercased() })
+            if let cursor { q = q.lt("created_at", value: cursor.raw) }
+            return try await q.order("created_at", ascending: false).limit(limit).execute().value
+        }
+        let next = rows.count == limit ? rows.last.map { PageCursor(raw: PostgresDate.timestamp($0.createdAt)) } : nil
+        return Page(items: await models(rows), next: next)
+    }
+
     func posts(by author: UserID) async throws -> [Post] {
         let rows: [PostRow] = try await ctx.run {
             try await ctx.table("posts").select().eq("author_id", value: author.key).order("created_at", ascending: false)
@@ -540,21 +567,27 @@ struct LiveShowdown: ShowdownRepository {
     }
 
     func rankings(in showdownClass: ShowdownClass, period: RankingPeriod, limit: Int) async throws -> [ShowdownContender] {
-        let entries: [ShowdownEntry] = try await ctx.run {
-            let rows: [ShowdownRow] = try await ctx.table("showdown_entries").select().eq("class", value: showdownClass.rawValue)
-                .order("rating", ascending: false).limit(period == .allTime ? limit : 200).execute().value
-            return rows.map(\.model)
-        }
-        var ordered = entries
+        var ordered: [ShowdownEntry]
         if period == .week {
-            struct Vote: Decodable { let winnerCarId: UUID }
-            let votes: [Vote] = try await ctx.run {
-                try await ctx.table("showdown_votes").select("winner_car_id")
-                    .gt("created_at", value: Date.now.addingTimeInterval(-7 * 86400)).limit(5000).execute().value
+            // Same definition as the weekly close (SHOW-7): votes won since Monday 00:00 UTC.
+            struct Params: Encodable { let cls: ShowdownClass; let lim: Int }
+            struct Top: Decodable { let carId: UUID }
+            let top: [Top] = try await ctx.run {
+                try await ctx.client.rpc("showdown_week_top", params: Params(cls: showdownClass, lim: limit)).execute().value
             }
-            let wins = Dictionary(grouping: votes, by: \.winnerCarId).mapValues(\.count)
-            ordered = entries.filter { wins[$0.carID.raw] != nil }
-                .sorted { (wins[$0.carID.raw] ?? 0, $0.rating) > (wins[$1.carID.raw] ?? 0, $1.rating) }
+            guard !top.isEmpty else { return [] }
+            let rows: [ShowdownRow] = try await ctx.run {
+                try await ctx.table("showdown_entries").select().in("car_id", values: top.map { $0.carId.uuidString.lowercased() })
+                    .execute().value
+            }
+            let byID = Dictionary(rows.map { ($0.carId, $0.model) }, uniquingKeysWith: { a, _ in a })
+            ordered = top.compactMap { byID[$0.carId] }
+        } else {
+            ordered = try await ctx.run {
+                let rows: [ShowdownRow] = try await ctx.table("showdown_entries").select().eq("class", value: showdownClass.rawValue)
+                    .order("rating", ascending: false).limit(limit).execute().value
+                return rows.map(\.model)
+            }
         }
         var out: [ShowdownContender] = []
         for e in ordered.prefix(limit) { if let c = try? await contender(e) { out.append(c) } }

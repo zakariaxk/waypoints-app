@@ -191,6 +191,24 @@ extension PreviewStore: PostRepository {
         let next = start + page.count < all.count ? PageCursor(raw: String(start + page.count)) : nil
         return Page(items: Array(page), next: next)
     }
+    public func forYou(after cursor: PageCursor?, limit: Int) async throws -> Page<Post> {
+        let region = session.flatMap { profiles[$0.userID]?.homeRegion?.lowercased() }
+        func local(_ p: Post) -> Bool { region != nil && profiles[p.authorID]?.homeRegion?.lowercased() == region }
+        func score(_ p: Post) -> Double { log(1 + Double(p.likeCount)) - Date.now.timeIntervalSince(p.createdAt) / 86400 }
+        let all = posts.values.filter { visible($0.authorID) }
+            .sorted { (local($0) ? 1 : 0, score($0)) > (local($1) ? 1 : 0, score($1)) }
+        let start = cursor.flatMap { Int($0.raw) } ?? 0
+        let page = all.dropFirst(start).prefix(limit).map(decorated)
+        return Page(items: Array(page), next: start + page.count < all.count ? PageCursor(raw: String(start + page.count)) : nil)
+    }
+    public func followingFeed(after cursor: PageCursor?, limit: Int) async throws -> Page<Post> {
+        let me = try me()
+        let all = posts.values.filter { visible($0.authorID) && follows.contains(Pair(me.raw, $0.authorID.raw)) }
+            .sorted { $0.createdAt > $1.createdAt }
+        let start = cursor.flatMap { Int($0.raw) } ?? 0
+        let page = all.dropFirst(start).prefix(limit).map(decorated)
+        return Page(items: Array(page), next: start + page.count < all.count ? PageCursor(raw: String(start + page.count)) : nil)
+    }
     public func posts(by author: UserID) async throws -> [Post] {
         posts.values.filter { $0.authorID == author && visible(author) }.sorted { $0.createdAt > $1.createdAt }
             .map(decorated)
