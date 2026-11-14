@@ -659,9 +659,9 @@ Growth here is one person sending a link to another. Plan 10.10 (X3).
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
 | LINK-1 | `waypoints://` opens a profile, car, meet, team, listing, post, team invite, or convoy invite. | P0 | Coded |
-| LINK-2 | The same paths work as HTTPS universal links, so a shared link is tappable in Messages and opens the app. Without the app it opens a plain page saying what the link is and where to get Waypoints. | P0 | Missing |
-| LINK-3 | Everything shareable shares the HTTPS link once LINK-2 is configured. | P0 | Missing |
-| LINK-4 | A static site in `site/` holds the link landing page, the association file, the Terms, and the Privacy Policy. Plain HTML, no build step, free hosting (section 9.1). | P0 | New |
+| LINK-2 | The same paths work as HTTPS universal links, so a shared link is tappable in Messages and opens the app. Without the app it opens a plain page saying what the link is and where to get Waypoints. | P0 | Partial: no host chosen yet (`LINK_HOST`, section 9.1 step 6) and `TEAMID` in the association file is a placeholder. |
+| LINK-3 | Everything shareable shares the HTTPS link once LINK-2 is configured. | P0 | Partial: `Route.shareURL` gives the https form; Convoy, Garage, Feed, Teams, and Meets still build `waypoints://` strings themselves. |
+| LINK-4 | A static site in `site/` holds the link landing page, the association file, the Terms, and the Privacy Policy. Plain HTML, no build step, free hosting (section 9.1). | P0 | Partial: not yet published to a host. |
 | LINK-5 | Share cards. A meet shares as an image (title, time, place, a map snapshot) alongside its link. Builds and time slips have theirs (GAR-15, STR-5). | P1 | New |
 
 ---
@@ -750,8 +750,8 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 | CMP-2 | Account deletion inside the app (ACC-10). | P0 | Missing |
 | CMP-3 | For user content: terms accepted first, a filter, report, block, action within 24 hours, a published contact (SAFE). | P0 | Partial: SAFE-6 to SAFE-8 are new. |
 | CMP-4 | Review notes explain location use, the absence of speed display, and that racing is virtual. `docs/APP_STORE.md` holds them with the listing copy and the privacy-label answers. | P0 | Coded |
-| CMP-5 | Terms of Service and a Privacy Policy at public URLs (LINK-4). | P0 | Missing |
-| CMP-6 | An app icon, drawn by a script in the repository from the design tokens. | P0 | Missing |
+| CMP-5 | Terms of Service and a Privacy Policy at public URLs (LINK-4). | P0 | Partial: pages in `site/`, not yet published; S6 rows appear once `LINK_HOST` is set. |
+| CMP-6 | An app icon, drawn by a script in the repository from the design tokens. | P0 | Coded |
 | CMP-7 | App Store screenshots produced by the harness in section 7, from seed data with real model names. | P1 | New |
 
 ### 5.8 Observability, size, language (OBS, L10N)
@@ -759,7 +759,7 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
 | OBS-1 | The gateway exposes connection, publish, delivery, drop, outbox, and flush metrics on a private port, with `pprof`. | P0 | Coded |
-| OBS-2 | The client collects MetricKit diagnostics and can show the last payload on a debug screen. No third-party SDK. | P1 | Missing |
+| OBS-2 | The client collects MetricKit diagnostics and can show the last payload on a debug screen. No third-party SDK. | P1 | Coded |
 | L10N-1 | English only. Every string lives in a String Catalog in its module. | P1 | Missing |
 
 ---
