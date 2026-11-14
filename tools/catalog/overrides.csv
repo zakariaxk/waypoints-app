@@ -433,3 +433,28 @@ Porsche,911,2014,2016,Carrera,3.4,6,natural,7-speed manual, carrera ,rwd,350,287
 Porsche,911,2009,2010,Carrera,3.6,6,natural,6-speed manual, carrera ,rwd,345,288,3075,,3.91;2.32;1.61;1.28;1.08;0.88,https://www.caranddriver.com/porsche/911/specs/2009/porsche_911_porsche-911-carrera_2009,
 Porsche,911,2011,2011,Carrera,3.6,6,natural,6-speed manual, carrera ,rwd,345,288,3186,,3.91;2.32;1.56;1.28;1.08;0.88,https://www.caranddriver.com/porsche/911/specs/2011/porsche_911_porsche-911-carrera_2011,
 Porsche,911,2012,2012,Carrera,3.6,6,natural,6-speed manual, carrera ,rwd,345,288,,,,https://www.caranddriver.com/porsche/911/specs/2012/porsche_911_porsche-911-carrera_2012,
+Porsche,Cayman,2007,2007,,3.4,6,natural,6-speed manual, s ,rwd,295,251,2976,,3.31;1.95;1.41;1.13;0.97;0.82,https://www.caranddriver.com/porsche/718-cayman/specs/2007/porsche_718-cayman_porsche-cayman-s_2007,
+Porsche,Cayman,2017,2017,,2.0,4,turbo,6-speed manual,,rwd,300,280,2944,,3.31;1.95;1.41;1.13;0.95;0.81,https://www.caranddriver.com/porsche/718-cayman/specs/2017/porsche_718-cayman_porsche-718-cayman_2017,
+Porsche,Cayman,2018,2018,,2.0,4,turbo,6-speed manual,,rwd,300,280,2943,,3.31;1.95;1.41;1.13;0.95;0.81,https://www.caranddriver.com/porsche/718-cayman/specs/2018/porsche_718-cayman_porsche-718-cayman_2018,
+Porsche,Cayman,2019,2019,,2.0,4,turbo,6-speed manual,,rwd,300,280,2944,,3.31;1.95;1.41;1.13;0.95;0.81,https://www.caranddriver.com/porsche/718-cayman/specs/2019/porsche_718-cayman_porsche-718-cayman_2019,
+Porsche,Cayman,2007,2008,,2.7,6,natural,5-speed manual,,rwd,245,201,2866,,3.50;2.12;1.43;1.09;0.84,https://www.caranddriver.com/porsche/718-cayman/specs/2007/porsche_718-cayman_porsche-cayman_2007,
+Porsche,Cayman,2014,2016,,2.7,6,natural,6-speed manual,,rwd,275,213,2888,,3.67;2.05;1.46;1.13;0.97;0.84,https://www.caranddriver.com/porsche/718-cayman/specs/2014/porsche_718-cayman_porsche-cayman_2014,
+Porsche,Cayman,2009,2009,,2.9,6,natural,6-speed manual,,rwd,265,221,2943,,3.50;2.12;1.43;1.09;0.84,https://www.caranddriver.com/porsche/718-cayman/specs/2009/porsche_718-cayman_porsche-cayman_2009,
+Porsche,Cayman,2010,2011,,2.9,6,natural,6-speed manual,,rwd,265,221,2932,,3.66;2.05;1.40;1.13;0.97;0.84,https://www.caranddriver.com/porsche/718-cayman/specs/2010/porsche_718-cayman_porsche-cayman_2010,
+Porsche,Cayman,2012,2012,,2.9,6,natural,6-speed manual,,rwd,265,221,2932,,3.50;2.12;1.43;1.09;0.84,https://www.caranddriver.com/porsche/718-cayman/specs/2012/porsche_718-cayman_porsche-cayman_2012,
+Ram,1500,2021,2021,TRX,6.2,8,supercharged,8-speed automatic, trx ,4wd,702,650,6396,,4.71;3.14;2.11;1.67;1.29;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500-trx/specs/2021/ram_1500-rebel-trx_1500-trx_2021,
+Ram,1500,2022,2022,TRX,6.2,8,supercharged,8-speed automatic, trx ,4wd,702,650,6439,,4.71;3.14;2.11;1.67;1.29;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500-trx/specs/2022/ram_1500-rebel-trx_1500-rebel-trx_2022,
+Ram,1500,2023,2023,TRX,6.2,8,supercharged,8-speed automatic, trx ,4wd,702,650,6440,,4.71;3.14;2.11;1.67;1.29;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500-trx/specs/2023/ram_1500-rebel-trx_ram-1500-trx_2023,
+Ram,1500,2024,2024,TRX,6.2,8,supercharged,8-speed automatic, trx ,4wd,702,650,6443,,4.71;3.14;2.11;1.67;1.29;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500-trx/specs/2024/ram_1500-rebel-trx_ram-1500-trx_2024,
+Ram,1500,2017,2017,,3.0,6,turbo,8-speed automatic,,,240,420,,,4.71;3.14;2.10;1.67;1.29;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500/specs/2017/ram_1500_ram-1500_2017,1
+Ram,1500,2014,2014,,3.6,6,natural,8-speed automatic,,,305,269,,,4.71;3.14;2.11;1.67;1.28;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500/specs/2014/ram_1500_ram-1500_2014,1
+Ram,1500,2015,2015,,3.6,6,natural,8-speed automatic,,,305,269,,,4.71;3.14;2.11;1.67;1.28;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500/specs/2015/ram_1500_ram-1500_2015,1
+Ram,1500,2016,2016,,3.6,6,natural,8-speed automatic,,,305,269,,,4.71;3.14;2.11;1.67;1.28;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500/specs/2016/ram_1500_ram-1500_2016,1
+Ram,1500,2018,2018,,3.6,6,natural,8-speed automatic,,,305,269,,,4.71;3.14;2.11;1.67;1.28;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500/specs/2018/ram_1500_ram-1500_2018,1
+Ram,1500,2019,2019,,3.6,6,natural,8-speed automatic,,,305,269,,,4.71;3.14;2.11;1.67;1.28;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500/specs/2019/ram_1500_ram-1500-classic_2019,1
+Ram,1500,2020,2020,,3.6,6,natural,8-speed automatic,,,305,269,,,4.71;3.14;2.11;1.67;1.28;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500/specs/2020/ram_1500_ram-1500-classic_2020,1
+Ram,1500,2021,2021,,3.6,6,natural,8-speed automatic,,,305,269,,,4.71;3.14;2.11;1.67;1.28;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500/specs/2021/ram_1500_ram-1500-classic_2021,1
+Ram,1500,2022,2022,,3.6,6,natural,8-speed automatic,,,305,269,,,4.71;3.14;2.11;1.67;1.28;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500/specs/2022/ram_1500_ram-1500-rebel_2022,1
+Ram,1500,2023,2023,,3.6,6,natural,8-speed automatic,,,305,269,,,4.71;3.14;2.11;1.67;1.28;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500/specs/2023/ram_1500_ram-1500_2023,1
+Ram,1500,2024,2024,,3.6,6,natural,8-speed automatic,,,305,269,,,4.71;3.14;2.11;1.67;1.28;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500/specs/2024/ram_1500_ram-1500_2024,1
+Ram,1500,2025,2025,,3.6,6,natural,8-speed automatic,,,305,269,,,4.71;3.14;2.11;1.67;1.28;1.00;0.84;0.67,https://www.caranddriver.com/ram/1500/specs/2025/ram_1500_ram-1500_2025,1
