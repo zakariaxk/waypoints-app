@@ -7,6 +7,9 @@
     "%@ members": {
       "extractionState": "manual"
     },
+    "%@ unread": {
+      "extractionState": "manual"
+    },
     "2–5 letters": {
       "extractionState": "manual"
     },
@@ -74,6 +77,9 @@
       "extractionState": "manual"
     },
     "Leave team": {
+      "extractionState": "manual"
+    },
+    "Listing": {
       "extractionState": "manual"
     },
     "MEMBERS": {

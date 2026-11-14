@@ -142,6 +142,8 @@ struct TeamsHome: View {
                         }
                 }
                 .accessibilityLabel(Text("Direct messages", bundle: .module))
+                .accessibilityValue(model.unread > 0 ? Text("\(model.unread) unread", bundle: .module) : Text(verbatim: ""))
+                .accessibilityAddTraits(dms ? .isSelected : [])
                 Hairline().frame(width: Size.hitTarget)
                 ForEach(model.teams) { t in
                     Button {
@@ -250,7 +252,10 @@ struct TeamsHome: View {
                 leading: {
                     Avatar(name: p?.displayName ?? "", url: p?.avatarPath.map { model.env.media.publicURL(bucket: .avatars, path: $0) }, size: .s40)
                         .overlay(alignment: .bottomTrailing) {
-                            if t.kind == .listing { Image(systemName: "tag.fill").font(.caption2).foregroundStyle(Color.sodium) }
+                            if t.kind == .listing {
+                                Image(systemName: "tag.fill").font(.caption2).foregroundStyle(Color.sodium)
+                                    .accessibilityLabel(Text("Listing", bundle: .module))
+                            }
                         }
                 }, trailing: {
                     if request, let other {
@@ -899,10 +904,11 @@ struct MembersView: View {
                             Row(Text(verbatim: r.name), leading: {
                                 Circle().fill(r.colorHex.flatMap { Color(paintHex: $0) } ?? .dust).frame(width: Space.s12, height: Space.s12)
                             }, trailing: {
-                                if m.roleID == r.id { Image.symbol(Symbol.confirm).foregroundStyle(Color.sodium) }
+                                if m.roleID == r.id { Image.symbol(Symbol.confirm).foregroundStyle(Color.sodium).accessibilityHidden(true) }
                             })
                         }
                         .buttonStyle(RowButtonStyle())
+                        .accessibilityAddTraits(m.roleID == r.id ? .isSelected : [])
                     }
                 }
             }
