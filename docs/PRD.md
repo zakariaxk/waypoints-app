@@ -579,8 +579,8 @@ Parts and cars. Listings and messages, never payment. Plan 5.5, 10.6.
 | MKT-4 | "Yours" holds what you are selling and what you saved. A listing can be edited, marked sold, or removed. | P0 | Coded |
 | MKT-5 | Every listing carries "Meet in a public place. Waypoints doesn't handle payment." | P0 | Coded |
 | MKT-6 | There is no checkout, shipping, fee, or promoted placement. | P0 | Coded |
-| MKT-7 | Parts have a category: wheels and tires, exhaust, intake and fuel, forced induction, engine, drivetrain, suspension, brakes, exterior and aero, interior, lighting, electronics and tuning, tools, apparel, other. Browse filters by it. | P1 | New |
-| MKT-8 | Wanted. A third listing kind for something you are looking for, with a budget instead of a price. Shown under its own switch position. | P1 | New |
+| MKT-7 | Parts have a category: wheels and tires, exhaust, intake and fuel, forced induction, engine, drivetrain, suspension, brakes, exterior and aero, interior, lighting, electronics and tuning, tools, apparel, other. Browse filters by it. | P1 | Coded |
+| MKT-8 | Wanted. A third listing kind for something you are looking for, with a budget instead of a price. Shown under its own switch position. | P1 | Coded |
 | MKT-9 | A listing untouched for 90 days leaves browse and reads "Expired" to its seller, with "Relist". | P2 | New |
 
 ### 4.20 Car spotting (SPOT)
