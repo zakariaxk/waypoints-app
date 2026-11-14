@@ -12,11 +12,11 @@ public struct AppShellView: View {
         content
             .preferredColorScheme(.dark)
             .task { await shell.observeAuth() }
-            .onOpenURL { shell.router.open(url: $0) }
+            .onOpenURL { shell.open(url: $0) }
             // Universal links usually arrive through onOpenURL; some launch paths deliver
             // them only as a browsing-web user activity, so handle both (LINK-2).
             .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
-                if let url = activity.webpageURL { shell.router.open(url: url) }
+                if let url = activity.webpageURL { shell.open(url: url) }
             }
     }
 
@@ -62,6 +62,12 @@ struct TabShell: View {
         }
         .fullScreenCover(item: $router.fullScreen) { presented in
             registry.view(for: presented.route)
+        }
+        .background {
+            // Its own host view, so it does not compete with the route sheet above.
+            Color.clear.sheet(item: $router.debugScreen) { presented in
+                registry.debugScreens[presented.name]?() ?? AnyView(EmptyView())
+            }
         }
     }
 }

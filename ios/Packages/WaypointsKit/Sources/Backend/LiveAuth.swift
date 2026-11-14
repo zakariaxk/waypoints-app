@@ -126,6 +126,18 @@ actor LiveAuth: AuthService {
         return try await finishSignIn(session)
     }
 
+    #if DEBUG
+    /// Email and password sign-in for the `-wp-login` launch argument (PRD 7.1). Debug builds
+    /// only; the composition root also refuses it unless Supabase is on a loopback address.
+    func debugSignIn(email: String, password: String) async throws -> AuthSession {
+        startObserving()
+        let session = try await ctx.run {
+            try await ctx.client.auth.signIn(email: email, password: password)
+        }
+        return try await finishSignIn(session)
+    }
+    #endif
+
     /// A fresh sign-in always re-reads the profile, so a suspension since the last session shows.
     private func finishSignIn(_ session: Session) async throws -> AuthSession {
         onboarded.remove(session.user.id)

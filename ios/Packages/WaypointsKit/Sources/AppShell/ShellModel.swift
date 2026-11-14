@@ -29,6 +29,29 @@ public final class ShellModel {
         TabBarStyle.apply()
     }
 
+    /// Opens a link: `waypoints://debug/<screen>` in debug builds (PRD 7.1), otherwise a deep
+    /// link through `DeepLink`.
+    public func open(url: URL) {
+        #if DEBUG
+        if DebugLinks.handles(url) {
+            Task { await DebugLinks.open(url, shell: self) }
+            return
+        }
+        #endif
+        router.open(url: url)
+    }
+
+    /// Waits until the tabs are showing, up to `timeout`. Used by launch arguments that act
+    /// after sign-in (`-wp-open`, `-wp-smoke`).
+    public func waitUntilSignedIn(timeout: Duration = .seconds(20)) async -> Bool {
+        let deadline = ContinuousClock.now + timeout
+        while phase != .signedIn {
+            guard ContinuousClock.now < deadline else { return false }
+            try? await Task.sleep(for: .milliseconds(100))
+        }
+        return true
+    }
+
     /// Runs for the life of the root view.
     func observeAuth() async {
         for await session in await environment.auth.sessions() {

@@ -65,6 +65,11 @@ public final class FeatureRegistry {
     public private(set) var feedModes: [any FeedMode] = []
     /// The signed-out and first-run flow (O1–O4), supplied by `OnboardingFeature`.
     public private(set) var onboarding: (@MainActor () -> AnyView)?
+    /// Debug builds: screens and states reachable as `waypoints://debug/<name>` (PRD 7.1), for
+    /// screens no `Route` reaches (search, route preview, an empty or offline state). Names are
+    /// lowercase paths such as `feed/empty`. Registered screens win over the shell's built-in
+    /// mapping; registering in a release build does nothing harmful but is never opened.
+    public private(set) var debugScreens: [String: @MainActor () -> AnyView] = [:]
 
     public init() {}
 
@@ -99,6 +104,10 @@ public final class FeatureRegistry {
     public func registerOnboarding(_ root: @escaping @MainActor () -> AnyView) {
         precondition(onboarding == nil, "Onboarding registered twice")
         onboarding = root
+    }
+
+    public func registerDebugScreen(_ name: String, view: @escaping @MainActor () -> AnyView) {
+        debugScreens[name.lowercased()] = view
     }
 
     // MARK: Lookup

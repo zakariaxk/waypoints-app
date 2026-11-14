@@ -61,6 +61,15 @@ public enum Backend {
         )
     }
 
+    #if DEBUG
+    /// Signs in with email and password (the seed users' development password). Debug builds
+    /// only, for the `-wp-login` launch argument; throws unless `auth` is the live service.
+    public static func debugSignIn(_ auth: any AuthService, email: String, password: String) async throws -> AuthSession {
+        guard let live = auth as? LiveAuth else { throw WaypointsError.invalid("auth is not the live service") }
+        return try await live.debugSignIn(email: email, password: password)
+    }
+    #endif
+
     /// The in-memory store from `Core`, signed out at launch.
     public static func makePreview() -> Services {
         let store = PreviewStore.shared

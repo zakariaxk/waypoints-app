@@ -12,6 +12,7 @@ struct WaypointsApp: App {
     var body: some Scene {
         WindowGroup {
             AppShellView(shell: shell)
+                .task { await LaunchActions.run(shell: shell) }
         }
     }
 }

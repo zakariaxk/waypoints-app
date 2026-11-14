@@ -6,6 +6,7 @@ import GatewayAPI
 import LocationKit
 import RealtimeClient
 import SafetyKit
+import SwiftUI
 import VehicleCatalog
 
 /// Builds `AppEnvironment` from each infrastructure module's factory. Every factory returns the
@@ -13,8 +14,31 @@ import VehicleCatalog
 @MainActor
 enum CompositionRoot {
     static func makeShell() -> ShellModel {
-        ShellModel(makeEnvironment: makeEnvironment(router:))
+        #if DEBUG
+        if LaunchOptions.current.preview {
+            // -wp-preview (PRD 7.1): no backend, the realistic preview seed, signed in.
+            let shell = ShellModel(makeEnvironment: { PreviewEnvironment.make(signedIn: true, router: $0) })
+            registerDebugScreens(in: shell)
+            return shell
+        }
+        #endif
+        let shell = ShellModel(makeEnvironment: makeEnvironment(router:))
+        #if DEBUG
+        registerDebugScreens(in: shell)
+        #endif
+        return shell
     }
+
+    #if DEBUG
+    /// Debug screens only the app target can build, because they come from infrastructure
+    /// modules the shell does not import (`waypoints://debug/<name>`).
+    private static func registerDebugScreens(in shell: ShellModel) {
+        let safety = shell.environment.safety
+        for name in ["terms", "terms-gate"] {
+            shell.registry.registerDebugScreen(name) { AnyView(TermsGate(safety: safety) {}) }
+        }
+    }
+    #endif
 
     static func makeEnvironment(router: any Router) -> AppEnvironment {
         let config = loadConfig()

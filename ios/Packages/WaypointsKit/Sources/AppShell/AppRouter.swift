@@ -9,6 +9,12 @@ public struct PresentedRoute: Identifiable, Hashable {
     public let route: Route
 }
 
+/// A debug screen (`waypoints://debug/<name>`) being shown in a sheet. Debug builds only.
+public struct PresentedDebugScreen: Identifiable {
+    public let id = UUID()
+    public let name: String
+}
+
 /// The app's `Router`: resolves a `Route` through the registry and pushes or presents it.
 /// Routes opened while signed out (deep links) wait until sign-in (section 10.10, X3).
 @MainActor
@@ -18,6 +24,7 @@ public final class AppRouter: Router {
     public var paths: [AppTab: [Route]] = [:]
     public var sheet: PresentedRoute?
     public var fullScreen: PresentedRoute?
+    public var debugScreen: PresentedDebugScreen?
 
     @ObservationIgnored private var registry: FeatureRegistry?
     @ObservationIgnored private var isSignedIn = false
@@ -36,6 +43,7 @@ public final class AppRouter: Router {
             paths = [:]
             sheet = nil
             fullScreen = nil
+            debugScreen = nil
         } else if let route = pending {
             pending = nil
             open(route)
