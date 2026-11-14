@@ -577,7 +577,7 @@ struct GuidanceView: View {
         let next = steps.indices.contains(model.stepIndex + 1) ? steps[model.stepIndex + 1] : steps.last
         return HStack(spacing: Space.s12) {
             Image(systemName: arrow(next?.instructions ?? "")).font(TypeToken.readoutL.font).fontWeight(.bold)
-                .foregroundStyle(Color.sodium).frame(width: Size.hitTarget)
+                .foregroundStyle(Color.sodium).frame(width: Size.hitTarget).accessibilityHidden(true)
             VStack(alignment: .leading, spacing: Space.s2) {
                 if model.arrived {
                     Text("You've arrived", bundle: .module).typeStyle(.title).foregroundStyle(Color.chalk)
@@ -651,9 +651,11 @@ struct ShareETASheet: View {
                                 trailing: {
                                     Image(systemName: chosen.contains(f.id) ? "checkmark.circle.fill" : "circle")
                                         .foregroundStyle(chosen.contains(f.id) ? Color.sodium : Color.gravel)
+                                        .accessibilityHidden(true)
                                 })
                         }
                         .buttonStyle(RowButtonStyle())
+                        .accessibilityAddTraits(chosen.contains(f.id) ? .isSelected : [])
                     }
                 }
                 if model.etaFailed {
