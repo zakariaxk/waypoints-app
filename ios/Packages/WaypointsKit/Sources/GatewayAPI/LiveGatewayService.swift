@@ -32,6 +32,39 @@ public struct LiveGatewayService: GatewayService {
         try await client.send("DELETE", "v1/reports/\(id)")
     }
 
+    // MARK: Help requests
+
+    public func helpRequests(in region: MapRegion) async throws -> [HelpRequest] {
+        let query = [
+            URLQueryItem(name: "min_lat", value: String(region.minLatitude)),
+            URLQueryItem(name: "min_lng", value: String(region.minLongitude)),
+            URLQueryItem(name: "max_lat", value: String(region.maxLatitude)),
+            URLQueryItem(name: "max_lng", value: String(region.maxLongitude)),
+        ]
+        return try await client.send("GET", "v1/help", body: GatewayClient.Empty?.none, query: query, as: [HelpDTO].self)
+            .map(\.model)
+    }
+
+    public func helpRequest(_ id: HelpRequestID) async throws -> HelpRequest {
+        try await client.send("GET", "v1/help/\(id)", body: GatewayClient.Empty?.none, as: HelpDTO.self).model
+    }
+
+    public func postHelp(_ draft: HelpDraft) async throws -> HelpRequest {
+        try await client.send("POST", "v1/help", body: HelpBody(draft), as: HelpDTO.self).model
+    }
+
+    public func respondToHelp(_ id: HelpRequestID) async throws -> HelpRequest {
+        try await client.send("POST", "v1/help/\(id)/respond", body: GatewayClient.Empty?.none, as: HelpDTO.self).model
+    }
+
+    public func endHelp(_ id: HelpRequestID) async throws {
+        try await client.send("DELETE", "v1/help/\(id)")
+    }
+
+    public func extendHelp(_ id: HelpRequestID) async throws -> HelpRequest {
+        try await client.send("PUT", "v1/help/\(id)/extend", body: GatewayClient.Empty?.none, as: HelpDTO.self).model
+    }
+
     // MARK: Meets
 
     public func createMeet(_ draft: MeetDraft) async throws -> Meet {

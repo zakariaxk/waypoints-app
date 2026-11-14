@@ -3,7 +3,8 @@ import DesignSystem
 import SwiftUI
 
 /// Hazard reports (plan 10.3 M5, M6): layer, sheet section, "Report a hazard", routes
-/// `report` and `createReport`.
+/// `report` and `createReport`. Help requests (PRD HELP): layer, sheet section, "Ask for a hand",
+/// routes `askForHelp` and `help`.
 public enum ReportsFeature: FeatureModule {
     public static let isAvailable = true
 
@@ -21,6 +22,18 @@ public enum ReportsFeature: FeatureModule {
             return AnyView(ReportDetail(env: env, reportID: id).padding(.top, Space.s24)
                 .presentationDetents([.height(Size.row * 4.5)]).sheetChrome())
         }
+        registry.registerMapLayer(HelpLayer(env: env))
+        registry.registerMapSheetSection(HelpSection(env: env))
+        registry.registerMapAction(HelpAction())
+        registry.registerRoute(.askForHelp, presentation: .sheet) { route in
+            guard case let .askForHelp(c) = route else { return nil }
+            return AnyView(AskForHelp(env: env, fallback: c))
+        }
+        registry.registerRoute(.help, presentation: .sheet) { route in
+            guard case let .help(id) = route else { return nil }
+            return AnyView(HelpDetail(env: env, requestID: id).padding(.top, Space.s24)
+                .presentationDetents([.medium]).sheetChrome())
+        }
     }
 }
 
@@ -35,6 +48,8 @@ enum ReportText {
         case .hazard: "Hazard"
         case .closure: "Closure"
         case .fuelE85: "E85 fuel"
+        case .speedCamera: "Speed camera"
+        case .redLightCamera: "Red-light camera"
         }
     }
 }
@@ -152,7 +167,7 @@ struct PostReport: View {
             .padding(.horizontal, Space.margin)
             }
         }
-        .presentationDetents([.height(Size.row * 5.7), .medium])
+        .presentationDetents([.height(Size.row * 6.6), .medium])
         .haptic(.done, trigger: done)
         .haptic(.fail, trigger: failed)
     }

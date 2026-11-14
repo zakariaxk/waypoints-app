@@ -18,6 +18,7 @@ import (
 	"waypoints/server/internal/bus/natsbus"
 	"waypoints/server/internal/convoy"
 	"waypoints/server/internal/geo"
+	"waypoints/server/internal/help"
 	"waypoints/server/internal/hub"
 	"waypoints/server/internal/privacy"
 	"waypoints/server/internal/push"
@@ -45,6 +46,7 @@ var registrations = []struct {
 	{"api", api.Register},
 	{"convoy", convoy.Register},
 	{"voice", voice.Register},
+	{"help", help.Register},
 }
 
 func main() {

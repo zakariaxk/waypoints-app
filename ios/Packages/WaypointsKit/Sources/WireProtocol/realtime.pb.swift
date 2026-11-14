@@ -702,6 +702,12 @@ public nonisolated struct Waypoints_V1_MapEvent: Sendable {
     case unspecified // = 0
     case report // = 1
     case meet // = 2
+
+    /// A help request (PRD HELP). Sent on the reliable lane to the requester's
+    /// friends and teammates (title "<name> · <car>") and, when the requester
+    /// opted in, to viewers of the point (title empty: no name). subtype is the
+    /// help kind.
+    case help // = 3
     case UNRECOGNIZED(Int)
 
     public init() {
@@ -713,6 +719,7 @@ public nonisolated struct Waypoints_V1_MapEvent: Sendable {
       case 0: self = .unspecified
       case 1: self = .report
       case 2: self = .meet
+      case 3: self = .help
       default: self = .UNRECOGNIZED(rawValue)
       }
     }
@@ -722,6 +729,7 @@ public nonisolated struct Waypoints_V1_MapEvent: Sendable {
       case .unspecified: return 0
       case .report: return 1
       case .meet: return 2
+      case .help: return 3
       case .UNRECOGNIZED(let i): return i
       }
     }
@@ -731,6 +739,7 @@ public nonisolated struct Waypoints_V1_MapEvent: Sendable {
       .unspecified,
       .report,
       .meet,
+      .help,
     ]
 
   }
@@ -1944,7 +1953,7 @@ nonisolated extension Waypoints_V1_MapEvent: SwiftProtobuf.Message, SwiftProtobu
 }
 
 nonisolated extension Waypoints_V1_MapEvent.Kind: SwiftProtobuf._ProtoNameProviding {
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0KIND_UNSPECIFIED\0\u{1}REPORT\0\u{1}MEET\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{2}\0KIND_UNSPECIFIED\0\u{1}REPORT\0\u{1}MEET\0\u{1}HELP\0")
 }
 
 nonisolated extension Waypoints_V1_MapEvent.Op: SwiftProtobuf._ProtoNameProviding {

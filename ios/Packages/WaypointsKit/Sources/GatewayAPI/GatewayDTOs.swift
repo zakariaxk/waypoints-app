@@ -156,3 +156,44 @@ struct ConvoyDTO: Decodable, Sendable {
                     ended: ended ?? false)
     }
 }
+
+// MARK: Help requests (PRD HELP)
+
+struct HelpBody: Encodable, Sendable {
+    var kind: HelpKind
+    var lat: Double
+    var lng: Double
+    var note: String?
+    var showNearby: Bool
+    init(_ d: HelpDraft) {
+        kind = d.kind; lat = d.coordinate.latitude; lng = d.coordinate.longitude; note = d.note; showNearby = d.showNearby
+    }
+}
+
+/// A help request as the gateway returns it for this viewer.
+struct HelpDTO: Decodable, Sendable {
+    struct Responder: Decodable, Sendable { var userId: UserID; var displayName: String }
+    var id: HelpRequestID
+    var requesterId: UserID?
+    var kind: HelpKind
+    var lat: Double
+    var lng: Double
+    var note: String?
+    var showNearby: Bool?
+    var displayName: String?
+    var carLabel: String?
+    var expiresAt: Date
+    var createdAt: Date?
+    var mine: Bool?
+    var coming: Bool?
+    var responders: [Responder]?
+    var responderCount: Int?
+
+    var model: HelpRequest {
+        HelpRequest(id: id, requesterID: requesterId, kind: kind, coordinate: Coordinate(latitude: lat, longitude: lng),
+                    note: note, showNearby: showNearby ?? false, displayName: displayName, carLabel: carLabel,
+                    expiresAt: expiresAt, createdAt: createdAt ?? .now, isMine: mine ?? false, isComing: coming ?? false,
+                    responders: (responders ?? []).map { HelpResponder(userID: $0.userId, displayName: $0.displayName) },
+                    responderCount: responderCount ?? 0)
+    }
+}

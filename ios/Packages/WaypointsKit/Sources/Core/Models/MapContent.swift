@@ -5,6 +5,7 @@ import Foundation
 public enum ReportKind: String, Sendable, Codable, Hashable, CaseIterable {
     case speedBump = "speed_bump", steepEntrance = "steep_entrance", pothole, roughRoad = "rough_road"
     case police, hazard, closure, fuelE85 = "fuel_e85"
+    case speedCamera = "speed_camera", redLightCamera = "red_light_camera"
 
     /// Lifetimes from section 5.3. `nil` means permanent.
     public var lifetime: TimeInterval? {
@@ -13,7 +14,7 @@ public enum ReportKind: String, Sendable, Codable, Hashable, CaseIterable {
         case .hazard: 2 * 3600
         case .closure: 24 * 3600
         case .pothole, .roughRoad: 90 * 86_400
-        case .speedBump, .steepEntrance, .fuelE85: nil
+        case .speedBump, .steepEntrance, .fuelE85, .speedCamera, .redLightCamera: nil
         }
     }
     /// Kinds that matter for a lowered car's route (section 2.4, low-car routing).
@@ -176,5 +177,65 @@ public struct Spot: Identifiable, Hashable, Sendable, Codable {
                 model: String, photoPath: String, city: String, createdAt: Date = .now) {
         self.id = id; self.spotterID = spotterID; self.catalogModelID = catalogModelID; self.year = year
         self.make = make; self.model = model; self.photoPath = photoPath; self.city = city; self.createdAt = createdAt
+    }
+}
+
+// Help requests (PRD HELP-1..7, migration W7-4). Served only by the gateway.
+
+public struct HelpRequestID: UUIDIdentifier { public let raw: UUID; public init(raw: UUID) { self.raw = raw } }
+
+public enum HelpKind: String, Sendable, Codable, Hashable, CaseIterable {
+    case flatTire = "flat_tire", jumpStart = "jump_start", outOfFuel = "out_of_fuel", stuck, other
+}
+
+public struct HelpResponder: Hashable, Sendable, Codable {
+    public let userID: UserID
+    public var displayName: String
+    public init(userID: UserID, displayName: String) { self.userID = userID; self.displayName = displayName }
+}
+
+/// An active help request as one viewer sees it. `requesterID`, `displayName`, and `carLabel`
+/// are `nil` in the anonymous nearby form ("A driver needs a hand").
+public struct HelpRequest: Identifiable, Hashable, Sendable, Codable {
+    public let id: HelpRequestID
+    public var requesterID: UserID?
+    public var kind: HelpKind
+    public var coordinate: Coordinate
+    public var note: String?                  // ≤120
+    public var showNearby: Bool
+    public var displayName: String?
+    public var carLabel: String?
+    public var expiresAt: Date
+    public var createdAt: Date
+    /// The viewer posted it.
+    public var isMine: Bool
+    /// The viewer tapped "On my way".
+    public var isComing: Bool
+    /// Who is coming; filled only for the requester.
+    public var responders: [HelpResponder]
+    public var responderCount: Int
+    public init(id: HelpRequestID = HelpRequestID(), requesterID: UserID?, kind: HelpKind, coordinate: Coordinate,
+                note: String? = nil, showNearby: Bool = false, displayName: String? = nil, carLabel: String? = nil,
+                expiresAt: Date = .now.addingTimeInterval(HelpRequest.lifetime), createdAt: Date = .now,
+                isMine: Bool = false, isComing: Bool = false, responders: [HelpResponder] = [], responderCount: Int = 0) {
+        self.id = id; self.requesterID = requesterID; self.kind = kind; self.coordinate = coordinate; self.note = note
+        self.showNearby = showNearby; self.displayName = displayName; self.carLabel = carLabel
+        self.expiresAt = expiresAt; self.createdAt = createdAt; self.isMine = isMine; self.isComing = isComing
+        self.responders = responders; self.responderCount = responderCount
+    }
+    /// Without an extension a request ends after 60 minutes (HELP-6).
+    public static let lifetime: TimeInterval = 60 * 60
+    /// Friends and teammates this close are notified (HELP-4).
+    public static let notifyRadiusMeters = 25_000
+}
+
+/// Body of `POST /v1/help`.
+public struct HelpDraft: Hashable, Sendable, Codable {
+    public var kind: HelpKind
+    public var coordinate: Coordinate
+    public var note: String?
+    public var showNearby: Bool
+    public init(kind: HelpKind, coordinate: Coordinate, note: String? = nil, showNearby: Bool = false) {
+        self.kind = kind; self.coordinate = coordinate; self.note = note; self.showNearby = showNearby
     }
 }

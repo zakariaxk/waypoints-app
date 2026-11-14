@@ -123,6 +123,43 @@ extension PreviewStore: GatewayService {
             reports[id] = nil
         }
     }
+    public func helpRequests(in region: MapRegion) async throws -> [HelpRequest] {
+        _ = try me()
+        return helpStore.values.filter { $0.expiresAt > .now && ($0.isMine || region.contains($0.coordinate)) }
+    }
+    public func helpRequest(_ id: HelpRequestID) async throws -> HelpRequest {
+        guard let r = helpStore[id], r.expiresAt > .now else { throw WaypointsError.notFound }
+        return r
+    }
+    public func postHelp(_ draft: HelpDraft) async throws -> HelpRequest {
+        let me = try me()
+        guard !helpStore.values.contains(where: { $0.isMine && $0.expiresAt > .now }) else {
+            throw WaypointsError.conflict("already active")
+        }
+        let r = HelpRequest(requesterID: me, kind: draft.kind, coordinate: draft.coordinate, note: draft.note,
+                            showNearby: draft.showNearby, displayName: profiles[me]?.displayName, isMine: true)
+        helpStore[r.id] = r
+        return r
+    }
+    public func respondToHelp(_ id: HelpRequestID) async throws -> HelpRequest {
+        _ = try me()
+        guard var r = helpStore[id], !r.isMine else { throw WaypointsError.notFound }
+        if !r.isComing { r.isComing = true; r.responderCount += 1 }
+        helpStore[id] = r
+        return r
+    }
+    public func endHelp(_ id: HelpRequestID) async throws {
+        _ = try me()
+        guard helpStore[id]?.isMine == true else { throw WaypointsError.notFound }
+        helpStore[id] = nil
+    }
+    public func extendHelp(_ id: HelpRequestID) async throws -> HelpRequest {
+        _ = try me()
+        guard var r = helpStore[id], r.isMine else { throw WaypointsError.notFound }
+        r.expiresAt = .now.addingTimeInterval(HelpRequest.lifetime)
+        helpStore[id] = r
+        return r
+    }
     public func createMeet(_ draft: MeetDraft) async throws -> Meet {
         let me = try me()
         let today = meets.values.filter { $0.hostID == me && Calendar.current.isDateInToday($0.createdAt) }.count

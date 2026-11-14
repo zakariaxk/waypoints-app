@@ -25,9 +25,11 @@ struct GatewayClient: Sendable {
     }
 
     func send<Body: Encodable & Sendable, Response: Decodable & Sendable>(
-        _ method: String, _ path: String, body: Body?, as: Response.Type
+        _ method: String, _ path: String, body: Body?, query: [URLQueryItem] = [], as: Response.Type
     ) async throws -> Response {
-        var request = URLRequest(url: baseURL.appending(path: path))
+        var url = baseURL.appending(path: path)
+        if !query.isEmpty { url.append(queryItems: query) }
+        var request = URLRequest(url: url)
         request.httpMethod = method
         request.timeoutInterval = 15
         request.setValue("Bearer \(try await auth.accessToken())", forHTTPHeaderField: "Authorization")

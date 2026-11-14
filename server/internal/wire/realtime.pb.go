@@ -196,6 +196,11 @@ const (
 	MapEvent_KIND_UNSPECIFIED MapEvent_Kind = 0
 	MapEvent_REPORT           MapEvent_Kind = 1
 	MapEvent_MEET             MapEvent_Kind = 2
+	// A help request (PRD HELP). Sent on the reliable lane to the requester's
+	// friends and teammates (title "<name> · <car>") and, when the requester
+	// opted in, to viewers of the point (title empty: no name). subtype is the
+	// help kind.
+	MapEvent_HELP MapEvent_Kind = 3
 )
 
 // Enum value maps for MapEvent_Kind.
@@ -204,11 +209,13 @@ var (
 		0: "KIND_UNSPECIFIED",
 		1: "REPORT",
 		2: "MEET",
+		3: "HELP",
 	}
 	MapEvent_Kind_value = map[string]int32{
 		"KIND_UNSPECIFIED": 0,
 		"REPORT":           1,
 		"MEET":             2,
+		"HELP":             3,
 	}
 )
 
@@ -2016,7 +2023,7 @@ const file_waypoints_v1_realtime_proto_rawDesc = "" +
 	"\aRegroup\x12\x15\n" +
 	"\x06lat_e7\x18\x01 \x01(\x0fR\x05latE7\x12\x15\n" +
 	"\x06lng_e7\x18\x02 \x01(\x0fR\x05lngE7\x12\x15\n" +
-	"\x06set_ms\x18\x03 \x01(\x04R\x05setMs\"\xba\x02\n" +
+	"\x06set_ms\x18\x03 \x01(\x04R\x05setMs\"\xc4\x02\n" +
 	"\bMapEvent\x12/\n" +
 	"\x04kind\x18\x01 \x01(\x0e2\x1b.waypoints.v1.MapEvent.KindR\x04kind\x12\x0e\n" +
 	"\x02id\x18\x02 \x01(\tR\x02id\x12)\n" +
@@ -2024,12 +2031,13 @@ const file_waypoints_v1_realtime_proto_rawDesc = "" +
 	"\x06lat_e7\x18\x04 \x01(\x0fR\x05latE7\x12\x15\n" +
 	"\x06lng_e7\x18\x05 \x01(\x0fR\x05lngE7\x12\x18\n" +
 	"\asubtype\x18\x06 \x01(\tR\asubtype\x12\x14\n" +
-	"\x05title\x18\a \x01(\tR\x05title\"2\n" +
+	"\x05title\x18\a \x01(\tR\x05title\"<\n" +
 	"\x04Kind\x12\x14\n" +
 	"\x10KIND_UNSPECIFIED\x10\x00\x12\n" +
 	"\n" +
 	"\x06REPORT\x10\x01\x12\b\n" +
-	"\x04MEET\x10\x02\"0\n" +
+	"\x04MEET\x10\x02\x12\b\n" +
+	"\x04HELP\x10\x03\"0\n" +
 	"\x02Op\x12\x12\n" +
 	"\x0eOP_UNSPECIFIED\x10\x00\x12\n" +
 	"\n" +

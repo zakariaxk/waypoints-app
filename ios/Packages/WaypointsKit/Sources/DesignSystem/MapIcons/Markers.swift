@@ -137,6 +137,8 @@ public struct ReportBadge: View {
         case "hazard": "exclamationmark"
         case "closure": "xmark"
         case "fuel_e85": "fuelpump"
+        case "speed_camera", "red_light_camera": "camera.fill"
+        case "help": "hand.raised.fill"
         default: "mappin"
         }
     }
@@ -148,8 +150,20 @@ public struct ReportBadge: View {
             case "hazard", "closure", "pothole":
                 RoundedRectangle(cornerRadius: Radius.r6).fill(Color.brake).frame(width: s * 0.74, height: s * 0.74)
                     .rotationEffect(.degrees(45))
-            case "police":
+            case "police", "speed_camera", "red_light_camera":
                 RoundedRectangle(cornerRadius: Radius.r6).fill(Color.xenon).frame(width: s, height: s)
+                    .overlay(alignment: .topTrailing) {
+                        // The red-light camera carries a brake lamp so it reads apart from the speed camera.
+                        if kind == "red_light_camera" {
+                            Circle().fill(Color.brake).frame(width: s * 0.28, height: s * 0.28)
+                                .overlay(Circle().strokeBorder(Color.asphalt, lineWidth: Size.Marker.keyline))
+                                .offset(x: s * 0.1, y: -s * 0.1)
+                        }
+                    }
+            case "help":
+                // A help request: the only filled brake circle, ringed in chalk.
+                Circle().fill(Color.brake).frame(width: s, height: s)
+                    .overlay(Circle().strokeBorder(Color.chalk, lineWidth: Size.Marker.ring))
             case "fuel_e85":
                 Circle().fill(Color.go).frame(width: s, height: s)
             default:
@@ -158,11 +172,12 @@ public struct ReportBadge: View {
             }
             Image(systemName: symbol)
                 .font(.system(size: Size.Marker.reportGlyph * 0.55, weight: .bold))
-                .foregroundStyle(["speed_bump", "steep_entrance", "rough_road"].contains(kind) ? Color.sodium : Color.asphalt)
+                .foregroundStyle(["speed_bump", "steep_entrance", "rough_road"].contains(kind) ? Color.sodium
+                                 : kind == "help" ? Color.chalk : Color.asphalt)
         }
         .frame(width: Size.hitTarget, height: Size.hitTarget)
         .mapShadow()
-        .accessibilityLabel(Text(MapIconSet.title(kind)))
+        .accessibilityLabel(Text(kind == "help" ? "A driver needs a hand" : MapIconSet.title(kind)))
     }
 }
 

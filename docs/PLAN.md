@@ -353,6 +353,7 @@ public enum Route: Hashable, Sendable {
     case navigate(to: Coordinate, name: String?)
     case joinTeam(code: String), joinConvoy(code: String)     // invite deep links (X3)
     case activity                                             // NTF-6 Activity list (W7-2)
+    case askForHelp(Coordinate), help(HelpRequestID)           // help requests (PRD HELP), ReportsFeature
 }
 public protocol Router: Sendable { @MainActor func open(_ route: Route) }
 ```
@@ -413,8 +414,10 @@ Year, make, model, and trim are copied onto the row as text so a car still rende
 
 | Table | Columns | Access rule |
 |---|---|---|
-| `reports` | `id`, `author_id`, `kind` (`speed_bump`, `steep_entrance`, `pothole`, `rough_road`, `police`, `hazard`, `closure`, `fuel_e85`), `geom geography(Point)`, `h3_r7 bigint`, `note text` (≤120), `confirmations int default 1`, `expires_at timestamptz`, `permanent bool` | Read: signed-in. Insert, confirm, dismiss: through gateway only. |
+| `reports` | `id`, `author_id`, `kind` (`speed_bump`, `steep_entrance`, `pothole`, `rough_road`, `police`, `hazard`, `closure`, `fuel_e85`, `speed_camera`, `red_light_camera`), `geom geography(Point)`, `h3_r7 bigint`, `note text` (≤120), `confirmations int default 1`, `expires_at timestamptz`, `permanent bool` | Read: signed-in. Insert, confirm, dismiss: through gateway only. |
 | `report_votes` | `report_id`, `user_id`, `still_there bool`, pk on the pair | Service role. |
+| `help_requests` | `id`, `requester_id`, `kind` (`flat_tire`, `jump_start`, `out_of_fuel`, `stuck`, `other`), `geom geography(Point)` (exact: the requester chose to share it), `h3_r7 bigint`, `note text` (≤120), `show_nearby bool default false`, `expires_at timestamptz` (created + 60 min, reset by extend), `ended_at timestamptz`; one active row per requester (partial unique index) | Read: requester, and their friends and teammates while active (`can_read_help`). Insert, end, extend: through gateway only. |
+| `help_responses` | `request_id`, `user_id`, pk on the pair ("On my way") | Read: the responder and the requester. Write: through gateway only. |
 | `meets` | `id`, `host_id`, `title text` (≤50), `kind` (`meet`, `cruise`, `hangout`, `track_day`, `show`), `geom geography(Point)`, `h3_r7 bigint`, `place_name text`, `starts_at timestamptz`, `ends_at timestamptz`, `details text` (≤500), `visibility` (`public`, `friends`, `team`), `team_id uuid null`, `cancelled_at timestamptz`, `recurrence text null` (`weekly`, `biweekly`, `monthly`), `series_id uuid null`, `time_zone text null`, `dest_lat`, `dest_lng`, `dest_name` (a cruise's roll-out destination) | Read: per `visibility`. Insert and update: through gateway (host only). |
 | `meet_rsvps` | `meet_id`, `user_id`, `status` (`going`, `maybe`), `car_id uuid null`, pk on the pair | Read: anyone who can read the meet. Write: owner. |
 | `venue_notes` | `id`, `geom geography(Point)`, `h3_r9 bigint`, `author_id`, `entrance` (`flat`, `moderate`, `steep`), `lot_size` (`small`, `medium`, `large`), `lit bool`, `note text` (≤120) | Read: signed-in. Insert: signed-in. |
@@ -422,7 +425,7 @@ Year, make, model, and trim are copied onto the row as text so a car still rende
 | `road_ratings` | `road_id`, `user_id`, `surface int`, `scenery int`, `traffic int` (each 1–5), pk on the pair | Read: signed-in. Write: owner. |
 | `spots` | `id`, `spotter_id`, `catalog_model_id bigint`, `year int null`, `make text`, `model text`, `photo_path text`, `city text`, `h3_r5 bigint` | Read: signed-in. Insert: owner. |
 
-Report lifetimes: `police` 45 minutes, `hazard` 2 hours, `closure` 24 hours, extended by each "Still there". `speed_bump`, `steep_entrance`, `fuel_e85` are permanent. `pothole` and `rough_road` last 90 days. Two "Gone" votes with no later "Still there" remove a report.
+Report lifetimes: `police` 45 minutes, `hazard` 2 hours, `closure` 24 hours, extended by each "Still there". `speed_bump`, `steep_entrance`, `fuel_e85`, `speed_camera`, `red_light_camera` are permanent. `pothole` and `rough_road` last 90 days. Two "Gone" votes with no later "Still there" remove a report.
 
 RPCs (security definer, `stable`): `reports_in_bbox(min_lng, min_lat, max_lng, max_lat)`, `meets_in_bbox(...)` (only meets ending in the future), `roads_in_bbox(...)`, `venue_notes_near(lng, lat, meters)`, `hazards_along(path geography, buffer_m int)` returning reports within the buffer of a route. Rows carry `latitude` and `longitude` instead of raw geography (`roads_in_bbox` returns `path_geojson` plus rating averages; `meets_in_bbox` also excludes cancelled meets and returns `going_count`; `hazards_along` returns `along_m` and orders by it). `h3_*` columns are nullable and written by the gateway; Postgres has no H3 extension.
 
@@ -537,7 +540,7 @@ message ConvoyState { string convoy_id = 1; uint64 leader_uid = 2; repeated uint
 message Destination { sfixed32 lat_e7 = 1; sfixed32 lng_e7 = 2; string name = 3; }
 message Regroup     { sfixed32 lat_e7 = 1; sfixed32 lng_e7 = 2; uint64 set_ms = 3; }
 message MapEvent { Kind kind = 1; string id = 2; Op op = 3; sfixed32 lat_e7 = 4; sfixed32 lng_e7 = 5; string subtype = 6; string title = 7;
-                   enum Kind { KIND_UNSPECIFIED = 0; REPORT = 1; MEET = 2; }
+                   enum Kind { KIND_UNSPECIFIED = 0; REPORT = 1; MEET = 2; HELP = 3; }
                    enum Op { OP_UNSPECIFIED = 0; UPSERT = 1; REMOVE = 2; } }
 ```
 
@@ -558,6 +561,11 @@ HTTP JSON API on the gateway (all require `Authorization: Bearer <Supabase acces
 | `POST /v1/reports` | `{kind, lat, lng, note}` | Inserts, publishes `MapEvent` to the cell. Merges with an existing report of the same kind within 30 m (counts as a confirmation). |
 | `POST /v1/reports/{id}/vote` | `{still_there}` | Applies section 5.3 rules; publishes `UPSERT` or `REMOVE`. |
 | `DELETE /v1/reports/{id}` | | Author only, within 5 minutes of posting (M5 Undo). Publishes `REMOVE`. |
+| `GET /v1/help?min_lat&min_lng&max_lat&max_lng` | | Active help requests the caller may see in the box (their own anywhere): friends' and teammates' with `display_name` and `car_label`, opted-in nearby ones with no requester. Each carries `mine`, `coming`, `responder_count`, and `responders` (names, requester only). `GET /v1/help/{id}` returns one. |
+| `POST /v1/help` | `{kind, lat, lng, note, show_nearby}` | One active per person (409 otherwise). Publishes `MapEvent` `HELP` to the requester's friends and teammates through bus subject `help.deliver` (each node enqueues on its local connections of those uids); when `show_nearby`, also to viewers of the point with no title. Pushes friends and teammates whose `user_presence_cell` is within 25 km. Home zones do not apply. |
+| `POST /v1/help/{id}/respond` | | "On my way". Pushes the requester; republishes `UPSERT`. |
+| `DELETE /v1/help/{id}` | | Requester only ("I'm good"). Publishes `REMOVE`. A sweep ends requests past `expires_at` the same way. |
+| `PUT /v1/help/{id}/extend` | | Requester only. `expires_at` = now + 60 min. |
 | `POST /v1/meets` | meet fields, plus optional `recurrence` (`weekly`, `biweekly`, `monthly`), `time_zone` (IANA), `destination {lat, lng, name}` | Inserts, publishes `MapEvent`, pushes to users whose `user_presence_cell` is within their own `notify_radius_km`. Limit: 3 per user per day (occurrences the gateway creates for a series do not count). Responses carry `recurrence`, `series_id`, `destination`. |
 | `PATCH /v1/meets/{id}`, `DELETE /v1/meets/{id}` | `DELETE` takes optional `{scope: "following"}` | Host only. Publishes; pushes RSVP'd users on time change or cancel. `scope: "following"` also cancels every later occurrence of the series and ends it. A one-minute sweep creates the next occurrence of a recurring meet when one ends (no RSVPs carried over) and tells the people who checked in at the one that ended. |
 | `POST /v1/convoys` | `{name, destination?}` | Returns `{id, join_code}`. |
@@ -859,7 +867,7 @@ The rest of the earned set and the trails are assigned to further keys by packag
 | Cluster | `tarmac` circle 44 pt with count in `readoutM`; the two highest-priority silhouettes peek from behind. You and a selected friend never cluster. |
 | Selected | Scales to 1.15 with `sheet`; the peek card rises from it. |
 
-**Report glyphs** (24 pt glyph in a 32 pt badge; badge shape encodes severity so color is not the only signal): diamond `brake` for `hazard`, `closure`, `pothole`; circle `sodium` outline for `speed_bump`, `steep_entrance`, `rough_road`; square `xenon` for `police`; circle `go` for `fuel_e85`. Glyphs are custom drawings in the same stroke weight as the silhouettes.
+**Report glyphs** (24 pt glyph in a 32 pt badge; badge shape encodes severity so color is not the only signal): diamond `brake` for `hazard`, `closure`, `pothole`; circle `sodium` outline for `speed_bump`, `steep_entrance`, `rough_road`; square `xenon` for `police`, `speed_camera`, and `red_light_camera` (the last with a `brake` lamp in the corner); circle `go` for `fuel_e85`; filled circle `brake` with a `chalk` ring for a help request. Glyphs are custom drawings in the same stroke weight as the silhouettes.
 
 **Meet pins**: a `tarmac` rounded square (r12) 40 pt with a custom glyph per kind (`meet`: three cars nose-in; `cruise`: a curved road; `hangout`: a cup; `track_day`: a chicane; `show`: a rosette), and the start time below in `readoutS`. A meet happening now has a `go` edge.
 

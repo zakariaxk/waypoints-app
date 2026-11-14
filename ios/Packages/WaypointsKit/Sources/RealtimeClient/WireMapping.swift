@@ -159,6 +159,7 @@ enum WireMapping {
         switch e.kind {
         case .report: kind = .report
         case .meet: kind = .meet
+        case .help: kind = .help
         case .unspecified, .UNRECOGNIZED: return nil
         }
         let op: MapEvent.Op

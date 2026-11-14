@@ -190,6 +190,11 @@ message MapEvent {
     KIND_UNSPECIFIED = 0;
     REPORT = 1;
     MEET = 2;
+    // A help request (PRD HELP). Sent on the reliable lane to the requester's
+    // friends and teammates (title "<name> · <car>") and, when the requester
+    // opted in, to viewers of the point (title empty: no name). subtype is the
+    // help kind.
+    HELP = 3;
   }
 
   enum Op {

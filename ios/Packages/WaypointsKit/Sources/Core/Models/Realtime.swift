@@ -48,13 +48,13 @@ public struct CellAggregate: Hashable, Sendable {
 }
 
 public struct MapEvent: Hashable, Sendable {
-    public enum Kind: String, Sendable, Hashable { case report, meet }
+    public enum Kind: String, Sendable, Hashable { case report, meet, help }
     public enum Op: String, Sendable, Hashable { case upsert, remove }
     public var kind: Kind
     public var id: String
     public var op: Op
     public var coordinate: Coordinate
-    /// `ReportKind` or `MeetKind` raw value.
+    /// `ReportKind`, `MeetKind`, or `HelpKind` raw value.
     public var subtype: String
     public var title: String
     public init(kind: Kind, id: String, op: Op, coordinate: Coordinate, subtype: String, title: String) {

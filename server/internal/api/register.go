@@ -141,7 +141,8 @@ var lifetimes = map[string]time.Duration{
 	"rough_road": 90 * 24 * time.Hour,
 }
 
-var permanentKinds = map[string]bool{"speed_bump": true, "steep_entrance": true, "fuel_e85": true}
+var permanentKinds = map[string]bool{"speed_bump": true, "steep_entrance": true, "fuel_e85": true,
+	"speed_camera": true, "red_light_camera": true}
 
 type reportJSON struct {
 	ID            string     `json:"id"`

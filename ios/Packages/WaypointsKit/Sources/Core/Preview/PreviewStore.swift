@@ -18,6 +18,7 @@ public actor PreviewStore {
     var blocks: Set<Pair> = []
     var reports: [ReportID: Report]
     var reportVotes: [Pair: Bool] = [:]
+    var helpStore: [HelpRequestID: HelpRequest] = [:]
     var meets: [MeetID: Meet]
     var rsvps: [MeetRSVP]
     var venueNotes: [VenueNote]

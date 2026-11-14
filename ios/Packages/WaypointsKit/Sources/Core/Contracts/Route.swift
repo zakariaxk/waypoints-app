@@ -9,6 +9,7 @@ public enum Route: Hashable, Sendable {
     case joinTeam(code: String), joinConvoy(code: String)     // invite deep links (section 10.10, X3)
     case convoyVoice(ConvoyID)
     case activity     // NTF-6, the Activity list (W7-2)
+    case askForHelp(Coordinate), help(HelpRequestID)           // PRD HELP (ReportsFeature)
 
     /// The case without its payload, used to key route handlers in `FeatureRegistry`.
     public enum Kind: Hashable, Sendable, CaseIterable {
@@ -16,6 +17,7 @@ public enum Route: Hashable, Sendable {
         case modSim, race, reportContent, settings, settingsPrivacy, createMeet, createReport, spotCar, navigate, joinTeam, joinConvoy
         case convoyVoice
         case activity
+        case askForHelp, help
     }
 
     public var kind: Kind {
@@ -44,6 +46,8 @@ public enum Route: Hashable, Sendable {
         case .joinConvoy: .joinConvoy
         case .convoyVoice: .convoyVoice
         case .activity: .activity
+        case .askForHelp: .askForHelp
+        case .help: .help
         }
     }
 }

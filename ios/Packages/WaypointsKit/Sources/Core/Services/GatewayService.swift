@@ -11,6 +11,17 @@ public protocol GatewayService: Sendable {
     /// The author's own report, within 5 minutes of posting (M5 "Undo").
     func undoReport(_ id: ReportID) async throws
 
+    // Help requests (PRD HELP). One active per person; a second post throws `.conflict`.
+    func helpRequests(in region: MapRegion) async throws -> [HelpRequest]
+    func helpRequest(_ id: HelpRequestID) async throws -> HelpRequest
+    @discardableResult func postHelp(_ draft: HelpDraft) async throws -> HelpRequest
+    /// "On my way": the requester is told who is coming.
+    @discardableResult func respondToHelp(_ id: HelpRequestID) async throws -> HelpRequest
+    /// "I'm good" (requester only).
+    func endHelp(_ id: HelpRequestID) async throws
+    /// Another 60 minutes from now (requester only).
+    @discardableResult func extendHelp(_ id: HelpRequestID) async throws -> HelpRequest
+
     // Meets (3 per user per day)
     @discardableResult func createMeet(_ draft: MeetDraft) async throws -> Meet
     @discardableResult func updateMeet(_ id: MeetID, _ draft: MeetDraft) async throws -> Meet
