@@ -406,7 +406,7 @@ Postgres on Supabase with PostGIS. All tables have row-level security on. `uid()
 |---|---|---|
 | `cars` | `id uuid pk`, `owner_id`, `catalog_variant_id bigint null`, `year int`, `make text`, `model text`, `trim text`, `nickname text`, `color_family text`, `color_hex text`, `paint_name text`, `clearance` (`stock`, `lowered`, `slammed`), `spec_overrides jsonb` (hp, torque, weight, drivetrain, redline, gears), `mods jsonb` (array of mod ids), `sort int` | Read: anyone who can read the owner's profile. Write: owner. |
 | `car_photos` | `id`, `car_id`, `path text`, `width int`, `height int`, `sort int` | As `cars`. |
-| `build_entries` | `id`, `car_id`, `happened_on date`, `title text` (≤60), `body text` (≤500), `photo_path text`, `mod_id text null` | As `cars`. |
+| `build_entries` | `id`, `car_id`, `happened_on date`, `title text` (≤60), `body text` (≤500), `photo_path text`, `mod_id text null`, `is_service bool default false`, `odometer int null`, `odometer_unit` (`mi`, `km`) null, `remind_on date null` (odometer and reminder only on service entries) | As `cars`. Contract change: W8-1C added the service fields (GAR-16); `BuildEntry` gains `isService`, `odometer`, `odometerUnit` (`OdometerUnit`), `remindOn`. The reminder is a local notification at 09:00 on `remind_on`, scheduled on the owner's device (`GarageFeature/ServiceLog.swift`); nothing on the server sends it. |
 
 Year, make, model, and trim are copied onto the row as text so a car still renders if the catalog changes.
 
@@ -447,7 +447,8 @@ RPCs (security definer, `stable`): `reports_in_bbox(min_lng, min_lat, max_lng, m
 
 | Table | Columns | Access rule |
 |---|---|---|
-| `posts` | `id`, `author_id`, `car_id uuid null`, `video_path text`, `poster_path text`, `caption text` (≤150), `duration_ms int`, `like_count int`, `comment_count int` | Read: signed-in, not blocked. Insert and delete: owner. |
+| `posts` | `id`, `author_id`, `car_id uuid null`, `meet_id uuid null`, `video_path text null` (null for a photo post), `poster_path text` (a photo post's first photo), `caption text` (≤150), `duration_ms int null`, `like_count int`, `comment_count int` | Read: signed-in, not blocked. Insert and delete: owner; `meet_id` must be a meet the author can read. Contract change: W8-1C added `meet_id` and made `video_path` nullable (FEED-11). |
+| `post_photos` | `post_id`, `sort int` (0 to 5), `path text`, pk on (`post_id`, `sort`) | Read: as the post. Insert: the post's author. Deleted with the post. Contract change: W8-1C (FEED-11). |
 | `post_likes` | `post_id`, `user_id`, pk | Owner; a trigger maintains `like_count`. |
 | `post_comments` | `id`, `post_id`, `author_id`, `body text` (≤300) | Read: signed-in. Insert: self. Delete: author or post owner. |
 | `follows` | `follower_id`, `followee_id`, pk | Owner. |
@@ -459,6 +460,8 @@ RPCs (security definer, `stable`): `reports_in_bbox(min_lng, min_lat, max_lng, m
 | `achievements` | `user_id`, `key text`, `earned_at`, pk on the pair | Read: anyone. Insert: service role or security-definer triggers. |
 | `content_reports` | `id`, `reporter_id`, `target_kind text`, `target_id text`, `reason` (`spam`, `harassment`, `nudity`, `dangerous_driving`, `scam`, `other`), `note text`, `resolved_at` | Insert: self. Read: service role. |
 | `race_results` | `id`, `user_id`, `car_id`, `mods jsonb`, `reaction_ms int`, `et_ms int`, `trap_mph_x10 int`, `sixty_ft_ms int`, `input_log bytea` (for ghost replay, ≤4 KB), `model_version int` (default 1; `PerformanceModel.version` at the time of the run) | Read: signed-in. Insert: owner. Contract change: W8-1F added `model_version`; ghosts and friend runs under an older version are not offered as opponents. |
+
+Contract change: (W8-1C) `feed_for_you` ranks the first tier by `home_region` match only; the presence-cell tier is gone because page order revealed which authors were near the viewer. Content visibility and blocked-pair exclusion are unchanged. `PostRepository` drops the unused `feed(after:limit:)` and gains `postsFromMeet(_:)` (posts with `meet_id`, newest first, shown as E2's Posts strip). `Post` gains `meetID`, `photoPaths` (from `post_photos`, embedded in every posts read), and `videoPath` becomes optional; `NewPost` likewise. Posts reads select `*, post_photos(path, sort)`.
 
 Storage buckets: `avatars`, `cars`, `posts`, `listings`, `spots`, `teams`, `messages` (public read, owner write under `<user_id>/`), and `catalog` (public read, service write).
 
