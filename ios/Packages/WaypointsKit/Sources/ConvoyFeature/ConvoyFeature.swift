@@ -276,7 +276,9 @@ struct ConvoySectionView: View {
                 SectionLabel("CONVOY")
                 ForEach(store.members.sorted { (store.gap($0) ?? 0) < (store.gap($1) ?? 0) }) { m in
                     Row(Text(verbatim: m.name), leading: {
-                        if m.uid == s.leaderUID { Image(systemName: "flag.fill").foregroundStyle(Color.sodium) }
+                        if m.uid == s.leaderUID {
+                            Image(systemName: "flag.fill").foregroundStyle(Color.sodium).accessibilityLabel(Text("Leader", bundle: .module))
+                        }
                     }, trailing: {
                         if let fix = m.fixAt, Date.now.timeIntervalSince(fix) > 60 {
                             Text("Lost signal", bundle: .module).typeStyle(.foot)
@@ -335,9 +337,11 @@ struct ConvoySheet: View {
                                         trailing: {
                                             Image(systemName: invited.contains(f.id) ? "checkmark.circle.fill" : "circle")
                                                 .foregroundStyle(invited.contains(f.id) ? Color.sodium : Color.gravel)
+                                                .accessibilityHidden(true)
                                         })
                                 }
                                 .buttonStyle(RowButtonStyle())
+                                .accessibilityAddTraits(invited.contains(f.id) ? .isSelected : [])
                             }
                         }
                         .frame(maxHeight: Size.row * 3)

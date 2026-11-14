@@ -43,6 +43,9 @@
     "Join with code": {
       "extractionState": "manual"
     },
+    "Leader": {
+      "extractionState": "manual"
+    },
     "Leave": {
       "extractionState": "manual"
     },
