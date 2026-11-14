@@ -252,7 +252,7 @@ Get from install to a car on the map with the least typing. Plan 10.2, 10.10.
 | ACC-4 | Onboarding embeds the vehicle picker so the first car is on the marker from minute one. It can be skipped. | P0 | Coded |
 | ACC-5 | A screen explains who sees you before the system location prompt, and asks the Nearby question once with Hidden preselected. | P0 | Coded |
 | ACC-6 | The terms gate (six rules) appears once after profile setup and again when terms change. No user content is shown before agreement. | P0 | Coded |
-| ACC-7 | Notification permission is asked only at its first reason: the first Going RSVP, the first friend request sent, or turning on meets-nearby alerts. | P0 | Partial: the RSVP prompt copy is not in the source. |
+| ACC-7 | Notification permission is asked only at its first reason: the first Going RSVP, the first friend request sent, or turning on meets-nearby alerts. | P0 | Partial: the first Going asks "Remind you before it starts?" and a yes requests permission, even for a meet too close to remind (W8-1A); friend request and meets-nearby not checked here. |
 | ACC-8 | A new user finishes onboarding in under 60 seconds. | P0 | Coded |
 | ACC-9 | The session survives relaunch and refreshes its token without the user noticing. Sign out returns to sign-in and clears local state. | P0 | Coded |
 | ACC-10 | Delete account: explains what is deleted, requires typing the handle, deletes the auth user and every row immediately, signs out. | P0 | Coded |
@@ -389,8 +389,8 @@ Anyone drops a meet on the map in three fields, from a full show to "Wawa and ch
 | MEET-10 | Meets appear as pins with their start time, in the map sheet sorted by start, and in search. There is no separate list screen. | P0 | Coded |
 | MEET-11 | A member with the host-meets permission can start a team-only meet. A team's page lists its meets. | P0 | Coded |
 | MEET-12 | Recurring meets. A host can make a meet repeat weekly, every two weeks, or monthly on the same weekday. When one occurrence ends the next is created. RSVPs do not carry over; people who checked in last time are told once. Cancelling asks "This meet" or "This and every one after". | P1 | Coded |
-| MEET-13 | Roll out. A cruise can carry a destination or a saved road. At start time its host sees "Roll out", which starts a convoy named for the meet with that route and invites everyone Going. | P1 | Coded: a destination place; a saved road is not offered yet. |
-| MEET-14 | People's choice. During a show or meet, each person checked in can pick one car from those brought. When it ends, the meet shows the winner and the car's timeline gains a line. | P2 | New |
+| MEET-13 | Roll out. A cruise can carry a destination or a saved road. At start time its host sees "Roll out", which starts a convoy named for the meet with that route and invites everyone Going. | P1 | Coded: a destination place or one of your saved roads (sent as the convoy's `route_polyline`); Roll out joins the host to the convoy. |
+| MEET-14 | People's choice. During a show or meet, each person checked in can pick one car from those brought. When it ends, the meet shows the winner and the car's timeline gains a line. | P2 | Coded: `meet_votes` with RLS, settled by the gateway's `meet-choice` sweep (W8-1A). |
 
 ### 4.9 Convoys (CNV)
 
@@ -650,7 +650,7 @@ Plan 10.9.
 |---|---|---|---|
 | SET-1 | Settings holds Privacy and location, Notifications, Blocked people, Account, and About (version, Terms, Privacy Policy, Contact, licences). Debug builds add the design gallery. | P0 | Coded |
 | SET-2 | Every change saves at once. A failed save reverts the control and says why. | P0 | Coded |
-| SET-3 | Distances, speeds, and weights follow the device's locale everywhere they appear. | P0 | Partial: navigation, the map, Market (distance filter), Roads (road length), and Garage (curb weight; odometer readings keep the unit entered, defaulting by locale) format by locale; Showdown shows no distances or weights; other features not checked. |
+| SET-3 | Distances, speeds, and weights follow the device's locale everywhere they appear. | P0 | Partial: navigation, the map, Market (distance filter), Roads (road length), and Garage (curb weight; odometer readings keep the unit entered, defaulting by locale) format by locale; Meets (meet distance, cruise road length); Showdown shows no distances or weights; other features not checked. |
 
 ### 4.25 Links and sharing (LINK)
 
@@ -660,7 +660,7 @@ Growth here is one person sending a link to another. Plan 10.10 (X3).
 |---|---|---|---|
 | LINK-1 | `waypoints://` opens a profile, car, meet, team, listing, post, team invite, or convoy invite. | P0 | Coded |
 | LINK-2 | The same paths work as HTTPS universal links, so a shared link is tappable in Messages and opens the app. Without the app it opens a plain page saying what the link is and where to get Waypoints. | P0 | Partial: no host chosen yet (`LINK_HOST`, section 9.1 step 6) and `TEAMID` in the association file is a placeholder. |
-| LINK-3 | Everything shareable shares the HTTPS link once LINK-2 is configured. | P0 | Partial: `Route.shareURL` gives the https form for every shareable route (profile, car, meet, team, listing, post, help, thread, channel, team and convoy invites) and `Route(url:host:)` parses them all; Garage and Feed share through `Route.shareURL`; Convoy, Teams, and Meets still build `waypoints://` strings themselves. |
+| LINK-3 | Everything shareable shares the HTTPS link once LINK-2 is configured. | P0 | Partial: `Route.shareURL` gives the https form for every shareable route (profile, car, meet, team, listing, post, help, thread, channel, team and convoy invites) and `Route(url:host:)` parses them all; Garage, Feed, Convoy, and Meets share through `Route.shareURL`; Teams still builds `waypoints://` strings itself. |
 | LINK-4 | A static site in `site/` holds the link landing page, the association file, the Terms, and the Privacy Policy. Plain HTML, no build step, free hosting (section 9.1). | P0 | Partial: not yet published to a host. |
 | LINK-5 | Share cards. A meet shares as an image (title, time, place, a map snapshot) alongside its link. Builds and time slips have theirs (GAR-15, STR-5). | P1 | Partial: the meet card is coded; builds and time slips belong to GAR-15, STR-5. |
 
