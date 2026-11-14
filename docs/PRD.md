@@ -315,7 +315,7 @@ The gamified icon set. Earned by taking part, never bought, never for speed or d
 | ICN-4 | The marker picker shows a live preview, the icon and trail palettes, and for each locked item its requirement and exact progress ("Rally: get 10 reports confirmed. You're at 6."). There is no purchase path and no "coming soon". | P0 | Coded |
 | ICN-5 | Earning an unlock shows it once in the map sheet with "Use it". | P0 | Coded |
 | ICN-6 | Unlocks are awarded by database triggers, by the gateway for those that need presence (meet check-ins, convoys), and by the weekly Showdown close. | P0 | Partial: the weekly close does not exist (SHOW-7). |
-| ICN-7 | A profile shows the icons its owner has earned. | P1 | New |
+| ICN-7 | A profile shows the icons its owner has earned. | P1 | Coded |
 
 ### 4.5 Search, routes, and navigation (NAV)
 
@@ -424,7 +424,7 @@ A person plus their garage. Plan 5.1, 10.8 (G1, G2, G10, G11).
 | SOC-6 | Edit profile: avatar with circular crop, name, handle, bio, home region. | P0 | Coded |
 | SOC-7 | "Invite a friend" shares a link to your profile. | P0 | Coded |
 | SOC-8 | A blocked or blocking profile reads "This profile isn't available." | P0 | Coded |
-| SOC-9 | Meet-in-person adding. "My code" shows a QR code of your profile link; "Scan" in Friends reads one and opens the profile. A team's invite shows a QR code too. | P1 | New |
+| SOC-9 | Meet-in-person adding. "My code" shows a QR code of your profile link; "Scan" in Friends reads one and opens the profile. A team's invite shows a QR code too. | P1 | Coded |
 
 ### 4.11 Garage and vehicle catalog (GAR)
 
@@ -446,7 +446,7 @@ Every car, chosen without clutter. Plan 5.2, 10.8 (G3 to G5), 11.1.
 | GAR-12 | Each car has a clearance profile (stock, lowered, slammed) that drives NAV-3. | P0 | Coded |
 | GAR-13 | Every spec can be overridden by the owner. | P0 | Coded |
 | GAR-14 | Someone else's car shows its owner and "Message about this car". | P0 | Coded |
-| GAR-15 | Share build. A car's overflow renders a card (lead photo, name, the four estimates marked "est.", handle) to the share sheet. | P1 | New |
+| GAR-15 | Share build. A car's overflow renders a card (lead photo, name, the four estimates marked "est.", handle) to the share sheet. | P1 | Coded |
 | GAR-16 | Service log. A timeline entry can be marked as service with an odometer reading and an optional reminder date, delivered as a local notification. | P2 | New |
 
 ### 4.12 Mod simulator (MOD)
@@ -593,8 +593,8 @@ A collection game on the street. Plan 10.3 (M12).
 | SPOT-2 | Licence plates are found and blurred on the device before anything is uploaded. The user can add or remove blur boxes. The blur catches the plate in 9 of 10 varied photos. | P0 | Coded |
 | SPOT-3 | The car is tagged from the catalog with the picker in model-only mode. | P0 | Coded |
 | SPOT-4 | Only a city name and a coarse cell are stored. No precise position, and no photo metadata. | P0 | Coded |
-| SPOT-5 | The spot joins a collection grouped by make, then model, with counts and the moment "Porsche 911 · 3rd spotted". | P0 | Partial: "Add to collection" is not in the source. |
-| SPOT-6 | Faces are blurred the same way as plates. | P1 | New |
+| SPOT-5 | The spot joins a collection grouped by make, then model, with counts and the moment "Porsche 911 · 3rd spotted". | P0 | Coded |
+| SPOT-6 | Faces are blurred the same way as plates. | P1 | Coded |
 
 ### 4.21 Road ratings (ROAD)
 
