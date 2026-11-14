@@ -547,6 +547,7 @@ struct LiveMarket: MarketRepository {
         let rows: [ListingRow] = try await ctx.run {
             var q = ctx.table("listings").select(listingColumns).eq("status", value: ListingStatus.active.rawValue)
             if let k = filter.kind { q = q.eq("kind", value: k.rawValue) }
+            if let c = filter.category { q = q.eq("category", value: c.rawValue) }
             if let text = filter.query, !text.isEmpty { q = q.ilike("title", pattern: "%\(filterSafe(text))%") }
             if let f = filter.fits {
                 q = q.eq("fits_make", value: f.make)
@@ -582,7 +583,7 @@ struct LiveMarket: MarketRepository {
         let me = try ctx.me()
         let write = ListingWrite(kind: draft.kind, title: draft.title, priceCents: draft.priceCents, condition: draft.condition,
                                  description: draft.description, fits: draft.fits, carID: draft.carID, region: draft.region,
-                                 seller: me, status: .active)
+                                 seller: me, status: .active, category: draft.category)
         let id: UUID = try await ctx.run {
             let row: IDRow = try await ctx.table("listings").insert(write).select("id").single().execute().value
             return row.id
@@ -597,7 +598,8 @@ struct LiveMarket: MarketRepository {
 
     func updateListing(_ l: Listing) async throws -> Listing {
         let write = ListingWrite(kind: l.kind, title: l.title, priceCents: l.priceCents, condition: l.condition,
-                                 description: l.description, fits: l.fits, carID: l.carID, region: l.region, seller: nil, status: l.status)
+                                 description: l.description, fits: l.fits, carID: l.carID, region: l.region, seller: nil, status: l.status,
+                                 category: l.category)
         try await ctx.run {
             _ = try await ctx.table("listings").update(write, returning: .minimal).eq("id", value: l.id.key).execute()
         }

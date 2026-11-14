@@ -2,7 +2,14 @@ import Foundation
 
 // Section 5.5: market
 
-public enum ListingKind: String, Sendable, Codable, Hashable, CaseIterable { case part, car }
+/// `wanted` is something the poster is looking for; its `priceCents` is a budget (MKT-8).
+public enum ListingKind: String, Sendable, Codable, Hashable, CaseIterable { case part, car, wanted }
+/// Part categories (MKT-7), the `listing_category` enum.
+public enum ListingCategory: String, Sendable, Codable, Hashable, CaseIterable {
+    case wheelsTires = "wheels_tires", exhaust, intakeFuel = "intake_fuel", forcedInduction = "forced_induction", engine
+    case drivetrain, suspension, brakes, exteriorAero = "exterior_aero", interior, lighting
+    case electronicsTuning = "electronics_tuning", tools, apparel, other
+}
 public enum ListingCondition: String, Sendable, Codable, Hashable, CaseIterable { case new, used, forParts = "for_parts" }
 public enum ListingStatus: String, Sendable, Codable, Hashable, CaseIterable { case active, pending, sold, removed }
 
@@ -31,14 +38,15 @@ public struct Listing: Identifiable, Hashable, Sendable, Codable {
     public var photos: [ListingPhoto]
     public var savedByMe: Bool
     public var createdAt: Date
+    public var category: ListingCategory?
     public init(id: ListingID = ListingID(), sellerID: UserID, kind: ListingKind, title: String, priceCents: Int,
                 condition: ListingCondition, description: String = "", fits: Fitment? = nil, carID: CarID? = nil,
                 region: String, status: ListingStatus = .active, photos: [ListingPhoto] = [], savedByMe: Bool = false,
-                createdAt: Date = .now) {
+                createdAt: Date = .now, category: ListingCategory? = nil) {
         self.id = id; self.sellerID = sellerID; self.kind = kind; self.title = title; self.priceCents = priceCents
         self.condition = condition; self.description = description; self.fits = fits; self.carID = carID
         self.region = region; self.status = status; self.photos = photos; self.savedByMe = savedByMe
-        self.createdAt = createdAt
+        self.createdAt = createdAt; self.category = category
     }
 }
 
@@ -52,11 +60,13 @@ public struct ListingDraft: Hashable, Sendable, Codable {
     public var carID: CarID?
     public var region: String
     public var photoPaths: [String]
+    public var category: ListingCategory?
     public init(kind: ListingKind, title: String, priceCents: Int, condition: ListingCondition, description: String,
-                fits: Fitment? = nil, carID: CarID? = nil, region: String, photoPaths: [String] = []) {
+                fits: Fitment? = nil, carID: CarID? = nil, region: String, photoPaths: [String] = [],
+                category: ListingCategory? = nil) {
         self.kind = kind; self.title = title; self.priceCents = priceCents; self.condition = condition
         self.description = description; self.fits = fits; self.carID = carID; self.region = region
-        self.photoPaths = photoPaths
+        self.photoPaths = photoPaths; self.category = category
     }
 }
 
@@ -74,7 +84,9 @@ public struct ListingFilter: Hashable, Sendable, Codable {
     public var query: String?
     public var fits: Fitment?
     public var near: Coordinate?
-    public init(kind: ListingKind? = nil, query: String? = nil, fits: Fitment? = nil, near: Coordinate? = nil) {
-        self.kind = kind; self.query = query; self.fits = fits; self.near = near
+    public var category: ListingCategory?
+    public init(kind: ListingKind? = nil, query: String? = nil, fits: Fitment? = nil, near: Coordinate? = nil,
+                category: ListingCategory? = nil) {
+        self.kind = kind; self.query = query; self.fits = fits; self.near = near; self.category = category
     }
 }

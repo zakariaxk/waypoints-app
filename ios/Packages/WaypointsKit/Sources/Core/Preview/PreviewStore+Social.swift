@@ -290,6 +290,7 @@ extension PreviewStore: MarketRepository {
     }
     func matches(_ listing: Listing, _ filter: ListingFilter) -> Bool {
         if let kind = filter.kind, listing.kind != kind { return false }
+        if let category = filter.category, listing.category != category { return false }
         if let q = filter.query?.lowercased(), !q.isEmpty,
            !listing.title.lowercased().contains(q), !listing.description.lowercased().contains(q) { return false }
         if let want = filter.fits {
@@ -319,7 +320,8 @@ extension PreviewStore: MarketRepository {
         let listing = Listing(sellerID: try me(), kind: draft.kind, title: draft.title, priceCents: draft.priceCents,
                               condition: draft.condition, description: draft.description, fits: draft.fits,
                               carID: draft.carID, region: draft.region,
-                              photos: draft.photoPaths.enumerated().map { ListingPhoto(path: $0.element, sort: $0.offset) })
+                              photos: draft.photoPaths.enumerated().map { ListingPhoto(path: $0.element, sort: $0.offset) },
+                              category: draft.category)
         listings[listing.id] = listing
         return listing
     }

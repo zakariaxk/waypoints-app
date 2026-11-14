@@ -24,6 +24,50 @@ enum Price {
     }
 }
 
+extension ListingCategory {
+    /// MKT-7 part categories, in the PRD's order.
+    var title: LocalizedStringKey {
+        switch self {
+        case .wheelsTires: "Wheels and tires"
+        case .exhaust: "Exhaust"
+        case .intakeFuel: "Intake and fuel"
+        case .forcedInduction: "Forced induction"
+        case .engine: "Engine"
+        case .drivetrain: "Drivetrain"
+        case .suspension: "Suspension"
+        case .brakes: "Brakes"
+        case .exteriorAero: "Exterior and aero"
+        case .interior: "Interior"
+        case .lighting: "Lighting"
+        case .electronicsTuning: "Electronics and tuning"
+        case .tools: "Tools"
+        case .apparel: "Apparel"
+        case .other: "Other"
+        }
+    }
+}
+
+/// A row that opens the list of part categories (plan 9.9: chips only for five or fewer).
+struct CategoryPicker: View {
+    @Binding var selection: ListingCategory?
+    let noneTitle: LocalizedStringKey
+
+    var body: some View {
+        Menu {
+            Button(noneTitle) { selection = nil }
+            ForEach(ListingCategory.allCases, id: \.self) { c in Button(c.title) { selection = c } }
+        } label: {
+            Row(Text("Category"), showsDivider: false, trailing: {
+                HStack(spacing: Space.s4) {
+                    Text(selection?.title ?? noneTitle).typeStyle(.sub)
+                    Disclosure()
+                }
+            })
+        }
+        .buttonStyle(RowButtonStyle())
+    }
+}
+
 // MARK: K1 Browse
 
 struct Browse: View {
@@ -41,6 +85,7 @@ struct Browse: View {
     @State private var minPrice = ""
     @State private var maxPrice = ""
     @State private var conditions: Set<ListingCondition> = []
+    @State private var category: ListingCategory?
 
     /// Price and condition narrow the loaded results (K1 filter sheet).
     private var shown: [Listing] {
@@ -52,7 +97,8 @@ struct Browse: View {
 
     private var filter: ListingFilter {
         ListingFilter(kind: kind, query: query.isEmpty ? nil : query,
-                      fits: kind == .part ? fitsCar.map { Fitment(make: $0.make, model: $0.model, yearFrom: $0.year, yearTo: $0.year) } : nil)
+                      fits: kind != .car ? fitsCar.map { Fitment(make: $0.make, model: $0.model, yearFrom: $0.year, yearTo: $0.year) } : nil,
+                      category: kind != .car ? category : nil)
     }
 
     var body: some View {
@@ -60,9 +106,10 @@ struct Browse: View {
             LazyVStack(alignment: .leading, spacing: Space.s12) {
                 Field("Search", text: $query, prompt: "Search parts and cars")
                 HStack {
-                    SegmentedSwitch(selection: $kind, options: [(.part, "Parts"), (.car, "Cars")]).frame(maxWidth: Size.row * 3.5)
+                    SegmentedSwitch(selection: $kind, options: [(.part, "Parts"), (.car, "Cars"), (.wanted, "Wanted")])
+                        .frame(maxWidth: Size.row * 5)
                     Spacer()
-                    if kind == .part, !cars.isEmpty {
+                    if kind != .car, !cars.isEmpty {
                         Menu {
                             ForEach(cars) { c in Button(c.shortLabel) { fitsCar = c } }
                             Button("Clear") { fitsCar = nil }
@@ -72,9 +119,18 @@ struct Browse: View {
                     }
                 }
                 if shown.isEmpty && !loading {
-                    if let c = fitsCar, kind == .part {
-                        Text("Nothing listed for a \(c.shortLabel) yet.").typeStyle(.body).foregroundStyle(Color.dust)
+                    if let c = fitsCar, kind != .car {
+                        Group {
+                            if kind == .wanted {
+                                Text("Nobody is looking for \(c.shortLabel) parts yet.")
+                            } else {
+                                Text("Nothing listed for a \(c.shortLabel) yet.")
+                            }
+                        }
+                        .typeStyle(.body).foregroundStyle(Color.dust)
                         QuietButton("Search all cars") { fitsCar = nil }
+                    } else if kind == .wanted {
+                        EmptyState("Nobody has posted a wanted ad yet.", actionTitle: "Post what you want") { listing = true }
                     } else {
                         EmptyState("Nothing for sale near you yet.", actionTitle: "List something") { listing = true }
                     }
@@ -83,8 +139,10 @@ struct Browse: View {
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: Space.s12), GridItem(.flexible())], spacing: Space.s16) {
                         ForEach(shown) { l in card(l) }
                     }
-                } else {
+                } else if kind == .car {
                     ForEach(shown) { l in carRow(l) }
+                } else {
+                    ForEach(shown) { l in wantedRow(l) }
                 }
                 if next != nil {
                     Color.clear.frame(height: 1).onAppear { Task { await load(more: true) } }
@@ -102,14 +160,17 @@ struct Browse: View {
                 IconButton("line.3.horizontal.decrease", label: "Filter") { showFilter = true }
             }
         }
-        .sheet(isPresented: $listing, onDismiss: { Task { await load(more: false) } }) { ListSomething(env: env) }
+        .sheet(isPresented: $listing, onDismiss: { Task { await load(more: false) } }) { ListSomething(env: env, initialKind: kind) }
         .navigationDestination(isPresented: $yours) { Yours(env: env) }
         .sheet(isPresented: $showFilter) {
             Sheet(Text("Filter")) {
                 VStack(alignment: .leading, spacing: Space.s16) {
                     HStack(spacing: Space.s12) {
-                        Field("Min price", text: $minPrice, prompt: "$").keyboardType(.numberPad)
-                        Field("Max price", text: $maxPrice, prompt: "$").keyboardType(.numberPad)
+                        Field(kind == .wanted ? "Min budget" : "Min price", text: $minPrice, prompt: "$").keyboardType(.numberPad)
+                        Field(kind == .wanted ? "Max budget" : "Max price", text: $maxPrice, prompt: "$").keyboardType(.numberPad)
+                    }
+                    if kind != .car {
+                        CategoryPicker(selection: $category, noneTitle: "All parts").padding(.horizontal, -Space.margin)
                     }
                     Text("Condition").typeStyle(.foot).foregroundStyle(Color.dust)
                     HStack(spacing: Space.s8) {
@@ -119,7 +180,7 @@ struct Browse: View {
                             }
                         }
                     }
-                    QuietButton("Clear") { minPrice = ""; maxPrice = ""; conditions = [] }
+                    QuietButton("Clear") { minPrice = ""; maxPrice = ""; conditions = []; category = nil }
                 }
                 .padding(Space.margin)
             }
@@ -160,6 +221,14 @@ struct Browse: View {
         .buttonStyle(.plain)
     }
 
+    private func wantedRow(_ l: Listing) -> some View {
+        Button { env.router.open(.listing(l.id)) } label: {
+            Row(Text(verbatim: l.title), subtitle: Text("Budget \(Price.text(l.priceCents)) · \(l.region)"), trailing: { Disclosure() })
+                .padding(.horizontal, -Space.margin)
+        }
+        .buttonStyle(RowButtonStyle())
+    }
+
     private func carRow(_ l: Listing) -> some View {
         Button { env.router.open(.listing(l.id)) } label: {
             VStack(alignment: .leading, spacing: Space.s4) {
@@ -180,6 +249,7 @@ struct ListingScreen: View {
     @State private var listing: Listing?
     @State private var seller: Profile?
     @State private var me: UserID?
+    @State private var editing = false
 
     var body: some View {
         ScrollView {
@@ -195,13 +265,21 @@ struct ListingScreen: View {
                     .aspectRatio(4.0 / 3.0, contentMode: .fit)
                     VStack(alignment: .leading, spacing: Space.s8) {
                         Text(verbatim: l.title).typeStyle(.title).foregroundStyle(Color.chalk)
+                        if l.kind == .wanted { Text("Budget").typeStyle(.foot).foregroundStyle(Color.dust) }
                         HStack {
                             Text(verbatim: Price.text(l.priceCents)).typeStyle(.readoutL).foregroundStyle(Color.chalk)
                                 .strikethrough(l.status == .sold)
-                            if l.status == .sold { Text("Sold").typeStyle(.label).foregroundStyle(Color.brake) }
+                            if l.status == .sold {
+                                Text(l.kind == .wanted ? "Found" : "Sold").typeStyle(.label).foregroundStyle(Color.brake)
+                            }
                         }
-                        Text(verbatim: "\(l.condition.rawValue.replacingOccurrences(of: "_", with: " ").capitalized) · \(l.region)")
-                            .typeStyle(.sub).foregroundStyle(Color.dust)
+                        if l.kind == .wanted {
+                            Text(verbatim: l.region).typeStyle(.sub).foregroundStyle(Color.dust)
+                        } else {
+                            Text(verbatim: "\(l.condition.rawValue.replacingOccurrences(of: "_", with: " ").capitalized) · \(l.region)")
+                                .typeStyle(.sub).foregroundStyle(Color.dust)
+                        }
+                        if let c = l.category { Text(c.title).typeStyle(.sub).foregroundStyle(Color.dust) }
                         if let f = l.fits {
                             Text(verbatim: "Fits: \(f.make) \(f.model ?? "")\(f.yearFrom.map { " \($0)" } ?? "")\(f.yearTo.map { "–\($0)" } ?? "")")
                                 .typeStyle(.sub).foregroundStyle(Color.chalk)
@@ -234,6 +312,9 @@ struct ListingScreen: View {
                 }
             }
         }
+        .sheet(isPresented: $editing, onDismiss: { Task { await load() } }) {
+            if let l = listing { ListSomething(env: env, editing: l) }
+        }
         .task { await load() }
     }
 
@@ -243,14 +324,18 @@ struct ListingScreen: View {
             HStack(spacing: Space.s12) {
                 if l.sellerID == me {
                     if l.status != .sold {
-                        PrimaryButton("Mark as sold") { Task { try? await env.market.setStatus(.sold, for: l.id); await load() } }
+                        PrimaryButton(l.kind == .wanted ? "Mark as found" : "Mark as sold") {
+                            Task { try? await env.market.setStatus(.sold, for: l.id); await load() }
+                        }
+                        SecondaryButton("Edit") { editing = true }
                     }
                 } else if l.status != .sold {
-                    PrimaryButton("Message seller") {
+                    PrimaryButton(l.kind == .wanted ? "Message" : "Message seller") {
                         Task {
                             if let t = try? await env.messages.openThread(with: l.sellerID, listing: l.id) {
                                 if (try? await env.messages.messages(in: .thread(t.id), before: nil, limit: 1))?.isEmpty ?? true {
-                                    _ = try? await env.messages.send("Is this still available?", attachmentPath: nil, to: .thread(t.id))
+                                    let opener = l.kind == .wanted ? "I have one." : "Is this still available?"
+                                    _ = try? await env.messages.send(opener, attachmentPath: nil, to: .thread(t.id))
                                 }
                                 env.router.open(.thread(t.id))
                             }
@@ -280,6 +365,8 @@ struct ListingScreen: View {
 
 struct ListSomething: View {
     let env: AppEnvironment
+    /// Set when editing an existing listing (MKT-4); photos stay as they are.
+    var editing: Listing?
     @Environment(\.dismiss) private var dismiss
     @State private var items: [PhotosPickerItem] = []
     @State private var images: [Data] = []
@@ -296,6 +383,25 @@ struct ListSomething: View {
     @State private var picking = false
     @State private var saving = false
     @State private var error: String?
+    @State private var category: ListingCategory?
+
+    init(env: AppEnvironment, initialKind: ListingKind = .part) {
+        self.env = env
+        _kind = State(initialValue: initialKind)
+    }
+
+    init(env: AppEnvironment, editing l: Listing) {
+        self.env = env
+        editing = l
+        _kind = State(initialValue: l.kind)
+        _title = State(initialValue: l.title)
+        _price = State(initialValue: String(l.priceCents / 100))
+        _condition = State(initialValue: l.condition)
+        _fits = State(initialValue: l.fits)
+        _description = State(initialValue: l.description)
+        _region = State(initialValue: l.region)
+        _category = State(initialValue: l.category)
+    }
 
     var body: some View {
         NavigationStack {
@@ -309,7 +415,7 @@ struct ListSomething: View {
                                         .clipShape(RoundedRectangle(cornerRadius: Radius.r12))
                                 }
                             }
-                            if images.count < 8 {
+                            if images.count < 8, editing == nil {
                                 Button { pick = true } label: {
                                     Image.symbol(Symbol.camera).foregroundStyle(Color.sodium)
                                         .frame(width: Size.row * 1.6, height: Size.row * 1.6)
@@ -320,15 +426,20 @@ struct ListSomething: View {
                         }
                     }
                     Text("What is it?").typeStyle(.foot).foregroundStyle(Color.dust)
-                    SegmentedSwitch(selection: $kind, options: [(.part, "Part"), (.car, "Car")])
-                    Field("Title", text: $title, limit: 70)
-                    Field("Price", text: $price, prompt: "$").keyboardType(.numberPad)
-                    HStack(spacing: Space.s8) {
-                        Chip("New", isSelected: condition == .new) { condition = .new }
-                        Chip("Used", isSelected: condition == .used) { condition = .used }
-                        Chip("For parts", isSelected: condition == .forParts) { condition = .forParts }
+                    SegmentedSwitch(selection: $kind, options: [(.part, "Part"), (.car, "Car"), (.wanted, "Wanted")])
+                    Field("Title", text: $title, prompt: kind == .wanted ? "What you're looking for" : nil, limit: 70)
+                    Field(kind == .wanted ? "Budget" : "Price", text: $price, prompt: "$").keyboardType(.numberPad)
+                    if kind != .wanted {
+                        HStack(spacing: Space.s8) {
+                            Chip("New", isSelected: condition == .new) { condition = .new }
+                            Chip("Used", isSelected: condition == .used) { condition = .used }
+                            Chip("For parts", isSelected: condition == .forParts) { condition = .forParts }
+                        }
                     }
-                    if kind == .part {
+                    if kind != .car {
+                        CategoryPicker(selection: $category, noneTitle: "Choose one").padding(.horizontal, -Space.margin)
+                    }
+                    if kind != .car {
                         Button { picking = true } label: {
                             Row(Text("Fits"), showsDivider: false, trailing: {
                                 Text(verbatim: fits.map { "\($0.make) \($0.model ?? "")" } ?? "Any car").typeStyle(.sub)
@@ -349,13 +460,13 @@ struct ListSomething: View {
                     Field("Description", text: $description, limit: 1500, axis: .vertical)
                     Field("Region", text: $region, prompt: "Like 'South Jersey'", limit: 40)
                     if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
-                    PrimaryButton("List it", isLoading: saving) { save() }
+                    PrimaryButton(editing == nil ? (kind == .wanted ? "Post it" : "List it") : "Save changes", isLoading: saving) { save() }
                         .disabled(title.isEmpty || Int(price) == nil || region.isEmpty)
                 }
                 .padding(Space.margin)
             }
             .background(Color.asphalt.ignoresSafeArea())
-            .navigationTitle("List something")
+            .navigationTitle(editing == nil ? "List something" : "Edit listing")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .topBarLeading) { QuietButton("Cancel") { dismiss() } } }
             .photosPicker(isPresented: $pick, selection: $items, maxSelectionCount: 8, matching: .images)
@@ -378,7 +489,7 @@ struct ListSomething: View {
         }
         .task {
             if let me = await env.auth.currentSession()?.userID { cars = (try? await env.garage.cars(of: me)) ?? [] }
-            region = (try? await env.profiles.myProfile().homeRegion) ?? ""
+            if region.isEmpty { region = (try? await env.profiles.myProfile().homeRegion) ?? "" }
         }
     }
 
@@ -390,12 +501,29 @@ struct ListSomething: View {
                 saving = false
                 return
             }
+            let cents = (Int(price) ?? 0) * 100
+            let cat = kind == .car ? nil : category
+            if var l = editing {
+                l.kind = kind; l.title = title; l.priceCents = cents; l.condition = condition; l.description = description
+                l.fits = kind == .car ? nil : fits; l.region = region; l.category = cat
+                if let c = car { l.carID = c.id }
+                do {
+                    _ = try await env.market.updateListing(l)
+                    dismiss()
+                } catch {
+                    self.error = "Couldn't save it. Check your connection and try again."
+                }
+                saving = false
+                return
+            }
             do {
                 var paths: [String] = []
                 for d in images { paths.append(try await env.media.upload(d, contentType: "image/jpeg", to: .listings) { _ in }.path) }
-                _ = try await env.market.createListing(ListingDraft(kind: kind, title: title, priceCents: (Int(price) ?? 0) * 100,
-                                                                   condition: condition, description: description, fits: fits,
-                                                                   carID: car?.id, region: region, photoPaths: paths))
+                _ = try await env.market.createListing(ListingDraft(kind: kind, title: title, priceCents: cents,
+                                                                   condition: condition, description: description,
+                                                                   fits: kind == .car ? nil : fits,
+                                                                   carID: kind == .car ? car?.id : nil, region: region,
+                                                                   photoPaths: paths, category: cat))
                 dismiss()
             } catch {
                 self.error = "Couldn't list it. Check your connection and try again."
@@ -424,11 +552,13 @@ struct Yours: View {
                 }
                 ForEach(list) { l in
                     Button { env.router.open(.listing(l.id)) } label: {
-                        Row(Text(verbatim: l.title), subtitle: Text(verbatim: Price.text(l.priceCents)), leading: {
+                        Row(Text(verbatim: l.title), subtitle: l.kind == .wanted ? Text("Budget \(Price.text(l.priceCents))") : Text(verbatim: Price.text(l.priceCents)), leading: {
                             MediaView(url: l.photos.first.map { env.media.publicURL(bucket: .listings, path: $0.path) }, aspectRatio: 1,
                                       cornerRadius: Radius.r6, label: Text(verbatim: l.title))
                                 .frame(width: Size.hitTarget, height: Size.hitTarget)
-                        }, trailing: { Text(verbatim: l.status.rawValue.capitalized).typeStyle(.foot) })
+                        }, trailing: {
+                            Text(verbatim: l.kind == .wanted && l.status == .sold ? "Found" : l.status.rawValue.capitalized).typeStyle(.foot)
+                        })
                     }
                     .buttonStyle(RowButtonStyle())
                     .contextMenu {

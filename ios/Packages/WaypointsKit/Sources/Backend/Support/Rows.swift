@@ -483,6 +483,7 @@ struct ListingRow: Decodable, Sendable {
     let status: ListingStatus
     let createdAt: Date
     let listingPhotos: [ListingPhotoRow]?
+    let category: ListingCategory?
 
     func model(saved: Bool) -> Listing {
         let fits = fitsMake.map { Fitment(make: $0, model: fitsModel, yearFrom: fitsYearFrom, yearTo: fitsYearTo) }
@@ -490,7 +491,7 @@ struct ListingRow: Decodable, Sendable {
                        priceCents: priceCents, condition: condition, description: description ?? "", fits: fits,
                        carID: carId.map(CarID.init(raw:)), region: region ?? "", status: status,
                        photos: (listingPhotos ?? []).map(\.model).sorted { $0.sort < $1.sort }, savedByMe: saved,
-                       createdAt: createdAt)
+                       createdAt: createdAt, category: category)
     }
 }
 
@@ -511,9 +512,12 @@ struct ListingWrite: Encodable, Sendable {
     var carId: Nullable<UUID>
     var region: String
     var status: ListingStatus?
+    var category: Nullable<ListingCategory>
 
     init(kind: ListingKind, title: String, priceCents: Int, condition: ListingCondition, description: String,
-         fits: Fitment?, carID: CarID?, region: String, seller: UserID?, status: ListingStatus?) {
+         fits: Fitment?, carID: CarID?, region: String, seller: UserID?, status: ListingStatus?,
+         category: ListingCategory? = nil) {
+        self.category = .init(category)
         sellerId = seller?.raw; self.kind = kind; self.title = title; self.priceCents = priceCents
         self.condition = condition; self.description = description
         fitsMake = .init(fits?.make); fitsModel = .init(fits?.model); fitsYearFrom = .init(fits?.yearFrom)
