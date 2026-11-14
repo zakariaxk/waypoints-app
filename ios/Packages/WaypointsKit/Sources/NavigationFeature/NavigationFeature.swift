@@ -586,7 +586,7 @@ struct GuidanceView: View {
                     Text(verbatim: NavigationModel.distance(model.toManeuver)).typeStyle(.readoutL).foregroundStyle(Color.chalk)
                     Text(verbatim: model.offRoute && !model.online ? String(localized: "Offline. Follow the route line.", bundle: .module)
                          : model.rerouting ? String(localized: "Rerouting", bundle: .module) : (next?.instructions ?? "")).typeStyle(.bodyStrong)
-                        .foregroundStyle(Color.chalk).lineLimit(2)
+                        .foregroundStyle(Color.chalk).fixedSize(horizontal: false, vertical: true)
                 }
             }
             Spacer()
