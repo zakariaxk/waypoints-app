@@ -251,7 +251,7 @@ struct Browse: View {
         Button { env.router.open(.listing(l.id)) } label: {
             VStack(alignment: .leading, spacing: Space.s4) {
                 MediaView(url: photo(l), aspectRatio: 1, cornerRadius: Radius.r12, label: Text(verbatim: l.title))
-                Text(verbatim: l.title).typeStyle(.sub).foregroundStyle(Color.chalk).lineLimit(2).multilineTextAlignment(.leading)
+                Text(verbatim: l.title).typeStyle(.sub).foregroundStyle(Color.chalk).multilineTextAlignment(.leading)
                 Text(verbatim: Price.text(l.priceCents)).typeStyle(.readoutM).foregroundStyle(Color.chalk)
                 Text(verbatim: l.region).typeStyle(.foot).foregroundStyle(Color.dust)
             }
