@@ -793,12 +793,13 @@ struct LiveProgress: ProgressRepository {
         let me = try ctx.me()
         struct Body: Encodable {
             let userId: UUID; let carId: UUID; let mods: [String]; let reactionMs: Int; let etMs: Int; let trapMphX10: Int
-            let sixtyFtMs: Int; let inputLog: String
+            let sixtyFtMs: Int; let inputLog: String; let modelVersion: Int
         }
         return try await ctx.run {
             let row: RaceResultRow = try await ctx.table("race_results")
                 .insert(Body(userId: me.raw, carId: r.carID.raw, mods: r.mods, reactionMs: r.reactionMs, etMs: r.etMs,
-                             trapMphX10: r.trapMphX10, sixtyFtMs: r.sixtyFtMs, inputLog: Bytea.encode(r.inputLog)))
+                             trapMphX10: r.trapMphX10, sixtyFtMs: r.sixtyFtMs, inputLog: Bytea.encode(r.inputLog),
+                             modelVersion: r.modelVersion))
                 .select().single().execute().value
             return row.model
         }

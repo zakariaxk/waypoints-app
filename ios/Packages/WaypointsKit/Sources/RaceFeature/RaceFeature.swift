@@ -3,6 +3,7 @@ import DesignSystem
 import EngineAudio
 import PerformanceModel
 import SwiftUI
+import VehicleCatalog
 
 /// The Strip (plan 10.8 G7–G9, 11.4): a virtual quarter mile driven by the same model as the
 /// estimates. No GPS, real speed, or location is read here.
@@ -33,18 +34,24 @@ enum Opponent: Hashable {
     case ghost(RaceResult)
     case friend(name: String, RaceResult, VehicleSpec)
     case house(HouseCar)
+    /// Any catalog car, stock or with chosen mods, driven by the model (STR-10).
+    case bench(BenchCar)
 
     var title: String {
         switch self {
         case .ghost: "Your best run"
         case let .friend(name, r, _): "\(name)'s run · \(String(format: "%.2f", Double(r.etMs) / 1000)) s"
         case let .house(h): h.title
+        case let .bench(b): b.title
         }
     }
 
     var subtitle: String? {
-        if case let .house(h) = self { return h.specLine }
-        return nil
+        switch self {
+        case let .house(h): h.specLine
+        case let .bench(b): HouseCar(rung: 0, spec: b.spec).specLine
+        default: nil
+        }
     }
 }
 
@@ -61,6 +68,8 @@ struct Lobby: View {
     @State private var friendRuns: [Opponent] = []
     @State private var running = false
     @State private var showPast = false
+    @State private var bench: BenchCar?
+    @State private var pickingBench = false
     @AppStorage(Ladder.openedKey) private var opened = 0
     @AppStorage(Ladder.treeKey) private var tree = TreeKind.sportsman
 
@@ -78,6 +87,9 @@ struct Lobby: View {
                     SectionLabel("OPPONENT")
                     if let best { opponentRow(.ghost(best)) }
                     ForEach(friendRuns, id: \.self) { opponentRow($0) }
+                    SectionLabel("BENCH RACE")
+                    if let bench { opponentRow(.bench(bench)) }
+                    QuietButton(bench == nil ? "Pick any car" : "Pick another car") { pickingBench = true }
                     SectionLabel("LADDER")
                     ForEach(Ladder.cars.prefix(openRung + 1)) { opponentRow(.house($0)) }
                     if openRung + 1 < Ladder.cars.count {
@@ -107,10 +119,18 @@ struct Lobby: View {
         .fullScreenCover(isPresented: $running, onDismiss: { Task { await load() } }) {
             if let car, let spec, let opponent { RunView(env: env, car: car, spec: spec, opponent: opponent, tree: tree) }
         }
+        .sheet(isPresented: $pickingBench) {
+            BenchPicker(env: env) { b in
+                bench = b
+                opponent = .bench(b)
+                pickingBench = false
+            }
+        }
         .sheet(isPresented: $showPast) {
             Sheet(Text("Past runs")) {
                 ScrollView {
                     ForEach(past) { r in
+                        // Trap stays in mph everywhere: it is the drag strip's unit, as on a real time slip (SET-3).
                         Row(Text(verbatim: String(format: "%.3f s", Double(r.etMs) / 1000)),
                             subtitle: Text(verbatim: r.createdAt.formatted(date: .abbreviated, time: .shortened)),
                             trailing: { Text(verbatim: String(format: "%.1f mph", Double(r.trapMphX10) / 10)).typeStyle(.readoutS) })
@@ -139,11 +159,14 @@ struct Lobby: View {
         if let id = car?.catalogVariantID { variant = try? await env.catalog.variant(id) }
         if let car { spec = VehicleSpec.from(variant: variant, car: car) }
         past = (try? await env.progress.raceResults(for: carID)) ?? []
-        best = past.min { $0.etMs < $1.etMs }
+        // A ghost replays its input log through the model; under another model version the same
+        // inputs give different times, so only runs from this version are offered.
+        best = past.filter { $0.modelVersion == PerformanceModelVersion.current }.min { $0.etMs < $1.etMs }
         if opponent == nil { opponent = best.map(Opponent.ghost) ?? .house(Ladder.cars[openRung]) }
         var runs: [Opponent] = []
         for f in ((try? await env.friends.friends()) ?? []).prefix(10) {
-            guard let r = try? await env.progress.raceResults(by: f.id, limit: 1).first,
+            guard let r = try? await env.progress.raceResults(by: f.id, limit: 10)
+                    .first(where: { $0.modelVersion == PerformanceModelVersion.current }),
                   let theirCar = try? await env.garage.car(r.carID) else { continue }
             var v: CatalogVariant?
             if let id = theirCar.catalogVariantID { v = try? await env.catalog.variant(id) }
@@ -200,6 +223,10 @@ final class RaceModel {
             them = RunState(spec: s, launchRpm: themLog?.launchRpm ?? 3500)
         case let .house(h):
             let s = h.spec
+            them = RunState(spec: s, launchRpm: min(s.redline * 0.55, 4500))
+            themLaunchTick = 60 + Int.random(in: 0...20)
+        case let .bench(b):
+            let s = modified(b.spec, mods: b.mods.compactMap(ModCatalog.mod), high: false)
             them = RunState(spec: s, launchRpm: min(s.redline * 0.55, 4500))
             themLaunchTick = 60 + Int.random(in: 0...20)
         }
@@ -365,7 +392,8 @@ struct RunView: View {
                     guard let me = await env.auth.currentSession()?.userID else { return }
                     _ = try? await env.progress.saveRaceResult(RaceResult(
                         userID: me, carID: model.car.id, mods: model.car.mods, reactionMs: r.reactionMs, etMs: Int(r.quarterET * 1000),
-                        trapMphX10: Int(r.quarterMph * 10), sixtyFtMs: Int(r.sixtyFt * 1000), inputLog: model.log.encoded()))
+                        trapMphX10: Int(r.quarterMph * 10), sixtyFtMs: Int(r.sixtyFt * 1000), inputLog: model.log.encoded(),
+                        modelVersion: PerformanceModelVersion.current))
                 }
             }
         }
@@ -480,6 +508,7 @@ struct TimeSlip: View {
         }
     }
 
+    /// Speeds on the slip are mph whatever the locale: the strip's own convention (SET-3).
     private var slip: some View {
         let a = model.meResult, b = model.themResult
         let red = model.phase == .redLight

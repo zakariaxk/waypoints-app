@@ -581,11 +581,12 @@ struct RaceResultRow: Decodable, Sendable {
     let sixtyFtMs: Int?
     let inputLog: String?
     let createdAt: Date
+    let modelVersion: Int?
 
     var model: RaceResult {
         RaceResult(id: RaceResultID(raw: id), userID: UserID(raw: userId), carID: CarID(raw: carId), mods: mods ?? [],
                    reactionMs: reactionMs ?? 0, etMs: etMs, trapMphX10: trapMphX10 ?? 0, sixtyFtMs: sixtyFtMs ?? 0,
-                   inputLog: Bytea.decode(inputLog), createdAt: createdAt)
+                   inputLog: Bytea.decode(inputLog), createdAt: createdAt, modelVersion: modelVersion ?? 1)
     }
 }
 

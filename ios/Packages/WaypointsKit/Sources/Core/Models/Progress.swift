@@ -33,10 +33,12 @@ public struct RaceResult: Identifiable, Hashable, Sendable, Codable {
     public var sixtyFtMs: Int
     public var inputLog: Data                 // ghost replay, ≤4 KB
     public var createdAt: Date
+    /// `PerformanceModelVersion.current` when the run was recorded; rows before the column are 1.
+    public var modelVersion: Int
     public init(id: RaceResultID = RaceResultID(), userID: UserID, carID: CarID, mods: [String], reactionMs: Int,
-                etMs: Int, trapMphX10: Int, sixtyFtMs: Int, inputLog: Data, createdAt: Date = .now) {
+                etMs: Int, trapMphX10: Int, sixtyFtMs: Int, inputLog: Data, createdAt: Date = .now, modelVersion: Int = 1) {
         self.id = id; self.userID = userID; self.carID = carID; self.mods = mods; self.reactionMs = reactionMs
         self.etMs = etMs; self.trapMphX10 = trapMphX10; self.sixtyFtMs = sixtyFtMs; self.inputLog = inputLog
-        self.createdAt = createdAt
+        self.createdAt = createdAt; self.modelVersion = modelVersion
     }
 }
