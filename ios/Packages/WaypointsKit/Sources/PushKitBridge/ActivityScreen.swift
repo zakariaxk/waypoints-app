@@ -115,31 +115,10 @@ private struct ActivityRow: View {
     }
 }
 
-/// The `waypoints://` paths the gateway and triggers write (plan 10.10, X3). `AppShell`'s
-/// `DeepLink` parses the same paths; features cannot import the shell, so the few that
-/// notifications use are read here.
+/// The `waypoints://` (and universal-link) paths the gateway and triggers write (plan 10.10,
+/// X3). Parsed by Core's `Route(url:host:)`, the same parser `AppShell`'s `DeepLink` uses, so
+/// every route a link can open (help, meet, profile, post, listing, team, thread, channel,
+/// invites) opens from Activity too.
 enum ActivityLink {
-    static func route(from url: URL) -> Route? {
-        var parts = url.pathComponents.filter { $0 != "/" }
-        if url.scheme == "waypoints", let host = url.host(), !host.isEmpty { parts.insert(host, at: 0) }
-        guard parts.count >= 2 else { return nil }
-        let value = parts[1]
-        switch parts[0] {
-        case "profile": return UserID(string: value).map(Route.profile)
-        case "car": return CarID(string: value).map(Route.car)
-        case "meet": return MeetID(string: value).map(Route.meet)
-        case "team": return TeamID(string: value).map(Route.team)
-        case "listing": return ListingID(string: value).map(Route.listing)
-        case "post": return PostID(string: value).map(Route.post)
-        case "thread": return ThreadID(string: value).map(Route.thread)
-        case "channel": return ChannelID(string: value).map(Route.channel)
-        case "invite" where parts.count >= 3:
-            switch value {
-            case "team": return .joinTeam(code: parts[2])
-            case "convoy": return .joinConvoy(code: parts[2])
-            default: return nil
-            }
-        default: return nil
-        }
-    }
+    static func route(from url: URL) -> Route? { Route(url: url, host: Route.linkHost) }
 }

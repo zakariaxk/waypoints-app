@@ -302,10 +302,16 @@ struct HelpDetail: View {
             ReportBadge(kind: "help")
             Text(verbatim: HelpText.name(r.kind)).typeStyle(.title).foregroundStyle(Color.chalk)
             Spacer()
-            if !r.isMine, let requester = r.requesterID {
+            if !r.isMine {
+                // SAFE-1, X1: the request itself is reportable by id, so the anonymous nearby
+                // form can be reported without the client ever learning who posted it.
                 Menu {
-                    Button("Report") { env.router.open(.reportContent(.user(requester))) }
+                    Button("Report") { env.router.open(.reportContent(.help(r.id))) }
+                    if let requester = r.requesterID {
+                        Button("Report person") { env.router.open(.reportContent(.user(requester))) }
+                    }
                 } label: { Image.symbol(Symbol.more).frame(width: Size.hitTarget, height: Size.hitTarget) }
+                .accessibilityLabel(Text("More"))
             }
         }
         if r.isMine {

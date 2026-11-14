@@ -430,7 +430,9 @@ func (s *Service) respond(w http.ResponseWriter, r *http.Request, c auth.Claims)
 			}
 			go s.push.Send(bg, []string{x.requester}, push.Note{Kind: responseKind, Title: name + " is on the way",
 				Body: "Tap to see your request.", URL: "waypoints://help/" + x.ID,
-				ActorID: c.UserID, Dedupe: "help:" + x.ID + ":" + c.UserID})
+				ActorID: c.UserID, Dedupe: "help_response:" + x.ID + ":" + c.UserID,
+				// The help_responses trigger (migration W8-1E) wrote the Activity row.
+				Recorded: true})
 		}
 	}
 	s.dress(ctx, pool, &x, c.UserID)

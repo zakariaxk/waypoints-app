@@ -60,6 +60,9 @@ public extension Route {
         case .team(let id): "team/\(id)"
         case .listing(let id): "listing/\(id)"
         case .post(let id): "post/\(id)"
+        case .thread(let id): "thread/\(id)"
+        case .channel(let id): "channel/\(id)"
+        case .help(let id): "help/\(id)"
         case .joinTeam(let code): "invite/team/\(code)"
         case .joinConvoy(let code): "invite/convoy/\(code)"
         default: nil
@@ -73,5 +76,48 @@ public extension Route {
         guard let linkPath else { return nil }
         if let host { return URL(string: "https://\(host)/\(linkPath)") }
         return URL(string: "waypoints://\(linkPath)")
+    }
+
+    /// Parses a link path (the inverse of `linkPath`), given as its components:
+    /// `["profile", "<uuid>"]`, `["invite", "convoy", "<code>"]`. HELP-4, X3.
+    init?(pathComponents parts: [String]) {
+        guard parts.count >= 2 else { return nil }
+        let value = parts[1]
+        let route: Route?
+        switch parts[0].lowercased() {
+        case "profile": route = UserID(string: value).map(Route.profile)
+        case "car": route = CarID(string: value).map(Route.car)
+        case "meet": route = MeetID(string: value).map(Route.meet)
+        case "team": route = TeamID(string: value).map(Route.team)
+        case "listing": route = ListingID(string: value).map(Route.listing)
+        case "post": route = PostID(string: value).map(Route.post)
+        case "thread": route = ThreadID(string: value).map(Route.thread)
+        case "channel": route = ChannelID(string: value).map(Route.channel)
+        case "help": route = HelpRequestID(string: value).map(Route.help)
+        case "invite" where parts.count >= 3 && !parts[2].isEmpty:
+            switch value.lowercased() {
+            case "team": route = .joinTeam(code: parts[2])
+            case "convoy": route = .joinConvoy(code: parts[2])
+            default: route = nil
+            }
+        default: route = nil
+        }
+        guard let route else { return nil }
+        self = route
+    }
+
+    /// Parses `waypoints://<path>`, and `https://<host>/<path>` when `host` (lowercased) is
+    /// given and matches. Every other URL returns nil.
+    init?(url: URL, host linkHost: String?) {
+        var parts = url.pathComponents.filter { $0 != "/" }
+        switch url.scheme?.lowercased() {
+        case "waypoints":
+            if let host = url.host(), !host.isEmpty { parts.insert(host, at: 0) }
+        case "https":
+            guard let linkHost, url.host()?.lowercased() == linkHost else { return nil }
+        default:
+            return nil
+        }
+        self.init(pathComponents: parts)
     }
 }
