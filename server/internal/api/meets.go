@@ -174,7 +174,8 @@ func (s *Service) spawnNext(ctx context.Context, pool *pgxpool.Pool, old meetJSO
 	}
 	rows.Close()
 	go s.push.Send(context.WithoutCancel(ctx), ids, push.Note{Kind: push.MeetReminders, Title: m.Title,
-		Body: "The next one is " + start.In(loc).Format("Mon Jan 2, 3:04 PM") + ".", URL: "waypoints://meet/" + m.ID})
+		Body: "The next one is " + start.In(loc).Format("Mon Jan 2, 3:04 PM") + ".", URL: "waypoints://meet/" + m.ID,
+		ActorID: m.HostID, Dedupe: "meet-next:" + m.ID})
 }
 
 // MARK: meets
