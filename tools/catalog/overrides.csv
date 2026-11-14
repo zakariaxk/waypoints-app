@@ -607,3 +607,25 @@ Ford,Mustang,2013,2014,GT,5.0,8,natural,,,rwd,420,,,7000,,https://en.wikipedia.o
 BMW,M3,1995,1995,,3.0,6,natural,,,rwd,240,225,3180,,,https://en.wikipedia.org/wiki/BMW_M3,1
 BMW,M3,1996,1999,,3.2,6,natural,,,rwd,240,236,3180,,,https://en.wikipedia.org/wiki/BMW_M3,1
 BMW,M3,2001,2006,,3.2,6,natural,,,rwd,333,262,3450,8000,,https://en.wikipedia.org/wiki/BMW_M3,1
+Mazda,MX-5,1990,1993,,1.6,4,natural,,,rwd,114,100,2210,7200,,https://en.wikipedia.org/wiki/Mazda_MX-5_(NA),1
+Mazda,MX-5,1994,1995,,1.8,4,natural,,,rwd,128,110,,7000,,https://en.wikipedia.org/wiki/Mazda_MX-5_(NA),1
+Mazda,MX-5,1996,1997,,1.8,4,natural,,,rwd,133,114,,7000,,https://en.wikipedia.org/wiki/Mazda_MX-5_(NA),1
+Mazda,MX-5,1999,2000,,1.8,4,natural,,,rwd,140,119,,,,https://en.wikipedia.org/wiki/Mazda_MX-5_(NB),1
+Nissan,350Z,2003,2004,,3.5,6,natural,,,rwd,287,274,,,,https://en.wikipedia.org/wiki/Nissan_350Z,1
+Nissan,350Z,2005,2006,,3.5,6,natural,6-speed manual,,rwd,300,260,,,,https://en.wikipedia.org/wiki/Nissan_350Z,1
+Nissan,350Z,2005,2006,,3.5,6,natural,automatic,,rwd,287,274,,,,https://en.wikipedia.org/wiki/Nissan_350Z,1
+Nissan,350Z,2007,2009,,3.5,6,natural,,,rwd,306,268,,7500,,https://en.wikipedia.org/wiki/Nissan_350Z,1
+Honda,S2000,2000,2003,,2.0,4,natural,6-speed manual,,rwd,237,,2809,8800,,https://en.wikipedia.org/wiki/Honda_S2000,1
+Honda,S2000,2004,2009,,2.2,4,natural,6-speed manual,,rwd,237,162,,8000,,https://en.wikipedia.org/wiki/Honda_S2000,1
+Mitsubishi,Lancer Evolution,2003,2003,Evolution VIII,2.0,4,turbo,5-speed manual,,awd,271,,,,,https://en.wikipedia.org/wiki/Mitsubishi_Lancer_Evolution,1
+Mitsubishi,Lancer Evolution,2006,2006,Evolution IX,2.0,4,turbo,,,awd,286,,,,,https://en.wikipedia.org/wiki/Mitsubishi_Lancer_Evolution,1
+Subaru,Impreza,2002,2005,WRX,2.0,4,turbo,,,awd,227,217,3192,,,https://en.wikipedia.org/wiki/Subaru_Impreza_(second_generation),1
+Subaru,Impreza,2006,2006,WRX,2.5,4,turbo,5-speed manual,,awd,,235,,,,https://en.wikipedia.org/wiki/Subaru_Impreza_(second_generation),1
+Tesla,Model 3,2019,2019,Mid Range,,,,, mid range ,rwd,271,310,3686,,,https://www.caranddriver.com/tesla/model-3/specs/2019/tesla_model-3_tesla-model-3_2019,1
+Tesla,Model 3,2020,2020,Standard Range Plus,,,,, standard range plus ,rwd,271,310,3554,,,https://www.caranddriver.com/tesla/model-3/specs/2020/tesla_model-3_tesla-model-3_2020,1
+Tesla,Model 3,2021,2021,Standard Range Plus,,,,, standard range plus ,rwd,271,310,3648,,,https://www.caranddriver.com/tesla/model-3/specs/2021/tesla_model-3_tesla-model-3_2021,1
+Tesla,Model 3,2022,2022,RWD,,,,, model 3 rwd ,rwd,271,310,3648,,,https://www.caranddriver.com/tesla/model-3/specs/2022/tesla_model-3_tesla-model-3_2022,1
+Tesla,Model 3,2023,2024,RWD,,,,, model 3 rwd ,rwd,271,310,3862,,,https://www.caranddriver.com/tesla/model-3/specs/2023/tesla_model-3_tesla-model-3_2023,1
+Tesla,Model 3,2024,2024,Performance,,,,, performance awd ,awd,510,546,4054,,,https://www.caranddriver.com/tesla/model-3/specs/2024/tesla_model-3_tesla-model-3-performance_2024,1
+Tesla,Model 3,2025,2025,Long Range,,,,, long range awd ,awd,425,475,4030,,,https://www.caranddriver.com/tesla/model-3/specs/2025/tesla_model-3_tesla-model-3_2025,1
+Tesla,Model 3,2026,2026,Premium,,,,, premium rwd ,rwd,295,309,3891,,,https://www.caranddriver.com/tesla/model-3/specs/2026/tesla_model-3_tesla-model-3_2026,1
