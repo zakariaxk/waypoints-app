@@ -278,6 +278,7 @@ public struct AppEnvironment: Sendable {
     public let catalog: any VehicleCatalogService
     public let safety: any SafetyService
     public let router: any Router
+    public let activity: any ActivityRepository   // NTF-6, W7-2
 }
 
 // Realtime (implemented by RealtimeClient)
@@ -351,11 +352,14 @@ public enum Route: Hashable, Sendable {
     case createReport(Coordinate), spotCar
     case navigate(to: Coordinate, name: String?)
     case joinTeam(code: String), joinConvoy(code: String)     // invite deep links (X3)
+    case activity                                             // NTF-6 Activity list (W7-2)
 }
 public protocol Router: Sendable { @MainActor func open(_ route: Route) }
 ```
 
 `settings` opens S1 (Garage's gear button), `createReport` opens M5 at a point (the Reports add-menu action), `spotCar` opens M12, and `voice` opens T3 for a voice channel (Teams shows voice rows only when a handler exists). `joinConvoy(code: "")` opens the convoy start-or-join sheet. `ProfileRepository` also carries `notificationPrefs()` and `setNotificationPrefs(_:)` over the `notification_prefs` table (S3, migration W3-4). `SafetyKit.makeLive(config:auth:profiles:)` talks to PostgREST directly. `ProgressRepository.raceResults(by:limit:)` returns another user's fastest runs for the Strip's friend opponent.
+
+Contract change (W7-2, NTF-6): `ActivityRepository` (`Core/Repositories/ActivityRepository.swift`) reads the `notifications` table: `recent(limit:)` newest first, `markAllRead()`, and `unreadCount()` (current value, then changes). Models `ActivityItem` and `ActivityKind`. `AppEnvironment.activity` is the last init parameter and defaults to `PreviewActivity.shared`; `Backend.Services.activity` is `LiveActivity`. `Route.activity` opens the Activity list, registered by `PushKitBridge` (pushed on the Garage tab); Garage's bar shows the bell only when that route has a handler.
 
 Home zones reach the gateway without a feature in the loop: `RealtimeClient.makeLive(config:auth:location:)` takes the `LocationService`, subscribes to `homeZones()`, and sends `SetHomeZones` at every connect and on every change.
 
@@ -393,6 +397,7 @@ Postgres on Supabase with PostGIS. All tables have row-level security on. `uid()
 | `privacy_settings` | `user_id pk`, `friends_level`, `team_level`, `nearby_level` (each `precise`, `approx`, `hidden`; check `nearby_level <> 'precise'`), `ghost_until timestamptz`, `notify_meets_nearby bool`, `notify_radius_km int default 15` | Read: owner. Write: gateway service role only (so it can invalidate its cache). |
 | `user_presence_cell` | `user_id pk`, `h3_r7 bigint`, `updated_at` | Service role only. |
 | `device_tokens` | `user_id`, `apns_token text`, `environment` (`sandbox`, `production`), pk on (`user_id`, `apns_token`) | Insert, delete, and read own rows: owner (Postgres needs the read to delete by token). Read all: service role. |
+| `notifications` | `id uuid pk`, `user_id`, `kind text` (`friend_request`, `friend_accepted`, `like`, `comment`, `mention`, `rsvp`, `meet_changed`, `meet_nearby`, `convoy_invite`, `unlock`, `help_response`), `actor_id uuid null`, `subject_url text` (`waypoints://` path), `title text`, `body text`, `dedupe_key text` (unique per user: one notification per event), `read_at timestamptz` | Read, and update `read_at`: owner. Insert: security-definer `record_notification(...)` only, from triggers and the gateway's `push.Service.Send`. Rows older than 90 days are deleted on insert. Contract change: W7-2 (NTF-6, NTF-7). |
 
 ### 5.2 Garage
 
@@ -558,7 +563,7 @@ HTTP JSON API on the gateway (all require `Authorization: Bearer <Supabase acces
 | `PUT /v1/convoys/{id}/destination`, `PUT /v1/convoys/{id}/regroup`, `DELETE /v1/convoys/{id}` | | Leader only. |
 | `POST /v1/convoys/{id}/invite` | `{user_ids}` | Members only. Pushes the join code (convoy invites switch in S3). |
 | `POST /v1/voice/token` | `{channel_id}` or `{convoy_id}` (exactly one) | Channel: checks team membership; returns `{url, token}` for LiveKit room `ch_<channel_id>`. Convoy: current convoy members only (package `convoy`'s state, Postgres mirror); room `cv_<convoy_id>`, participant identity is the realtime uid. A member leaving is removed from the room and the room is deleted when the convoy ends (LiveKit RoomService). 403 when not a member. |
-| `POST /internal/notify` | `{kind, ...}` | Called by a Postgres trigger through `pg_net` with a shared secret header; sends pushes for DMs, mentions, friend requests. |
+| `POST /internal/notify` | `{kind, ...}` | Called by a Postgres trigger through `pg_net` with a shared secret header; sends pushes for DMs, mentions, friend requests. The trigger has already written the `notifications` rows (W7-2), so the gateway only pushes; gateway-originated notes (meets nearby, meet changes, convoy invites) are recorded by `Send`. Meets nearby is capped at three per person per 24 hours (NTF-7). |
 
 ---
 

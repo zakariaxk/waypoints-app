@@ -1,11 +1,13 @@
 import Core
+import SwiftUI
 import UIKit
 import UserNotifications
 
 /// APNs registration and notification taps (plan 10.9 S3, 10.2). Permission is asked by the
 /// features at their moments (first RSVP, first friend request, meets-nearby switch) through
 /// the system prompt; this module notices the grant, registers the device token with the
-/// backend, and turns taps into routes.
+/// backend, and turns taps into routes. It also owns Activity (NTF-6), the in-app list of the
+/// same events, which works with no APNs configured.
 public enum PushKitBridge: FeatureModule {
     public static let isAvailable = true
 
@@ -15,6 +17,7 @@ public enum PushKitBridge: FeatureModule {
     @MainActor
     public static func register(in registry: FeatureRegistry, env: AppEnvironment) {
         self.env = env
+        registry.registerRoute(.activity, presentation: .push(tab: .garage)) { _ in AnyView(ActivityScreen(env: env)) }
         UNUserNotificationCenter.current().delegate = delegate
         Task {
             for await session in await env.auth.sessions() where session != nil {

@@ -125,6 +125,7 @@ struct ProfileScreen: View {
     @State private var model: ProfileModel
     @State private var editing = false
     @State private var showFriends = false
+    @State private var activityUnread = 0
 
     init(ctx: GarageContext, userID: UserID, isOwn: Bool = false) {
         self.ctx = ctx; self.userID = userID; self.isOwn = isOwn
@@ -156,6 +157,16 @@ struct ProfileScreen: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if own {
+                if ctx.registry.canOpen(.activity) {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        IconButton("bell", label: activityUnread > 0 ? LocalizedStringKey("Activity, new") : LocalizedStringKey("Activity")) { ctx.env.router.open(.activity) }
+                            .overlay(alignment: .topTrailing) {
+                                if activityUnread > 0 {
+                                    Circle().fill(Color.sodium).frame(width: Space.s8, height: Space.s8).padding(Space.s8)
+                                }
+                            }
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     IconButton("person.badge.plus", label: "Friend requests") { showFriends = true }
                         .overlay(alignment: .topTrailing) {
@@ -182,6 +193,10 @@ struct ProfileScreen: View {
         .sheet(isPresented: $showFriends) { FriendsScreen(ctx: ctx) }
         .task { await model.load() }
         .task { await model.watchCars() }
+        .task(id: own) {
+            guard own else { return }
+            for await count in await ctx.env.activity.unreadCount() { activityUnread = count }
+        }
         .refreshable { await model.load() }
     }
 

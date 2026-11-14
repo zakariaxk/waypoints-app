@@ -14,7 +14,8 @@ public enum PreviewEnvironment {
             teams: store, messages: store, posts: store, showdown: store, market: store, spots: store,
             roads: store, progress: store, media: store,
             realtime: PreviewRealtimeService(), location: PreviewLocationService(), gateway: store,
-            catalog: PreviewVehicleCatalogService(), safety: store, router: router
+            catalog: PreviewVehicleCatalogService(), safety: store, router: router,
+            activity: PreviewActivity()
         )
     }
 }

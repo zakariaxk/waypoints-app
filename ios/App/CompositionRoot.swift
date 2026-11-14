@@ -41,7 +41,8 @@ enum CompositionRoot {
             gateway: GatewayAPI.makeLive(config: config, auth: backend.auth),
             catalog: VehicleCatalog.makeLive(config: config),
             safety: SafetyKit.makeLive(config: config, auth: backend.auth, profiles: backend.profiles),
-            router: router
+            router: router,
+            activity: backend.activity
         )
     }
 

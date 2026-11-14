@@ -2,6 +2,9 @@
 // token-based (ES256) provider key, and serves POST /internal/notify for the
 // Postgres pg_net triggers (DMs, mentions, friend requests). Section 6.
 //
+// Every notification also becomes a row in public.notifications, the Activity list (NTF-6).
+// Only events about you are sent; there are no marketing pushes (NTF-7).
+//
 // Without APNs configuration it logs what it would have sent.
 package push
 
@@ -47,7 +50,36 @@ type Note struct {
 	Title string
 	Body  string
 	URL   string // waypoints:// deep link
+
+	// Activity row (NTF-6). ActorID is the person who caused it, if any. Dedupe makes the
+	// event notify each recipient at most once (NTF-7). Recorded means the database trigger
+	// already wrote the rows, so Send only pushes.
+	ActorID  string
+	Dedupe   string
+	Recorded bool
 }
+
+// activityKind is the notifications.kind for a push kind.
+func activityKind(k Kind) string {
+	switch k {
+	case MeetsNearby:
+		return "meet_nearby"
+	case FriendRequests:
+		return "friend_request"
+	case Messages:
+		return "dm"
+	case Mentions:
+		return "mention"
+	case ConvoyInvites:
+		return "convoy_invite"
+	case MeetReminders:
+		return "meet_changed"
+	}
+	return string(k)
+}
+
+// meetsNearbyPerDay caps meets-nearby alerts per person per rolling day (NTF-7).
+const meetsNearbyPerDay = 3
 
 // Service sends notifications.
 type Service struct {
@@ -121,12 +153,19 @@ func (s *Service) providerToken() (string, error) {
 	return signed, nil
 }
 
-// Send delivers n to every device of every user who has n.Kind turned on.
+// Send records an activity row for every recipient (unless n.Recorded) and delivers n to
+// every device of every newly recorded user who has n.Kind turned on.
 func (s *Service) Send(ctx context.Context, userIDs []string, n Note) {
 	pool := s.store.Pool()
 	if pool == nil || len(userIDs) == 0 {
 		s.log.Info("push (no database)", "kind", n.Kind, "users", len(userIDs), "title", n.Title)
 		return
+	}
+	if !n.Recorded {
+		userIDs = s.record(ctx, userIDs, n)
+		if len(userIDs) == 0 {
+			return
+		}
 	}
 	rows, err := pool.Query(ctx, `select d.apns_token, d.environment::text from public.device_tokens d
 		left join public.notification_prefs p on p.user_id = d.user_id
@@ -148,6 +187,33 @@ func (s *Service) Send(ctx context.Context, userIDs []string, n Note) {
 	for _, d := range devs {
 		s.deliver(ctx, d.token, d.env, n)
 	}
+}
+
+// record writes one notifications row per recipient and returns the recipients it wrote,
+// dropping the actor, blocked pairs, and repeats of the same event. If the table is missing
+// it returns everyone so pushes still go out.
+func (s *Service) record(ctx context.Context, userIDs []string, n Note) []string {
+	pool := s.store.Pool()
+	rows, err := pool.Query(ctx, `select u::text from unnest($1::uuid[]) u
+		where public.record_notification(u, $2, nullif($3, '')::uuid, nullif($4, ''), $5, nullif($6, ''), nullif($7, ''))`,
+		userIDs, activityKind(n.Kind), n.ActorID, n.URL, n.Title, n.Body, n.Dedupe)
+	if err != nil {
+		s.log.Warn("activity insert", "err", err)
+		return userIDs
+	}
+	defer rows.Close()
+	var out []string
+	for rows.Next() {
+		var id string
+		if rows.Scan(&id) == nil {
+			out = append(out, id)
+		}
+	}
+	if rows.Err() != nil {
+		s.log.Warn("activity insert", "err", rows.Err())
+		return userIDs
+	}
+	return out
 }
 
 func (s *Service) deliver(ctx context.Context, token, env string, n Note) {
@@ -220,7 +286,40 @@ func (s *Service) MeetNearby(ctx context.Context, hostID, meetID, title string, 
 		}
 	}
 	rows.Close()
-	s.Send(ctx, ids, Note{Kind: MeetsNearby, Title: "Meet nearby", Body: title, URL: "waypoints://meet/" + meetID})
+	ids = s.underDailyCap(ctx, ids)
+	s.Send(ctx, ids, Note{Kind: MeetsNearby, Title: "Meet nearby", Body: title, URL: "waypoints://meet/" + meetID,
+		ActorID: hostID, Dedupe: "meet_nearby:" + meetID})
+}
+
+// underDailyCap drops users who already had meetsNearbyPerDay meets-nearby alerts in the
+// last 24 hours (NTF-7). The notifications table is the count, since Send records first.
+func (s *Service) underDailyCap(ctx context.Context, ids []string) []string {
+	pool := s.store.Pool()
+	if pool == nil || len(ids) == 0 {
+		return ids
+	}
+	rows, err := pool.Query(ctx, `select user_id::text from public.notifications
+		where user_id = any($1::uuid[]) and kind = 'meet_nearby' and created_at > now() - interval '24 hours'
+		group by user_id having count(*) >= $2`, ids, meetsNearbyPerDay)
+	if err != nil {
+		s.log.Warn("meets nearby cap", "err", err)
+		return ids
+	}
+	capped := map[string]bool{}
+	for rows.Next() {
+		var id string
+		if rows.Scan(&id) == nil {
+			capped[id] = true
+		}
+	}
+	rows.Close()
+	out := ids[:0:0]
+	for _, id := range ids {
+		if !capped[id] {
+			out = append(out, id)
+		}
+	}
+	return out
 }
 
 // MeetChanged notifies everyone who RSVP'd.
@@ -289,6 +388,7 @@ func (s *Service) handleNotify(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "kind", http.StatusBadRequest)
 		return
 	}
+	n.Recorded = true // the trigger wrote the activity rows (migration W7-2)
 	go s.Send(context.WithoutCancel(r.Context()), ids, n)
 	w.WriteHeader(http.StatusAccepted)
 }
