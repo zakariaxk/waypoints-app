@@ -176,6 +176,15 @@ struct LiveTeams: TeamRepository {
     func deleteChannel(_ id: ChannelID) async throws {
         try await ctx.run { _ = try await ctx.table("channels").delete(returning: .minimal).eq("id", value: id.key).execute() }
     }
+
+    func meets(of team: TeamID) async throws -> [Meet] {
+        try await ctx.run {
+            let rows: [MeetRow] = try await ctx.table("meets").select().eq("team_id", value: team.key)
+                .gt("ends_at", value: Date.now).is("cancelled_at", value: nil)
+                .order("starts_at").limit(50).execute().value
+            return rows.map(\.model)
+        }
+    }
 }
 
 // MARK: Messages
@@ -309,8 +318,30 @@ struct LiveMessages: MessageRepository {
         await unread.send(await countUnread())
     }
 
+    func unreadCounts(in channels: [ChannelID]) async throws -> [ChannelID: Int] {
+        let me = try ctx.me()
+        let markers = try await readMarkers()
+        struct Row: Decodable { let id: Int64 }
+        var out: [ChannelID: Int] = [:]
+        for c in channels {
+            let read = String(markers[.channel(c)] ?? 0)
+            let rows: [Row] = try await ctx.run {
+                try await ctx.table("messages").select("id").eq("channel_id", value: c.key).gt("id", value: read)
+                    .neq("author_id", value: me.key).is("deleted_at", value: nil).limit(99).execute().value
+            }
+            if !rows.isEmpty { out[c] = rows.count }
+        }
+        return out
+    }
+
     private func countUnread() async -> Int {
-        ((try? await threads()) ?? []).reduce(0) { $0 + $1.unreadCount }
+        let dms = ((try? await threads()) ?? []).reduce(0) { $0 + $1.unreadCount }
+        let teams = LiveTeams(ctx: ctx)
+        var text: [ChannelID] = []
+        for t in (try? await teams.myTeams()) ?? [] {
+            text += ((try? await teams.channels(of: t.id)) ?? []).filter { $0.kind == .text }.map(\.id)
+        }
+        return dms + ((try? await unreadCounts(in: text)) ?? [:]).values.reduce(0, +)
     }
 
     func unreadCount() async -> AsyncStream<Int> {

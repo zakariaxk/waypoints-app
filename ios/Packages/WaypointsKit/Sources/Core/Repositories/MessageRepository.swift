@@ -15,4 +15,10 @@ public protocol MessageRepository: Sendable {
     func markRead(_ target: MessageTarget, upTo id: MessageID) async throws
     /// Total unread across channels and threads, for the Teams tab badge.
     func unreadCount() async -> AsyncStream<Int>
+    /// Unread messages per text channel (capped at 99), for T1 channel rows.
+    func unreadCounts(in channels: [ChannelID]) async throws -> [ChannelID: Int]
+}
+
+public extension MessageRepository {
+    func unreadCounts(in channels: [ChannelID]) async throws -> [ChannelID: Int] { [:] }
 }

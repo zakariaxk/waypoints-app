@@ -26,4 +26,10 @@ public protocol TeamRepository: Sendable {
     func channel(_ id: ChannelID) async throws -> Channel
     @discardableResult func saveChannel(_ channel: Channel) async throws -> Channel
     func deleteChannel(_ id: ChannelID) async throws
+    /// The team's meets that have not ended, soonest first (T1 "Upcoming", T5 "Meets").
+    func meets(of team: TeamID) async throws -> [Meet]
+}
+
+public extension TeamRepository {
+    func meets(of team: TeamID) async throws -> [Meet] { [] }
 }
