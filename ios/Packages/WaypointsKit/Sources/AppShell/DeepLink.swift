@@ -5,10 +5,30 @@ import Foundation
 ///
 ///     profile/<uuid>   car/<uuid>   meet/<uuid>   team/<uuid>   listing/<uuid>   post/<uuid>
 ///     invite/team/<code>            invite/convoy/<code>
+///
+/// Universal links are `https://<LINK_HOST>/<path>`. The host comes from Info.plist
+/// (`WPLinkHost`, set from `LINK_HOST` in Config.xcconfig). With no host configured,
+/// `url(for:)` returns the `waypoints://` form.
 public enum DeepLink {
-    public static func route(from url: URL) -> Route? {
+    /// The configured universal-link host, lowercased, or nil.
+    public static let linkHost: String? = {
+        guard let raw = Bundle.main.object(forInfoDictionaryKey: AppConfig.linkHostInfoKey) as? String else { return nil }
+        let host = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return host.isEmpty || host.contains("$(") ? nil : host
+    }()
+
+    public static func route(from url: URL) -> Route? { route(from: url, host: linkHost) }
+
+    public static func route(from url: URL, host linkHost: String?) -> Route? {
         var parts = url.pathComponents.filter { $0 != "/" }
-        if url.scheme == "waypoints", let host = url.host(), !host.isEmpty { parts.insert(host, at: 0) }
+        switch url.scheme?.lowercased() {
+        case "waypoints":
+            if let host = url.host(), !host.isEmpty { parts.insert(host, at: 0) }
+        case "https":
+            guard let linkHost, url.host()?.lowercased() == linkHost else { return nil }
+        default:
+            return nil
+        }
         guard parts.count >= 2 else { return nil }
         let value = parts[1]
         switch parts[0] {
@@ -30,7 +50,10 @@ public enum DeepLink {
         }
     }
 
-    public static func url(for route: Route) -> URL? {
+    public static func url(for route: Route) -> URL? { url(for: route, host: linkHost) }
+
+    /// The https form on `host` when one is configured, else `waypoints://`.
+    public static func url(for route: Route, host: String?) -> URL? {
         let path: String? = switch route {
         case .profile(let id): "profile/\(id)"
         case .car(let id): "car/\(id)"
@@ -42,6 +65,8 @@ public enum DeepLink {
         case .joinConvoy(let code): "invite/convoy/\(code)"
         default: nil
         }
-        return path.flatMap { URL(string: "waypoints://\($0)") }
+        guard let path else { return nil }
+        if let host { return URL(string: "https://\(host)/\(path)") }
+        return URL(string: "waypoints://\(path)")
     }
 }

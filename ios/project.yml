@@ -49,6 +49,8 @@ targets:
         SUPPORTS_MACCATALYST: NO
         SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
         CODE_SIGN_STYLE: Automatic
+        # Associated domains for universal links: applinks:$(LINK_HOST) (LINK-2).
+        CODE_SIGN_ENTITLEMENTS: App/Waypoints.entitlements
     dependencies:
       - package: WaypointsKit
         product: WaypointsKit

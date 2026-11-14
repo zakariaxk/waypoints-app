@@ -9,3 +9,9 @@ SUPABASE_ANON_KEY =
 
 // `go run ./cmd/gateway` in server/.
 GATEWAY_URL = http:/$()/127.0.0.1:8080
+
+// Universal-link host serving site/ (LINK-2), for example <user>.github.io. Bare host, no
+// scheme or path. Empty: shared links stay waypoints:// and Terms/Privacy rows are hidden.
+// The same host goes in Waypoints.entitlements (applinks:$(LINK_HOST)) and must serve
+// site/.well-known/apple-app-site-association.
+LINK_HOST =

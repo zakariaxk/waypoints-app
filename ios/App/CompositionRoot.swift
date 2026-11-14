@@ -56,7 +56,8 @@ enum CompositionRoot {
             supabaseURL: string("WPSupabaseURL").flatMap(URL.init(string:)) ?? local.supabaseURL,
             supabaseAnonKey: string("WPSupabaseAnonKey") ?? local.supabaseAnonKey,
             gatewayURL: string("WPGatewayURL").flatMap(URL.init(string:)) ?? local.gatewayURL,
-            appVersion: string("CFBundleShortVersionString") ?? local.appVersion
+            appVersion: string("CFBundleShortVersionString") ?? local.appVersion,
+            linkHost: string(AppConfig.linkHostInfoKey).flatMap { $0.contains("$(") ? nil : $0.lowercased() }
         )
     }
 }

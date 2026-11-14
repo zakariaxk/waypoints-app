@@ -13,6 +13,11 @@ public struct AppShellView: View {
             .preferredColorScheme(.dark)
             .task { await shell.observeAuth() }
             .onOpenURL { shell.router.open(url: $0) }
+            // Universal links usually arrive through onOpenURL; some launch paths deliver
+            // them only as a browsing-web user activity, so handle both (LINK-2).
+            .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { activity in
+                if let url = activity.webpageURL { shell.router.open(url: url) }
+            }
     }
 
     @ViewBuilder private var content: some View {

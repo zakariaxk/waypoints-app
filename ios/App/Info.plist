@@ -59,6 +59,8 @@
 	<string>$(SUPABASE_ANON_KEY)</string>
 	<key>WPGatewayURL</key>
 	<string>$(GATEWAY_URL)</string>
+	<key>WPLinkHost</key>
+	<string>$(LINK_HOST)</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>
