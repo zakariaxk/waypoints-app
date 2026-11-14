@@ -456,7 +456,7 @@ See and hear what a part does to your car, honestly. Plan 10.8 (G6), 11.2, 11.3.
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
 | MOD-1 | A catalog of at least 40 generic mods across intake, exhaust, tune, forced induction, fuel, and weight. Each has a low and a high gain, a confidence (measured, claimed, typical), and a source URL. | P0 | Coded |
-| MOD-2 | Platform kits with the maker's own figures for at least six platforms. The 5.0 Mustang is covered for 2011 to 2014, 2015 to 2023, and 2024 on, each with Whipple and Roush kits. Every figure has a source URL that was opened, not recalled. | P0 | Partial: 2024+ Mustang GT only. |
+| MOD-2 | Platform kits with the maker's own figures for at least six platforms. The 5.0 Mustang is covered for 2011 to 2014, 2015 to 2023, and 2024 on, each with Whipple and Roush kits. Every figure has a source URL that was opened, not recalled. | P0 | Coded: seven platforms (Mustang GT 2011–14, 2015–17, 2018–23, 2024+ with Whipple and Roush each; F-150 5.0; Camaro LT1; 6.4 L Hemi), matched from the car and catalog row. |
 | MOD-3 | Gains do not simply add. Breathing parts saturate, a tune multiplies, a part that needs a tune gives a quarter of its gain without one, and a kit replaces both with its own figure. | P0 | Coded |
 | MOD-4 | A longitudinal simulation turns power, weight, gearing, and drivetrain into 0 to 60, quarter-mile time, and trap speed. Every output is a range from the low and high ends, widened when it disagrees with the Hale formulas by more than 12%. | P0 | Coded |
 | MOD-5 | A dyno chart shows stock and modified power and torque. Dragging across it scrubs rpm with a tick each 500 rpm, and the sound follows. | P0 | Coded |
@@ -467,7 +467,7 @@ See and hear what a part does to your car, honestly. Plan 10.8 (G6), 11.2, 11.3.
 | MOD-10 | "Hold to rev" sweeps rpm through first gear and lets it fall. The switch is labelled "Synthesized sound". | P0 | Coded |
 | MOD-11 | "Save to car" writes the mod list and offers to add a timeline entry. | P0 | Coded |
 | MOD-12 | A car without specs asks for power and weight and then simulates. | P0 | Coded |
-| MOD-13 | The model is checked against 12 stock cars with published times: trap speed within 3%, quarter-mile time within 5%, 0 to 60 within 0.4 s. A debug screen lists model output beside the published figure. | P0 | Missing |
+| MOD-13 | The model is checked against 12 stock cars with published times: trap speed within 3%, quarter-mile time within 5%, 0 to 60 within 0.4 s. A debug screen lists model output beside the published figure. | P0 | Coded: 12 cars in `ReferenceCars.swift`, debug row under G6's mod list. Scratch run after recalibration: 8 of 12 inside the stated error, all 12 inside double it (typical gear ratios); misses are turbo 0–60 (Supra, Type R, WRX) and the 10-speed Mustang trap. |
 | MOD-14 | Everything works offline, and toggling a mod updates chart, readouts, and sound within one frame. | P0 | Coded |
 
 ### 4.13 The Strip (STR)
@@ -484,7 +484,7 @@ A virtual drag strip driven by your real build. Plan 10.8 (G7 to G9), 11.4.
 | STR-6 | Guardrails, all mandatory: the word "virtual" in the lobby, on the slip, and on shared images; nothing on the map refers to racing; the feature reads no GPS, speed, or location; no challenge can name a place or a time; no taunts, no wagers, no public leaderboard of times. | P0 | Coded |
 | STR-7 | Runs are deterministic: replaying a stored run reproduces its time exactly, and a perfect-input run lands within 2% of the simulator's quarter-mile midpoint. | P0 | Coded |
 | STR-8 | A two-finger tap pauses: Resume, Restart, Quit. | P0 | Coded |
-| STR-9 | The ladder. Ten house cars from a 16.5 s car to an 8.9 s car, described by plain specs. Beating one opens the next. A choice of sportsman or pro tree. | P1 | New |
+| STR-9 | The ladder. Ten house cars from a 16.5 s car to an 8.9 s car, described by plain specs. Beating one opens the next. A choice of sportsman or pro tree. | P1 | Coded |
 | STR-10 | Bench race. Any car in the catalog, stock or with chosen mods, can be picked as the opponent. | P2 | New |
 
 ### 4.14 Teams (TEAM)
@@ -674,7 +674,7 @@ Plan section 9 is the law. These make it checkable.
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| DES-1 | Feature code contains no literal colour, font size, radius, spacing, or duration. Only `DesignSystem` tokens. | P0 | Partial: one place sizes things outside the token scale (a rectangle in the Strip). |
+| DES-1 | Feature code contains no literal colour, font size, radius, spacing, or duration. Only `DesignSystem` tokens. | P0 | Coded |
 | DES-2 | Features build screens only from `DesignSystem` components. None draws its own button, row, field, or sheet. | P0 | Coded |
 | DES-3 | No pattern banned by plan 9.11 appears anywhere. | P0 | Coded |
 | DES-4 | Every screen in plan section 10 has its loading, empty, error, and offline states, with the plan's copy. | P0 | Coded |
