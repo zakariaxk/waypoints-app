@@ -541,13 +541,13 @@ Watching builds, full screen. Plan 5.5, 10.5 (F1 to F3).
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
 | FEED-1 | A full-screen vertical pager of videos. Autoplay, muted until the user unmutes once per session, looping, with the next video's first 2 seconds preloaded. | P0 | Coded |
-| FEED-2 | Three modes: Following, For you, Showdown. For you is recency plus likes within the user's region, then everywhere. No hidden algorithm is claimed. | P0 | Partial: one feed query ordered by recency; the region and likes ordering is not there. |
+| FEED-2 | Three modes: Following, For you, Showdown. For you is recency plus likes within the user's region, then everywhere. No hidden algorithm is claimed. | P0 | Coded |
 | FEED-3 | Over each video: author, Follow, a two-line caption that expands, and the tagged car, which opens its page. | P0 | Coded |
 | FEED-4 | Like (also by double-tap), comment, and share, each with a count where it has one. | P0 | Coded |
 | FEED-5 | Long-press offers Not interested, Report, and Block. | P0 | Coded |
 | FEED-6 | Comments open in a sheet. You can delete your own; a post's author can delete any on it. | P0 | Coded |
-| FEED-7 | Posting takes three steps: pick or record, trim anything over 30 s, add a caption (150), tag a car, choose the cover frame. The clip is exported to HEVC 720p under 12 MB and uploaded while the user goes elsewhere. A failed upload is kept as a draft. | P0 | Partial: the export uses the H.264 720p preset, and the size cap is unconfirmed. |
-| FEED-8 | Empty Following, empty region, a video that will not play ("Couldn't play this." with "Try again"), and offline each have their own state. | P0 | Partial: the playback error is not in the source. |
+| FEED-7 | Posting takes three steps: pick or record, trim anything over 30 s, add a caption (150), tag a car, choose the cover frame. The clip is exported to HEVC 720p under 12 MB and uploaded while the user goes elsewhere. A failed upload is kept as a draft. | P0 | Coded |
+| FEED-8 | Empty Following, empty region, a video that will not play ("Couldn't play this." with "Try again"), and offline each have their own state. | P0 | Coded |
 | FEED-9 | Scrolling 50 videos on Wi-Fi never shows a black frame longer than 200 ms, with at most three players alive and flat memory. | P0 | Coded |
 | FEED-10 | You can delete your own post. | P0 | Coded |
 | FEED-11 | Photo posts. A post can be up to 6 photos instead of a video, swiped sideways inside the same pager. A post can also tag a meet, and the meet shows posts from it. | P2 | New |
@@ -564,7 +564,7 @@ Two builds, pick one. Plan 5.5, 10.5 (F4, F5).
 | SHOW-4 | Votes apply Elo (K = 24) on the server. A vote for your own car, or a repeat, is refused by the server. | P0 | Coded |
 | SHOW-5 | Skip is always offered. Opening a car returns to the same pair. | P0 | Coded |
 | SHOW-6 | Rankings by class for this week and all time, with your own cars pinned at the top. | P0 | Coded |
-| SHOW-7 | The week closes on Monday at 00:00 UTC. The top 10 of each class earn `showdown_top10`. A scheduled Postgres function does it. | P0 | Missing |
+| SHOW-7 | The week closes on Monday at 00:00 UTC. The top 10 of each class earn `showdown_top10`. A scheduled Postgres function does it. | P0 | Coded: needs pg_cron enabled on the project. |
 | SHOW-8 | When there is nobody left to judge: "You've judged every pair in Street. Try another class." | P0 | Coded |
 
 ### 4.19 Marketplace (MKT)
@@ -674,7 +674,7 @@ Plan section 9 is the law. These make it checkable.
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| DES-1 | Feature code contains no literal colour, font size, radius, spacing, or duration. Only `DesignSystem` tokens. | P0 | Partial: two places size things outside the token scale (the like heart in Feed, a rectangle in the Strip). |
+| DES-1 | Feature code contains no literal colour, font size, radius, spacing, or duration. Only `DesignSystem` tokens. | P0 | Partial: one place sizes things outside the token scale (a rectangle in the Strip). |
 | DES-2 | Features build screens only from `DesignSystem` components. None draws its own button, row, field, or sheet. | P0 | Coded |
 | DES-3 | No pattern banned by plan 9.11 appears anywhere. | P0 | Coded |
 | DES-4 | Every screen in plan section 10 has its loading, empty, error, and offline states, with the plan's copy. | P0 | Coded |
@@ -739,7 +739,7 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 | SEC-1 | Row-level security is on for every table, and `supabase/checks.sql` prints PASS for every access rule in plan section 5, including every table added since. | P0 | Coded |
 | SEC-2 | The service-role key, the LiveKit secret, and the APNs key exist only on the gateway. No secret is committed. | P0 | Coded |
 | SEC-3 | The gateway verifies Supabase tokens against the project's keys and fails closed. The token travels in the first frame, never in a URL. | P0 | Coded |
-| SEC-4 | Users write storage only under their own prefix. Uploaded photos and videos carry no location metadata. | P0 | Partial: photos are stripped; video is unconfirmed. |
+| SEC-4 | Users write storage only under their own prefix. Uploaded photos and videos carry no location metadata. | P0 | Coded |
 | SEC-5 | Benchmark and development back doors (`-bench` tokens, `/dev` endpoints, debug launch arguments) cannot be enabled in a production build or environment. | P0 | Coded |
 
 ### 5.7 App Store compliance (CMP)
