@@ -378,7 +378,7 @@ public struct VehiclePicker: View {
         LazyVStack(alignment: .leading, spacing: 0) {
             ForEach(variants) { v in
                 Button { variant = v } label: {
-                    Row(Text(verbatim: v.trim ?? "Base"),
+                    Row(v.trim.map { Text(verbatim: $0) } ?? Text("Base", bundle: .module),
                         subtitle: Text(verbatim: [v.engine, v.drive?.rawValue.uppercased(), v.transmission].compactMap { $0 }.joined(separator: " · ")))
                 }
                 .buttonStyle(RowButtonStyle())

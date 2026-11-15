@@ -14,11 +14,11 @@ public enum GarageFeature: FeatureModule {
     public static func register(in registry: FeatureRegistry, env: AppEnvironment) {
         let ctx = GarageContext(env: env, registry: registry)
         registry.registerTab(.garage) { AnyView(GarageHome(ctx: ctx)) }
-        registry.registerRoute(.profile) { route in
+        registry.registerRoute(.profile, presentation: .push(tab: .garage)) { route in
             guard case let .profile(id) = route else { return nil }
             return AnyView(ProfileScreen(ctx: ctx, userID: id))
         }
-        registry.registerRoute(.car) { route in
+        registry.registerRoute(.car, presentation: .push(tab: .garage)) { route in
             guard case let .car(id) = route else { return nil }
             return AnyView(CarScreen(ctx: ctx, carID: id))
         }
@@ -161,9 +161,15 @@ struct ProfileScreen: View {
             }
         }
         .background(Color.asphalt.ignoresSafeArea())
-        .navigationTitle(model.profile.map { "@\($0.handle)" } ?? "")
+        .navigationTitle(isOwn ? "" : model.profile.map { "@\($0.handle)" } ?? "")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            if isOwn, let p = model.profile {
+                ToolbarItem(placement: .topBarLeading) {
+                    Text(verbatim: "@\(p.handle)").typeStyle(.title).foregroundStyle(Color.chalk).lineLimit(1)
+                        .accessibilityAddTraits(.isHeader)
+                }
+            }
             if own {
                 if ctx.registry.canOpen(.activity) {
                     ToolbarItem(placement: .topBarTrailing) {
@@ -343,6 +349,8 @@ struct CarCard: View {
     let ctx: GarageContext
     let car: Car
     let photo: CarPhoto?
+    /// Est. power as a low–high range (plan 10.8 G1).
+    @State private var hp: ClosedRange<Double>?
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.s8) {
@@ -350,14 +358,25 @@ struct CarCard: View {
                 MediaView(url: ctx.url(.cars, photo?.path), aspectRatio: 16.0 / 9.0, cornerRadius: Radius.r20,
                           label: Text(verbatim: car.fullLabel))
                 Rectangle().fill(car.paint).frame(height: Size.paintBar)
-                    .clipShape(UnevenRoundedRectangle(bottomLeadingRadius: Radius.r20, bottomTrailingRadius: Radius.r20))
             }
+            .clipShape(RoundedRectangle(cornerRadius: Radius.r20, style: .continuous))
             Text(verbatim: car.title).typeStyle(.title).foregroundStyle(Color.chalk)
             if car.nickname != nil || car.trim != nil {
                 Text(verbatim: car.nickname != nil ? car.fullLabel : (car.trim ?? "")).typeStyle(.sub).foregroundStyle(Color.dust)
             }
+            if let hp {
+                HStack(alignment: .firstTextBaseline, spacing: Space.s4) {
+                    Text("est.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
+                    Readout(String(format: "%.0f–%.0f", hp.lowerBound, hp.upperBound), unit: "hp")
+                }
+            }
         }
         .contentShape(Rectangle())
+        .task(id: car.mods) {
+            var variant: CatalogVariant?
+            if let id = car.catalogVariantID { variant = try? await ctx.env.catalog.variant(id) }
+            hp = VehicleSpec.from(variant: variant, car: car).map { PerformanceModel.estimate(base: $0, mods: car.mods.compactMap(ModCatalog.mod)).hp }
+        }
     }
 }
 
@@ -374,7 +393,10 @@ struct PickerSheet: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
+                if let error {
+                    Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake)
+                        .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, Space.margin)
+                }
                 VehiclePicker(catalog: ctx.env.catalog, markerIcon: icon,
                               actionTitle: editing == nil ? "Add to garage" : "Save car") { picked in
                     guard case let .car(new) = picked else { return }

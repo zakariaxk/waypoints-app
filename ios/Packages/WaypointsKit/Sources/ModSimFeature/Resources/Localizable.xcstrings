@@ -55,6 +55,9 @@
     "Not now": {
       "extractionState": "manual"
     },
+    "Power, hp": {
+      "extractionState": "manual"
+    },
     "Redline": {
       "extractionState": "manual"
     },
@@ -79,10 +82,16 @@
     "Saved to car": {
       "extractionState": "manual"
     },
+    "Stock": {
+      "extractionState": "manual"
+    },
     "Synthesized sound": {
       "extractionState": "manual"
     },
     "Torque (lb-ft)": {
+      "extractionState": "manual"
+    },
+    "Torque, lb-ft": {
       "extractionState": "manual"
     },
     "We don't have specs for this car. Enter power and weight to simulate it.": {
@@ -92,6 +101,12 @@
       "extractionState": "manual"
     },
     "Weight (lb)": {
+      "extractionState": "manual"
+    },
+    "With mods": {
+      "extractionState": "manual"
+    },
+    "rpm": {
       "extractionState": "manual"
     }
   },

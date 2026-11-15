@@ -287,6 +287,7 @@ struct CarScreen: View {
                 }
             }
             .padding(.horizontal, Space.margin)
+            .padding(.top, Space.s12)
         }
     }
 
@@ -305,7 +306,7 @@ struct CarScreen: View {
                     Text(verbatim: e.title).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
                     if e.isService {
                         let odo = e.odometer.map { GarageUnits.odometer($0, e.odometerUnit ?? GarageUnits.defaultOdometer) }
-                        Text(odo.map { "Service · \($0)" } ?? "Service").typeStyle(.sub).foregroundStyle(Color.dust)
+                        (odo.map { Text("Service · \($0)", bundle: .module) } ?? Text("Service", bundle: .module)).typeStyle(.sub).foregroundStyle(Color.dust)
                         if let day = e.remindOn, day >= Calendar.current.startOfDay(for: .now) {
                             Text("Reminder \(day.formatted(date: .abbreviated, time: .omitted))", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
                         }
@@ -326,24 +327,25 @@ struct CarScreen: View {
     private func specs(_ car: Car) -> some View {
         let v = model.variant, o = car.specOverrides
         let rows: [(String, String?, Bool)] = [
-            ("Engine", v?.engine, false),
-            ("Power", (o.hp ?? v?.hp).map { "\($0) hp" }, o.hp != nil),
-            ("Drivetrain", (o.drivetrain ?? v?.drive)?.rawValue.uppercased(), o.drivetrain != nil),
-            ("Transmission", v?.transmission, o.gears != nil),
-            ("Weight", (o.weightLb ?? v?.weightLb).map(GarageUnits.weight(lb:)), o.weightLb != nil),
-            ("Clearance", car.clearance.rawValue.capitalized, car.clearance != .stock),
+            (String(localized: "Engine", bundle: .module), v?.engine, false),
+            (String(localized: "Power", bundle: .module), (o.hp ?? v?.hp).map { "\($0)\(thinSpace)hp" }, o.hp != nil),
+            (String(localized: "Drivetrain", bundle: .module), (o.drivetrain ?? v?.drive)?.rawValue.uppercased(), o.drivetrain != nil),
+            (String(localized: "Transmission", bundle: .module), v?.transmission, o.gears != nil),
+            (String(localized: "Weight", bundle: .module), (o.weightLb ?? v?.weightLb).map(GarageUnits.weight(lb:)), o.weightLb != nil),
+            (String(localized: "Clearance", bundle: .module), car.clearance.rawValue.capitalized, car.clearance != .stock),
         ]
         return VStack(alignment: .leading, spacing: 0) {
             SectionLabel("SPECS")
             ForEach(rows.filter { $0.1 != nil }, id: \.0) { label, value, edited in
-                HStack {
-                    Text(verbatim: label).typeStyle(.sub).foregroundStyle(Color.dust).frame(width: Size.row * 2.2, alignment: .leading)
+                HStack(alignment: .firstTextBaseline, spacing: Space.s12) {
+                    Text(verbatim: label).typeStyle(.sub).foregroundStyle(Color.dust).frame(width: Size.row * 2, alignment: .leading)
                     Text(verbatim: value ?? "").typeStyle(.body).foregroundStyle(Color.chalk)
-                    Spacer()
-                    Text(edited ? "edited" : "stock").typeStyle(.foot).foregroundStyle(Color.gravel)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    (edited ? Text("edited", bundle: .module) : Text("stock", bundle: .module)).typeStyle(.foot).foregroundStyle(Color.gravel)
                 }
                 .padding(.horizontal, Space.margin)
                 .padding(.vertical, Space.s8)
+                .accessibilityElement(children: .combine)
             }
             if model.own {
                 Menu {

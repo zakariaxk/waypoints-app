@@ -11,7 +11,7 @@ public enum ModSimFeature: FeatureModule {
 
     @MainActor
     public static func register(in registry: FeatureRegistry, env: AppEnvironment) {
-        registry.registerRoute(.modSim) { route in
+        registry.registerRoute(.modSim, presentation: .push(tab: .garage)) { route in
             guard case let .modSim(id) = route else { return nil }
             return AnyView(ModSimView(env: env, carID: id))
         }
@@ -217,6 +217,7 @@ struct ModSimView: View {
             } else {
                 VStack(alignment: .leading, spacing: 0) {
                     chart
+                    legend.padding(.horizontal, Space.margin).padding(.bottom, Space.s16)
                     readouts
                     Text("Estimates. Real results depend on the tune, the dyno, and the day.", bundle: .module)
                         .typeStyle(.foot).foregroundStyle(Color.dust).padding(.horizontal, Space.margin)
@@ -323,8 +324,16 @@ struct ModSimView: View {
             }
         }
         .chartLegend(.hidden)
-        .chartXAxis { AxisMarks { _ in AxisValueLabel().foregroundStyle(Color.dust) } }
-        .chartYAxis { AxisMarks { _ in AxisValueLabel().foregroundStyle(Color.dust); AxisGridLine().foregroundStyle(Color.seam) } }
+        .chartXAxis { AxisMarks { _ in AxisValueLabel().font(TypeToken.readoutS.font).foregroundStyle(Color.dust) } }
+        .chartYAxis {
+            AxisMarks { _ in
+                AxisValueLabel().font(TypeToken.readoutS.font).foregroundStyle(Color.dust)
+                AxisGridLine().foregroundStyle(Color.seam)
+            }
+        }
+        .chartXAxisLabel(position: .bottom, alignment: .trailing) {
+            Text("rpm", bundle: .module).typeStyle(.readoutS).foregroundStyle(Color.dust)
+        }
         .chartOverlay { proxy in
             GeometryReader { geo in
                 Rectangle().fill(.clear).contentShape(Rectangle())
@@ -350,8 +359,42 @@ struct ModSimView: View {
                     }
             }
         }
-        .frame(height: Size.row * 4)
+        .frame(height: Size.row * 5)
         .padding(Space.margin)
+    }
+
+    /// Solid is power, dashed is torque; `dust` is stock, `sodium` is with the mods switched on.
+    private var legend: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: Space.s16) { legendLines; legendColors }
+            VStack(alignment: .leading, spacing: Space.s4) {
+                HStack(spacing: Space.s16) { legendLines }
+                HStack(spacing: Space.s16) { legendColors }
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    @ViewBuilder private var legendLines: some View {
+        legendKey(Text("Power, hp", bundle: .module), color: .chalk, dash: [])
+        legendKey(Text("Torque, lb-ft", bundle: .module), color: .chalk, dash: Size.Chart.moddedDash)
+    }
+
+    @ViewBuilder private var legendColors: some View {
+        legendKey(Text("Stock", bundle: .module), color: .dust, dash: [])
+        legendKey(Text("With mods", bundle: .module), color: .sodium, dash: [])
+    }
+
+    private func legendKey(_ title: Text, color: Color, dash: [CGFloat]) -> some View {
+        HStack(spacing: Space.s4) {
+            Path { p in
+                p.move(to: CGPoint(x: 0, y: Size.Chart.modded / 2))
+                p.addLine(to: CGPoint(x: Space.s20, y: Size.Chart.modded / 2))
+            }
+            .stroke(color, style: StrokeStyle(lineWidth: Size.Chart.modded, dash: dash))
+            .frame(width: Space.s20, height: Size.Chart.modded)
+            title.typeStyle(.foot).foregroundStyle(Color.dust).lineLimit(1).fixedSize()
+        }
     }
 
     private var scrubValue: Text {
@@ -391,8 +434,11 @@ struct ModSimView: View {
     private var soundControls: some View {
         VStack(alignment: .leading, spacing: Space.s12) {
             Text("Hold to rev", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.asphalt)
-                .frame(maxWidth: .infinity, minHeight: Size.row * 1.6)
-                .background(Color.sodium, in: RoundedRectangle(cornerRadius: Radius.r20))
+                .frame(maxWidth: .infinity, minHeight: Size.row * 1.5)
+                .background(Color.sodium, in: RoundedRectangle(cornerRadius: Radius.r12, style: .continuous))
+                .contentShape(RoundedRectangle(cornerRadius: Radius.r12, style: .continuous))
+                .scaleEffect(revving ? Opacity.pressedScale : 1)
+                .motion(.quick, value: revving)
                 .gesture(DragGesture(minimumDistance: 0)
                     .onChanged { _ in if !revving { revving = true; model.rev(true) } }
                     .onEnded { _ in revving = false; model.rev(false) })
@@ -405,7 +451,9 @@ struct ModSimView: View {
                     revving.toggle()
                     model.rev(revving)
                 }
-            Text(verbatim: "\(Int(model.revRpm)) rpm").typeStyle(.readoutM).foregroundStyle(Color.chalk)
+                .padding(.horizontal, Space.margin)
+            Readout(String(Int(model.revRpm)), unit: "rpm", token: .readoutL)
+                .padding(.horizontal, Space.margin)
             Row(Text("Synthesized sound", bundle: .module), showsDivider: false, trailing: {
                 Toggle(isOn: Binding(get: { model.soundOn }, set: { model.setSound($0) })) {
                     Text("Synthesized sound", bundle: .module)
@@ -413,7 +461,7 @@ struct ModSimView: View {
                 .labelsHidden().tint(.sodium)
             })
         }
-        .padding(Space.margin)
+        .padding(.top, Space.s24)
     }
 
     private var modList: some View {

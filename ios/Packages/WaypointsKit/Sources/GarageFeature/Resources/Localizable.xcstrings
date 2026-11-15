@@ -55,6 +55,9 @@
     "Change clearance": {
       "extractionState": "manual"
     },
+    "Clearance": {
+      "extractionState": "manual"
+    },
     "Couldn't add the photo. Check your connection and try again.": {
       "extractionState": "manual"
     },
@@ -82,10 +85,16 @@
     "Details": {
       "extractionState": "manual"
     },
+    "Drivetrain": {
+      "extractionState": "manual"
+    },
     "Edit car": {
       "extractionState": "manual"
     },
     "Edit profile": {
+      "extractionState": "manual"
+    },
+    "Engine": {
       "extractionState": "manual"
     },
     "Enter Showdown": {
@@ -181,6 +190,9 @@
     "Point the camera at a friend's code.": {
       "extractionState": "manual"
     },
+    "Power": {
+      "extractionState": "manual"
+    },
     "Primary car set": {
       "extractionState": "manual"
     },
@@ -226,6 +238,9 @@
     "Service reminder: %@": {
       "extractionState": "manual"
     },
+    "Service · %@": {
+      "extractionState": "manual"
+    },
     "Settings": {
       "extractionState": "manual"
     },
@@ -250,10 +265,16 @@
     "This profile isn't available.": {
       "extractionState": "manual"
     },
+    "Transmission": {
+      "extractionState": "manual"
+    },
     "Uploading photo": {
       "extractionState": "manual"
     },
     "Waypoints": {
+      "extractionState": "manual"
+    },
+    "Weight": {
       "extractionState": "manual"
     },
     "What did you do?": {
@@ -263,6 +284,12 @@
       "extractionState": "manual"
     },
     "Your garage is empty.": {
+      "extractionState": "manual"
+    },
+    "edited": {
+      "extractionState": "manual"
+    },
+    "stock": {
       "extractionState": "manual"
     }
   },

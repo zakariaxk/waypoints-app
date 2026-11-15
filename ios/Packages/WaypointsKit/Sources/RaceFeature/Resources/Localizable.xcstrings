@@ -19,13 +19,13 @@
     "Ambers one at a time, half a second apart, then green.": {
       "extractionState": "manual"
     },
-    "BENCH RACE": {
-      "extractionState": "manual"
-    },
     "Beat house car %@ to open house car %@.": {
       "extractionState": "manual"
     },
     "Bench race": {
+      "extractionState": "manual"
+    },
+    "Bench race any car in the catalog, stock or with mods.": {
       "extractionState": "manual"
     },
     "Change opponent": {
@@ -58,6 +58,9 @@
     "MODS": {
       "extractionState": "manual"
     },
+    "OPP": {
+      "extractionState": "manual"
+    },
     "OPPONENT": {
       "extractionState": "manual"
     },
@@ -80,6 +83,12 @@
       "extractionState": "manual"
     },
     "Quit": {
+      "extractionState": "manual"
+    },
+    "RED": {
+      "extractionState": "manual"
+    },
+    "RED LIGHT": {
       "extractionState": "manual"
     },
     "Race it stock": {
@@ -143,6 +152,15 @@
       "extractionState": "manual"
     },
     "Virtual drag strip. A game, not a challenge. Keep it off the street.": {
+      "extractionState": "manual"
+    },
+    "WIN · OPPONENT": {
+      "extractionState": "manual"
+    },
+    "WIN · YOU": {
+      "extractionState": "manual"
+    },
+    "YOU": {
       "extractionState": "manual"
     },
     "Your best run": {

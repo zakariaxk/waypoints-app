@@ -52,9 +52,12 @@ struct BenchPicker: View {
 
     private func mods(car: Car, spec: VehicleSpec) -> some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: Space.s16) {
-                Text(verbatim: car.fullLabel).typeStyle(.title).foregroundStyle(Color.chalk)
-                Text(verbatim: HouseCar(rung: 0, spec: spec).specLine).typeStyle(.sub).foregroundStyle(Color.dust)
+            VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: .leading, spacing: Space.s4) {
+                    Text(verbatim: car.fullLabel).typeStyle(.title).foregroundStyle(Color.chalk)
+                    Text(verbatim: HouseCar(rung: 0, spec: spec).specLine).typeStyle(.sub).foregroundStyle(Color.dust)
+                }
+                .padding(.horizontal, Space.margin)
                 if !available.isEmpty {
                     SectionLabel("MODS")
                     ForEach(available) { m in
@@ -69,13 +72,17 @@ struct BenchPicker: View {
                         .accessibilityAddTraits(chosen.contains(m.id) ? .isSelected : [])
                     }
                 }
-                PrimaryButton(chosen.isEmpty ? "Race it stock" : "Race it with these mods") {
-                    let ids = available.map(\.id).filter(chosen.contains)
-                    done(BenchCar(label: car.fullLabel, spec: spec, mods: ids))
+                VStack(spacing: Space.s12) {
+                    PrimaryButton(chosen.isEmpty ? "Race it stock" : "Race it with these mods") {
+                        let ids = available.map(\.id).filter(chosen.contains)
+                        done(BenchCar(label: car.fullLabel, spec: spec, mods: ids))
+                    }
+                    QuietButton("Pick another car") { self.car = nil; self.spec = nil; chosen = [] }
                 }
-                QuietButton("Pick another car") { self.car = nil; self.spec = nil; chosen = [] }
+                .padding(.horizontal, Space.margin)
+                .padding(.top, Space.s24)
             }
-            .padding(Space.margin)
+            .padding(.vertical, Space.margin)
         }
     }
 

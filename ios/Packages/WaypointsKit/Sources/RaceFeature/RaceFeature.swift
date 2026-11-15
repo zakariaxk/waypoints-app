@@ -12,7 +12,7 @@ public enum RaceFeature: FeatureModule {
 
     @MainActor
     public static func register(in registry: FeatureRegistry, env: AppEnvironment) {
-        registry.registerRoute(.race) { route in
+        registry.registerRoute(.race, presentation: .push(tab: .garage)) { route in
             guard case let .race(id) = route else { return nil }
             return AnyView(Lobby(env: env, carID: id))
         }
@@ -40,7 +40,7 @@ enum Opponent: Hashable {
     var title: String {
         switch self {
         case .ghost: String(localized: "Your best run", bundle: .module)
-        case let .friend(name, r, _): "\(name)'s run · \(String(format: "%.2f", Double(r.etMs) / 1000)) s"
+        case let .friend(name, r, _): String(localized: "\(name)'s run · \(String(format: "%.2f", Double(r.etMs) / 1000)) s", bundle: .module)
         case let .house(h): h.title
         case let .bench(b): b.title
         }
@@ -76,49 +76,71 @@ struct Lobby: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: Space.s16) {
+            VStack(alignment: .leading, spacing: 0) {
                 Text("Virtual drag strip. A game, not a challenge. Keep it off the street.", bundle: .module)
-                    .typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
+                    .typeStyle(.body).foregroundStyle(Color.chalk)
+                    .padding(.horizontal, Space.margin)
                 if let car, let spec {
                     let est = estimate(base: spec, mods: car.mods.compactMap(ModCatalog.mod))
-                    VStack(alignment: .leading, spacing: Space.s4) {
+                    VStack(alignment: .leading, spacing: Space.s12) {
                         Text(verbatim: car.nickname ?? car.fullLabel).typeStyle(.title).foregroundStyle(Color.chalk)
                         Readout(String(format: "%.1f", (est.quarterET.lowerBound + est.quarterET.upperBound) / 2), unit: "s", label: "EST. ¼ MILE",
+                                token: .readoutL,
                                 range: .init(low: est.quarterET.lowerBound, high: est.quarterET.upperBound, bounds: 8...18))
                             .frame(maxWidth: Size.row * 3, alignment: .leading)
                     }
+                    .padding(Space.s16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.tarmac, in: RoundedRectangle(cornerRadius: Radius.r20, style: .continuous))
+                    .padding(.horizontal, Space.margin)
+                    .padding(.top, Space.s16)
                     SectionLabel("OPPONENT")
                     if let best { opponentRow(.ghost(best)) }
                     ForEach(friendRuns, id: \.self) { opponentRow($0) }
-                    SectionLabel("BENCH RACE")
                     if let bench { opponentRow(.bench(bench)) }
-                    QuietButton(bench == nil ? "Pick any car" : "Pick another car") { pickingBench = true }
+                    Button { pickingBench = true } label: {
+                        Row(bench == nil ? Text("Pick any car", bundle: .module) : Text("Pick another car", bundle: .module),
+                            subtitle: Text("Bench race any car in the catalog, stock or with mods.", bundle: .module),
+                            showsDivider: false, trailing: { Disclosure() })
+                    }
+                    .buttonStyle(RowButtonStyle())
                     SectionLabel("LADDER")
                     ForEach(Ladder.cars.prefix(openRung + 1)) { opponentRow(.house($0)) }
-                    if openRung + 1 < Ladder.cars.count {
-                        Text(verbatim: "Beat house car \(openRung + 1) to open house car \(openRung + 2).")
-                            .typeStyle(.foot).foregroundStyle(Color.dust)
-                    } else {
-                        Text("All ten house cars are open.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
+                    Group {
+                        if openRung + 1 < Ladder.cars.count {
+                            Text("Beat house car \(openRung + 1) to open house car \(openRung + 2).", bundle: .module)
+                        } else {
+                            Text("All ten house cars are open.", bundle: .module)
+                        }
                     }
+                    .typeStyle(.foot).foregroundStyle(Color.dust)
+                    .padding(.horizontal, Space.margin)
+                    .padding(.top, Space.s8)
                     SectionLabel("TREE")
-                    SegmentedSwitch(selection: $tree, options: [(value: TreeKind.sportsman, title: "Sportsman"),
-                                                               (value: TreeKind.pro, title: "Pro")])
-                    Text(verbatim: tree.detail).typeStyle(.foot).foregroundStyle(Color.dust)
-                    PrimaryButton("Stage") { running = true }.disabled(opponent == nil)
-                    if !past.isEmpty { QuietButton("Past runs") { showPast = true } }
+                    VStack(alignment: .leading, spacing: Space.s8) {
+                        SegmentedSwitch(selection: $tree, options: [(value: TreeKind.sportsman, title: "Sportsman"),
+                                                                   (value: TreeKind.pro, title: "Pro")])
+                        Text(verbatim: tree.detail).typeStyle(.foot).foregroundStyle(Color.dust)
+                        PrimaryButton("Stage") { running = true }.disabled(opponent == nil)
+                            .padding(.top, Space.s24)
+                        if !past.isEmpty { QuietButton("Past runs") { showPast = true }.frame(maxWidth: .infinity) }
+                    }
+                    .padding(.horizontal, Space.margin)
                 } else if car != nil {
                     Text("This car needs power and weight before it can run. Add them in the Mod simulator.", bundle: .module)
                         .typeStyle(.body).foregroundStyle(Color.dust)
+                        .padding(Space.margin)
                 } else if failed {
                     ErrorState(Text("Couldn't load this car. Check your connection and try again.", bundle: .module)) {
                         Task { await load() }
                     }
+                    .padding(.top, Space.s48)
                 } else {
                     SkeletonRow()
                 }
             }
-            .padding(Space.margin)
+            .padding(.top, Space.s16)
+            .padding(.bottom, Space.s32)
         }
         .background(Color.asphalt.ignoresSafeArea())
         .navigationTitle("The Strip")
@@ -485,15 +507,16 @@ struct RunView: View {
     }
 
     private var tree: some View {
-        HStack(spacing: Space.s8) {
+        VStack(spacing: Space.s4) {
             ForEach(0..<3, id: \.self) { i in
-                Circle().fill(lit(i) ? Color.sodium : Color.curb).frame(width: Space.s24, height: Space.s24)
+                Circle().fill(lit(i) ? Color.sodium : Color.curb).frame(width: Space.s20, height: Space.s20)
             }
-            Circle().fill(model.phase == .racing ? Color.go : Color.curb).frame(width: Space.s24, height: Space.s24)
+            Circle().fill(model.phase == .racing ? Color.go : Color.curb).frame(width: Space.s20, height: Space.s20)
         }
-        .padding(Space.s12)
-        .background(Color.tarmac, in: Capsule())
-        .padding(.top, Space.s24)
+        .padding(Space.s8)
+        .background(Color.tarmac, in: RoundedRectangle(cornerRadius: Radius.r12, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: Radius.r12, style: .continuous).strokeBorder(Color.seam, lineWidth: Size.Marker.innerStroke))
+        .padding(.top, Space.s8)
         .accessibilityElement()
         .accessibilityLabel(Text("Tree", bundle: .module))
         .accessibilityValue(treeValue)
@@ -524,7 +547,7 @@ struct RunView: View {
                 Text(verbatim: "\(model.me.gear + 1)").typeStyle(.readoutL).foregroundStyle(Color.chalk)
             }
             .frame(width: Size.row * 2, height: Size.row * 2)
-            Circle().fill(frac > 0.95 ? Color.brake : Color.curb).frame(width: Space.s12, height: Space.s12)
+            Circle().fill(frac > 0.95 ? Color.brake : Color.curb).frame(width: Space.s20, height: Space.s20)
         }
         .accessibilityElement()
         .accessibilityLabel(Text("Gear \(model.me.gear + 1)", bundle: .module))
@@ -543,18 +566,22 @@ struct TimeSlip: View {
     var body: some View {
         ScrollView {
             VStack(spacing: Space.s16) {
-                slip
-                if let image = ImageRenderer(content: slip.frame(width: Size.row * 6)).uiImage {
-                    ShareLink(item: Image(uiImage: image), preview: SharePreview("Virtual run · Waypoints", image: Image(uiImage: image))) {
-                        Text("Share", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
-                    }
-                }
+                slip.frame(maxWidth: Size.row * 6)
                 if model.won, let rung = model.houseRung {
-                    Text(verbatim: rung + 1 < Ladder.cars.count ? "House car \(rung + 2) is open." : "That was the top of the ladder.")
+                    (rung + 1 < Ladder.cars.count ? Text("House car \(rung + 2) is open.", bundle: .module)
+                     : Text("That was the top of the ladder.", bundle: .module))
                         .typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 PrimaryButton("Run again", action: again)
                 SecondaryButton("Change opponent", action: close)
+                if let image = ImageRenderer(content: slip.frame(width: Size.row * 6)).uiImage {
+                    ShareLink(item: Image(uiImage: image), preview: SharePreview("Virtual run · Waypoints", image: Image(uiImage: image))) {
+                        Text("Share", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
+                            .frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget)
+                            .contentShape(Rectangle())
+                    }
+                }
             }
             .padding(Space.margin)
         }
@@ -568,14 +595,18 @@ struct TimeSlip: View {
         return VStack(alignment: .leading, spacing: Space.s4) {
             Text("VIRTUAL RUN · WAYPOINTS", bundle: .module).typeStyle(.readoutS)
             Text(verbatim: model.car.fullLabel).typeStyle(.readoutM)
-            line("", "YOU", "OPP")
-            line("R/T", red ? "RED" : String(format: "%.3f", Double(a.reactionMs) / 1000), String(format: "%.3f", Double(b.reactionMs) / 1000))
+            rule
+            line("", String(localized: "YOU", bundle: .module), String(localized: "OPP", bundle: .module))
+            line("R/T", red ? String(localized: "RED", bundle: .module) : String(format: "%.3f", Double(a.reactionMs) / 1000),
+                 String(format: "%.3f", Double(b.reactionMs) / 1000))
             line("60 FT", String(format: "%.3f", a.sixtyFt), String(format: "%.3f", b.sixtyFt))
             line("⅛ ET", String(format: "%.3f", a.eighthET), String(format: "%.3f", b.eighthET))
             line("⅛ MPH", String(format: "%.2f", a.eighthMph), String(format: "%.2f", b.eighthMph))
             line("¼ ET", String(format: "%.3f", a.quarterET), String(format: "%.3f", b.quarterET))
             line("¼ MPH", String(format: "%.2f", a.quarterMph), String(format: "%.2f", b.quarterMph))
-            Text(red ? "RED LIGHT" : (won ? "WIN · YOU" : "WIN · OPPONENT")).typeStyle(.readoutM).padding(.top, Space.s8)
+            rule
+            (red ? Text("RED LIGHT", bundle: .module) : won ? Text("WIN · YOU", bundle: .module) : Text("WIN · OPPONENT", bundle: .module))
+                .typeStyle(.readoutM)
         }
         .foregroundStyle(Color.asphalt)
         .padding(Space.s16)
@@ -583,13 +614,30 @@ struct TimeSlip: View {
         .background(Color.chalk)
     }
 
+    /// The dashed rule a slip printer draws between blocks.
+    private var rule: some View {
+        Rectangle().fill(.clear).frame(height: Size.Chart.stock)
+            .overlay {
+                GeometryReader { geo in
+                    Path { p in
+                        p.move(to: CGPoint(x: 0, y: geo.size.height / 2))
+                        p.addLine(to: CGPoint(x: geo.size.width, y: geo.size.height / 2))
+                    }
+                    .stroke(Color.asphalt, style: StrokeStyle(lineWidth: Size.Chart.stock, dash: Size.Chart.stockDash))
+                }
+            }
+            .padding(.vertical, Space.s4)
+            .accessibilityHidden(true)
+    }
+
     private func line(_ k: String, _ a: String, _ b: String) -> some View {
-        HStack {
+        HStack(spacing: Space.s8) {
             Text(verbatim: k).frame(width: Size.row + Space.s16, alignment: .leading)
             Text(verbatim: a).frame(maxWidth: .infinity, alignment: .trailing)
             Text(verbatim: b).frame(maxWidth: .infinity, alignment: .trailing)
         }
         .typeStyle(.readoutM)
+        .lineLimit(1)
     }
 }
 

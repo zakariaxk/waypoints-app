@@ -22,7 +22,8 @@ struct HouseCar: Hashable, Identifiable {
         }
         let boost = spec.aspiration == .turbo ? " turbo" : spec.aspiration == .supercharged ? " supercharged" : ""
         let weight = Measurement(value: Double(Int(spec.weightLb)), unit: UnitMass.pounds)
-            .formatted(.measurement(width: .abbreviated, usage: .general, numberFormatStyle: .number.precision(.fractionLength(0))))
+            .converted(to: Locale.current.measurementSystem == .metric ? .kilograms : .pounds)
+            .formatted(.measurement(width: .abbreviated, usage: .asProvided, numberFormatStyle: .number.precision(.fractionLength(0))))
         return "\(Int(spec.hpCrank)) hp\(boost), \(weight), \(drive) \(spec.automatic ? "automatic" : "manual")"
     }
 }

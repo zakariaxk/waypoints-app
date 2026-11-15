@@ -16,7 +16,8 @@ enum GarageUnits {
     /// "3,705 lb" or "1,681 kg".
     static func weight(lb: Int) -> String {
         Measurement(value: Double(lb), unit: UnitMass.pounds)
-            .formatted(.measurement(width: .abbreviated, usage: .general, numberFormatStyle: .number.precision(.fractionLength(0))))
+            .converted(to: Locale.current.measurementSystem == .metric ? .kilograms : .pounds)
+            .formatted(.measurement(width: .abbreviated, usage: .asProvided, numberFormatStyle: .number.precision(.fractionLength(0))))
     }
 
     /// The odometer unit a new service entry starts in: miles where the locale drives in miles.
