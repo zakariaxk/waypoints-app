@@ -34,6 +34,7 @@ struct LaunchOptions: Sendable {
 
 @MainActor
 enum LaunchActions {
+    #if DEBUG
     /// The development password every seed user has (supabase/seed.sql, README).
     static let devPassword = "waypoints-dev"
 
@@ -53,6 +54,7 @@ enum LaunchActions {
         "nick_evo": "nick.ferraro@waypoints.test",
         "deals4wheels": "deals.wheels@waypoints.test",
     ]
+    #endif
 
     static func run(shell: ShellModel) async {
         let options = LaunchOptions.current
@@ -60,14 +62,12 @@ enum LaunchActions {
         if let handle = options.login {
             await login(handle, env: shell.environment, preview: options.preview)
         }
-        #endif
         if let url = options.open {
             _ = await shell.waitUntilSignedIn()
             // Let the tab roots appear so a pushed route has a stack to land on.
             try? await Task.sleep(for: .milliseconds(300))
             shell.open(url: url)
         }
-        #if DEBUG
         if options.smoke {
             if await shell.waitUntilSignedIn() {
                 await SmokeRunner.run(env: shell.environment)

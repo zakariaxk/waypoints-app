@@ -6,5 +6,11 @@
 	<array>
 		<string>applinks:$(LINK_HOST)</string>
 	</array>
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
+	<key>aps-environment</key>
+	<string>development</string>
 </dict>
 </plist>

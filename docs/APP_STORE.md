@@ -89,11 +89,11 @@ Paste into App Review Information, Notes.
 
 **Marketplace.** No payments, checkout, shipping, or fees. Every listing says "Meet in a public place. Waypoints doesn't handle payment."
 
-**Account deletion.** Settings, Account, Delete account.
+**Account deletion.** Settings, Account, Delete account. It removes the sign-in account, every row it owns, and every photo and video it uploaded, then signs out.
 
 **Background modes.** `location` (the opt-in sharing above and turn-by-turn navigation), `audio` (voice channels and navigation prompts continue in the background), `remote-notification` (meet changes and messages).
 
-**Sign in and demo account.** Sign in with Apple works with the reviewer's own Apple ID. For email sign-in, use the demo account below: it is a one-time code sent by email, so the notes include the webmail login for the demo mailbox. The demo account is a member of a team with seeded friends, a car with a build log, a meet, and a listing, so every screen has content. To see two people on the map, sign in on a second device with Sign in with Apple and add the demo user (handle below) as a friend.
+**Sign in and demo account.** Sign in with Apple works with the reviewer's own Apple ID (the app ships the Sign in with Apple entitlement). For email sign-in, use the demo account below: it signs in with a one-time code sent by email, so the notes include the webmail login for the demo mailbox. Demo account steps: on the sign-in screen tap "Continue with email", enter the demo email, tap "Send code", open the mailbox below, and enter the 6-digit code. The account is already onboarded — handle `appreview`, a car with a build log, friends, a meet, and a listing — so every signed-in screen has content. To see two people on the map, sign in on a second device with Sign in with Apple and add the demo user as a friend.
 
 ```
 Email: appreview@<LINK_HOST>
@@ -166,6 +166,17 @@ No system boot time, disk space, or active keyboard APIs are called by app code.
 
 `ITSAppUsesNonExemptEncryption` is `false` in `Info.plist`. The app uses only encryption provided by the operating system (HTTPS, TLS WebSockets) and the standard WebRTC DTLS-SRTP in LiveKit for voice, which is exempt. No proprietary cryptography. Answer "No" to "Does your app use encryption beyond exempt" and no export documentation is needed.
 
+## Pre-submission checklist
+
+| Guideline | Check | Where it is covered |
+|---|---|---|
+| 1.2 User-Generated Content | Terms accepted before content (X2 gate), text filter on user text, report on every UGC surface, block in both directions, reports reviewed within 24 h via `supabase/moderation.sql`, contact support@waypoints.app in About and the suspension message. | Review notes above; SAFE-1 to SAFE-8. |
+| 2.1 App Completeness | No placeholder or dead controls in release paths; debug UI (`-wp-*` arguments, `waypoints://debug/`, design gallery, MetricKit screen, reference cars) is `#if DEBUG` only; demo account and these notes provided. | `ios/App`, `ios/Packages/WaypointsKit/Sources`. |
+| 4.2 Minimum Functionality | Native SwiftUI/MapKit app using location, camera, microphone, push, and background modes for real features; no web views. | Whole app. |
+| 4.8 Login Services | Sign in with Apple is offered next to email; its nonce is generated and verified; the Apple entitlement is in both entitlements files. | `OnboardingFeature`, `Waypoints.entitlements`. |
+| 5.1.1(v) Account Deletion | In-app deletion removes the auth user, all owned rows, and all uploaded media. | Settings, Account; `delete_account` RPC. |
+| 5.1.2 Data Use and Sharing | Privacy manifest, nutrition label, and purpose strings match the data the schema stores; no tracking, no third-party analytics. | `PrivacyInfo.xcprivacy`, "App Privacy" above. |
+
 ## Release build
 
-`make archive` writes a Release archive to `.build/Waypoints.xcarchive`. `ios/App/Config.xcconfig` must point at the hosted Supabase project and gateway (PRD 9.1) and set `LINK_HOST` before archiving. Upload with Xcode Organizer, or `xcodebuild -exportArchive` with an App Store Connect export options plist.
+`make archive` writes a Release archive to `.build/Waypoints.xcarchive` with `App/Waypoints.Release.entitlements` (`aps-environment` production, Sign in with Apple, associated domains). `ios/App/Config.xcconfig` must point at the hosted Supabase project and gateway (PRD 9.1) and set `LINK_HOST` before archiving. Upload with Xcode Organizer, or `xcodebuild -exportArchive` with an App Store Connect export options plist.

@@ -171,12 +171,20 @@ actor LiveAuth: AuthService {
 
     func deleteAccount() async throws {
         let me = try ctx.me()
-        // Best effort: remove the user's media first; database rows cascade from auth.users.
+        // Media first: storage objects have no cascade from auth.users, and the buckets are
+        // public, so an orphaned file would stay readable with no owner able to delete it.
+        // A failure here aborts the deletion; the user can retry.
         for bucket in MediaBucket.allCases where bucket != .catalog {
             let api = ctx.client.storage.from(bucket.rawValue)
-            // `list` returns 100 names at a time.
-            while let files = try? await api.list(path: me.key), !files.isEmpty,
-                  let removed = try? await api.remove(paths: files.map { "\(me.key)/\($0.name)" }), !removed.isEmpty {}
+            // `list` returns 100 names at a time; folders (id == nil) cannot be removed and
+            // are skipped — uploads are flat "<uid>/<file>" paths.
+            while true {
+                let files = try await ctx.run { try await api.list(path: me.key) }
+                guard !files.isEmpty else { break }
+                let names = files.filter { $0.id != nil }.map { "\(me.key)/\($0.name)" }
+                guard !names.isEmpty else { break }
+                _ = try await ctx.run { try await api.remove(paths: names) }
+            }
         }
         try await Self.deleteAccountRow(ctx: ctx)
         DeviceTokenStore.clear()

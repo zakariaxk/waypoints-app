@@ -66,9 +66,14 @@ struct TabShell: View {
         }
         .background {
             // Its own host view, so it does not compete with the route sheet above.
+            // Debug builds only: `waypoints://debug/<screen>` sheets (PRD 7.1).
+            #if DEBUG
             Color.clear.sheet(item: $router.debugScreen) { presented in
                 registry.debugScreens[presented.name]?() ?? AnyView(EmptyView())
             }
+            #else
+            Color.clear
+            #endif
         }
     }
 }
