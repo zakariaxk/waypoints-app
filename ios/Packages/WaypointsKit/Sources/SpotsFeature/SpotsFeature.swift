@@ -99,6 +99,7 @@ struct SpotFlow: View {
     @State private var pickLibrary = false
     @State private var picking = false
     @State private var saving = false
+    @State private var detecting = false
     @State private var picked: PickedModel?
     @State private var result: String?
     @State private var shot: UIImage?
@@ -171,9 +172,9 @@ struct SpotFlow: View {
                             Spacer()
                             QuietButton("Change") { picking = true }
                         }
-                        PrimaryButton("Add to collection", isLoading: saving) { save(picked) }
+                        PrimaryButton("Add to collection", isLoading: saving || detecting) { save(picked) }
                     } else {
-                        PrimaryButton("What is it?") { picking = true }
+                        PrimaryButton("What is it?", isLoading: detecting) { if !detecting { picking = true } }
                     }
                 } else {
                     Spacer()
@@ -206,7 +207,14 @@ struct SpotFlow: View {
             }
         }
         .onChange(of: item) {
-            Task { if let d = try? await item?.loadTransferable(type: Data.self), let ui = UIImage(data: d) { use(ui) } }
+            guard let item else { return }
+            Task {
+                if let d = try? await item.loadTransferable(type: Data.self), let ui = UIImage(data: d) {
+                    use(ui)
+                } else {
+                    error = String(localized: "Couldn't load that photo. Try another one.", bundle: .module)
+                }
+            }
         }
     }
 
@@ -220,14 +228,25 @@ struct SpotFlow: View {
         image = upright
         boxes = []
         picked = nil
-        Task { if let cg = upright.cgImage { boxes = await PlateBlur.detect(cg) } }
+        error = nil
+        detecting = true
+        Task {
+            var found: [BlurBox] = []
+            if let cg = upright.cgImage { found = await PlateBlur.detect(cg) }
+            guard image === upright else { return }
+            boxes += found
+            detecting = false
+        }
     }
 
     private func save(_ picked: PickedModel) {
         let make = picked.make, model = picked.model, modelID = picked.id, year = picked.year
-        guard let image else { return }
+        guard let image, !saving, !detecting else { return }
         let blurred = PlateBlur.apply(boxes, to: image)
-        guard let data = blurred.jpegData(compressionQuality: 0.85) else { return }
+        guard boxes.isEmpty || blurred !== image, let data = blurred.jpegData(compressionQuality: 0.85) else {
+            error = String(localized: "Couldn't blur the photo. Try again.", bundle: .module)
+            return
+        }
         saving = true
         error = nil
         Task {
@@ -237,10 +256,10 @@ struct SpotFlow: View {
                 let media = try await env.media.upload(data, contentType: "image/jpeg", to: .spots) { _ in }
                 _ = try await env.spots.addSpot(Spot(spotterID: me, catalogModelID: modelID, year: year, make: make, model: model,
                                                      photoPath: media.path, city: city))
-                let n = ((try? await env.spots.spots(by: me)) ?? []).filter { $0.catalogModelID == modelID }.count
+                let n = max(1, ((try? await env.spots.spots(by: me)) ?? []).filter { $0.catalogModelID == modelID }.count)
                 let ordinal = NumberFormatter.localizedString(from: NSNumber(value: n), number: .ordinal)
                 shot = blurred
-                withMotion(.win, reduceMotion: reduceMotion) { result = "\(make) \(model) · \(ordinal) spotted" }
+                withMotion(.win, reduceMotion: reduceMotion) { result = String(localized: "\(make) \(model) · \(ordinal) spotted", bundle: .module) }
             } catch {
                 // SAFE-9: the server's abuse limits get their own line.
                 self.error = (error as? WaypointsError) == .rateLimited
@@ -256,7 +275,7 @@ struct SpotFlow: View {
         let manager = CLLocationManager()
         guard let loc = manager.location else { return "" }
         return await withCheckedContinuation { c in
-            CLGeocoder().reverseGeocodeLocation(loc) { marks, _ in c.resume(returning: marks?.first?.locality ?? "") }
+            CLGeocoder().reverseGeocodeLocation(loc) { @Sendable marks, _ in c.resume(returning: marks?.first?.locality ?? "") }
         }
     }
 }

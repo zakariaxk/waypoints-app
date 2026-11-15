@@ -27,6 +27,7 @@ public enum FeedFeature: FeatureModule {
 final class PlayerPool {
     private var players: [Int: AVPlayer] = [:]
     private var looper: [Int: NSObjectProtocol] = [:]
+    private var active: Int?
     /// Unmuting once holds for the rest of the session, across modes and pools (FEED-1).
     private static var sessionMuted = true
     var muted = true {
@@ -48,6 +49,7 @@ final class PlayerPool {
         p.isMuted = muted
         loop(index, item: item, player: p)
         players[index] = p
+        if index == active { p.play() }
         return p
     }
 
@@ -68,16 +70,24 @@ final class PlayerPool {
     }
 
     private func loop(_ index: Int, item: AVPlayerItem, player p: AVPlayer) {
-        looper[index] = NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: item, queue: .main) { _ in
-            MainActor.assumeIsolated { p.seek(to: .zero); p.play() }
+        looper[index] = NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: item, queue: .main) { [weak p] _ in
+            MainActor.assumeIsolated { p?.seek(to: .zero); p?.play() }
         }
     }
 
     func play(_ index: Int) {
+        active = index
         for (k, p) in players { if k == index { p.play() } else { p.pause() } }
     }
 
-    func pauseAll() { players.values.forEach { $0.pause() } }
+    func pauseAll() { active = nil; players.values.forEach { $0.pause() } }
+
+    func reset() {
+        players.values.forEach { $0.pause() }
+        looper.values.forEach { NotificationCenter.default.removeObserver($0) }
+        players = [:]
+        looper = [:]
+    }
 }
 
 struct PlayerLayerView: UIViewRepresentable {
@@ -118,6 +128,7 @@ final class FeedModel {
     var failed = false
     var offline = false
     var exhausted = false
+    var loaded = false
     var me: UserID?
     /// Following reads `follows`; For you reads `feed_for_you` (FEED-2).
     let followingOnly: Bool
@@ -158,9 +169,11 @@ final class FeedModel {
             for a in missing where following[a] == nil { following[a] = (try? await env.posts.isFollowing(a)) ?? false }
             for id in page.items.compactMap(\.carID) where cars[id] == nil { cars[id] = try? await env.garage.car(id) }
             for id in page.items.compactMap(\.meetID) where meets[id] == nil { meets[id] = try? await env.meets.meet(id) }
+        } catch is CancellationError {
         } catch {
             if case WaypointsError.offline = error { offline = true } else { failed = true }
         }
+        loaded = true
         loading = false
     }
 
@@ -169,12 +182,22 @@ final class FeedModel {
         posts[i].likedByMe.toggle()
         posts[i].likeCount += posts[i].likedByMe ? 1 : -1
         let liked = posts[i].likedByMe
-        Task { if liked { try? await env.posts.like(post.id) } else { try? await env.posts.unlike(post.id) } }
+        Task {
+            do {
+                if liked { try await env.posts.like(post.id) } else { try await env.posts.unlike(post.id) }
+            } catch {
+                guard let i = posts.firstIndex(where: { $0.id == post.id }), posts[i].likedByMe == liked else { return }
+                posts[i].likedByMe = !liked
+                posts[i].likeCount += liked ? -1 : 1
+            }
+        }
     }
 
     func follow(_ user: UserID) {
         following[user] = true
-        Task { try? await env.posts.follow(user) }
+        Task {
+            do { try await env.posts.follow(user) } catch { following[user] = false }
+        }
     }
 
     func hide(_ post: Post) { posts.removeAll { $0.id == post.id } }
@@ -209,17 +232,27 @@ struct FeedHome: View {
                 Pager(model: model, followingOnly: mode == "following", switchToForYou: { mode = "foryou" }, post: { posting = true })
                     .id(mode)
             }
-            HStack {
-                Spacer()
-                SegmentedSwitch(selection: $mode, options: options).frame(maxWidth: Size.row * 5.5)
-                Spacer()
+            HStack(spacing: 0) {
+                Spacer(minLength: 0)
+                SegmentedSwitch(selection: $mode, options: options).fixedSize()
+                Spacer(minLength: 0)
+                IconButton(Symbol.add, label: "Post", style: .overMap) { posting = true }
             }
-            .overlay(alignment: .trailing) {
-                IconButton(Symbol.add, label: "Post", style: .overMap) { posting = true }.padding(.trailing, Space.s12)
-            }
+            .padding(.horizontal, Space.s12)
             .padding(.top, Space.s8)
             if uploader.progress != nil {
                 ProgressView(value: uploader.progress ?? 0).tint(.sodium).padding(.top, Size.row).padding(.horizontal, Space.margin)
+            } else if let retry = uploader.retry {
+                HStack(spacing: Space.s8) {
+                    Text("Couldn't post.", bundle: .module).typeStyle(.body).foregroundStyle(Color.chalk)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    QuietButton("Try again") { retry() }
+                    QuietButton("Discard") { uploader.retry = nil }
+                }
+                .padding(.horizontal, Space.s16)
+                .background(Color.tarmac, in: RoundedRectangle(cornerRadius: Radius.r12))
+                .padding(.top, Size.row + Space.s8)
+                .padding(.horizontal, Space.margin)
             }
         }
         .background(Color.asphalt.ignoresSafeArea())
@@ -239,12 +272,15 @@ struct Pager: View {
     @State private var current: Int? = 0
     @State private var commentsFor: Post?
     @State private var overflow: Post?
+    @State private var toast: ToastMessage?
 
     private var posts: [Post] { model.posts }
 
     var body: some View {
         Group {
-            if posts.isEmpty && !model.loading {
+            if posts.isEmpty && (model.loading || !model.loaded) {
+                SkeletonBlock(height: Size.row * 8).padding(Space.margin).padding(.top, Size.row)
+            } else if posts.isEmpty {
                 VStack {
                     Spacer()
                     if model.failed || model.offline {
@@ -286,13 +322,36 @@ struct Pager: View {
             }
         }
         .connectionBanner(model.offline ? .offline : nil)
+        .toast($toast)
         .sheet(item: $commentsFor) { p in Comments(env: model.env, post: p) }
         .confirmationDialog("", isPresented: Binding(get: { overflow != nil }, set: { if !$0 { overflow = nil } })) {
             if let p = overflow {
-                Button("Not interested") { model.hide(p) }
-                Button("Report") { model.env.router.open(.reportContent(ContentRef(kind: .post, id: p.id.description))) }
-                if p.authorID != model.me {
-                    Button("Block", role: .destructive) { Task { try? await model.env.safety.block(p.authorID); model.hide(p) } }
+                if p.authorID == model.me {
+                    Button("Delete", role: .destructive) {
+                        Task {
+                            do {
+                                try await model.env.posts.deletePost(p.id)
+                                pool.reset()
+                                model.hide(p)
+                            } catch {
+                                toast = ToastMessage(Text("Couldn't delete it. Check your connection and try again.", bundle: .module))
+                            }
+                        }
+                    }
+                } else {
+                    Button("Not interested") { pool.reset(); model.hide(p) }
+                    Button("Report") { model.env.router.open(.reportContent(ContentRef(kind: .post, id: p.id.description))) }
+                    Button("Block", role: .destructive) {
+                        Task {
+                            do {
+                                try await model.env.safety.block(p.authorID)
+                                pool.reset()
+                                model.posts.removeAll { $0.authorID == p.authorID }
+                            } catch {
+                                toast = ToastMessage(Text("Couldn't block them. Check your connection and try again.", bundle: .module))
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -336,7 +395,7 @@ struct VideoPage: View {
                         Task { try? await Task.sleep(for: .seconds(Timing.likeHeart)); heart = nil }
                     }
                     .onTapGesture {
-                        paused.toggle()
+                        paused = player.rate != 0
                         if paused { player.pause() } else { player.play() }
                         pool.muted = false
                     }
@@ -346,7 +405,7 @@ struct VideoPage: View {
                     .accessibilityValue(paused ? Text("Paused", bundle: .module) : Text("Playing", bundle: .module))
                     .accessibilityAddTraits([.isButton, .startsMediaSession])
                     .accessibilityAction {
-                        paused.toggle()
+                        paused = player.rate != 0
                         if paused { player.pause() } else { player.play() }
                         pool.muted = false
                     }
@@ -496,6 +555,10 @@ struct SinglePost: View {
     @State private var model: FeedModel
     @State private var pool = PlayerPool()
     @State private var comments: Post?
+    @State private var overflow = false
+    @State private var failed = false
+    @State private var toast: ToastMessage?
+    @Environment(\.dismiss) private var dismiss
 
     init(env: AppEnvironment, postID: PostID) {
         self.env = env; self.postID = postID
@@ -507,25 +570,59 @@ struct SinglePost: View {
             if let p = model.posts.first, let path = p.videoPath {
                 let url = env.media.publicURL(bucket: .posts, path: path)
                 VideoPage(model: model, post: p, player: pool.player(for: 0, url: url),
-                          pool: pool, comments: { comments = p }, overflow: {}, retry: { pool.retry(0, url: url) })
+                          pool: pool, comments: { comments = p }, overflow: { overflow = true }, retry: { pool.retry(0, url: url) })
                     .onAppear { pool.play(0) }
                     .onDisappear { pool.pauseAll() }
             } else if let p = model.posts.first {
-                PhotoPage(model: model, post: p, comments: { comments = p }, overflow: {})
+                PhotoPage(model: model, post: p, comments: { comments = p }, overflow: { overflow = true })
+            } else if failed {
+                ErrorState(Text("Couldn't load this post.", bundle: .module)) { Task { await load() } }
             } else {
                 SkeletonBlock(height: Size.row * 8)
             }
         }
         .background(Color.asphalt.ignoresSafeArea())
+        .toast($toast)
         .sheet(item: $comments) { Comments(env: env, post: $0) }
-        .task {
-            if let p = try? await env.posts.post(postID) {
-                model.posts = [p]
-                if let a = try? await env.profiles.profile(p.authorID) { model.authors[a.userID] = a }
-                if let id = p.carID { model.cars[id] = try? await env.garage.car(id) }
-                if let id = p.meetID { model.meets[id] = try? await env.meets.meet(id) }
+        .confirmationDialog("", isPresented: $overflow) {
+            if let p = model.posts.first {
+                if p.authorID == model.me {
+                    Button("Delete", role: .destructive) {
+                        Task {
+                            do {
+                                try await env.posts.deletePost(p.id)
+                                dismiss()
+                            } catch {
+                                toast = ToastMessage(Text("Couldn't delete it. Check your connection and try again.", bundle: .module))
+                            }
+                        }
+                    }
+                } else {
+                    Button("Report") { env.router.open(.reportContent(ContentRef(kind: .post, id: p.id.description))) }
+                    Button("Block", role: .destructive) {
+                        Task {
+                            do {
+                                try await env.safety.block(p.authorID)
+                                dismiss()
+                            } catch {
+                                toast = ToastMessage(Text("Couldn't block them. Check your connection and try again.", bundle: .module))
+                            }
+                        }
+                    }
+                }
             }
         }
+        .task { await load() }
+    }
+
+    private func load() async {
+        failed = false
+        model.me = await env.auth.currentSession()?.userID
+        guard let p = try? await env.posts.post(postID) else { failed = true; return }
+        model.posts = [p]
+        if let a = try? await env.profiles.profile(p.authorID) { model.authors[a.userID] = a }
+        if let id = p.carID { model.cars[id] = try? await env.garage.car(id) }
+        if let id = p.meetID { model.meets[id] = try? await env.meets.meet(id) }
     }
 }
 
@@ -539,25 +636,48 @@ struct Comments: View {
     @State private var draft = ""
     @State private var me: UserID?
     @State private var error: String?
+    @State private var loaded = false
+    @State private var sending = false
 
     var body: some View {
         Sheet(Text("Comments", bundle: .module)) {
             VStack(spacing: 0) {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
-                        if comments.isEmpty { Text("No comments yet.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin) }
+                        if !loaded {
+                            SkeletonRow()
+                        } else if comments.isEmpty { Text("No comments yet.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin) }
                         ForEach(comments) { c in
                             let a = authors[c.authorID]
                             Row(Text(verbatim: "@\(a?.handle ?? "")  \(c.body)"),
                                 subtitle: Text(verbatim: c.createdAt.formatted(.relative(presentation: .numeric))),
                                 leading: { Avatar(name: a?.displayName ?? "", size: .s28) })
                                 .contextMenu {
+                                    if c.authorID != me {
+                                        Button("Report") { env.router.open(.reportContent(ContentRef(kind: .comment, id: c.id.description))) }
+                                        Button("Block", role: .destructive) {
+                                            Task {
+                                                do {
+                                                    try await env.safety.block(c.authorID)
+                                                    comments.removeAll { $0.authorID == c.authorID }
+                                                } catch {
+                                                    self.error = String(localized: "Couldn't block them. Check your connection and try again.", bundle: .module)
+                                                }
+                                            }
+                                        }
+                                    }
                                     if c.authorID == me || post.authorID == me {
                                         Button("Delete", role: .destructive) {
-                                            Task { try? await env.posts.deleteComment(c.id); await load() }
+                                            Task {
+                                                do {
+                                                    try await env.posts.deleteComment(c.id)
+                                                    error = nil
+                                                } catch {
+                                                    self.error = String(localized: "Couldn't delete that comment. Try again.", bundle: .module)
+                                                }
+                                                await load()
+                                            }
                                         }
-                                    } else {
-                                        Button("Report") { env.router.open(.reportContent(ContentRef(kind: .comment, id: c.id.description))) }
                                     }
                                 }
                         }
@@ -568,8 +688,14 @@ struct Comments: View {
                     Field("Comment", text: $draft, prompt: "Add a comment", limit: 300)
                     IconButton(Symbol.send, label: "Send") {
                         let text = draft
+                        guard !sending else { return }
+                        sending = true
                         Task {
-                            if case .blocked = await env.safety.check(text) { error = "That comment can't be posted."; return }
+                            defer { sending = false }
+                            if case .blocked = await env.safety.check(text) {
+                                error = String(localized: "That comment can't be posted.", bundle: .module)
+                                return
+                            }
                             do {
                                 _ = try await env.posts.addComment(text, to: post.id)
                                 draft = ""
@@ -582,7 +708,7 @@ struct Comments: View {
                             await load()
                         }
                     }
-                    .disabled(draft.isEmpty)
+                    .disabled(draft.isEmpty || sending)
                 }
                 .padding(Space.s12)
             }
@@ -592,7 +718,12 @@ struct Comments: View {
     }
 
     private func load() async {
-        comments = (try? await env.posts.comments(on: post.id)) ?? []
+        if let list = try? await env.posts.comments(on: post.id) {
+            comments = list
+        } else if error == nil {
+            error = String(localized: "Couldn't load comments. Check your connection and try again.", bundle: .module)
+        }
+        loaded = true
         for p in (try? await env.profiles.profiles(Array(Set(comments.map(\.authorID))))) ?? [] { authors[p.userID] = p }
     }
 }
@@ -606,12 +737,14 @@ final class Uploader {
     let env: AppEnvironment
     var progress: Double?
     var toast: ToastMessage?
+    var retry: (@MainActor () -> Void)?
 
     init(env: AppEnvironment) { self.env = env }
 
     /// FEED-11: photos upload in order; the first is also the poster.
     func post(photos: [Data], caption: String, car: CarID?, meet: MeetID?) {
         progress = 0
+        retry = nil
         Task {
             do {
                 var paths: [String] = []
@@ -629,6 +762,7 @@ final class Uploader {
             } catch WaypointsError.rateLimited {
                 toast = ToastMessage(Text(FeedCopy.rateLimited))
             } catch {
+                retry = { [weak self] in self?.post(photos: photos, caption: caption, car: car, meet: meet) }
                 toast = ToastMessage(Text("Couldn't post. Check your connection and try again.", bundle: .module))
             }
             progress = nil
@@ -637,10 +771,12 @@ final class Uploader {
 
     func post(video: URL, poster: Data, caption: String, car: CarID?, meet: MeetID?, duration: Double) {
         progress = 0
+        retry = nil
         Task {
             do {
                 let exported = try await Self.export(video)
                 let data = try Data(contentsOf: exported.url)
+                try? FileManager.default.removeItem(at: exported.url)
                 let seconds = max(0.001, min(duration, exported.duration))
                 let posterMedia = try await env.media.upload(poster, contentType: "image/jpeg", to: .posts) { _ in }
                 let videoMedia = try await env.media.upload(data, contentType: "video/mp4", to: .posts) { p in
@@ -656,6 +792,7 @@ final class Uploader {
                 let drafts = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appending(path: "drafts")
                 try? FileManager.default.createDirectory(at: drafts, withIntermediateDirectories: true)
                 try? FileManager.default.copyItem(at: video, to: drafts.appending(path: video.lastPathComponent))
+                retry = { [weak self] in self?.post(video: video, poster: poster, caption: caption, car: car, meet: meet, duration: duration) }
                 toast = ToastMessage(Text("Couldn't post. Saved as a draft.", bundle: .module))
             }
             progress = nil
@@ -733,12 +870,16 @@ struct PostVideo: View {
     @State private var car: CarID?
     @State private var meets: [Meet] = []
     @State private var meet: MeetID?
+    @State private var loadingMedia = false
+    @State private var error: String?
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: Space.s16) {
-                    if !photos.isEmpty {
+                    if loadingMedia {
+                        SkeletonBlock(height: Size.row * 3.5, cornerRadius: Radius.r12)
+                    } else if !photos.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: Space.s8) {
                                 ForEach(Array(photos.enumerated()), id: \.offset) { _, image in
@@ -753,12 +894,17 @@ struct PostVideo: View {
                         Image(uiImage: poster).resizable().aspectRatio(9.0 / 16.0, contentMode: .fit)
                             .frame(maxHeight: Size.row * 6).clipShape(RoundedRectangle(cornerRadius: Radius.r12))
                         Text("Cover frame", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
-                        Slider(value: $cover, in: 0...max(duration, 0.1)).tint(.sodium)
+                        Slider(value: $cover, in: 0...max(min(duration, 30), 0.1)).tint(.sodium)
                             .onChange(of: cover) { Task { await makePoster() } }
+                        if duration > 30 {
+                            Text("Only the first 30 seconds are posted.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
+                        }
+                        SecondaryButton("Choose a video") { pick = true }
                     } else {
                         SecondaryButton("Choose a video") { pick = true }
                         SecondaryButton("Choose photos") { pickPhotos = true }
                     }
+                    if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                     Field("Caption", text: $caption, limit: 150, axis: .vertical)
                     Menu {
                         Button("No car") { car = nil }
@@ -789,7 +935,7 @@ struct PostVideo: View {
                         uploader.post(video: video, poster: data, caption: caption, car: car, meet: meet, duration: min(duration, 30))
                         dismiss()
                     }
-                    .disabled(video == nil && photos.isEmpty)
+                    .disabled(loadingMedia || ((video == nil || poster == nil) && photos.isEmpty))
                 }
                 .padding(Space.margin)
             }
@@ -802,22 +948,37 @@ struct PostVideo: View {
                           selectionBehavior: .ordered, matching: .images)
         }
         .onChange(of: item) {
+            guard let item else { return }
             Task {
-                guard let file = try? await item?.loadTransferable(type: VideoFile.self) else { return }
+                loadingMedia = true
+                defer { loadingMedia = false }
+                guard let file = try? await item.loadTransferable(type: VideoFile.self) else {
+                    error = String(localized: "Couldn't load that video. Try another one.", bundle: .module)
+                    return
+                }
+                error = nil
                 photos = []
                 photoItems = []
                 video = file.url
+                cover = 0
                 duration = (try? await AVURLAsset(url: file.url).load(.duration).seconds) ?? 0
                 await makePoster()
             }
         }
         .onChange(of: photoItems) {
+            guard !photoItems.isEmpty else { return }
             Task {
+                loadingMedia = true
+                defer { loadingMedia = false }
                 var loaded: [UIImage] = []
                 for it in photoItems.prefix(Post.maxPhotos) {
                     if let data = try? await it.loadTransferable(type: Data.self), let image = UIImage(data: data) { loaded.append(image) }
                 }
-                guard !loaded.isEmpty else { return }
+                guard !loaded.isEmpty else {
+                    error = String(localized: "Couldn't load those photos. Try others.", bundle: .module)
+                    return
+                }
+                error = nil
                 photos = loaded
                 video = nil
                 poster = nil

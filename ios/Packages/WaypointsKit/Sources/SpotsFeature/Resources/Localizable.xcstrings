@@ -1,6 +1,9 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ %@ · %@ spotted": {
+      "extractionState": "manual"
+    },
     "Add to collection": {
       "extractionState": "manual"
     },
@@ -20,6 +23,12 @@
       "extractionState": "manual"
     },
     "Couldn't add it. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't blur the photo. Try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load that photo. Try another one.": {
       "extractionState": "manual"
     },
     "Done": {

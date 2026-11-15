@@ -28,13 +28,37 @@
     "Comments": {
       "extractionState": "manual"
     },
+    "Couldn't block them. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't delete it. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't delete that comment. Try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load comments. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load that video. Try another one.": {
+      "extractionState": "manual"
+    },
     "Couldn't load the feed.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this post.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load those photos. Try others.": {
       "extractionState": "manual"
     },
     "Couldn't play this.": {
       "extractionState": "manual"
     },
     "Couldn't post that comment. Try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't post.": {
       "extractionState": "manual"
     },
     "Couldn't post. Check your connection and try again.": {
@@ -47,6 +71,9 @@
       "extractionState": "manual"
     },
     "Delete": {
+      "extractionState": "manual"
+    },
+    "Discard": {
       "extractionState": "manual"
     },
     "Follow": {
@@ -74,6 +101,9 @@
       "extractionState": "manual"
     },
     "Not interested": {
+      "extractionState": "manual"
+    },
+    "Only the first 30 seconds are posted.": {
       "extractionState": "manual"
     },
     "Paused": {

@@ -1,6 +1,9 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "#%@ in %@": {
+      "extractionState": "manual"
+    },
     "ALL": {
       "extractionState": "manual"
     },
@@ -10,7 +13,16 @@
     "Classic": {
       "extractionState": "manual"
     },
+    "Couldn't load the next pair.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load the rankings. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Next class": {
+      "extractionState": "manual"
+    },
+    "No cars are ranked here yet.": {
       "extractionState": "manual"
     },
     "Open car": {
@@ -44,6 +56,9 @@
       "extractionState": "manual"
     },
     "est. hp": {
+      "extractionState": "manual"
+    },
+    "▲ %@ in %@": {
       "extractionState": "manual"
     }
   },

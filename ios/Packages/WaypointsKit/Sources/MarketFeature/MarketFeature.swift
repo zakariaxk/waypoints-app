@@ -100,6 +100,7 @@ struct Browse: View {
     @State private var listings: [Listing] = []
     @State private var next: PageCursor?
     @State private var loading = false
+    @State private var failed = false
     @State private var listing = false
     @State private var yours = false
     @State private var showFilter = false
@@ -114,7 +115,7 @@ struct Browse: View {
     /// Price and condition narrow the loaded results (K1 filter sheet).
     private var shown: [Listing] {
         listings.filter { l in
-            (Int(minPrice).map { l.priceCents >= $0 * 100 } ?? true) && (Int(maxPrice).map { l.priceCents <= $0 * 100 } ?? true)
+            (Int(minPrice).map { l.priceCents / 100 >= $0 } ?? true) && (Int(maxPrice).map { l.priceCents / 100 <= $0 } ?? true)
                 && (conditions.isEmpty || conditions.contains(l.condition))
         }
     }
@@ -133,18 +134,32 @@ struct Browse: View {
                 Field("Search", text: $query, prompt: "Search parts and cars")
                 HStack {
                     SegmentedSwitch(selection: $kind, options: [(.part, "Parts"), (.car, "Cars"), (.wanted, "Wanted")])
-                        .frame(maxWidth: Size.row * 5)
-                    Spacer()
-                    if kind != .car, !cars.isEmpty {
-                        Menu {
-                            ForEach(cars) { c in Button(c.shortLabel) { fitsCar = c } }
-                            Button("Clear") { fitsCar = nil }
-                        } label: {
-                            Text(verbatim: fitsCar.map { "Fits: \($0.shortLabel)" } ?? "Fits: any car").typeStyle(.sub).foregroundStyle(Color.sodium)
+                        .fixedSize()
+                    Spacer(minLength: Space.s8)
+                    IconButton("line.3.horizontal.decrease", label: "Filter") { showFilter = true }
+                }
+                if kind != .car, !cars.isEmpty {
+                    Menu {
+                        ForEach(cars) { c in Button(c.shortLabel) { fitsCar = c } }
+                        Button("Clear") { fitsCar = nil }
+                    } label: {
+                        Group {
+                            if let c = fitsCar {
+                                Text("Fits: \(c.shortLabel)", bundle: .module)
+                            } else {
+                                Text("Fits: any car", bundle: .module)
+                            }
                         }
+                        .typeStyle(.sub).foregroundStyle(Color.sodium).lineLimit(1)
+                        .frame(maxWidth: .infinity, minHeight: Size.hitTarget, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                 }
-                if shown.isEmpty && !loading {
+                if failed {
+                    ErrorState(Text("Couldn't load the market.", bundle: .module)) { Task { await load(more: false) } }
+                } else if loading && listings.isEmpty {
+                    SkeletonBlock(height: Size.row * 3, cornerRadius: Radius.r12)
+                } else if shown.isEmpty && !loading {
                     if let c = fitsCar, kind != .car {
                         Group {
                             if kind == .wanted {
@@ -182,9 +197,6 @@ struct Browse: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) { IconButton("tray", label: "Yours") { yours = true } }
             ToolbarItem(placement: .topBarTrailing) { IconButton(Symbol.add, label: "List something") { listing = true } }
-            ToolbarItem(placement: .topBarTrailing) {
-                IconButton("line.3.horizontal.decrease", label: "Filter") { showFilter = true }
-            }
         }
         .sheet(isPresented: $listing, onDismiss: { Task { await load(more: false) } }) { ListSomething(env: env, initialKind: kind) }
         .navigationDestination(isPresented: $yours) { Yours(env: env) }
@@ -214,8 +226,14 @@ struct Browse: View {
                         Chip("Any", isSelected: within == nil) { within = nil }
                     }
                     if within != nil {
-                        Text(here == nil ? "Turn on location to filter by distance." : "Distance is approximate.")
-                            .typeStyle(.foot).foregroundStyle(Color.dust)
+                        Group {
+                            if here == nil {
+                                Text("Turn on location to filter by distance.", bundle: .module)
+                            } else {
+                                Text("Distance is approximate.", bundle: .module)
+                            }
+                        }
+                        .typeStyle(.foot).foregroundStyle(Color.dust)
                     }
                     QuietButton("Clear") { minPrice = ""; maxPrice = ""; conditions = []; category = nil; within = nil }
                 }
@@ -238,11 +256,23 @@ struct Browse: View {
     }
 
     private func load(more: Bool) async {
+        if more && loading { return }
+        let asked = filter
         loading = true
-        let page = try? await env.market.listings(filter, after: more ? next : nil, limit: 20)
-        listings = (more ? listings : []) + (page?.items ?? [])
-        next = page?.next
-        loading = false
+        do {
+            let page = try await env.market.listings(asked, after: more ? next : nil, limit: 20)
+            loading = false
+            guard asked == filter else { return }
+            listings = (more ? listings : []) + page.items
+            next = page.next
+            failed = false
+        } catch {
+            loading = false
+            guard asked == filter, !more, !(error is CancellationError) else { return }
+            listings = []
+            next = nil
+            failed = true
+        }
     }
 
     private func photo(_ l: Listing) -> URL? { l.photos.first.map { env.media.publicURL(bucket: .listings, path: $0.path) } }
@@ -288,19 +318,25 @@ struct ListingScreen: View {
     @State private var seller: Profile?
     @State private var me: UserID?
     @State private var editing = false
+    @State private var failed = false
+    @State private var messaging = false
+    @State private var toast: ToastMessage?
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ScrollView {
             if let l = listing {
                 VStack(alignment: .leading, spacing: Space.s12) {
-                    TabView {
-                        ForEach(l.photos) { p in
-                            MediaView(url: env.media.publicURL(bucket: .listings, path: p.path), aspectRatio: 4.0 / 3.0, cornerRadius: 0,
-                                      label: Text(verbatim: l.title))
+                    if !l.photos.isEmpty {
+                        TabView {
+                            ForEach(l.photos) { p in
+                                MediaView(url: env.media.publicURL(bucket: .listings, path: p.path), aspectRatio: 4.0 / 3.0, cornerRadius: 0,
+                                          label: Text(verbatim: l.title))
+                            }
                         }
+                        .tabViewStyle(.page)
+                        .aspectRatio(4.0 / 3.0, contentMode: .fit)
                     }
-                    .tabViewStyle(.page)
-                    .aspectRatio(4.0 / 3.0, contentMode: .fit)
                     VStack(alignment: .leading, spacing: Space.s8) {
                         Text(verbatim: l.title).typeStyle(.title).foregroundStyle(Color.chalk)
                         if l.kind == .wanted { Text("Budget", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust) }
@@ -317,12 +353,13 @@ struct ListingScreen: View {
                         if l.kind == .wanted {
                             Text(verbatim: l.region).typeStyle(.sub).foregroundStyle(Color.dust)
                         } else {
-                            Text(verbatim: "\(l.condition.rawValue.replacingOccurrences(of: "_", with: " ").capitalized) · \(l.region)")
+                            Text(verbatim: "\(condition(l.condition)) · \(l.region)")
                                 .typeStyle(.sub).foregroundStyle(Color.dust)
                         }
                         if let c = l.category { Text(c.title).typeStyle(.sub).foregroundStyle(Color.dust) }
                         if let f = l.fits {
-                            Text(verbatim: "Fits: \(f.make) \(f.model ?? "")\(f.yearFrom.map { " \($0)" } ?? "")\(f.yearTo.map { "–\($0)" } ?? "")")
+                            let fit = "\(f.make) \(f.model ?? "")\(f.yearFrom.map { " \($0)" } ?? "")\(f.yearTo.map { "–\($0)" } ?? "")"
+                            Text("Fits: \(fit)", bundle: .module)
                                 .typeStyle(.sub).foregroundStyle(Color.chalk)
                         }
                         if !l.description.isEmpty { Text(verbatim: l.description).typeStyle(.body).foregroundStyle(Color.chalk) }
@@ -330,7 +367,7 @@ struct ListingScreen: View {
                     .padding(.horizontal, Space.margin)
                     if let s = seller {
                         Button { env.router.open(.profile(s.userID)) } label: {
-                            Row(Text(verbatim: s.displayName), subtitle: Text("Member since \(s.createdAt.formatted(.dateTime.year()))"), leading: {
+                            Row(Text(verbatim: s.displayName), subtitle: Text("Member since \(s.createdAt.formatted(.dateTime.year()))", bundle: .module), leading: {
                                 Avatar(name: s.displayName, url: s.avatarPath.map { env.media.publicURL(bucket: .avatars, path: $0) }, size: .s40)
                             }, trailing: { Disclosure() })
                         }
@@ -338,17 +375,30 @@ struct ListingScreen: View {
                     }
                 }
                 .padding(.bottom, Size.row * 3)
+            } else if failed {
+                ErrorState(Text("Couldn't load this listing.", bundle: .module)) { Task { await load() } }.padding(.top, Size.row)
             } else {
                 SkeletonBlock(height: Size.row * 5).padding(Space.margin)
             }
         }
         .background(Color.asphalt.ignoresSafeArea())
         .safeAreaInset(edge: .bottom) { if let l = listing { bar(l) } }
+        .toast($toast)
         .toolbar {
             if let l = listing, l.sellerID != me {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button("Report") { env.router.open(.reportContent(ContentRef(kind: .listing, id: l.id.description))) }
+                        Button("Block", role: .destructive) {
+                            Task {
+                                do {
+                                    try await env.safety.block(l.sellerID)
+                                    dismiss()
+                                } catch {
+                                    toast = ToastMessage(Text(verbatim: message(for: error, fallback: String(localized: "Couldn't block them. Check your connection and try again.", bundle: .module))))
+                                }
+                            }
+                        }
                     } label: { Image.symbol(Symbol.more).frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget) }
                     .accessibilityLabel(Text("More options", bundle: .module))
                 }
@@ -366,31 +416,35 @@ struct ListingScreen: View {
             HStack(spacing: Space.s12) {
                 if l.sellerID == me {
                     if l.isExpired() {
-                        PrimaryButton("Relist") { Task { try? await env.market.relist(l.id); await load() } }
+                        PrimaryButton("Relist") { act { try await env.market.relist(l.id) } }
                         SecondaryButton("Edit") { editing = true }
                     } else if l.status != .sold {
                         PrimaryButton(l.kind == .wanted ? "Mark as found" : "Mark as sold") {
-                            Task { try? await env.market.setStatus(.sold, for: l.id); await load() }
+                            act { try await env.market.setStatus(.sold, for: l.id) }
                         }
                         SecondaryButton("Edit") { editing = true }
                     }
                 } else if l.status != .sold {
-                    PrimaryButton(l.kind == .wanted ? "Message" : "Message seller") {
+                    PrimaryButton(l.kind == .wanted ? "Message" : "Message seller", isLoading: messaging) {
+                        guard !messaging else { return }
+                        messaging = true
                         Task {
-                            if let t = try? await env.messages.openThread(with: l.sellerID, listing: l.id) {
+                            do {
+                                let t = try await env.messages.openThread(with: l.sellerID, listing: l.id)
                                 if (try? await env.messages.messages(in: .thread(t.id), before: nil, limit: 1))?.isEmpty ?? true {
-                                    let opener = l.kind == .wanted ? "I have one." : "Is this still available?"
+                                    let opener = l.kind == .wanted ? String(localized: "I have one.", bundle: .module)
+                                        : String(localized: "Is this still available?", bundle: .module)
                                     _ = try? await env.messages.send(opener, attachmentPath: nil, to: .thread(t.id))
                                 }
                                 env.router.open(.thread(t.id))
+                            } catch {
+                                toast = ToastMessage(Text(verbatim: message(for: error, fallback: String(localized: "Couldn't open the conversation. Check your connection and try again.", bundle: .module))))
                             }
+                            messaging = false
                         }
                     }
                     IconButton(l.savedByMe ? "bookmark.fill" : "bookmark", label: l.savedByMe ? "Unsave" : "Save") {
-                        Task {
-                            if l.savedByMe { try? await env.market.unsave(l.id) } else { try? await env.market.save(l.id) }
-                            await load()
-                        }
+                        act { if l.savedByMe { try await env.market.unsave(l.id) } else { try await env.market.save(l.id) } }
                     }
                 }
             }
@@ -399,10 +453,34 @@ struct ListingScreen: View {
         .background(Color.tarmac)
     }
 
+    private func condition(_ c: ListingCondition) -> String {
+        switch c {
+        case .new: String(localized: "New", bundle: .module)
+        case .used: String(localized: "Used", bundle: .module)
+        case .forParts: String(localized: "For parts", bundle: .module)
+        }
+    }
+
+    private func act(_ op: @escaping @Sendable @MainActor () async throws -> Void) {
+        Task {
+            do {
+                try await op()
+            } catch {
+                toast = ToastMessage(Text(verbatim: message(for: error, fallback: String(localized: "Couldn't change it. Check your connection and try again.", bundle: .module))))
+            }
+            await load()
+        }
+    }
+
     private func load() async {
         me = await env.auth.currentSession()?.userID
-        listing = try? await env.market.listing(id)
-        if let l = listing { seller = try? await env.profiles.profile(l.sellerID) }
+        if let l = try? await env.market.listing(id) {
+            listing = l
+            failed = false
+            seller = try? await env.profiles.profile(l.sellerID)
+        } else {
+            failed = listing == nil
+        }
     }
 }
 
@@ -429,6 +507,8 @@ struct ListSomething: View {
     @State private var saving = false
     @State private var error: String?
     @State private var category: ListingCategory?
+
+    private var dollars: Int? { Int(price).flatMap { (0...99_999_999).contains($0) ? $0 : nil } }
 
     init(env: AppEnvironment, initialKind: ListingKind = .part) {
         self.env = env
@@ -512,7 +592,7 @@ struct ListSomething: View {
                     if kind != .car {
                         Button { picking = true } label: {
                             Row(Text("Fits", bundle: .module), showsDivider: false, trailing: {
-                                Text(verbatim: fits.map { "\($0.make) \($0.model ?? "")" } ?? "Any car").typeStyle(.sub)
+                                Text(verbatim: fits.map { "\($0.make) \($0.model ?? "")" } ?? String(localized: "Any car", bundle: .module)).typeStyle(.sub)
                             })
                         }
                     } else {
@@ -531,7 +611,7 @@ struct ListSomething: View {
                     Field("Region", text: $region, prompt: "Like 'South Jersey'", limit: 40)
                     if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                     PrimaryButton(editing == nil ? (kind == .wanted ? "Post it" : "List it") : "Save changes", isLoading: saving) { save() }
-                        .disabled(title.isEmpty || Int(price) == nil || region.isEmpty)
+                        .disabled(title.isEmpty || dollars == nil || region.isEmpty)
                 }
                 .padding(Space.margin)
             }
@@ -553,7 +633,9 @@ struct ListSomething: View {
         .onChange(of: items) {
             Task {
                 var out: [Data] = []
-                for i in items { if let d = try? await i.loadTransferable(type: Data.self) { out.append(d) } }
+                for i in items {
+                    if let d = try? await i.loadTransferable(type: Data.self), let jpeg = UIImage(data: d)?.jpegData(compressionQuality: 0.85) { out.append(jpeg) }
+                }
                 images = out
             }
         }
@@ -564,6 +646,7 @@ struct ListSomething: View {
     }
 
     private func save() {
+        guard !saving, let dollars else { return }
         saving = true
         Task {
             if case .blocked = await env.safety.check(title + " " + description) {
@@ -571,7 +654,7 @@ struct ListSomething: View {
                 saving = false
                 return
             }
-            let cents = (Int(price) ?? 0) * 100
+            let cents = dollars * 100
             let cat = kind == .car ? nil : category
             if var l = editing {
                 l.kind = kind; l.title = title; l.priceCents = cents; l.condition = condition; l.description = description
@@ -612,6 +695,7 @@ struct Yours: View {
     @State private var saved: [Listing] = []
     @State private var error: String?
     @State private var listing = false
+    @State private var loaded = false
 
     var body: some View {
         // A plain List only for its swipe actions (K4); rows keep the Row look on asphalt.
@@ -622,7 +706,9 @@ struct Yours: View {
                     Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake).padding(.horizontal, Space.margin)
                 }
                 let list = tab == 0 ? selling : saved
-                if list.isEmpty {
+                if !loaded {
+                    SkeletonRow()
+                } else if list.isEmpty {
                     VStack(alignment: .leading, spacing: Space.s8) {
                         Text(tab == 0 ? "You haven't listed anything." : "Nothing saved yet.").typeStyle(.body).foregroundStyle(Color.dust)
                         if tab == 0 { QuietButton("List something") { listing = true } }
@@ -670,7 +756,8 @@ struct Yours: View {
     private func status(_ l: Listing) -> Text {
         if l.isExpired() { return Text("Expired", bundle: .module) }
         if l.status == .sold { return l.kind == .wanted ? Text("Found", bundle: .module) : Text("Sold", bundle: .module) }
-        return Text(verbatim: l.status.rawValue.capitalized)
+        if l.status == .removed { return Text("Removed", bundle: .module) }
+        return l.status == .pending ? Text("Pending", bundle: .module) : Text("Active", bundle: .module)
     }
 
     private func act(_ op: @escaping @Sendable @MainActor () async throws -> Void) {
@@ -686,7 +773,14 @@ struct Yours: View {
     }
 
     private func load() async {
-        if let me = await env.auth.currentSession()?.userID { selling = (try? await env.market.listings(by: me)) ?? [] }
-        saved = (try? await env.market.savedListings()) ?? []
+        do {
+            if let me = await env.auth.currentSession()?.userID { selling = try await env.market.listings(by: me) }
+            saved = try await env.market.savedListings()
+        } catch {
+            if self.error == nil {
+                self.error = String(localized: "Couldn't load your listings. Check your connection and try again.", bundle: .module)
+            }
+        }
+        loaded = true
     }
 }

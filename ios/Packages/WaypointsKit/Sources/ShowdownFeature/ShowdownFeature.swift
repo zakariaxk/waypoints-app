@@ -35,6 +35,7 @@ struct ShowdownView: View {
     @State private var cls: ShowdownClass = .street
     @State private var pair: ShowdownPair?
     @State private var loading = true
+    @State private var failed = false
     @State private var winner: CarID?
     @State private var movement: String?
     @State private var drag: CGFloat = 0
@@ -64,6 +65,8 @@ struct ShowdownView: View {
             } else if loading {
                 SkeletonBlock(height: Size.row * 6).padding(Space.margin)
                 Spacer()
+            } else if failed {
+                ErrorState(Text("Couldn't load the next pair.", bundle: .module)) { Task { await next() } }
             } else {
                 Spacer()
                 EmptyState("You've judged every pair in \(cls.rawValue.capitalized). Try another class.", actionTitle: "Next class") {
@@ -81,7 +84,7 @@ struct ShowdownView: View {
         .haptic(.thud, trigger: thud)
         .haptic(.set, trigger: set)
         .navigationDestination(isPresented: $showRankings) { RankingsView(env: env, cls: cls) }
-        .task { await next() }
+        .task { if pair == nil { await next() } }
     }
 
     private func half(_ c: ShowdownContender, top: Bool, height: CGFloat) -> some View {
@@ -143,18 +146,29 @@ struct ShowdownView: View {
             let after = (try? await env.showdown.rankings(in: cls, period: .allTime, limit: 100))?.firstIndex { $0.car.id == c.car.id }
             if let after {
                 let moved = (before ?? 100) - after
-                movement = moved > 0 ? "▲ \(moved) in \(cls.rawValue.capitalized)" : "#\(after + 1) in \(cls.rawValue.capitalized)"
+                movement = moved > 0 ? String(localized: "▲ \(moved) in \(cls.rawValue.capitalized)", bundle: .module)
+                    : String(localized: "#\(after + 1) in \(cls.rawValue.capitalized)", bundle: .module)
             }
             try? await Task.sleep(for: .seconds(Timing.winHold))
-            await next()
+            if winner == c.car.id { await next() }
         }
     }
 
     private func next() async {
+        let asked = cls
         loading = true
         winner = nil
         movement = nil
-        pair = try? await env.showdown.nextPair(in: cls)
+        do {
+            let found = try await env.showdown.nextPair(in: asked)
+            guard asked == cls else { return }
+            pair = found
+            failed = false
+        } catch {
+            guard asked == cls else { return }
+            pair = nil
+            failed = true
+        }
         loading = false
         for c in [pair?.left, pair?.right].compactMap({ $0 }) where entryCounts[c.car.id] == nil {
             entryCounts[c.car.id] = (try? await env.garage.buildEntries(of: c.car.id))?.count
@@ -170,6 +184,8 @@ struct RankingsView: View {
     @State private var period: RankingPeriod = .week
     @State private var list: [ShowdownContender] = []
     @State private var me: UserID?
+    @State private var loading = true
+    @State private var failed = false
 
     var body: some View {
         ScrollView {
@@ -186,13 +202,32 @@ struct RankingsView: View {
                     SectionLabel("ALL")
                 }
                 ForEach(Array(list.enumerated()), id: \.element.car.id) { i, c in row(i, c) }
+                if list.isEmpty {
+                    if loading {
+                        SkeletonRow()
+                    } else {
+                        Group {
+                            if failed {
+                                Text("Couldn't load the rankings. Check your connection and try again.", bundle: .module)
+                            } else {
+                                Text("No cars are ranked here yet.", bundle: .module)
+                            }
+                        }
+                        .typeStyle(.body).foregroundStyle(Color.dust).padding(.horizontal, Space.margin)
+                    }
+                }
             }
         }
         .background(Color.asphalt.ignoresSafeArea())
         .navigationTitle("Rankings")
         .task(id: "\(cls)\(period)") {
+            loading = true
             me = await env.auth.currentSession()?.userID
-            list = (try? await env.showdown.rankings(in: cls, period: period, limit: 50)) ?? []
+            let found = try? await env.showdown.rankings(in: cls, period: period, limit: 50)
+            guard !Task.isCancelled else { return }
+            list = found ?? []
+            failed = found == nil
+            loading = false
         }
     }
 

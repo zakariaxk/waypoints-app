@@ -7,6 +7,15 @@
     "A road can't start or end in one of your home zones. Move the handles.": {
       "extractionState": "manual"
     },
+    "Block": {
+      "extractionState": "manual"
+    },
+    "Couldn't block them. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this road.": {
+      "extractionState": "manual"
+    },
     "Couldn't save the rating. Check your connection and try again.": {
       "extractionState": "manual"
     },
@@ -37,6 +46,9 @@
     "Like 'Route 9 through the pines'": {
       "extractionState": "manual"
     },
+    "More options": {
+      "extractionState": "manual"
+    },
     "Name": {
       "extractionState": "manual"
     },
@@ -47,6 +59,9 @@
       "extractionState": "manual"
     },
     "Rate": {
+      "extractionState": "manual"
+    },
+    "Report": {
       "extractionState": "manual"
     },
     "Save": {
@@ -67,7 +82,13 @@
     "The trace is removed from this phone.": {
       "extractionState": "manual"
     },
+    "Try again": {
+      "extractionState": "manual"
+    },
     "YOUR DRIVES": {
+      "extractionState": "manual"
+    },
+    "You blocked the person who added this road.": {
       "extractionState": "manual"
     },
     "You're doing that a lot. Try again in a few minutes.": {

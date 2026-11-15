@@ -212,11 +212,35 @@ struct RoadDetail: View {
     @State private var ratingOpen = false
     @State private var done = 0
     @State private var error: String?
+    @State private var failed = false
+    @State private var me: UserID?
+    @State private var blocked = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.s12) {
-            if let r = road {
-                Text(verbatim: r.name).typeStyle(.title).foregroundStyle(Color.chalk)
+            if blocked {
+                Text("You blocked the person who added this road.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
+            } else if let r = road {
+                HStack {
+                    Text(verbatim: r.name).typeStyle(.title).foregroundStyle(Color.chalk)
+                    Spacer()
+                    if r.authorID != me {
+                        Menu {
+                            Button("Report") { env.router.open(.reportContent(ContentRef(kind: .road, id: r.id.description))) }
+                            Button("Block", role: .destructive) {
+                                Task {
+                                    do {
+                                        try await env.safety.block(r.authorID)
+                                        blocked = true
+                                    } catch {
+                                        self.error = message(for: error, fallback: String(localized: "Couldn't block them. Check your connection and try again.", bundle: .module))
+                                    }
+                                }
+                            }
+                        } label: { Image.symbol(Symbol.more).frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget) }
+                        .accessibilityLabel(Text("More options", bundle: .module))
+                    }
+                }
                 let len = Units.length(r.lengthMeters)
                 Readout(len.value, unit: len.unit, label: "LENGTH")
                 bar("Surface", r.ratings.surface, count: r.ratings.count)
@@ -226,9 +250,9 @@ struct RoadDetail: View {
                     PrimaryButton("Drive it") { if let start = r.path.first { env.router.open(.navigate(to: start, name: r.name)) } }
                     SecondaryButton("Rate") { ratingOpen.toggle() }
                 }
+                if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                 if ratingOpen {
                     RatingSteppers(rating: $rating)
-                    if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                     PrimaryButton("Save") {
                         Task {
                             do {
@@ -243,16 +267,24 @@ struct RoadDetail: View {
                         }
                     }
                 }
+            } else if failed {
+                Text("Couldn't load this road.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
+                SecondaryButton("Try again") { Task { await load() } }
             } else {
                 SkeletonRow()
             }
         }
         .padding(.horizontal, Space.margin)
         .haptic(.done, trigger: done)
-        .task {
-            road = try? await env.roads.road(roadID)
-            if let mine = try? await env.roads.myRating(for: roadID) { rating = mine }
-        }
+        .task { await load() }
+    }
+
+    private func load() async {
+        failed = false
+        me = await env.auth.currentSession()?.userID
+        road = try? await env.roads.road(roadID)
+        failed = road == nil
+        if let mine = try? await env.roads.myRating(for: roadID) { rating = mine }
     }
 
     private func bar(_ title: LocalizedStringKey, _ value: Double, count: Int) -> some View {
@@ -322,7 +354,7 @@ struct DrivesView: View {
             }
         }
         .onAppear { drives = DriveRecorder.shared.drives() }
-        .sheet(item: $open) { d in SaveStretch(env: env, drive: d) }
+        .sheet(item: $open, onDismiss: { drives = DriveRecorder.shared.drives() }) { d in SaveStretch(env: env, drive: d) }
     }
 }
 
@@ -337,6 +369,7 @@ struct SaveStretch: View {
     @State private var saving = false
     @State private var error: String?
     @State private var zones: [HomeZone] = []
+    @State private var created: RoadID?
 
     /// ROAD-3: a stretch may not start or end inside one of your home zones.
     private var endsAtHome: Bool {
@@ -348,6 +381,7 @@ struct SaveStretch: View {
 
     private var stretch: [Coordinate] {
         let n = drive.points.count
+        guard n > 1 else { return drive.points }
         let a = Int(from * Double(n - 1)), b = max(a + 1, Int(to * Double(n - 1)))
         return Array(drive.points[a...min(b, n - 1)])
     }
@@ -377,12 +411,18 @@ struct SaveStretch: View {
                     }
                     if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                     PrimaryButton("Save road", isLoading: saving) {
-                        guard !endsAtHome else { return }
+                        guard !endsAtHome, !saving else { return }
                         saving = true
                         Task {
                             do {
-                                let road = try await env.roads.createRoad(name: name, path: stretch)
-                                try await env.roads.rate(road.id, rating)
+                                let id: RoadID
+                                if let created {
+                                    id = created
+                                } else {
+                                    id = try await env.roads.createRoad(name: name, path: stretch).id
+                                    created = id
+                                }
+                                try await env.roads.rate(id, rating)
                                 dismiss()
                             } catch {
                                 self.error = message(for: error, fallback: String(localized: "Couldn't save the road. Check your connection and try again.", bundle: .module))
