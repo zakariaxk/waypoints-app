@@ -16,6 +16,9 @@
     "Add what you know": {
       "extractionState": "manual"
     },
+    "Calendar access is off for Waypoints. Turn it on in Settings.": {
+      "extractionState": "manual"
+    },
     "Cancel meet": {
       "extractionState": "manual"
     },
@@ -25,7 +28,25 @@
     "Cancelled": {
       "extractionState": "manual"
     },
+    "Couldn't add it to your calendar.": {
+      "extractionState": "manual"
+    },
+    "Couldn't cancel the meet. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't find that place. Try a fuller name or address.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this meet. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save the meet. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save your RSVP. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't start the convoy. Check your connection and try again.": {

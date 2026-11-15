@@ -4,6 +4,15 @@
     "Copy": {
       "extractionState": "manual"
     },
+    "Couldn't delete the message. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load messages. Check your connection.": {
+      "extractionState": "manual"
+    },
+    "Couldn't send the photo. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Delete": {
       "extractionState": "manual"
     },

@@ -74,20 +74,25 @@ final class VoiceSession {
             case let .convoy(id):
                 title = String(localized: "Convoy", bundle: .module)
                 creds = try await env.gateway.voiceToken(forConvoy: id)
-                watchConvoy(id)
             }
             let room = Room()
             try await room.connect(url: creds.url.absoluteString, token: creds.token)
-            guard current == target else { await room.disconnect(); return }
+            guard current == target, !Task.isCancelled else {
+                await room.disconnect()
+                if current == target { phase = .idle }
+                return
+            }
             self.room = room
             muted = true
+            micDenied = false
             phase = .live
+            if case let .convoy(id) = target { watchConvoy(id) }
             startPolling()
         } catch WaypointsError.forbidden {
             if case .convoy = target { phase = .failed(String(localized: "You're not in this convoy.", bundle: .module)) }
             else { phase = .failed(String(localized: "You're not in this team.", bundle: .module)) }
         } catch {
-            phase = .failed("Voice is unavailable right now. Try again later.")
+            phase = Task.isCancelled ? .idle : .failed(String(localized: "Voice is unavailable right now. Try again later.", bundle: .module))
         }
     }
 
@@ -158,9 +163,11 @@ final class VoiceSession {
             let granted = await AVAudioApplication.requestRecordPermission()
             guard granted else { micDenied = true; return }
         }
+        let enable = muted
         do {
-            try await room.localParticipant.setMicrophone(enabled: muted)
-            muted.toggle()
+            try await room.localParticipant.setMicrophone(enabled: enable)
+            muted = !enable
+            micDenied = false
         } catch {
             micDenied = true
         }
@@ -196,7 +203,7 @@ struct VoiceSheet: View {
         }
         .presentationDetents([.height(64), .height(320)], selection: $detent)
         .presentationBackgroundInteraction(.enabled)
-        .interactiveDismissDisabled(session.phase == .live)
+        .interactiveDismissDisabled(session.phase == .live || session.phase == .reconnecting)
         .sheetChrome()
         .toast($session.toast)
         .task(id: room) { await session.join(room) }
@@ -232,7 +239,7 @@ struct VoiceSheet: View {
             if session.micDenied {
                 HStack {
                     Text("Microphone is off for Waypoints.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.chalk)
-                    QuietButton("Open Settings") { openURL(URL(string: UIApplication.openSettingsURLString)!) }
+                    QuietButton("Open Settings") { if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) } }
                 }
             }
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: Space.s12) {

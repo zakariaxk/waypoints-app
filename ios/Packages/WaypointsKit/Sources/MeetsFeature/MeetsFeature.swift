@@ -234,7 +234,8 @@ struct CreateMeet: View {
             }
             // The first team where the user may host meets (plan 10.4 E1).
             for team in (try? await env.teams.myTeams()) ?? [] {
-                if (try? await env.teams.myPermissions(in: team.id).contains(.hostMeets)) == true { hostTeam = team; break }
+                if (try? await env.teams.myPermissions(in: team.id).contains(.hostMeets)) == true,
+                   editing?.teamID == nil || editing?.teamID == team.id { hostTeam = team; break }
             }
         }
     }
@@ -278,7 +279,7 @@ struct CreateMeet: View {
             }
             let draft = MeetDraft(title: title, kind: kind, coordinate: Coordinate(latitude: center.latitude, longitude: center.longitude),
                                   placeName: place, startsAt: startsAt, endsAt: endsAt, details: details, visibility: visibility,
-                                  teamID: visibility == .team ? hostTeam?.id : nil, recurrence: recurrence, destination: dest,
+                                  teamID: visibility == .team ? hostTeam?.id ?? editing?.teamID : nil, recurrence: recurrence, destination: dest,
                                   roadID: kind == .cruise ? roadID : nil)
             do {
                 let meet = if let editing { try await env.gateway.updateMeet(editing.id, draft) } else { try await env.gateway.createMeet(draft) }
@@ -289,7 +290,9 @@ struct CreateMeet: View {
                 error = String(localized: "You've started 3 meets today. That's the limit.", bundle: .module)
                 failed += 1
             } catch {
-                self.error = String(localized: "Couldn't start the meet. Check your connection and try again.", bundle: .module)
+                self.error = editing == nil
+                    ? String(localized: "Couldn't start the meet. Check your connection and try again.", bundle: .module)
+                    : String(localized: "Couldn't save the meet. Check your connection and try again.", bundle: .module)
                 failed += 1
             }
             saving = false
@@ -315,6 +318,8 @@ struct MeetDetail: View {
     @State private var shareCard: UIImage?
     @State private var rolling = false
     @State private var rollError: String?
+    @State private var error: String?
+    @State private var failed = false
     @Environment(\.displayScale) private var displayScale
     @State private var confirmCancel = false
     @State private var editing = false
@@ -332,6 +337,7 @@ struct MeetDetail: View {
             if let m = meet {
                 header(m)
                 if m.cancelledAt == nil { rsvpControl }
+                if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                 if canRollOut(m) {
                     PrimaryButton("Roll out", isLoading: rolling) { rollOut(m) }
                     if let rollError { Text(verbatim: rollError).typeStyle(.foot).foregroundStyle(Color.brake) }
@@ -342,12 +348,14 @@ struct MeetDetail: View {
                 venue
                 if !m.details.isEmpty { Text(verbatim: m.details).typeStyle(.body).foregroundStyle(Color.chalk) }
                 PrimaryButton("Directions") { env.router.open(.navigate(to: m.coordinate, name: m.placeName)) }
+            } else if failed {
+                ErrorState(Text("Couldn't load this meet. Check your connection and try again.", bundle: .module)) { Task { await load() } }
             } else {
                 SkeletonRow(); SkeletonRow()
             }
         }
         .padding(.horizontal, Space.margin)
-        .padding(.bottom, Space.s24)
+        .padding(.bottom, Space.s48)
         .haptic(.done, trigger: done)
         .task { await load() }
         .task { for await s in await env.location.samples() { here = s.coordinate; break } }
@@ -394,7 +402,7 @@ struct MeetDetail: View {
             .task { goingPeople = (try? await env.profiles.profiles(rsvps.filter { $0.status == .going }.map(\.userID))) ?? [] }
         }
         .sheet(isPresented: $addNote) { VenueNoteSheet(env: env, at: meet?.coordinate) { Task { await load() } } }
-        .sheet(isPresented: $editing) { if let meet { CreateMeet(env: env, start: nil, editing: meet) } }
+        .sheet(isPresented: $editing, onDismiss: { Task { await load() } }) { if let meet { CreateMeet(env: env, start: nil, editing: meet) } }
     }
 
     private func header(_ m: Meet) -> some View {
@@ -458,8 +466,14 @@ struct MeetDetail: View {
             case 1: rsvp(.maybe, car: nil)
             default:
                 mine = nil
+                error = nil
                 MeetReminder.cancel(meetID)
-                Task { try? await env.meets.clearRSVP(for: meetID); await load() }
+                Task {
+                    do { try await env.meets.clearRSVP(for: meetID) } catch {
+                        self.error = String(localized: "Couldn't save your RSVP. Check your connection and try again.", bundle: .module)
+                    }
+                    await load()
+                }
             }
         }), options: [(0, "Going"), (1, "Maybe"), (2, "Can't")])
     }
@@ -494,7 +508,11 @@ struct MeetDetail: View {
     /// Write-only calendar access is enough to add one event.
     private func addToCalendar(_ m: Meet) async {
         let store = EKEventStore()
-        guard (try? await store.requestWriteOnlyAccessToEvents()) == true else { return }
+        error = nil
+        guard (try? await store.requestWriteOnlyAccessToEvents()) == true else {
+            error = String(localized: "Calendar access is off for Waypoints. Turn it on in Settings.", bundle: .module)
+            return
+        }
         let event = EKEvent(eventStore: store)
         event.title = m.title
         event.startDate = m.startsAt
@@ -502,23 +520,37 @@ struct MeetDetail: View {
         event.location = m.placeName
         event.url = Route.meet(m.id).shareURL
         event.calendar = store.defaultCalendarForNewEvents
-        try? store.save(event, span: .thisEvent)
-        done += 1
+        do {
+            try store.save(event, span: .thisEvent)
+            done += 1
+        } catch {
+            self.error = String(localized: "Couldn't add it to your calendar.", bundle: .module)
+        }
     }
 
     private func rsvp(_ status: RSVPStatus, car: CarID?) {
         mine = status
+        error = nil
         Task {
-            try? await env.meets.setRSVP(status, for: meetID, car: car)
-            done += 1
+            do {
+                try await env.meets.setRSVP(status, for: meetID, car: car)
+                done += 1
+            } catch {
+                self.error = String(localized: "Couldn't save your RSVP. Check your connection and try again.", bundle: .module)
+            }
             await load()
         }
     }
 
     private func cancel(following: Bool) {
+        error = nil
         Task {
-            if following { try? await env.gateway.cancelMeetAndFollowing(meetID) } else { try? await env.gateway.cancelMeet(meetID) }
-            MeetReminder.cancel(meetID)
+            do {
+                if following { try await env.gateway.cancelMeetAndFollowing(meetID) } else { try await env.gateway.cancelMeet(meetID) }
+                MeetReminder.cancel(meetID)
+            } catch {
+                self.error = String(localized: "Couldn't cancel the meet. Check your connection and try again.", bundle: .module)
+            }
             await load()
         }
     }
@@ -554,7 +586,8 @@ struct MeetDetail: View {
 
     private func load() async {
         me = await env.auth.currentSession()?.userID
-        guard let m = try? await env.meets.meet(meetID) else { return }
+        failed = false
+        guard let m = try? await env.meets.meet(meetID) else { failed = meet == nil; return }
         meet = m
         host = try? await env.profiles.profile(m.hostID)
         rsvps = (try? await env.meets.rsvps(for: meetID)) ?? []
@@ -630,6 +663,7 @@ struct VenueNoteSheet: View {
     @State private var lot: LotSize = .medium
     @State private var lit = true
     @State private var note = ""
+    @State private var error: String?
 
     var body: some View {
         Sheet(Text("Add what you know", bundle: .module)) {
@@ -640,14 +674,19 @@ struct VenueNoteSheet: View {
                 SegmentedSwitch(selection: $lot, options: [(.small, "Small"), (.medium, "Medium"), (.large, "Large")])
                 Row(Text("Lit at night", bundle: .module), showsDivider: false, trailing: { Toggle("", isOn: $lit).labelsHidden().tint(.sodium) })
                 Field("Note", text: $note, prompt: "Optional", limit: 120)
+                if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                 PrimaryButton("Save") {
                     guard let at else { return }
                     Task {
                         guard let me = await env.auth.currentSession()?.userID else { return }
-                        _ = try? await env.meets.addVenueNote(VenueNote(authorID: me, coordinate: at, entrance: entrance,
-                                                                        lotSize: lot, lit: lit, note: note.isEmpty ? nil : note))
-                        onSave()
-                        dismiss()
+                        do {
+                            try await env.meets.addVenueNote(VenueNote(authorID: me, coordinate: at, entrance: entrance,
+                                                                       lotSize: lot, lit: lit, note: note.isEmpty ? nil : note))
+                            onSave()
+                            dismiss()
+                        } catch {
+                            self.error = String(localized: "Couldn't save. Check your connection and try again.", bundle: .module)
+                        }
                     }
                 }
             }

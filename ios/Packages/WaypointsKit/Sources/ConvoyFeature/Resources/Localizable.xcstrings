@@ -19,7 +19,13 @@
     "Convoy ended.": {
       "extractionState": "manual"
     },
+    "Couldn't end the convoy. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't reach the convoy. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't set the regroup point. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Destination": {

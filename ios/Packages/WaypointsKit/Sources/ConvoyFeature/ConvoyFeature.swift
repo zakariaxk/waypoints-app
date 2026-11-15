@@ -44,6 +44,7 @@ final class ConvoyStore {
     var regroupPlace: String?
     /// Set when the leader ended the convoy for everyone else; "Convoy ended." (CNV-7).
     var ended = false
+    var error: String?
     @ObservationIgnored private var ending = false
     @ObservationIgnored private var started = false
 
@@ -66,9 +67,10 @@ final class ConvoyStore {
                     if s.ended {
                         guard s.id == self.state?.id else { break }
                         self.state = nil
+                        self.clear()
                         if !self.ending { self.ended = true }
                     } else {
-                        if s.regroup != nil && s.regroup != self.state?.regroup { self.resolveRegroup(s.regroup!.coordinate) }
+                        if let r = s.regroup, r != self.state?.regroup { self.resolveRegroup(r.coordinate) }
                         self.state = s
                         self.ended = false
                     }
@@ -138,6 +140,7 @@ final class ConvoyStore {
     }
 
     func create(name: String, destination: ConvoyDestination?) async throws {
+        if myUID == nil { myUID = try? await env.profiles.myProfile().uid }
         let invite = try await env.gateway.createConvoy(name: name, destination: destination)
         code = invite.joinCode
         self.name = name
@@ -146,7 +149,8 @@ final class ConvoyStore {
     }
 
     func join(code: String) async throws {
-        let s = try await env.gateway.joinConvoy(code: code)
+        if myUID == nil { myUID = try? await env.profiles.myProfile().uid }
+        let s = try await env.gateway.joinConvoy(code: code.uppercased())
         state = s
         self.code = code.uppercased()
         await env.realtime.joinConvoy(s.id)
@@ -155,13 +159,30 @@ final class ConvoyStore {
     func leave() async {
         await env.realtime.leaveConvoy()
         state = nil
+        clear()
+    }
+
+    private func clear() {
+        code = nil
+        name = ""
+        positions = [:]
+        splitSince = nil
+        regroupPlace = nil
+        error = nil
     }
 
     func end() async {
         guard let id = state?.id else { return }
         ending = true
-        try? await env.gateway.endConvoy(id)
-        await leave()
+        error = nil
+        do {
+            try await env.gateway.endConvoy(id)
+            await leave()
+        } catch WaypointsError.notFound {
+            await leave()
+        } catch {
+            self.error = String(localized: "Couldn't end the convoy. Check your connection and try again.", bundle: .module)
+        }
         ending = false
     }
 
@@ -182,8 +203,13 @@ final class ConvoyStore {
                 c.resume(returning: item.map { Coordinate(latitude: $0.latitude, longitude: $0.longitude) })
             }
         }
-        try? await env.gateway.setConvoyRegroup(id, at: found ?? here)
-        splitSince = nil
+        do {
+            try await env.gateway.setConvoyRegroup(id, at: found ?? here)
+            splitSince = nil
+            error = nil
+        } catch {
+            self.error = String(localized: "Couldn't set the regroup point. Check your connection and try again.", bundle: .module)
+        }
     }
 
     private func resolveRegroup(_ c: Coordinate) {
@@ -258,6 +284,10 @@ struct ConvoySectionView: View {
                 .padding(.horizontal, Space.margin)
                 .padding(.vertical, Space.s8)
                 .background(Color.sodiumDim)
+                if let error = store.error {
+                    Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake)
+                        .padding(.horizontal, Space.margin).padding(.vertical, Space.s8)
+                }
                 if store.shouldOfferRegroup {
                     VStack(alignment: .leading, spacing: Space.s8) {
                         Text("The group has split. Set a regroup point?", bundle: .module).typeStyle(.body).foregroundStyle(Color.chalk)
@@ -346,12 +376,10 @@ struct ConvoySheet: View {
                         }
                         .frame(maxHeight: Size.row * 3)
                     }
-                    PrimaryButton(invited.isEmpty ? "Done" : "Invite friends") {
-                        if let id = store.state?.id, !invited.isEmpty {
-                            let users = Array(invited)
-                            Task { try? await store.env.gateway.inviteToConvoy(id, users: users) }
-                        }
-                        dismiss()
+                    PrimaryButton(invited.isEmpty ? "Done" : "Invite friends", isLoading: working) {
+                        guard let id = store.state?.id, !invited.isEmpty else { dismiss(); return }
+                        let users = Array(invited)
+                        run { try await store.env.gateway.inviteToConvoy(id, users: users); dismiss() }
                     }
                 } else if !code.isEmpty || joining {
                     Field("Code", text: $code, prompt: "6 characters", limit: 6).textInputAutocapitalization(.characters)
@@ -363,12 +391,17 @@ struct ConvoySheet: View {
                 } else {
                     Field("Name", text: $name, limit: 40)
                     Field("Destination", text: $place, prompt: "Optional: where you're headed")
-                        .onSubmit { findDestination() }
+                        .onSubmit { Task { await findDestination() } }
                     if let destination {
                         Text("Heading to \(destination.name)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.go)
                     }
                     Text("Everyone in the convoy sees your exact location until you leave.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
-                    PrimaryButton("Start convoy", isLoading: working) { run { try await store.create(name: name, destination: destination) } }
+                    PrimaryButton("Start convoy", isLoading: working) {
+                        run {
+                            if place.isEmpty || destination == nil { await findDestination() }
+                            try await store.create(name: name, destination: destination)
+                        }
+                    }
                     QuietButton("Join with code") { joining = true }
                 }
                 if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
@@ -378,25 +411,26 @@ struct ConvoySheet: View {
         .presentationDetents([.medium])
         .task {
             // Roll out (MEET-13) joins before opening this sheet with the code: show the invite, not the join form.
-            if store.state == nil, !code.isEmpty { await store.adopt(code: code) }
+            if store.code == nil, !code.isEmpty { await store.adopt(code: code) }
             if name.isEmpty, let p = try? await store.env.profiles.myProfile() { name = "\(p.displayName)'s convoy" }
             friends = (try? await store.env.friends.friends()) ?? []
         }
     }
 
     /// Resolves the typed place into the convoy's destination (first local search hit).
-    private func findDestination() {
+    private func findDestination() async {
         guard !place.isEmpty else { destination = nil; return }
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = place
-        MKLocalSearch(request: request).start { response, _ in
-            guard let item = response?.mapItems.first else { return }
-            let c = item.placemark.coordinate
-            let name = item.name ?? ""
-            MainActor.assumeIsolated {
-                destination = ConvoyDestination(coordinate: Coordinate(latitude: c.latitude, longitude: c.longitude), name: name)
+        let found: ConvoyDestination? = await withCheckedContinuation { done in
+            MKLocalSearch(request: request).start { response, _ in
+                let item = response?.mapItems.first
+                let c = item?.placemark.coordinate
+                let name = item?.name ?? ""
+                done.resume(returning: c.map { ConvoyDestination(coordinate: Coordinate(latitude: $0.latitude, longitude: $0.longitude), name: name) })
             }
         }
+        if let found { destination = found }
     }
 
     private func run(_ body: @escaping () async throws -> Void) {

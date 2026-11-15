@@ -41,6 +41,8 @@ final class TeamsModel {
     var unread = 0
     var me: UserID?
     var loaded = false
+    var failed = false
+    var error: String?
 
     init(env: AppEnvironment, registry: FeatureRegistry) { self.env = env; self.registry = registry }
 
@@ -53,8 +55,10 @@ final class TeamsModel {
 
     func load() async {
         me = await env.auth.currentSession()?.userID
-        teams = (try? await env.teams.myTeams()) ?? []
-        threads = (try? await env.messages.threads()) ?? []
+        let mine = try? await env.teams.myTeams()
+        failed = mine == nil && teams.isEmpty
+        if let mine { teams = mine }
+        if let found = try? await env.messages.threads() { threads = found }
         friends = Set(((try? await env.friends.friends()) ?? []).map(\.id))
         if let me {
             for p in (try? await env.profiles.profiles(threads.map { $0.other(than: me) })) ?? [] { people[p.userID] = p }
@@ -101,6 +105,8 @@ struct TeamsHome: View {
                     directMessages
                 } else if let team = model.teams.first(where: { $0.id == model.selected }) {
                     teamPane(team)
+                } else if model.failed {
+                    ErrorState(Text("Couldn't load your teams. Check your connection and try again.", bundle: .module)) { Task { await model.load() } }
                 } else {
                     VStack(alignment: .leading, spacing: Space.s16) {
                         Text("Teams are where your people talk. Join one or start your own.", bundle: .module).typeStyle(.body).foregroundStyle(Color.chalk)
@@ -234,6 +240,9 @@ struct TeamsHome: View {
             if model.threads.isEmpty {
                 Text("No messages yet.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust).padding(Space.margin)
             }
+            if let error = model.error {
+                Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake).padding(.horizontal, Space.margin)
+            }
             if !requests.isEmpty {
                 SectionLabel("REQUESTS")
                 ForEach(requests) { threadRow($0, request: true) }
@@ -260,8 +269,8 @@ struct TeamsHome: View {
                 }, trailing: {
                     if request, let other {
                         HStack {
-                            QuietButton("Accept") { Task { try? await model.env.friends.sendRequest(to: other); await model.load() } }
-                            QuietButton("Block") { Task { try? await model.env.safety.block(other); await model.load() } }
+                            QuietButton("Accept") { answer { try await model.env.friends.sendRequest(to: other) } }
+                            QuietButton("Block") { answer { try await model.env.safety.block(other) } }
                         }
                     } else if let d = t.lastMessage?.createdAt {
                         VStack(alignment: .trailing, spacing: Space.s2) {
@@ -274,6 +283,16 @@ struct TeamsHome: View {
                 })
         }
         .buttonStyle(RowButtonStyle())
+    }
+
+    private func answer(_ body: @escaping () async throws -> Void) {
+        model.error = nil
+        Task {
+            do { try await body() } catch {
+                model.error = String(localized: "Couldn't do that. Check your connection and try again.", bundle: .module)
+            }
+            await model.load()
+        }
     }
 }
 
@@ -413,6 +432,8 @@ struct TeamDetail: View {
     @State private var renameText = ""
     @State private var editingRole: TeamRole?
     @State private var editingTeam = false
+    @State private var error: String?
+    @State private var failed = false
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -449,20 +470,23 @@ struct TeamDetail: View {
                     if perms.contains(.manageChannels) { channelsSection }
                     if perms.contains(.manageRoles) { rolesSection }
                     VStack(spacing: Space.s12) {
+                        if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                         if t.ownerID == model.me {
                             Field("Type the team name to delete it", text: $typed)
                             DestructiveButton("Delete team", confirmTitle: "Delete team", consequence: "Channels, roles, and messages are deleted.") {
-                                Task { try? await model.env.teams.deleteTeam(teamID); model.selected = nil; await model.load(); dismiss() }
+                                act { try await model.env.teams.deleteTeam(teamID); model.selected = nil; await model.load(); dismiss() }
                             }
                             .disabled(typed != t.name)
                         } else {
                             DestructiveButton("Leave team", confirmTitle: "Leave team", consequence: "You'll need an invite to come back to a private team.") {
-                                Task { try? await model.env.teams.leave(teamID); model.selected = nil; await model.load(); dismiss() }
+                                act { try await model.env.teams.leave(teamID); model.selected = nil; await model.load(); dismiss() }
                             }
                         }
                     }
                     .padding(Space.margin)
                 }
+            } else if failed {
+                ErrorState(Text("Couldn't load this team. Check your connection and try again.", bundle: .module)) { Task { await reload() } }
             }
         }
         .background(Color.asphalt.ignoresSafeArea())
@@ -498,7 +522,7 @@ struct TeamDetail: View {
                     if c.id != model.channels.first?.id { Button("Move up") { move(c, by: -1) } }
                     if c.id != model.channels.last?.id { Button("Move down") { move(c, by: 1) } }
                     Button("Delete", role: .destructive) {
-                        Task { try? await model.env.teams.deleteChannel(c.id); await model.loadTeam() }
+                        act { try await model.env.teams.deleteChannel(c.id) }
                     }
                 }
             }
@@ -509,10 +533,7 @@ struct TeamDetail: View {
                     let name = slug(newChannel)
                     newChannel = ""
                     guard !name.isEmpty else { return }
-                    Task {
-                        _ = try? await model.env.teams.saveChannel(Channel(teamID: teamID, name: name, kind: .text, sort: model.channels.count))
-                        await model.loadTeam()
-                    }
+                    act { try await model.env.teams.saveChannel(Channel(teamID: teamID, name: name, kind: .text, sort: model.channels.count)) }
                 }
                 .frame(width: Size.row * 1.4)
             }
@@ -542,11 +563,23 @@ struct TeamDetail: View {
     }
 
     private func reload() async {
-        team = try? await model.env.teams.team(teamID)
-        perms = (try? await model.env.teams.myPermissions(in: teamID)) ?? []
-        roles = (try? await model.env.teams.roles(of: teamID)) ?? []
+        failed = false
+        guard let found = try? await model.env.teams.team(teamID) else { failed = team == nil; return }
+        team = found
         if model.selected != teamID {
             model.selected = teamID
+            await model.loadTeam()
+        }
+        perms = (try? await model.env.teams.myPermissions(in: teamID)) ?? []
+        roles = (try? await model.env.teams.roles(of: teamID)) ?? []
+    }
+
+    private func act(_ body: @escaping () async throws -> Void) {
+        error = nil
+        Task {
+            do { try await body() } catch {
+                self.error = String(localized: "Couldn't do that. Check your connection and try again.", bundle: .module)
+            }
             await model.loadTeam()
         }
     }
@@ -560,20 +593,21 @@ struct TeamDetail: View {
         c.name = slug(renameText)
         renaming = nil
         guard !c.name.isEmpty else { return }
-        Task { _ = try? await model.env.teams.saveChannel(c); await model.loadTeam() }
+        let renamed = c
+        act { try await model.env.teams.saveChannel(renamed) }
     }
 
     private func move(_ c: Channel, by offset: Int) {
         var list = model.channels
         guard let i = list.firstIndex(of: c), list.indices.contains(i + offset) else { return }
         list.swapAt(i, i + offset)
-        Task {
-            for (n, ch) in list.enumerated() where ch.sort != n {
+        let order = list
+        act {
+            for (n, ch) in order.enumerated() where ch.sort != n {
                 var updated = ch
                 updated.sort = n
-                _ = try? await model.env.teams.saveChannel(updated)
+                try await model.env.teams.saveChannel(updated)
             }
-            await model.loadTeam()
         }
     }
 
@@ -592,13 +626,14 @@ struct IconPicker: View {
     @Binding var photo: PhotosPickerItem?
     @Binding var iconPath: String?
     @State private var uploading = false
+    @State private var failed = false
     @State private var picking = false
 
     var body: some View {
         Button { picking = true } label: {
             HStack(spacing: Space.s12) {
                 TeamIcon(team: team, env: model.env, size: Size.row)
-                Text(uploading ? "Uploading" : (iconPath == nil ? "Add icon" : "Change icon"))
+                Text(uploading ? "Uploading" : failed ? "Couldn't upload. Try again." : (iconPath == nil ? "Add icon" : "Change icon"))
                     .typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
             }
         }
@@ -611,6 +646,9 @@ struct IconPicker: View {
                 if let data = try? await photo.loadTransferable(type: Data.self),
                    let media = try? await model.env.media.upload(data, contentType: "image/jpeg", to: .teams, progress: { _ in }) {
                     iconPath = media.path
+                    failed = false
+                } else {
+                    failed = true
                 }
                 uploading = false
                 self.photo = nil
@@ -833,6 +871,7 @@ struct MembersView: View {
     @State private var profiles: [UserID: Profile] = [:]
     @State private var changing: MemberRef?
     @State private var removing: MemberRef?
+    @State private var error: String?
 
     struct MemberRef: Identifiable {
         let member: TeamMember
@@ -841,6 +880,9 @@ struct MembersView: View {
 
     var body: some View {
         List {
+            if let error {
+                Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake).padding(.horizontal, Space.margin).plainRow()
+            }
             ForEach(roles) { role in
                 let inRole = members.filter { $0.roleID == role.id }
                 if !inRole.isEmpty {
@@ -865,7 +907,7 @@ struct MembersView: View {
                             titleVisibility: .visible) {
             Button("Remove", role: .destructive) {
                 if let ref = removing {
-                    Task { try? await model.env.teams.kick(ref.id, from: teamID); await load() }
+                    act { try await model.env.teams.kick(ref.id, from: teamID) }
                 }
                 removing = nil
             }
@@ -902,7 +944,7 @@ struct MembersView: View {
                     ForEach(roles) { r in
                         Button {
                             changing = nil
-                            Task { try? await model.env.teams.assign(r.id, to: m.userID, in: teamID); await load() }
+                            act { try await model.env.teams.assign(r.id, to: m.userID, in: teamID) }
                         } label: {
                             Row(Text(verbatim: r.name), leading: {
                                 Circle().fill(r.colorHex.flatMap { Color(paintHex: $0) } ?? .dust).frame(width: Space.s12, height: Space.s12)
@@ -917,6 +959,16 @@ struct MembersView: View {
             }
         }
         .presentationDetents([.medium])
+    }
+
+    private func act(_ body: @escaping () async throws -> Void) {
+        error = nil
+        Task {
+            do { try await body() } catch {
+                self.error = String(localized: "Couldn't do that. Check your connection and try again.", bundle: .module)
+            }
+            await load()
+        }
     }
 
     private func load() async {

@@ -40,6 +40,9 @@
     "Voice disconnected.": {
       "extractionState": "manual"
     },
+    "Voice is unavailable right now. Try again later.": {
+      "extractionState": "manual"
+    },
     "You": {
       "extractionState": "manual"
     },

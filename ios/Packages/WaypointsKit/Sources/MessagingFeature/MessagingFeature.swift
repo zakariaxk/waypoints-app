@@ -46,6 +46,8 @@ final class ChatModel {
     var teamID: TeamID?
     var offline = false
     var error: String?
+    var loadFailed = false
+    var restore: String?
 
     init(env: AppEnvironment, target: MessageTarget) { self.env = env; self.target = target }
 
@@ -70,9 +72,11 @@ final class ChatModel {
                 if let l = t.listingID { listing = try? await env.market.listing(l) }
             }
         }
-        let page = (try? await env.messages.messages(in: target, before: nil, limit: 50)) ?? []
+        guard let page = try? await env.messages.messages(in: target, before: nil, limit: 50) else { loadFailed = true; return }
+        loadFailed = false
         reachedStart = page.count < 50
         items = page.reversed().map { ChatItem(id: "m\($0.id.raw)", message: $0, state: .sent) }
+            + items.filter { i in i.state != .sent || !page.contains { $0.id == i.message.id } }
         await resolveAuthors()
         markRead()
     }
@@ -96,7 +100,9 @@ final class ChatModel {
         for await state in await env.realtime.connectionState() {
             switch state {
             case .offline: offline = true
-            case .live: offline = false
+            case .live:
+                offline = false
+                if loadFailed { await load() }
             case .connecting, .reconnecting: break
             }
         }
@@ -105,10 +111,11 @@ final class ChatModel {
     func loadOlder() async {
         guard !loadingOlder, !reachedStart, let first = items.first(where: { $0.state == .sent })?.message.id else { return }
         loadingOlder = true
-        let page = (try? await env.messages.messages(in: target, before: first, limit: 50)) ?? []
+        guard let page = try? await env.messages.messages(in: target, before: first, limit: 50) else { loadingOlder = false; return }
         reachedStart = page.count < 50
         items.insert(contentsOf: page.reversed().map { ChatItem(id: "m\($0.id.raw)", message: $0, state: .sent) }, at: 0)
         loadingOlder = false
+        if !page.isEmpty { restore = "m\(first.raw)" }
         await resolveAuthors()
     }
 
@@ -143,7 +150,7 @@ final class ChatModel {
                 }
             }
         } catch {
-            if case WaypointsError.rateLimited = error { self.error = "You're doing that a lot. Try again in a few minutes." }
+            if case WaypointsError.rateLimited = error { self.error = String(localized: "You're doing that a lot. Try again in a few minutes.", bundle: .module) }
             if let i = items.firstIndex(where: { $0.id == local.id }) { items[i].state = .failed }
         }
         return true
@@ -155,9 +162,14 @@ final class ChatModel {
     }
 
     func delete(_ item: ChatItem) {
+        guard item.state == .sent else { items.removeAll { $0.id == item.id }; return }
         Task {
-            try? await env.messages.delete(item.message.id)
-            if let i = items.firstIndex(where: { $0.id == item.id }) { items[i].message.deletedAt = .now }
+            do {
+                try await env.messages.delete(item.message.id)
+                if let i = items.firstIndex(where: { $0.id == item.id }) { items[i].message.deletedAt = .now }
+            } catch {
+                self.error = String(localized: "Couldn't delete the message. Check your connection and try again.", bundle: .module)
+            }
         }
     }
 }
@@ -185,6 +197,10 @@ struct ChatView: View {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         if model.loadingOlder { SkeletonRow(); SkeletonRow(); SkeletonRow() }
+                        if model.loadFailed {
+                            Text("Couldn't load messages. Check your connection.", bundle: .module)
+                                .typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin)
+                        }
                         if model.reachedStart {
                             Text(model.title.hasPrefix("#") ? "This is the start of \(model.title)." : "This is the start of your conversation.")
                                 .typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin)
@@ -201,7 +217,8 @@ struct ChatView: View {
                     }
                 }
                 .defaultScrollAnchor(.bottom)
-                .onChange(of: model.items.count) { if let last = model.items.last { proxy.scrollTo(last.id, anchor: .bottom) } }
+                .onChange(of: model.items.last?.id) { if let last = model.items.last { proxy.scrollTo(last.id, anchor: .bottom) } }
+                .onChange(of: model.restore) { if let id = model.restore { proxy.scrollTo(id, anchor: .top) } }
             }
             composer
         }
@@ -215,8 +232,9 @@ struct ChatView: View {
             Task {
                 if let data = try? await photo.loadTransferable(type: Data.self),
                    let media = try? await model.env.media.upload(data, contentType: "image/jpeg", to: .messages, progress: { _ in }) {
-                    _ = await model.send(draft, attachment: media.path)
-                    draft = ""
+                    if await model.send(draft, attachment: media.path) { draft = "" }
+                } else {
+                    model.error = String(localized: "Couldn't send the photo. Check your connection and try again.", bundle: .module)
                 }
                 self.photo = nil
             }
@@ -247,7 +265,10 @@ struct ChatView: View {
             if grouped {
                 Color.clear.frame(width: Avatar.Diameter.s40.rawValue)
             } else {
-                Avatar(name: author?.displayName ?? "", url: author?.avatarPath.map { model.env.media.publicURL(bucket: .avatars, path: $0) }, size: .s40)
+                Button { model.env.router.open(.profile(item.message.authorID)) } label: {
+                    Avatar(name: author?.displayName ?? "", url: author?.avatarPath.map { model.env.media.publicURL(bucket: .avatars, path: $0) }, size: .s40)
+                }
+                .buttonStyle(.plain)
             }
             VStack(alignment: .leading, spacing: Space.s2) {
                 if !grouped {

@@ -58,7 +58,16 @@
     "Couldn't do that. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't load this team. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load your teams. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't save. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't upload. Try again.": {
       "extractionState": "manual"
     },
     "Delete": {
