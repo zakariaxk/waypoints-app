@@ -80,8 +80,23 @@ struct NavRow: View {
 
 struct SettingsView: View {
     let env: AppEnvironment
+    /// L10N-2: "" follows the device, "en"/"es" force the app language.
+    @AppStorage("appLanguage") private var language = ""
+
     var body: some View {
         SettingsList(title: "Settings") {
+            SectionLabel("APP LANGUAGE")
+            Row(Text("Language", bundle: .module), trailing: {
+                Picker("Language", selection: $language) {
+                    Text("System", bundle: .module).tag("")
+                    Text("English", bundle: .module).tag("en")
+                    Text("Español", bundle: .module).tag("es")
+                }
+                .labelsHidden()
+                .pickerStyle(.menu)
+            })
+            .onChange(of: language) { _, new in applyLanguage(new) }
+            .task { applyLanguage(language) }
             NavRow(title: "Privacy and location") { AnyView(PrivacyView(env: env)) }
             NavRow(title: "Notifications") { AnyView(NotificationsView(env: env)) }
             NavRow(title: "Blocked people") { AnyView(BlockedView(env: env)) }
@@ -671,6 +686,19 @@ enum SettingsUnits {
         let m = Measurement(value: meters, unit: UnitLength.meters)
         let v = metric ? m : Measurement(value: (m.converted(to: .feet).value / 10).rounded() * 10, unit: UnitLength.feet)
         return v.formatted(.measurement(width: .abbreviated, usage: .asProvided, numberFormatStyle: .number.precision(.fractionLength(0))))
+    }
+}
+
+/// L10N-2: writes the `AppleLanguages`/`AppleLocale` defaults iOS reads for bundle lookups
+/// and `Locale.current`. "System" clears both so the device decides.
+private func applyLanguage(_ lang: String) {
+    let defaults = UserDefaults.standard
+    if lang.isEmpty {
+        defaults.removeObject(forKey: "AppleLanguages")
+        defaults.removeObject(forKey: "AppleLocale")
+    } else {
+        defaults.set([lang], forKey: "AppleLanguages")
+        defaults.set(lang == "es" ? "es_ES" : "en_US", forKey: "AppleLocale")
     }
 }
 

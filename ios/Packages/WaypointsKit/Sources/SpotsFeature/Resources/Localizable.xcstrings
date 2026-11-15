@@ -2,58 +2,202 @@
   "sourceLanguage": "en",
   "strings": {
     "%@ %@ · %@ spotted": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
     },
     "Add to collection": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir a la colección"
+          }
+        }
+      }
     },
     "Blur the middle of the photo": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Difuminar el centro de la foto"
+          }
+        }
+      }
     },
     "Blurred area": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zona difuminada"
+          }
+        }
+      }
     },
     "Cancel": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
+          }
+        }
+      }
     },
     "Change": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar"
+          }
+        }
+      }
     },
     "Choose from library": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elegir de la fototeca"
+          }
+        }
+      }
     },
     "Couldn't add it. Check your connection and try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo añadir. Comprueba tu conexión e inténtalo de nuevo."
+          }
+        }
+      }
     },
     "Couldn't blur the photo. Try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo difuminar la foto. Inténtalo de nuevo."
+          }
+        }
+      }
     },
     "Couldn't load that photo. Try another one.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cargar esa foto. Prueba con otra."
+          }
+        }
+      }
     },
     "Done": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hecho"
+          }
+        }
+      }
     },
     "Plates and faces are blurred. Tap a box to remove it. Tap the photo to blur more.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las matrículas y los rostros están difuminados. Toca un cuadro para quitarlo. Toca la foto para difuminar más."
+          }
+        }
+      }
     },
     "Removes the blur": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quita la difuminación"
+          }
+        }
+      }
     },
     "Spot a car": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avistar un coche"
+          }
+        }
+      }
     },
     "Take a photo": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hacer una foto"
+          }
+        }
+      }
     },
     "What is it?": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Qué es?"
+          }
+        }
+      }
     },
     "You're doing that a lot. Try again in a few minutes.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo estás haciendo mucho. Inténtalo de nuevo en unos minutos."
+          }
+        }
+      }
     },
     "Your photo": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu foto"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

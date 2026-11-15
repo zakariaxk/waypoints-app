@@ -2,19 +2,59 @@
   "sourceLanguage": "en",
   "strings": {
     "Couldn't change your marker. Try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cambiar tu marcador. Inténtalo de nuevo."
+          }
+        }
+      }
     },
     "Dismiss": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descartar"
+          }
+        }
+      }
     },
     "New icon": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuevo icono"
+          }
+        }
+      }
     },
     "New trail": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nueva estela"
+          }
+        }
+      }
     },
     "Use it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usarlo"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

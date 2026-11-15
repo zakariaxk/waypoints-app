@@ -177,7 +177,7 @@ struct PostReport: View {
                             .frame(maxWidth: .infinity, minHeight: Size.hitTarget)
                             .contentShape(Rectangle())
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(PressScaleStyle())
                     }
                 }
                 if showNote {

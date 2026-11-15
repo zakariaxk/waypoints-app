@@ -20,8 +20,9 @@ public enum MarketFeature: FeatureModule {
 }
 
 enum Price {
+    /// Listing prices are USD: `priceCents` stores no currency and the fields are "$".
     static func text(_ cents: Int) -> String {
-        (Double(cents) / 100).formatted(.currency(code: Locale.current.currency?.identifier ?? "USD").precision(.fractionLength(0)))
+        Format.money(cents: cents)
     }
 }
 
@@ -290,7 +291,7 @@ struct Browse: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressScaleStyle())
     }
 
     private func wantedRow(_ l: Listing) -> some View {
@@ -313,7 +314,7 @@ struct Browse: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressScaleStyle())
     }
 }
 
@@ -581,6 +582,7 @@ struct ListSomething: View {
                                         .frame(width: Size.row * 1.6, height: Size.row * 1.6)
                                         .background(Color.concrete, in: RoundedRectangle(cornerRadius: Radius.r12))
                                 }
+                                .buttonStyle(PressScaleStyle())
                                 .accessibilityLabel(Text("Add photos", bundle: .module))
                             }
                         }
@@ -608,6 +610,7 @@ struct ListSomething: View {
                                 Text(verbatim: fits.map { "\($0.make) \($0.model ?? "")" } ?? String(localized: "Any car", bundle: .module)).typeStyle(.sub)
                             })
                         }
+                        .buttonStyle(RowButtonStyle())
                     } else {
                         Menu {
                             ForEach(cars) { c in
@@ -619,6 +622,7 @@ struct ListSomething: View {
                         } label: {
                             Row(Text("Choose from your garage", bundle: .module), showsDivider: false, trailing: { Text(verbatim: car?.shortLabel ?? "").typeStyle(.sub) })
                         }
+                        .buttonStyle(RowButtonStyle())
                     }
                     Field("Description", text: $description, limit: 1500, axis: .vertical)
                     Field("Region", text: $region, prompt: "Like 'South Jersey'", limit: 40)

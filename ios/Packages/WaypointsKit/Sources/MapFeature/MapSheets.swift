@@ -151,6 +151,7 @@ struct MarkerPicker: View {
     @State private var progress: [AchievementProgress] = []
     @State private var requirement: String?
     @State private var tick = 0
+    @State private var working = false
 
     /// Which key unlocks which icon or trail (plan 9.8 and W5-5).
     static let unlocks: [String: (key: String, text: String)] = [
@@ -211,10 +212,13 @@ struct MarkerPicker: View {
         let open = unlocked(name)
         return Button {
             if open {
+                guard !working else { return }
+                working = true
                 tick += 1
                 requirement = nil
                 let update = tab == 0 ? ProfileUpdate(markerIcon: name) : ProfileUpdate(markerTrail: name)
                 Task {
+                    defer { working = false }
                     do {
                         try await model.env.profiles.updateMyProfile(update)
                     } catch {
@@ -246,6 +250,7 @@ struct MarkerPicker: View {
             .background((model.profile?.markerIcon == name || model.profile?.markerTrail == name) ? Color.sodiumDim : Color.clear,
                         in: RoundedRectangle(cornerRadius: Radius.r12))
         }
+        .buttonStyle(PressScaleStyle())
         .accessibilityLabel(open ? Text(verbatim: MapIconSet.title(name)) : Text("\(MapIconSet.title(name)), locked", bundle: .module))
     }
 }

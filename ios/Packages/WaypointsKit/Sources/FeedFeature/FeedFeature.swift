@@ -431,6 +431,7 @@ struct VideoPage: View {
         }
         .clipped()
         .motion(.quick, value: heart)
+        .haptic(.tap, trigger: post.likedByMe)
         .onReceive(player.publisher(for: \.currentItem?.status).receive(on: DispatchQueue.main)) { failed = $0 == .failed }
         .onReceive(NotificationCenter.default.publisher(for: AVPlayerItem.failedToPlayToEndTimeNotification).receive(on: DispatchQueue.main)) {
             if ($0.object as? AVPlayerItem) === player.currentItem { failed = true }
@@ -467,6 +468,7 @@ struct PostOverlay: View {
                     Avatar(name: author?.displayName ?? "", url: author?.avatarPath.map { model.env.media.publicURL(bucket: .avatars, path: $0) }, size: .s40)
                     Text(verbatim: "@\(author?.handle ?? "")").typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
                 }
+                .buttonStyle(PressScaleStyle())
                 if model.following[post.authorID] == false && post.authorID != model.me {
                     QuietButton("Follow") { model.follow(post.authorID) }
                 }
@@ -481,11 +483,13 @@ struct PostOverlay: View {
                 Button { model.env.router.open(.car(id)) } label: {
                     CarBadge(car.shortLabel, icon: author?.markerIcon ?? "coupe", paint: car.colorHex.flatMap { Color(paintHex: $0) } ?? .dust)
                 }
+                .buttonStyle(PressScaleStyle())
             }
             if let id = post.meetID, let meet = model.meets[id] {
                 Button { model.env.router.open(.meet(id)) } label: {
                     Text("At \(meet.title)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.chalk)
                 }
+                .buttonStyle(PressScaleStyle())
             }
         }
     }
@@ -509,12 +513,13 @@ struct PostOverlay: View {
         Button(action: action) {
             VStack(spacing: Space.s2) {
                 Image(systemName: symbol).font(.title2).foregroundStyle(tint)
-                Text(verbatim: "\(count)").typeStyle(.readoutS).foregroundStyle(Color.chalk)
+                Text(verbatim: count.formatted(.number)).typeStyle(.readoutS).foregroundStyle(Color.chalk)
             }
             .frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget)
         }
+        .buttonStyle(PressScaleStyle())
         .accessibilityLabel(Text(label, bundle: .module))
-        .accessibilityValue(Text(verbatim: "\(count)"))
+        .accessibilityValue(Text(verbatim: count.formatted(.number)))
     }
 }
 
@@ -559,6 +564,7 @@ struct PhotoPage: View {
         }
         .clipped()
         .motion(.quick, value: heart)
+        .haptic(.tap, trigger: post.likedByMe)
     }
 }
 
@@ -773,14 +779,18 @@ final class Uploader {
     var progress: Double?
     var toast: ToastMessage?
     var retry: (@MainActor () -> Void)?
+    private var posting = false
 
     init(env: AppEnvironment) { self.env = env }
 
     /// FEED-11: photos upload in order; the first is also the poster.
     func post(photos: [Data], caption: String, car: CarID?, meet: MeetID?) {
+        guard !posting else { return }
+        posting = true
         progress = 0
         retry = nil
         Task {
+            defer { posting = false }
             do {
                 var paths: [String] = []
                 let total = Double(photos.count)
@@ -805,9 +815,12 @@ final class Uploader {
     }
 
     func post(video: URL, poster: Data, caption: String, car: CarID?, meet: MeetID?, duration: Double) {
+        guard !posting else { return }
+        posting = true
         progress = 0
         retry = nil
         Task {
+            defer { posting = false }
             do {
                 let exported = try await Self.export(video)
                 let data = try Data(contentsOf: exported.url)

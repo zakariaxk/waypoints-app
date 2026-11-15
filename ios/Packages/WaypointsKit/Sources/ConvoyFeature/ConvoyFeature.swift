@@ -347,7 +347,7 @@ struct ConvoySectionView: View {
                         if let fix = m.fixAt, Date.now.timeIntervalSince(fix) > 60 {
                             Text("Lost signal", bundle: .module).typeStyle(.foot)
                         } else if let g = store.gap(m) {
-                            Text(verbatim: "+\(Int(g)) s").typeStyle(.readoutS)
+                            Text(verbatim: "+\(Int(g).formatted(.number)) s").typeStyle(.readoutS)
                         }
                     })
                 }

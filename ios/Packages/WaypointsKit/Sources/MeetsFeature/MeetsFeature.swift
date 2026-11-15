@@ -743,6 +743,7 @@ struct VenueNoteSheet: View {
     @State private var lit = true
     @State private var note = ""
     @State private var error: String?
+    @State private var saving = false
 
     var body: some View {
         Sheet(Text("Add what you know", bundle: .module)) {
@@ -755,9 +756,11 @@ struct VenueNoteSheet: View {
                     .padding(.horizontal, -Space.margin)
                 Field("Note", text: $note, prompt: "Optional", limit: 120)
                 if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
-                PrimaryButton("Save") {
-                    guard let at else { return }
+                PrimaryButton("Save", isLoading: saving) {
+                    guard !saving, let at else { return }
+                    saving = true
                     Task {
+                        defer { saving = false }
                         guard let me = await env.auth.currentSession()?.userID else { return }
                         do {
                             try await env.meets.addVenueNote(VenueNote(authorID: me, coordinate: at, entrance: entrance,

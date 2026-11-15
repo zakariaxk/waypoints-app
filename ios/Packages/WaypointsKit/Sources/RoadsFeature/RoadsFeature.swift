@@ -298,7 +298,8 @@ struct RoadDetail: View {
             HStack {
                 Text(title).typeStyle(.sub).foregroundStyle(Color.chalk)
                 Spacer()
-                Text(verbatim: count == 0 ? String(localized: "No ratings", bundle: .module) : String(format: "%.1f · %d", value, count)).typeStyle(.readoutS).foregroundStyle(Color.dust)
+                Text(verbatim: count == 0 ? String(localized: "No ratings", bundle: .module)
+                     : "\(Format.number(value, fractionDigits: 1)) · \(count.formatted(.number))").typeStyle(.readoutS).foregroundStyle(Color.dust)
             }
             GeometryReader { g in
                 ZStack(alignment: .leading) {

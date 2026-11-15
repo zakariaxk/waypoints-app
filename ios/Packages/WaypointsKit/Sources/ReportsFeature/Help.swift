@@ -336,7 +336,7 @@ struct HelpDetail: View {
             }
             HStack(spacing: Space.s12) {
                 PrimaryButton("I'm good", isLoading: busy) { end(r) }
-                SecondaryButton("Add an hour") { extend(r) }
+                SecondaryButton("Add an hour", isLoading: busy) { extend(r) }
             }
         } else {
             if r.isComing {
@@ -401,7 +401,10 @@ struct HelpDetail: View {
     }
 
     private func extend(_ r: HelpRequest) {
+        guard !busy else { return }
+        busy = true
         Task {
+            defer { busy = false }
             do {
                 request = try await env.gateway.extendHelp(r.id)
             } catch {

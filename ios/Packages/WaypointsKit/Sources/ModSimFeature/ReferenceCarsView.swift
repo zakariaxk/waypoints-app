@@ -38,8 +38,10 @@ public struct ReferenceCarsView: View {
     }
 
     private func line(_ c: ReferenceCheck) -> String {
-        String(format: "0–60 %.2f / %.1f s · ¼ %.2f / %.1f s · trap %.1f / %.1f mph",
-               c.model.zeroToSixty, c.car.zeroToSixty, c.model.quarterET, c.car.quarterET,
-               c.model.quarterMph, c.car.quarterMph)
+        // The strip's own unit is mph, whatever the locale (SET-3); the numbers still
+        // follow the device's decimal separator.
+        "0–60 \(Format.number(c.model.zeroToSixty, fractionDigits: 2)) / \(Format.number(c.car.zeroToSixty, fractionDigits: 1)) s"
+            + " · ¼ \(Format.number(c.model.quarterET, fractionDigits: 2)) / \(Format.number(c.car.quarterET, fractionDigits: 1)) s"
+            + " · trap \(Format.number(c.model.quarterMph, fractionDigits: 1)) / \(Format.number(c.car.quarterMph, fractionDigits: 1)) mph"
     }
 }

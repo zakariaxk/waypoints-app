@@ -2,10 +2,26 @@
   "sourceLanguage": "en",
   "strings": {
     "See who's out. Find the meet. Show the build.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mira quién está fuera. Encuentra el encuentro. Enseña el montaje."
+          }
+        }
+      }
     },
     "Waypoints": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waypoints"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

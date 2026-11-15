@@ -178,10 +178,10 @@ struct BuildCard: View {
             }
             if let e = estimate {
                 HStack(alignment: .top, spacing: Space.s12) {
-                    cell(e.hp, "EST. HP", fmt: "%.0f", unit: "hp")
-                    cell(e.torque, "EST. TQ", fmt: "%.0f", unit: "lb-ft")
-                    cell(e.zeroToSixty, "EST. 0–60", fmt: "%.1f", unit: "s")
-                    cell(e.quarterET, "EST. ¼ MILE", fmt: "%.1f", unit: "s")
+                    cell(e.hp, "EST. HP", digits: 0, unit: "hp")
+                    cell(e.torque, "EST. TQ", digits: 0, unit: "lb-ft")
+                    cell(e.zeroToSixty, "EST. 0–60", digits: 1, unit: "s")
+                    cell(e.quarterET, "EST. ¼ MILE", digits: 1, unit: "s")
                 }
                 Text("Estimates from stock specs and listed mods.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
             }
@@ -196,10 +196,10 @@ struct BuildCard: View {
         .background(Color.asphalt)
     }
 
-    private func cell(_ r: ClosedRange<Double>, _ label: LocalizedStringKey, fmt: String, unit: String) -> some View {
+    private func cell(_ r: ClosedRange<Double>, _ label: LocalizedStringKey, digits: Int, unit: String) -> some View {
         VStack(alignment: .leading, spacing: Space.s2) {
             Text(label).typeStyle(.label).foregroundStyle(Color.dust)
-            Text(verbatim: "\(String(format: fmt, r.lowerBound))–\(String(format: fmt, r.upperBound))")
+            Text(verbatim: Format.range(r, fractionDigits: digits))
                 .typeStyle(.readoutS).foregroundStyle(Color.chalk)
             Text(verbatim: unit).typeStyle(.readoutS).foregroundStyle(Color.dust)
         }

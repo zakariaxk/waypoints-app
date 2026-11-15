@@ -2,22 +2,70 @@
   "sourceLanguage": "en",
   "strings": {
     "Boxer-4": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boxer-4"
+          }
+        }
+      }
     },
     "Cross-plane V8": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V8 cross-plane"
+          }
+        }
+      }
     },
     "Flat-plane V8": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V8 flat-plane"
+          }
+        }
+      }
     },
     "Inline-4": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L4 en línea"
+          }
+        }
+      }
     },
     "Inline-6": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L6 en línea"
+          }
+        }
+      }
     },
     "Rotary": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rotativo"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -1,4 +1,5 @@
 import Core
+import DesignSystem
 import Foundation
 import UIKit
 import UserNotifications
@@ -13,10 +14,11 @@ enum GarageCopy {
 
 /// SET-3: weights and distances in the device's units.
 enum GarageUnits {
-    /// "3,705 lb" or "1,681 kg".
+    /// "3,705 lb" or "1,681 kg". Pounds only where the locale drives in miles; every
+    /// other locale gets kilograms (SET-3 — never tons).
     static func weight(lb: Int) -> String {
         Measurement(value: Double(lb), unit: UnitMass.pounds)
-            .converted(to: Locale.current.measurementSystem == .metric ? .kilograms : .pounds)
+            .converted(to: Locale.current.measurementSystem == .us ? .pounds : .kilograms)
             .formatted(.measurement(width: .abbreviated, usage: .asProvided, numberFormatStyle: .number.precision(.fractionLength(0))))
     }
 
@@ -40,7 +42,7 @@ enum GarageUnits {
 
     /// "157", in the unit `speedSymbol` names.
     static func speed(metersPerSecond: Double) -> String {
-        String(format: "%.0f", Measurement(value: metersPerSecond, unit: UnitSpeed.metersPerSecond).converted(to: speedUnit).value)
+        Format.number(Measurement(value: metersPerSecond, unit: UnitSpeed.metersPerSecond).converted(to: speedUnit).value)
     }
 
     /// A speed typed in the locale's unit, in m/s.
@@ -48,9 +50,9 @@ enum GarageUnits {
         Measurement(value: speed, unit: speedUnit).converted(to: .metersPerSecond).value
     }
 
-    /// GAR-18: "$1,299.00" in the device's currency. Costs are stored as bare cents.
+    /// GAR-18: "$1,299" in USD. Costs are stored as bare cents with no currency.
     static func money(cents: Int) -> String {
-        (Decimal(cents) / 100).formatted(.currency(code: Locale.current.currency?.identifier ?? "USD"))
+        Format.money(cents: cents)
     }
 
     /// Cents from a typed amount; `nil` when it is not a non-negative number.

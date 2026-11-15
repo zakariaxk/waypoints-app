@@ -20,13 +20,13 @@ struct StandingsView: View {
                     }
                     ForEach(list) { s in
                         Row(Text(verbatim: s.name), subtitle: Text(verbatim: s.tag), leading: {
-                            Text(verbatim: "\(s.rank)").typeStyle(.readoutS).foregroundStyle(Color.dust)
+                            Text(verbatim: s.rank.formatted(.number)).typeStyle(.readoutS).foregroundStyle(Color.dust)
                                 .frame(minWidth: Space.s24)
-                                .accessibilityLabel(Text("Rank \(s.rank)", bundle: .module))
+                                .accessibilityLabel(Text("Rank \(s.rank.formatted(.number))", bundle: .module))
                             TeamIcon(team: Team(id: s.id, ownerID: UserID(), name: s.name, tag: s.tag, iconPath: s.iconPath),
                                      env: model.env, size: Size.hitTarget)
                         }, trailing: {
-                            Text(verbatim: "\(s.score)").typeStyle(.readoutS).foregroundStyle(Color.chalk)
+                            Text(verbatim: s.score.formatted(.number)).typeStyle(.readoutS).foregroundStyle(Color.chalk)
                         })
                     }
                 } else if failed {

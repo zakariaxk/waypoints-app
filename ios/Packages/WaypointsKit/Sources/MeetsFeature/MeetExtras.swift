@@ -234,7 +234,7 @@ struct MeetPostsStrip: View {
                                               cornerRadius: Radius.r12, label: Text(verbatim: p.caption))
                                         .frame(width: Size.row * 1.5, height: Size.row * 2.67)
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(PressScaleStyle())
                             }
                         }
                     }

@@ -250,6 +250,7 @@ struct YouView: View {
             .padding(.bottom, Space.s16)
         }
         .background(Color.asphalt.ignoresSafeArea())
+        .haptic(.tick, trigger: birthYear)
         .task(id: handle) {
             guard Profile.isValidHandle(handle) else { return }
             try? await Task.sleep(for: .milliseconds(400))

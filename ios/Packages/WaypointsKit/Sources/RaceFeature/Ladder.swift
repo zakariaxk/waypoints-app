@@ -21,10 +21,11 @@ struct HouseCar: Hashable, Identifiable {
         case .fourWD: "four-wheel-drive"
         }
         let boost = spec.aspiration == .turbo ? " turbo" : spec.aspiration == .supercharged ? " supercharged" : ""
+        // Pounds only where the locale drives in miles; kilograms elsewhere (SET-3).
         let weight = Measurement(value: Double(Int(spec.weightLb)), unit: UnitMass.pounds)
-            .converted(to: Locale.current.measurementSystem == .metric ? .kilograms : .pounds)
+            .converted(to: Locale.current.measurementSystem == .us ? .pounds : .kilograms)
             .formatted(.measurement(width: .abbreviated, usage: .asProvided, numberFormatStyle: .number.precision(.fractionLength(0))))
-        return "\(Int(spec.hpCrank)) hp\(boost), \(weight), \(drive) \(spec.automatic ? "automatic" : "manual")"
+        return "\(Int(spec.hpCrank).formatted(.number)) hp\(boost), \(weight), \(drive) \(spec.automatic ? "automatic" : "manual")"
     }
 }
 

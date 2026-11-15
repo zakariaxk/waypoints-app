@@ -19,7 +19,7 @@ public struct Gallery: View {
                 SectionLabel(verbatim: "CONTRAST")
                 ForEach(Contrast.pairs, id: \.label) { pair in
                     Row(Text(verbatim: pair.label), trailing: {
-                        Text(verbatim: String(format: "%.1f:1 %@", pair.ratio, pair.ratio >= pair.minimum ? "pass" : "FAIL"))
+                        Text(verbatim: "\(Format.number(pair.ratio, fractionDigits: 1)):1 \(pair.ratio >= pair.minimum ? "pass" : "FAIL")")
                             .typeStyle(.readoutS)
                             .foregroundStyle(pair.ratio >= pair.minimum ? Color.go : Color.brake)
                     })

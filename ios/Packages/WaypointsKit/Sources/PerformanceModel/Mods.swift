@@ -71,9 +71,10 @@ public struct Mod: Sendable, Hashable, Identifiable {
     public func rangeText(base: Double) -> String {
         if let abs = absolute { return "\(Int(abs.hp)) hp" }
         if category == .weight {
-            // Weight in the locale's unit (SET-3): "-25 lb" or "-11 kg".
+            // Weight in the locale's unit (SET-3): "-25 lb" or "-11 kg". Pounds only
+            // where the locale drives in miles; kilograms elsewhere.
             let lb = Measurement(value: weightDeltaLb, unit: UnitMass.pounds)
-            let v = Locale.current.measurementSystem == .metric ? lb.converted(to: .kilograms) : lb
+            let v = Locale.current.measurementSystem == .us ? lb : lb.converted(to: .kilograms)
             return v.formatted(.measurement(width: .abbreviated, usage: .asProvided,
                                             numberFormatStyle: .number.precision(.fractionLength(0))))
         }

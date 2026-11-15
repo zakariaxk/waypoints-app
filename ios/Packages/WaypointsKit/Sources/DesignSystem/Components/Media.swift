@@ -158,7 +158,7 @@ public struct MediaView: View {
                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
                 .contentShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressScaleStyle())
         .matchedTransitionSource(id: "media", in: namespace)
         .accessibilityLabel(label)
         .accessibilityAddTraits(.isImage)

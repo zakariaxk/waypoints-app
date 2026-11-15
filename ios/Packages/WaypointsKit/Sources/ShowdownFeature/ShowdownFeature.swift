@@ -47,6 +47,7 @@ struct ShowdownView: View {
     @State private var set = 0
     @State private var showRankings = false
     @State private var entryCounts: [CarID: Int] = [:]
+    @State private var toast: ToastMessage?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -88,6 +89,7 @@ struct ShowdownView: View {
         .background(Color.asphalt)
         .haptic(.thud, trigger: thud)
         .haptic(.set, trigger: set)
+        .toast($toast)
         .navigationDestination(isPresented: $showRankings) { RankingsView(env: env, cls: cls) }
         .task { if pair == nil { await next() } }
     }
@@ -109,8 +111,8 @@ struct ShowdownView: View {
                 Button { env.router.open(.car(c.car.id)) } label: { CarBadge(c.car.shortLabel, icon: c.owner.markerIcon, paint: paint) }
                 Text(verbatim: "@\(c.owner.handle)").typeStyle(.foot).foregroundStyle(Color.chalk)
                 HStack(spacing: Space.s16) {
-                    if let est { Readout(String(format: "%.0f–%.0f", est.hp.lowerBound, est.hp.upperBound), label: "est. hp", token: .readoutS) }
-                    Readout("\(entryCounts[c.car.id] ?? 0)", label: "build entries", token: .readoutS)
+                    if let est { Readout(Format.range(est.hp), label: "est. hp", token: .readoutS) }
+                    Readout((entryCounts[c.car.id] ?? 0).formatted(.number), label: "build entries", token: .readoutS)
                 }
                 if isWinner, let movement { Text(verbatim: movement).typeStyle(.readoutM).foregroundStyle(Color.go) }
             }
@@ -150,7 +152,11 @@ struct ShowdownView: View {
         withMotion(.win, reduceMotion: reduceMotion) { winner = c.car.id }
         Task {
             let before = (try? await env.showdown.rankings(in: cls, period: .allTime, limit: 100))?.firstIndex { $0.car.id == c.car.id }
-            try? await env.showdown.vote(winner: c.car.id, loser: loser.car.id)
+            do {
+                try await env.showdown.vote(winner: c.car.id, loser: loser.car.id)
+            } catch {
+                toast = ToastMessage(Text("Couldn't save your pick. Try again.", bundle: .module))
+            }
             let after = (try? await env.showdown.rankings(in: cls, period: .allTime, limit: 100))?.firstIndex { $0.car.id == c.car.id }
             if let after {
                 let moved = (before ?? 100) - after
@@ -194,6 +200,7 @@ struct RankingsView: View {
     @State private var me: UserID?
     @State private var loading = true
     @State private var failed = false
+    @State private var reload = 0
 
     var body: some View {
         ScrollView {
@@ -213,22 +220,19 @@ struct RankingsView: View {
                 if list.isEmpty {
                     if loading {
                         SkeletonRow()
+                    } else if failed {
+                        ErrorState(Text("Couldn't load the rankings. Check your connection and try again.", bundle: .module)) { reload += 1 }
+                            .padding(.horizontal, Space.margin)
                     } else {
-                        Group {
-                            if failed {
-                                Text("Couldn't load the rankings. Check your connection and try again.", bundle: .module)
-                            } else {
-                                Text("No cars are ranked here yet.", bundle: .module)
-                            }
-                        }
-                        .typeStyle(.body).foregroundStyle(Color.dust).padding(.horizontal, Space.margin)
+                        Text("No cars are ranked here yet.", bundle: .module)
+                            .typeStyle(.body).foregroundStyle(Color.dust).padding(.horizontal, Space.margin)
                     }
                 }
             }
         }
         .background(Color.asphalt.ignoresSafeArea())
         .navigationTitle("Rankings")
-        .task(id: "\(cls)\(period)") {
+        .task(id: "\(cls)\(period)\(reload)") {
             loading = true
             me = await env.auth.currentSession()?.userID
             let found = try? await env.showdown.rankings(in: cls, period: period, limit: 50)
@@ -249,7 +253,7 @@ struct RankingsView: View {
                         .frame(width: Size.hitTarget, height: Size.hitTarget)
                         .allowsHitTesting(false)
                 }
-            }, trailing: { Text(verbatim: "\(c.entry.rating)").typeStyle(.readoutS) })
+            }, trailing: { Text(verbatim: c.entry.rating.formatted(.number)).typeStyle(.readoutS) })
         }
         .buttonStyle(RowButtonStyle())
     }

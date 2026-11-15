@@ -136,7 +136,7 @@ struct GearingScreen: View {
         if let gears {
             if let redline, let tire = input.stockTire, let drive = input.stockFinalDrive {
                 ForEach(Array(gears.enumerated()), id: \.offset) { index, ratio in
-                    Row(Text("Gear \(index + 1)", bundle: .module), subtitle: Text(verbatim: String(format: "%.3f", ratio)),
+                    Row(Text("Gear \(index + 1)", bundle: .module), subtitle: Text(verbatim: Format.number(ratio, fractionDigits: 3)),
                         showsDivider: index < gears.count - 1, trailing: {
                             Readout(GarageUnits.speed(metersPerSecond: Gearing.speed(rpm: redline, gear: ratio, finalDrive: drive, tire: tire)),
                                     unit: GarageUnits.speedSymbol)
@@ -181,11 +181,11 @@ struct GearingScreen: View {
                 subtitle: abs(error) < 0.05 ? Text("Reads true", bundle: .module)
                     : error < 0 ? Text("Reads lower than you are going", bundle: .module)
                     : Text("Reads higher than you are going", bundle: .module),
-                trailing: { Readout(String(format: "%+.1f", error), unit: "%") })
+                trailing: { Readout(Format.delta(error, fractionDigits: 1), unit: "%") })
                 .padding(.top, Space.s12)
             if let cruise {
-                Row(Text("True speed when it shows \(Int(cruise)) \(GarageUnits.speedSymbol)", bundle: .module), showsDivider: false, trailing: {
-                    Readout(String(format: "%.1f", cruise * ratio), unit: GarageUnits.speedSymbol)
+                Row(Text("True speed when it shows \(Int(cruise).formatted(.number)) \(GarageUnits.speedSymbol)", bundle: .module), showsDivider: false, trailing: {
+                    Readout(Format.number(cruise * ratio, fractionDigits: 1), unit: GarageUnits.speedSymbol)
                 })
             }
         } else {

@@ -208,6 +208,7 @@ struct CarScreen: View {
                         .frame(width: Size.hitTarget, height: Size.hitTarget)
                         .overMapMaterial(in: Circle())
                 }
+                .buttonStyle(PressScaleStyle())
                 .padding(Space.s12)
                 .accessibilityLabel(Text("Add a photo", bundle: .module))
             }
@@ -229,22 +230,22 @@ struct CarScreen: View {
         Button { if model.own, ctx.registry.canOpen(.modSim(car.id)) { ctx.env.router.open(.modSim(car.id)) } } label: {
             VStack(alignment: .leading, spacing: Space.s8) {
                 HStack(alignment: .top, spacing: Space.s12) {
-                    readout(e.hp, "EST. HP", fmt: "%.0f", bounds: 0...1200)
-                    readout(e.torque, "EST. TQ", fmt: "%.0f", bounds: 0...1000)
-                    readout(e.zeroToSixty, "0–60", fmt: "%.1f", unit: "s", bounds: 2...12)
-                    readout(e.quarterET, "¼ MILE", fmt: "%.1f", unit: "s", bounds: 8...18)
+                    readout(e.hp, "EST. HP", digits: 0, bounds: 0...1200)
+                    readout(e.torque, "EST. TQ", digits: 0, bounds: 0...1000)
+                    readout(e.zeroToSixty, "0–60", digits: 1, unit: "s", bounds: 2...12)
+                    readout(e.quarterET, "¼ MILE", digits: 1, unit: "s", bounds: 8...18)
                 }
                 Text("Estimates from stock specs and listed mods.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
             }
             .padding(.horizontal, Space.margin)
             .padding(.top, Space.s24)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressScaleStyle())
     }
 
-    private func readout(_ r: ClosedRange<Double>, _ label: LocalizedStringKey, fmt: String, unit: String? = nil,
+    private func readout(_ r: ClosedRange<Double>, _ label: LocalizedStringKey, digits: Int, unit: String? = nil,
                          bounds: ClosedRange<Double>) -> some View {
-        Readout(String(format: fmt, (r.lowerBound + r.upperBound) / 2), unit: unit, label: label,
+        Readout(Format.number((r.lowerBound + r.upperBound) / 2, fractionDigits: digits), unit: unit, label: label,
                 range: .init(low: r.lowerBound, high: r.upperBound, bounds: bounds))
             .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -259,7 +260,7 @@ struct CarScreen: View {
             }
             if let entry = model.showdown {
                 Row(Text("In Showdown · \(entry.showdownClass.rawValue.capitalized)", bundle: .module),
-                    trailing: { Text(verbatim: "\(entry.rating)").typeStyle(.readoutS) })
+                    trailing: { Text(verbatim: entry.rating.formatted(.number)).typeStyle(.readoutS) })
             } else if !ctx.registry.feedModes.isEmpty {
                 actionRow("Enter Showdown") { askShowdown = true }
                     .disabled(model.photos.isEmpty)
@@ -358,7 +359,7 @@ struct CarScreen: View {
         let v = model.variant, o = car.specOverrides
         let rows: [(String, String?, Bool)] = [
             (String(localized: "Engine", bundle: .module), v?.engine, false),
-            (String(localized: "Power", bundle: .module), (o.hp ?? v?.hp).map { "\($0)\(thinSpace)hp" }, o.hp != nil),
+            (String(localized: "Power", bundle: .module), (o.hp ?? v?.hp).map { "\($0.formatted(.number))\(thinSpace)hp" }, o.hp != nil),
             (String(localized: "Drivetrain", bundle: .module), (o.drivetrain ?? v?.drive)?.rawValue.uppercased(), o.drivetrain != nil),
             (String(localized: "Transmission", bundle: .module), v?.transmission, o.gears != nil),
             (String(localized: "Weight", bundle: .module), (o.weightLb ?? v?.weightLb).map(GarageUnits.weight(lb:)), o.weightLb != nil),
@@ -444,6 +445,7 @@ struct TimelineEntrySheet: View {
                             Text(verbatim: modID.flatMap { ModCatalog.mod($0)?.name } ?? "").typeStyle(.sub)
                         })
                     }
+                    .buttonStyle(RowButtonStyle())
                     Field("Cost", text: $cost, prompt: "Optional. Only you see it.", limit: 11).keyboardType(.decimalPad)
                     Toggle("Service", isOn: $isService).tint(.sodium).typeStyle(.body).foregroundStyle(Color.chalk)
                     if isService {
@@ -563,6 +565,7 @@ struct EditProfile: View {
                         Avatar(name: name, url: ctx.url(.avatars, original?.avatarPath), size: .s96)
                             .overlay(alignment: .bottomTrailing) { Image.symbol(Symbol.camera).foregroundStyle(Color.sodium) }
                     }
+                    .buttonStyle(PressScaleStyle())
                     .photosPicker(isPresented: $pick, selection: $photo, matching: .images)
                     Field("Name", text: $name, limit: 30)
                     Field("Handle", text: $handle, limit: 20).textInputAutocapitalization(.never)
@@ -624,6 +627,7 @@ struct FriendsScreen: View {
     @State private var meID: UserID?
     @State private var scanning = false
     @State private var requested: Set<UserID> = []
+    @State private var sending: Set<UserID> = []
     @State private var toast: ToastMessage?
     @Environment(\.dismiss) private var dismiss
 
@@ -640,8 +644,11 @@ struct FriendsScreen: View {
                                 Avatar(name: p.displayName, size: .s40)
                             }, trailing: {
                                 SecondaryButton(friend ? "Friends" : requested.contains(p.userID) ? "Requested" : "Add") {
+                                    guard !sending.contains(p.userID) else { return }
+                                    sending.insert(p.userID)
                                     askForNotifications()
                                     Task {
+                                        defer { sending.remove(p.userID) }
                                         do {
                                             try await ctx.env.friends.sendRequest(to: p.userID)
                                             requested.insert(p.userID)
@@ -651,7 +658,7 @@ struct FriendsScreen: View {
                                     }
                                 }
                                     .frame(width: Size.row * 2.2)
-                                    .disabled(friend || requested.contains(p.userID))
+                                    .disabled(friend || requested.contains(p.userID) || sending.contains(p.userID))
                             })
                         }
                     } else {

@@ -293,6 +293,7 @@ struct ModSimView: View {
     @State private var weight = ""
     @State private var torque = ""
     @State private var redline = "6500"
+    @State private var enteringSpecs = false
     @State private var askName = false
     @State private var renaming: SavedBuild?
     @State private var buildName = ""
@@ -396,11 +397,15 @@ struct ModSimView: View {
             Field(Self.metric ? "Weight (kg)" : "Weight (lb)", text: $weight).keyboardType(.numberPad)
             Field("Torque (lb-ft)", text: $torque).keyboardType(.numberPad)
             Field("Redline", text: $redline).keyboardType(.numberPad)
-            PrimaryButton("Enter specs") {
-                guard let h = Int(hp), let entered = Int(weight), h > 0, entered > 0 else { return }
+            PrimaryButton("Enter specs", isLoading: enteringSpecs) {
+                guard !enteringSpecs, let h = Int(hp), let entered = Int(weight), h > 0, entered > 0 else { return }
                 // Stored in pounds; entered in the locale's unit (SET-3).
                 let w = Self.metric ? Int((Double(entered) * 2.20462).rounded()) : entered
-                Task { await model.useSpecs(hp: h, weight: w, torque: Int(torque) ?? Int(Double(h) * 0.9), redline: Int(redline) ?? 6500) }
+                enteringSpecs = true
+                Task {
+                    defer { enteringSpecs = false }
+                    await model.useSpecs(hp: h, weight: w, torque: Int(torque) ?? Int(Double(h) * 0.9), redline: Int(redline) ?? 6500)
+                }
             }
             .disabled((Int(hp) ?? 0) <= 0 || (Int(weight) ?? 0) <= 0)
         }
@@ -432,7 +437,7 @@ struct ModSimView: View {
                 RuleMark(x: .value("rpm", rpm)).foregroundStyle(Color.chalk)
                     .annotation(position: .top) {
                         if let p = modCurve.min(by: { abs($0.rpm - rpm) < abs($1.rpm - rpm) }) {
-                            Text(verbatim: "\(Int(rpm)) rpm · \(Int(p.hp)) hp · \(Int(p.torque)) lb-ft").typeStyle(.readoutS)
+                            Text(verbatim: "\(Int(rpm).formatted(.number)) rpm · \(Int(p.hp).formatted(.number)) hp · \(Int(p.torque).formatted(.number)) lb-ft").typeStyle(.readoutS)
                                 .foregroundStyle(Color.chalk).padding(Space.s4).background(Color.tarmac, in: RoundedRectangle(cornerRadius: Radius.r6))
                         }
                     }
@@ -517,30 +522,30 @@ struct ModSimView: View {
         guard let rpm = model.scrubRpm, let p = (model.modEstimate?.curve ?? []).min(by: { abs($0.rpm - rpm) < abs($1.rpm - rpm) }) else {
             return Text("Adjust to read power at an rpm", bundle: .module)
         }
-        return Text("\(Int(rpm)) rpm, \(Int(p.hp)) horsepower, \(Int(p.torque)) pound-feet", bundle: .module)
+        return Text("\(Int(rpm).formatted(.number)) rpm, \(Int(p.hp).formatted(.number)) horsepower, \(Int(p.torque).formatted(.number)) pound-feet", bundle: .module)
     }
 
     private var readouts: some View {
         HStack(alignment: .top, spacing: Space.s12) {
             if let s = model.stockEstimate, let m = model.modEstimate {
-                readout(m.hp, s.hp, "EST. HP", fmt: "%.0f", bounds: 0...1200, higherBetter: true)
-                readout(m.torque, s.torque, "EST. TQ", fmt: "%.0f", bounds: 0...1000, higherBetter: true)
-                readout(m.zeroToSixty, s.zeroToSixty, "0–60", fmt: "%.1f", unit: "s", bounds: 2...12, higherBetter: false)
-                readout(m.quarterET, s.quarterET, "¼ MILE", fmt: "%.1f", unit: "s", bounds: 8...18, higherBetter: false)
+                readout(m.hp, s.hp, "EST. HP", digits: 0, bounds: 0...1200, higherBetter: true)
+                readout(m.torque, s.torque, "EST. TQ", digits: 0, bounds: 0...1000, higherBetter: true)
+                readout(m.zeroToSixty, s.zeroToSixty, "0–60", digits: 1, unit: "s", bounds: 2...12, higherBetter: false)
+                readout(m.quarterET, s.quarterET, "¼ MILE", digits: 1, unit: "s", bounds: 8...18, higherBetter: false)
             }
         }
         .padding(.horizontal, Space.margin)
         .padding(.bottom, Space.s8)
     }
 
-    private func readout(_ r: ClosedRange<Double>, _ stock: ClosedRange<Double>, _ label: LocalizedStringKey, fmt: String,
+    private func readout(_ r: ClosedRange<Double>, _ stock: ClosedRange<Double>, _ label: LocalizedStringKey, digits: Int,
                          unit: String? = nil, bounds: ClosedRange<Double>, higherBetter: Bool) -> some View {
         let mid = (r.lowerBound + r.upperBound) / 2, smid = (stock.lowerBound + stock.upperBound) / 2
         let delta = mid - smid
         return VStack(alignment: .leading, spacing: Space.s2) {
-            Readout(String(format: fmt, mid), unit: unit, label: label, range: .init(low: r.lowerBound, high: r.upperBound, bounds: bounds))
+            Readout(Format.number(mid, fractionDigits: digits), unit: unit, label: label, range: .init(low: r.lowerBound, high: r.upperBound, bounds: bounds))
             if abs(delta) >= 0.05 {
-                Text(verbatim: (delta > 0 ? "+" : "") + String(format: fmt, delta)).typeStyle(.readoutS)
+                Text(verbatim: Format.delta(delta, fractionDigits: digits)).typeStyle(.readoutS)
                     .foregroundStyle((delta > 0) == higherBetter ? Color.go : Color.brake)
             }
         }
@@ -555,12 +560,12 @@ struct ModSimView: View {
                     VStack(alignment: .leading, spacing: Space.s12) {
                         Text(verbatim: c.name).typeStyle(.sub).foregroundStyle(i == 0 ? Color.sodium : Color.xenon).lineLimit(1)
                         HStack(alignment: .top, spacing: Space.s12) {
-                            readout(c.estimate.hp, s.hp, "EST. HP", fmt: "%.0f", bounds: 0...1200, higherBetter: true)
-                            readout(c.estimate.torque, s.torque, "EST. TQ", fmt: "%.0f", bounds: 0...1000, higherBetter: true)
+                            readout(c.estimate.hp, s.hp, "EST. HP", digits: 0, bounds: 0...1200, higherBetter: true)
+                            readout(c.estimate.torque, s.torque, "EST. TQ", digits: 0, bounds: 0...1000, higherBetter: true)
                         }
                         HStack(alignment: .top, spacing: Space.s12) {
-                            readout(c.estimate.zeroToSixty, s.zeroToSixty, "0–60", fmt: "%.1f", unit: "s", bounds: 2...12, higherBetter: false)
-                            readout(c.estimate.quarterET, s.quarterET, "¼ MILE", fmt: "%.1f", unit: "s", bounds: 8...18, higherBetter: false)
+                            readout(c.estimate.zeroToSixty, s.zeroToSixty, "0–60", digits: 1, unit: "s", bounds: 2...12, higherBetter: false)
+                            readout(c.estimate.quarterET, s.quarterET, "¼ MILE", digits: 1, unit: "s", bounds: 8...18, higherBetter: false)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -631,7 +636,7 @@ struct ModSimView: View {
                     model.rev(revving)
                 }
                 .padding(.horizontal, Space.margin)
-            Readout(String(Int(model.revRpm)), unit: "rpm", token: .readoutL)
+            Readout(Int(model.revRpm).formatted(.number), unit: "rpm", token: .readoutL)
                 .padding(.horizontal, Space.margin)
             Row(Text("Synthesized sound", bundle: .module), showsDivider: false, trailing: {
                 Toggle(isOn: Binding(get: { model.soundOn }, set: { model.setSound($0) })) {

@@ -482,7 +482,10 @@ struct NavigationRoot: View {
         }
         .preferredColorScheme(.dark)
         .task { await model.load() }
-        .onDisappear { model.teardown() }
+        .onDisappear {
+            model.endGuidance()
+            model.teardown()
+        }
     }
 }
 
@@ -737,7 +740,7 @@ struct GuidanceView: View {
                     .background(Color.concrete, in: RoundedRectangle(cornerRadius: Radius.r12))
                     .contentShape(RoundedRectangle(cornerRadius: Radius.r12))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PressScaleStyle())
         }
         .padding(Space.margin)
         .background(Color.tarmac)

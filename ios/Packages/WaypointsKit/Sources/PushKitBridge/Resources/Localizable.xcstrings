@@ -2,16 +2,48 @@
   "sourceLanguage": "en",
   "strings": {
     "Activity": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actividad"
+          }
+        }
+      }
     },
     "Couldn't load activity. Check your connection and try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cargar la actividad. Comprueba tu conexión e inténtalo de nuevo."
+          }
+        }
+      }
     },
     "New": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuevo"
+          }
+        }
+      }
     },
     "Nothing yet. Friend requests, likes, comments, and RSVPs to your meets show up here.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada todavía. Las solicitudes de amistad, los me gusta, los comentarios y las confirmaciones a tus encuentros aparecen aquí."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

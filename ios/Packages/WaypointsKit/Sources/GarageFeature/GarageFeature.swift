@@ -135,6 +135,7 @@ struct ProfileScreen: View {
     @State private var editing = false
     @State private var showFriends = false
     @State private var activityUnread = 0
+    @State private var busy = false
     @State private var toast: ToastMessage?
 
     init(ctx: GarageContext, userID: UserID, isOwn: Bool = false) {
@@ -266,8 +267,11 @@ struct ProfileScreen: View {
             case (.pending?, false): "Accept"
             default: "Add friend"
             }
-            PrimaryButton(title) {
+            PrimaryButton(title, isLoading: busy) {
+                guard !busy else { return }
+                busy = true
                 Task {
+                    defer { busy = false }
                     if status == nil {
                         askForNotifications()
                         do { try await ctx.env.friends.sendRequest(to: p.userID) } catch WaypointsError.rateLimited {
@@ -313,7 +317,7 @@ struct ProfileScreen: View {
         VStack(spacing: Space.s24) {
             ForEach(model.cars) { car in
                 Button { ctx.env.router.open(.car(car.id)) } label: { CarCard(ctx: ctx, car: car, photo: model.photos[car.id]) }
-                    .buttonStyle(.plain)
+                    .buttonStyle(PressScaleStyle())
             }
         }
         .padding(.horizontal, Space.margin)
@@ -343,6 +347,7 @@ struct ProfileScreen: View {
                     MediaView(url: ctx.url(.posts, post.posterPath), aspectRatio: 9.0 / 16.0, cornerRadius: 0,
                               label: Text(verbatim: post.caption))
                 }
+                .buttonStyle(PressScaleStyle())
             }
         }
     }
@@ -370,7 +375,7 @@ struct CarCard: View {
             if let hp {
                 HStack(alignment: .firstTextBaseline, spacing: Space.s4) {
                     Text("est.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
-                    Readout(String(format: "%.0f–%.0f", hp.lowerBound, hp.upperBound), unit: "hp")
+                    Readout(Format.range(hp), unit: "hp")
                 }
             }
         }

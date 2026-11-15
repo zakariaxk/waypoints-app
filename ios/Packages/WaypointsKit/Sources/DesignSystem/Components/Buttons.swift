@@ -176,6 +176,7 @@ public struct IconButton: View {
     private let label: LocalizedStringKey
     private let style: Style
     private let action: () -> Void
+    @Environment(\.isEnabled) private var isEnabled
 
     public init(_ symbol: String, label: LocalizedStringKey, style: Style = .plain, action: @escaping () -> Void) {
         self.symbol = symbol
@@ -198,13 +199,16 @@ public struct IconButton: View {
                 .contentShape(Circle())
         }
         .buttonStyle(PressScaleStyle())
+        .opacity(isEnabled ? 1 : Opacity.inactive)
         .accessibilityLabel(Text(label))
     }
 }
 
-struct PressScaleStyle: ButtonStyle {
+/// Pressed feedback for tappable surfaces outside `Row`: a quick scale.
+public struct PressScaleStyle: ButtonStyle {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    func makeBody(configuration: Configuration) -> some View {
+    public init() {}
+    public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? Opacity.pressedScale : 1)
             .animation(Motion.quick.resolved(reduceMotion: reduceMotion), value: configuration.isPressed)

@@ -135,7 +135,7 @@ public struct SegmentedSwitch<Value: Hashable>: View {
                     .frame(minHeight: Size.hitTarget)
                     .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PressScaleStyle())
                 .accessibilityAddTraits(isSelected ? .isSelected : [])
             }
         }

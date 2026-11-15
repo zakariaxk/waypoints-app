@@ -78,14 +78,14 @@ struct MapScreen: View {
                 ForEach(groups.compactMap { $0.members.count == 1 ? $0.members[0] : nil }) { e in
                     Annotation("", coordinate: e.coordinate.cl, anchor: .center) {
                         Button { model.selection = .entity(e.uid) } label: { marker(for: e) }
-                            .buttonStyle(.plain)
+                            .buttonStyle(PressScaleStyle())
                     }
                     .annotationTitles(.hidden)
                 }
                 ForEach(groups.filter { $0.members.count > 1 }) { g in
                     Annotation("", coordinate: g.center.cl, anchor: .center) {
                         Button { focus(g.center, zoom: 2) } label: { ClusterMarker(count: g.members.count) }
-                            .buttonStyle(.plain)
+                            .buttonStyle(PressScaleStyle())
                     }
                     .annotationTitles(.hidden)
                 }
@@ -96,7 +96,7 @@ struct MapScreen: View {
                                 Button { model.selection = .item(provider: provider.id, id: item.id) } label: {
                                     MapItemView(item: item, selected: model.selection == .item(provider: provider.id, id: item.id))
                                 }
-                                .buttonStyle(.plain)
+                                .buttonStyle(PressScaleStyle())
                             }
                             .annotationTitles(.hidden)
                         }
@@ -159,6 +159,7 @@ struct MapScreen: View {
                     .overMapMaterial(in: RoundedRectangle(cornerRadius: Radius.r12))
                     .contentShape(RoundedRectangle(cornerRadius: Radius.r12))
                 }
+                .buttonStyle(PressScaleStyle())
                 .accessibilityLabel(Text("Search", bundle: .module))
             }
             if model.aggregateCount > 0 && model.entities.isEmpty {
@@ -196,6 +197,7 @@ struct MapScreen: View {
                             .background(Color.sodium, in: Circle())
                             .mapShadow()
                     }
+                    .buttonStyle(PressScaleStyle())
                     .accessibilityLabel(Text("Add", bundle: .module))
                 }
             }
@@ -224,6 +226,7 @@ struct MapScreen: View {
                 .frame(width: Size.hitTarget, height: Size.hitTarget)
                 .contentShape(Circle())
         }
+        .buttonStyle(PressScaleStyle())
         .contextMenu {
             if ghost {
                 Button("Stop ghost mode") { model.setGhost(until: nil) }
