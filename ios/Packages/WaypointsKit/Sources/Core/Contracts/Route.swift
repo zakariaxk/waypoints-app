@@ -6,6 +6,8 @@ public enum Route: Hashable, Sendable {
     case listing(ListingID), post(PostID), report(ReportID), vehiclePicker(forCar: CarID?)
     case modSim(CarID), race(CarID), reportContent(ContentRef), settings, settingsPrivacy, createMeet(Coordinate?), createReport(Coordinate), spotCar
     case navigate(to: Coordinate, name: String?)
+    /// ROAD-6: a loop's roads joined end to end; navigation routes through it in order.
+    case navigatePath(path: [Coordinate], name: String?)
     case joinTeam(code: String), joinConvoy(code: String)     // invite deep links (section 10.10, X3)
     case convoyVoice(ConvoyID)
     case activity     // NTF-6, the Activity list (W7-2)
@@ -15,7 +17,7 @@ public enum Route: Hashable, Sendable {
     /// The case without its payload, used to key route handlers in `FeatureRegistry`.
     public enum Kind: Hashable, Sendable, CaseIterable {
         case profile, car, meet, team, channel, voice, thread, listing, post, report, vehiclePicker
-        case modSim, race, reportContent, settings, settingsPrivacy, createMeet, createReport, spotCar, navigate, joinTeam, joinConvoy
+        case modSim, race, reportContent, settings, settingsPrivacy, createMeet, createReport, spotCar, navigate, navigatePath, joinTeam, joinConvoy
         case convoyVoice
         case activity
         case askForHelp, help
@@ -44,6 +46,7 @@ public enum Route: Hashable, Sendable {
         case .createReport: .createReport
         case .spotCar: .spotCar
         case .navigate: .navigate
+        case .navigatePath: .navigatePath
         case .joinTeam: .joinTeam
         case .joinConvoy: .joinConvoy
         case .convoyVoice: .convoyVoice

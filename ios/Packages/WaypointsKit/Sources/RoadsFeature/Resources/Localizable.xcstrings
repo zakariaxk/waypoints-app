@@ -210,13 +210,13 @@
         }
       }
     },
-    "Drive it takes you to the start of the first road. Send to convoy starts a convoy with the whole loop as its route.": {
+    "Drive it follows the whole loop. Send to convoy starts a convoy with the whole loop as its route.": {
       "extractionState": "manual",
       "localizations": {
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Conducirla te lleva al inicio de la primera carretera. Enviar a la caravana inicia una caravana con toda la vuelta como ruta."
+            "value": "Conducirla recorre toda la vuelta. Enviar a la caravana inicia una caravana con toda la vuelta como ruta."
           }
         }
       }

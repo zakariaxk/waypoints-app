@@ -11,9 +11,26 @@ enum Polyline {
     /// Keeps a long loop under the gateway's route cap.
     static let maxPoints = 4000
 
-    /// The loop's roads end to end, thinned evenly when there are more than `maxPoints`.
+    /// The loop's roads joined end to end in order. A road is drawn in whichever direction it
+    /// was recorded, so each one is reversed when that connects it to the road before it; the
+    /// first road keeps its saved direction. Where roads don't quite touch, the closer end wins
+    /// and navigation routes the gap.
+    static func joined(_ roads: [Road]) -> [Coordinate] {
+        var path: [Coordinate] = []
+        var end: Coordinate?
+        for road in roads {
+            var p = road.path
+            guard let first = p.first, let last = p.last else { continue }
+            if let end, end.distance(to: last) < end.distance(to: first) { p.reverse() }
+            path.append(contentsOf: p)
+            end = p.last
+        }
+        return path
+    }
+
+    /// `joined(_:)`, thinned evenly when there are more than `maxPoints`.
     static func path(of roads: [Road]) -> [Coordinate] {
-        let path = roads.flatMap(\.path)
+        let path = joined(roads)
         let every = max(1, (path.count + maxPoints - 1) / maxPoints)
         return path.enumerated().filter { $0.offset % every == 0 || $0.offset == path.count - 1 }.map(\.element)
     }
@@ -165,13 +182,14 @@ struct LoopDetail: View {
             .padding(.horizontal, -Space.margin)
             HStack(spacing: Space.s12) {
                 PrimaryButton("Drive it") {
-                    guard let start = roads.first?.path.first else { return }
+                    let path = Polyline.joined(roads)
+                    guard path.count > 1 else { return }
                     dismiss()
-                    env.router.open(.navigate(to: start, name: loop.name))
+                    env.router.open(.navigatePath(path: path, name: loop.name))
                 }
                 SecondaryButton("Send to convoy", isLoading: working) { sendToConvoy(loop) }
             }
-            Text("Drive it takes you to the start of the first road. Send to convoy starts a convoy with the whole loop as its route.", bundle: .module)
+            Text("Drive it follows the whole loop. Send to convoy starts a convoy with the whole loop as its route.", bundle: .module)
                 .typeStyle(.foot).foregroundStyle(Color.dust)
         }
         if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }

@@ -15,6 +15,10 @@ public enum NavigationFeature: FeatureModule {
             guard case let .navigate(to, name) = route else { return nil }
             return AnyView(NavigationRoot(env: env, destination: to, name: name))
         }
+        registry.registerRoute(.navigatePath, presentation: .fullScreen) { route in
+            guard case let .navigatePath(path, name) = route, let end = path.last else { return nil }
+            return AnyView(NavigationRoot(env: env, destination: end, name: name, path: path))
+        }
         registry.registerDebugScreen("stops") { AnyView(StopsSheet(model: .stopsSeed(env)).background(Color.tarmac).preferredColorScheme(.dark)) }
     }
 }
@@ -38,9 +42,19 @@ struct ScoredRoute: Identifiable {
 @MainActor
 @Observable
 final class NavigationModel {
+    /// One target along a multi-leg path (a loop's joined roads), with its distance along it.
+    private struct Leg {
+        let at: CLLocationCoordinate2D
+        let along: Double
+    }
+
     let env: AppEnvironment
     let destination: Coordinate
     let name: String?
+    /// A multi-leg path to follow end to end (ROAD-6); nil for a single destination.
+    let path: [Coordinate]?
+    /// The whole path as a line, drawn under the routed leg.
+    let pathLine: [CLLocationCoordinate2D]?
     var routes: [ScoredRoute] = []
     var selected = 0
     var cars: [Car] = []
@@ -96,6 +110,9 @@ final class NavigationModel {
     @ObservationIgnored private var asked: Set<ReportID> = []
     @ObservationIgnored private var hazardAlong: [ReportID: Double] = [:]
     @ObservationIgnored private var points: [CLLocationCoordinate2D] = []
+    /// Legs still to drive along `path`; `legs.first` is the current MKDirections target.
+    @ObservationIgnored private var legs: [Leg] = []
+    @ObservationIgnored private var pathLength = 0.0
     @ObservationIgnored private var cumulative: [Double] = []
     @ObservationIgnored private var stepEnds: [Double] = []
     @ObservationIgnored private var spoken: Set<String> = []
@@ -110,8 +127,38 @@ final class NavigationModel {
         }
     }
 
-    init(env: AppEnvironment, destination: Coordinate, name: String?) {
-        self.env = env; self.destination = destination; self.name = name
+    init(env: AppEnvironment, destination: Coordinate, name: String?, path: [Coordinate]? = nil) {
+        self.env = env; self.destination = destination; self.name = name; self.path = path
+        self.pathLine = path?.map(\.cl)
+        if let path, path.count > 1 { (legs, pathLength) = Self.legs(along: path) }
+    }
+
+    /// Waypoints along `path` to route through in turn: the start, points about 400 m apart
+    /// (at most ~40 legs however long the path), and the end. Each leg gets real turn-by-turn
+    /// from MKDirections; the driver is steered leg to leg along the saved roads.
+    private static func legs(along path: [Coordinate]) -> ([Leg], Double) {
+        var cum = [0.0]
+        for i in 1..<path.count { cum.append(cum[i - 1] + path[i - 1].distance(to: path[i])) }
+        let total = cum.last ?? 0
+        guard total > 0 else { return ([], 0) }   // a zero-length path navigates as one destination
+        let spacing = max(400, total / 40)
+        var legs = [Leg(at: path[0].cl, along: 0)]
+        var i = 1
+        var next = spacing
+        while next < total {
+            while i < path.count - 1 && cum[i] < next { i += 1 }
+            legs.append(Leg(at: path[i].cl, along: cum[i]))
+            next += spacing
+        }
+        if (legs.last?.along ?? -1) < total { legs.append(Leg(at: path[path.count - 1].cl, along: total)) }
+        return (legs, total)
+    }
+
+    /// Fraction of a multi-leg path covered, for the guidance readout. Nil for one destination.
+    var pathProgress: Double? {
+        guard path != nil else { return nil }
+        guard let leg = legs.first else { return pathLength > 0 ? 1 : nil }
+        return min(1, max(0, (leg.along - remaining) / max(pathLength, 1)))
     }
 
     var car: Car? { cars.isEmpty ? nil : cars[carIndex % cars.count] }
@@ -140,10 +187,23 @@ final class NavigationModel {
         return nil
     }
 
+    /// Metres left of the whole trip in path mode: the current leg's remainder plus every leg
+    /// still to drive. `remaining` alone is only the current leg's (~400 m), which would make
+    /// the readout and ETA jump at each leg.
+    var tripRemaining: Double {
+        guard path != nil, pathLength > 0, let leg = legs.first else { return remaining }
+        return max(0, pathLength - leg.along + remaining)
+    }
+
     /// Arrival at the destination from the loaded route, scaled by what is left of it, plus the
     /// leg after the stop when there is one.
     var arrival: Date {
         guard let r = current?.route else { return .now }
+        if path != nil {
+            // Legs are routed one at a time; assume the current leg's pace for the whole path.
+            let pace = r.distance > 0 ? r.expectedTravelTime / r.distance : 0
+            return Date.now.addingTimeInterval(tripRemaining * pace + (stop?.onward?.expectedTravelTime ?? 0))
+        }
         let left = remaining > 0 ? r.expectedTravelTime * (remaining / max(r.distance, 1)) : r.expectedTravelTime
         return Date.now.addingTimeInterval(left + (stop?.onward?.expectedTravelTime ?? 0))
     }
@@ -211,7 +271,8 @@ final class NavigationModel {
 
     func calculate(from origin: CLLocationCoordinate2D?) {
         loading = true
-        let request = Self.request(from: origin, to: stop?.coordinate ?? destination.cl)
+        // A stop wins; otherwise the next leg along a multi-leg path, else the destination.
+        let request = Self.request(from: origin, to: stop?.coordinate ?? legs.first?.at ?? destination.cl)
         request.requestsAlternateRoutes = origin == nil
         MKDirections(request: request).calculate { response, _ in
             MainActor.assumeIsolated { self.received(response?.routes ?? []) }
@@ -359,6 +420,11 @@ final class NavigationModel {
                 stop = nil
                 continuing = true
                 calculate(from: here)
+            } else if !legs.isEmpty {
+                // Reached this leg's target: route on to the next one along the path.
+                legs.removeFirst()
+                continuing = true
+                calculate(from: here)
             } else {
                 arrived = true
                 say(String(localized: "You've arrived", bundle: .module), key: "arrive")
@@ -472,8 +538,8 @@ struct NavigationRoot: View {
     @State private var model: NavigationModel
     @Environment(\.dismiss) private var dismiss
 
-    init(env: AppEnvironment, destination: Coordinate, name: String?) {
-        _model = State(initialValue: NavigationModel(env: env, destination: destination, name: name))
+    init(env: AppEnvironment, destination: Coordinate, name: String?, path: [Coordinate]? = nil) {
+        _model = State(initialValue: NavigationModel(env: env, destination: destination, name: name, path: path))
     }
 
     var body: some View {
@@ -501,6 +567,9 @@ struct RoutePreview: View {
         ZStack(alignment: .bottom) {
             Map(position: $position) {
                 UserAnnotation()
+                if let line = model.pathLine {
+                    MapPolyline(coordinates: line).stroke(Color.dust, lineWidth: Size.Route.alternate)
+                }
                 ForEach(Array(model.routes.enumerated()), id: \.element.id) { i, r in
                     MapPolyline(r.route.polyline)
                         .stroke(i == model.selected ? Color.sodium : Color.dust,
@@ -624,6 +693,9 @@ struct GuidanceView: View {
         ZStack {
             Map(position: $position) {
                 UserAnnotation()
+                if let line = model.pathLine {
+                    MapPolyline(coordinates: line).stroke(Color.dust, lineWidth: Size.Route.alternate)
+                }
                 if let r = model.current { MapPolyline(r.route.polyline).stroke(Color.sodium, lineWidth: Size.Route.selected) }
                 if let stop = model.stop {
                     if let onward = stop.onward { MapPolyline(onward.polyline).stroke(Color.dust, lineWidth: Size.Route.alternate) }
@@ -725,7 +797,11 @@ struct GuidanceView: View {
                     .foregroundStyle(Color.dust))
                     .contentTransition(.numericText())
                 Text(verbatim: model.stop.map { String(localized: "\(NavigationModel.distance(model.remaining)) to \($0.name)", bundle: .module) }
-                     ?? NavigationModel.distance(model.remaining)).typeStyle(.foot).foregroundStyle(Color.dust)
+                     ?? NavigationModel.distance(model.tripRemaining)).typeStyle(.foot).foregroundStyle(Color.dust)
+                if let p = model.pathProgress {
+                    Text(verbatim: "\(model.destinationName) · \(Int((p * 100).rounded()))%")
+                        .typeStyle(.foot).foregroundStyle(Color.dust)
+                }
             }
             .accessibilityElement(children: .combine)
             Spacer()
