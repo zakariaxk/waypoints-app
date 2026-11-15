@@ -194,6 +194,7 @@ Audited 2026-11-13 by building, by inventory of files and endpoints, and by sear
 
 ### 3.2 What has not happened
 
+- 2026-11-14: `make build` is green after the code-first wave, the app launches in the simulator with `-wp-preview` (the first launch crashed in PushKitBridge; fixed), `make check-rt` passes 8 of 8, and `make screenshots` produces its set. Everything below still holds for the live backend.
 - The app has never run against a backend. There is no `server/.env`, `ios/App/Config.xcconfig` is the local example, and the `supabase` CLI and `nats-server` are not installed on the owner's machine. Docker is running.
 - No screen has been looked at. Roughly twenty thousand lines of first-pass code compile and are unproven.
 - Benchmark II has scripts and no recorded results. Benchmark III has not been attempted.
@@ -752,7 +753,7 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 | CMP-4 | Review notes explain location use, the absence of speed display, and that racing is virtual. `docs/APP_STORE.md` holds them with the listing copy and the privacy-label answers. | P0 | Coded: final listing, review notes (help requests, moderation functions, demo account), age rating and privacy label answers. Left: the owner fills `<LINK_HOST>` and the demo mailbox login (9.1 step 10). |
 | CMP-5 | Terms of Service and a Privacy Policy at public URLs (LINK-4). | P0 | Partial: pages in `site/`, not yet published; S6 rows appear once `LINK_HOST` is set. |
 | CMP-6 | An app icon, drawn by a script in the repository from the design tokens. | P0 | Coded |
-| CMP-7 | App Store screenshots produced by the harness in section 7, from seed data with real model names. | P1 | Partial: `tools/screenshots/shots.sh` (`make screenshots`) captures eight shots on 6.9" and 6.5" simulators into `.build/screenshots/`, through `make shot` when present or simctl directly; the debug screen names in its table follow 7.1 and await the harness's `waypoints://debug/` paths. Not yet run. |
+| CMP-7 | App Store screenshots produced by the harness in section 7, from seed data with real model names. | P1 | Partial: `make screenshots` ran 2026-11-14 and wrote all eight captures at 6.9" and 6.5" into `.build/screenshots/` from the preview seed. Read at 6.9": route preview, mod simulator, team channel are usable. Left before they can be uploaded: the map shot frames no friend marker ("4 friends out" with none in view); the preview seed has no photos or playable video, so the garage car, market, and feed are empty frames; `debug/showdown` lands on For you ("Couldn't play this.") instead of the Showdown mode, whose label wraps to "Show-down"; the meet sheet's "Directions" button sits under the home indicator; car and mod simulator opened from a link show the Map tab selected. |
 
 ### 5.8 Observability, size, language (OBS, L10N)
 
@@ -967,7 +968,7 @@ The owner chose code first, build later: packages push without running `make bui
 | W8-1 Benchmarks | PERF-1 to PERF-7 (loopback) |
 | W8-2 Store | CMP-1, CMP-4, CMP-7, `make archive` |
 
-Then, each alone: L10N-1 (String Catalogs in every module), the accessibility sweep (A11Y), and W8-0 green build. The screenshot walk (DES-7), the Verified pass, and the owner's device check follow.
+Then, each alone: L10N-1 (String Catalogs in every module), the accessibility sweep (A11Y), and W8-0 green build. All three are in `main`, with W8-1 Benchmarks (loopback) and W8-5, which closed the client rows left Partial (ACC-7, SAFE-9, SET-3, LINK-3, LINK-5). The screenshot walk (DES-7), the Verified pass, and the owner's device check follow.
 
 ---
 
