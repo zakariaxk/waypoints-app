@@ -202,7 +202,7 @@ struct ChatView: View {
                                 .typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin)
                         }
                         if model.reachedStart {
-                            Text(model.title.hasPrefix("#") ? "This is the start of \(model.title)." : "This is the start of your conversation.")
+                            Text(model.title.hasPrefix("#") ? "This is the start of \(model.title)." : "This is the start of your conversation.", bundle: .module)
                                 .typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin)
                         } else {
                             Color.clear.frame(height: 1).onAppear { Task { await model.loadOlder() } }
@@ -210,11 +210,14 @@ struct ChatView: View {
                         ForEach(Array(model.items.enumerated()), id: \.element.id) { i, item in
                             if i == 0 || !Calendar.current.isDate(model.items[i - 1].message.createdAt, inSameDayAs: item.message.createdAt) {
                                 Text(verbatim: item.message.createdAt.formatted(date: .abbreviated, time: .omitted).uppercased())
-                                    .typeStyle(.label).foregroundStyle(Color.dust).frame(maxWidth: .infinity).padding(.vertical, Space.s12)
+                                    .typeStyle(.label).foregroundStyle(Color.dust).frame(maxWidth: .infinity)
+                                    .padding(.top, Space.s24).padding(.bottom, Space.s8)
+                                    .accessibilityAddTraits(.isHeader)
                             }
                             bubble(item, grouped: i > 0 && grouped(model.items[i - 1], item)).id(item.id)
                         }
                     }
+                    .padding(.bottom, Space.s12)
                 }
                 .defaultScrollAnchor(.bottom)
                 .onChange(of: model.items.last?.id) { if let last = model.items.last { proxy.scrollTo(last.id, anchor: .bottom) } }
@@ -272,10 +275,11 @@ struct ChatView: View {
             }
             VStack(alignment: .leading, spacing: Space.s2) {
                 if !grouped {
-                    HStack(spacing: Space.s8) {
+                    HStack(alignment: .firstTextBaseline, spacing: Space.s8) {
                         Text(verbatim: author?.displayName ?? "").typeStyle(.bodyStrong)
                             .foregroundStyle(role?.colorHex.flatMap { Color(paintHex: $0) } ?? Color.chalk)
                         Text(verbatim: item.message.createdAt.formatted(date: .omitted, time: .shortened)).typeStyle(.foot).foregroundStyle(Color.gravel)
+                            .layoutPriority(1)
                     }
                 }
                 if item.message.deletedAt != nil {
@@ -293,24 +297,25 @@ struct ChatView: View {
                 if item.state == .failed {
                     Button { Task { await model.retry(item) } } label: {
                         Text("Not sent. Tap to retry.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.brake)
+                            .frame(minHeight: Size.hitTarget).contentShape(Rectangle())
                     }
                 }
             }
             Spacer(minLength: 0)
         }
-        .opacity(item.state == .sending ? 0.6 : 1)
+        .opacity(item.state == .sending ? Opacity.approximate : 1)
         .padding(.horizontal, Space.margin)
-        .padding(.top, grouped ? Space.s2 : Space.s12)
+        .padding(.top, grouped ? Space.s2 : Space.s16)
         .contextMenu {
-            Button("Copy") { UIPasteboard.general.string = item.message.body }
-            Button("Reply") { draft = "> \(item.message.body.split(separator: "\n").first ?? "")\n" }
+            Button { UIPasteboard.general.string = item.message.body } label: { Text("Copy", bundle: .module) }
+            Button { draft = "> \(item.message.body.split(separator: "\n").first ?? "")\n" } label: { Text("Reply", bundle: .module) }
             if item.message.authorID == model.me || model.canDelete {
-                Button("Delete", role: .destructive) { model.delete(item) }
+                Button(role: .destructive) { model.delete(item) } label: { Text("Delete", bundle: .module) }
             }
             if item.message.authorID != model.me {
-                Button("Report") {
+                Button {
                     model.env.router.open(.reportContent(ContentRef(kind: .message, id: String(item.message.id.raw))))
-                }
+                } label: { Text("Report", bundle: .module) }
             }
         }
     }
@@ -332,11 +337,20 @@ struct ChatView: View {
                 } label: { Row(Text(verbatim: p.displayName), subtitle: Text(verbatim: "@\(p.handle)")) }
                     .buttonStyle(RowButtonStyle())
             }
-            if let e = model.error { Text(verbatim: e).typeStyle(.foot).foregroundStyle(Color.brake).padding(.horizontal, Space.margin) }
-            HStack(spacing: Space.s8) {
+            if let e = model.error {
+                Text(verbatim: e).typeStyle(.foot).foregroundStyle(Color.brake)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, Space.margin).padding(.top, Space.s8)
+            }
+            // `Field` always reserves its label line; an empty label collapses it, leaving the
+            // field's own 8 pt gap as the composer's top padding.
+            HStack(alignment: .bottom, spacing: Space.s8) {
                 IconButton(Symbol.photo, label: "Photo") { pickPhoto = true }
                     .disabled(model.offline)
-                Field("Message", text: $draft, prompt: placeholder, limit: 2000, axis: .vertical)
+                    .opacity(model.offline ? Opacity.inactive : 1)
+                    .padding(.bottom, Space.s4)
+                Field("", text: $draft, prompt: placeholder, limit: 2000, axis: .vertical)
+                    .accessibilityLabel(Text("Message", bundle: .module))
                     .disabled(model.offline)
                 IconButton(Symbol.send, label: "Send") {
                     let text = draft.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -346,9 +360,11 @@ struct ChatView: View {
                     Task { if !(await model.send(text)) { draft = text } }
                 }
                 .disabled(model.offline || draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .opacity(model.offline || draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Opacity.inactive : 1)
+                .padding(.bottom, Space.s4)
             }
             .padding(.horizontal, Space.s12)
-            .padding(.vertical, Space.s8)
+            .padding(.bottom, Space.s8)
         }
         .background(Color.tarmac)
         .overlay(alignment: .top) { Hairline() }

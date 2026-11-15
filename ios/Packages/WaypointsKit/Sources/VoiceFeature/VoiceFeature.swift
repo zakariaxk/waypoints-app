@@ -192,6 +192,8 @@ struct VoiceSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @State private var detent: PresentationDetent = .height(320)
+    /// The collapsed strip (plan T3: 44 pt).
+    private let stripDetent = PresentationDetent.height(Size.hitTarget)
 
     private var isConvoy: Bool {
         if case .convoy = room { true } else { false }
@@ -199,9 +201,9 @@ struct VoiceSheet: View {
 
     var body: some View {
         Group {
-            if detent == .height(64) { strip } else { full }
+            if detent == stripDetent { strip } else { full }
         }
-        .presentationDetents([.height(64), .height(320)], selection: $detent)
+        .presentationDetents([stripDetent, .height(320)], selection: $detent)
         .presentationBackgroundInteraction(.enabled)
         .interactiveDismissDisabled(session.phase == .live || session.phase == .reconnecting)
         .sheetChrome()
@@ -212,9 +214,13 @@ struct VoiceSheet: View {
 
     private var strip: some View {
         HStack(spacing: Space.s12) {
-            Circle().fill(session.speakers.contains(where: \.speaking) ? Color.xenon : Color.gravel).frame(width: Space.s8, height: Space.s8)
-            Text(verbatim: session.title).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
-            Spacer()
+            let speaking = session.speakers.contains(where: \.speaking)
+            Image.symbol(Symbol.speaker).symbolVariant(speaking ? .fill : .none)
+                .foregroundStyle(speaking ? Color.xenon : Color.gravel)
+                .accessibilityLabel(Text("Speaking", bundle: .module))
+                .accessibilityHidden(!speaking)
+            Text(verbatim: session.title).typeStyle(.bodyStrong).foregroundStyle(Color.chalk).lineLimit(1)
+            Spacer(minLength: 0)
             IconButton(session.muted ? Symbol.micOff : Symbol.micOn, label: session.muted ? "Unmute" : "Mute") {
                 Task { await session.toggleMute() }
             }
@@ -247,24 +253,34 @@ struct VoiceSheet: View {
                     VStack(spacing: Space.s4) {
                         Avatar(name: s.name, size: .s64)
                             .overlay(Circle().strokeBorder(s.speaking ? Color.xenon : .clear, lineWidth: Size.Marker.ring))
-                            .opacity(session.phase == .connecting ? 0.5 : 1)
-                        Text(verbatim: s.name).typeStyle(.foot).foregroundStyle(Color.chalk).multilineTextAlignment(.center)
+                            .motion(.quick, value: s.speaking)
+                            .opacity(session.phase == .connecting ? Opacity.trail : 1)
+                        Text(verbatim: s.name).typeStyle(.foot).foregroundStyle(Color.chalk).lineLimit(1)
                     }
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel(s.speaking ? Text("\(s.name), speaking", bundle: .module) : Text(verbatim: s.name))
                 }
             }
-            HStack(spacing: Space.s16) {
-                IconButton(session.muted ? Symbol.micOff : Symbol.micOn, label: session.muted ? "Unmute" : "Mute") {
-                    Task { await session.toggleMute() }
-                }
-                RoutePicker().frame(width: Size.hitTarget, height: Size.hitTarget)
-                DestructiveButton("Leave", confirmTitle: "Leave voice", consequence: isConvoy ? "You'll stop hearing the convoy." : "You'll stop hearing the channel.") {
-                    Task { await session.leave(); dismiss() }
+            Spacer(minLength: 0)
+            if case .failed = session.phase {
+                // Nothing to mute, route, or leave: the room was never joined.
+                SecondaryButton("Close") { Task { await session.leave(); dismiss() } }
+            } else {
+                HStack(spacing: Space.s16) {
+                    IconButton(session.muted ? Symbol.micOff : Symbol.micOn, label: session.muted ? "Unmute" : "Mute") {
+                        Task { await session.toggleMute() }
+                    }
+                    RoutePicker().frame(width: Size.hitTarget, height: Size.hitTarget)
+                    DestructiveButton("Leave", confirmTitle: "Leave voice", consequence: isConvoy ? "You'll stop hearing the convoy." : "You'll stop hearing the channel.") {
+                        Task { await session.leave(); dismiss() }
+                    }
                 }
             }
         }
-        .padding(Space.margin)
+        .padding(.horizontal, Space.margin)
+        .padding(.top, Space.s24)
+        .padding(.bottom, Space.margin)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 

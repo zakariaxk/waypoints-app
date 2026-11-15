@@ -4,6 +4,9 @@
     "%@, speaking": {
       "extractionState": "manual"
     },
+    "Close": {
+      "extractionState": "manual"
+    },
     "Connecting": {
       "extractionState": "manual"
     },
@@ -29,6 +32,9 @@
       "extractionState": "manual"
     },
     "Reconnecting": {
+      "extractionState": "manual"
+    },
+    "Speaking": {
       "extractionState": "manual"
     },
     "Unmute": {

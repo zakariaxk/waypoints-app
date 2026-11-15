@@ -97,7 +97,7 @@ struct TeamsHome: View {
     var body: some View {
         HStack(spacing: 0) {
             rail
-            Rectangle().fill(Color.seam).frame(width: 1)
+            Rectangle().fill(Color.seam).frame(width: Size.Marker.innerStroke)
             ScrollView {
                 if !model.loaded {
                     SkeletonRow(); SkeletonRow(); SkeletonRow()
@@ -116,9 +116,10 @@ struct TeamsHome: View {
                     .padding(Space.margin)
                 }
             }
+            .refreshable { await model.load() }
         }
         .background(Color.asphalt.ignoresSafeArea())
-        .navigationTitle("Teams")
+        .navigationTitle(Text("Teams", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showFind, onDismiss: { Task { await model.load() } }) { FindOrStart(model: model, code: "") }
         .task { await model.load() }
@@ -129,21 +130,20 @@ struct TeamsHome: View {
                 await model.loadOccupants()
             }
         }
-        .refreshable { await model.load() }
     }
 
     private var rail: some View {
         ScrollView {
             VStack(spacing: Space.s12) {
                 Button { dms = true } label: {
-                    Image(systemName: "bubble.left.and.bubble.right").font(.title3)
+                    Image.symbol("bubble.left.and.bubble.right").imageScale(.large)
                         .foregroundStyle(dms ? Color.sodium : Color.chalk)
                         .frame(width: Size.hitTarget, height: Size.hitTarget)
                         .background(Color.concrete, in: RoundedRectangle(cornerRadius: Radius.r12))
                         .overlay(alignment: .topTrailing) {
                             if model.unread > 0 {
-                                Text(verbatim: "\(model.unread)").typeStyle(.readoutS).foregroundStyle(Color.chalk)
-                                    .padding(.horizontal, Space.s4).background(Color.brake, in: Capsule())
+                                Text(verbatim: "\(model.unread)").typeStyle(.readoutS).foregroundStyle(Color.sodium)
+                                    .padding(.horizontal, Space.s4).background(Color.sodiumDim, in: RoundedRectangle(cornerRadius: Radius.r6))
                             }
                         }
                 }
@@ -162,7 +162,8 @@ struct TeamsHome: View {
             }
             .padding(.vertical, Space.s12)
         }
-        .frame(width: 64)
+        .scrollIndicators(.hidden)
+        .frame(width: Size.hitTarget + Space.s20)
         .background(Color.tarmac)
     }
 
@@ -170,19 +171,21 @@ struct TeamsHome: View {
         VStack(alignment: .leading, spacing: 0) {
             Button { model.env.router.open(.team(team.id)) } label: {
                 VStack(alignment: .leading, spacing: Space.s2) {
-                    Text(verbatim: team.name).typeStyle(.title).foregroundStyle(Color.chalk)
-                    HStack {
+                    Text(verbatim: team.name).typeStyle(.title).foregroundStyle(Color.chalk).multilineTextAlignment(.leading)
+                    HStack(alignment: .firstTextBaseline, spacing: Space.s8) {
                         Text(verbatim: team.tag).typeStyle(.readoutS).foregroundStyle(Color.sodium)
                         Text("\(team.memberCount) members", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(Space.margin)
+                .padding([.horizontal, .top], Space.margin)
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
             SectionLabel("TEXT")
             ForEach(model.channels.filter { $0.kind == .text }) { c in
                 Button { model.env.router.open(.channel(c.id)) } label: {
-                    Row(Text(verbatim: "# \(c.name)"), trailing: {
+                    Row(Text(verbatim: "# \(c.name)").fontWeight((model.channelUnread[c.id] ?? 0) > 0 ? nil : .regular), trailing: {
                         if let n = model.channelUnread[c.id] {
                             Text(verbatim: n > 98 ? "99+" : "\(n)").typeStyle(.readoutS).foregroundStyle(Color.chalk)
                         }
@@ -262,7 +265,7 @@ struct TeamsHome: View {
                     Avatar(name: p?.displayName ?? "", url: p?.avatarPath.map { model.env.media.publicURL(bucket: .avatars, path: $0) }, size: .s40)
                         .overlay(alignment: .bottomTrailing) {
                             if t.kind == .listing {
-                                Image(systemName: "tag.fill").font(.caption2).foregroundStyle(Color.sodium)
+                                Image.symbol(Symbol.market).symbolVariant(.fill).imageScale(.small).foregroundStyle(Color.sodium)
                                     .accessibilityLabel(Text("Listing", bundle: .module))
                             }
                         }
@@ -274,13 +277,14 @@ struct TeamsHome: View {
                         }
                     } else if let d = t.lastMessage?.createdAt {
                         VStack(alignment: .trailing, spacing: Space.s2) {
-                            Text(verbatim: d.formatted(.relative(presentation: .numeric))).typeStyle(.foot)
+                            Text(verbatim: d.formatted(.relative(presentation: .numeric, unitsStyle: .narrow))).typeStyle(.foot)
                             if t.unreadCount > 0 {
                                 Text(verbatim: "\(t.unreadCount)").typeStyle(.readoutS).foregroundStyle(Color.sodium)
                             }
                         }
                     }
                 })
+                .lineLimit(2)
         }
         .buttonStyle(RowButtonStyle())
     }
@@ -369,7 +373,7 @@ struct FindOrStart: View {
                 Row(Text(verbatim: t.name), subtitle: Text(verbatim: "\(t.tag) · \(t.memberCount) members\(t.about.isEmpty ? "" : " · \(t.about)")"),
                     leading: { TeamIcon(team: t, env: model.env, size: Size.hitTarget) },
                     trailing: {
-                        SecondaryButton("Join") { run { try await model.env.teams.joinPublic(t.id); dismiss() } }.frame(width: Size.row * 1.4)
+                        SecondaryButton("Join") { run { try await model.env.teams.joinPublic(t.id); dismiss() } }.frame(width: Size.wideButton)
                     })
             }
         }
@@ -441,7 +445,7 @@ struct TeamDetail: View {
             if let t = team {
                 VStack(alignment: .leading, spacing: 0) {
                     VStack(alignment: .leading, spacing: Space.s8) {
-                        TeamIcon(team: t, env: model.env, size: 96)
+                        TeamIcon(team: t, env: model.env, size: Avatar.Diameter.s96.rawValue)
                         Text(verbatim: t.name).typeStyle(.title).foregroundStyle(Color.chalk)
                         Text(verbatim: t.tag).typeStyle(.readoutS).foregroundStyle(Color.sodium)
                         if !t.about.isEmpty { Text(verbatim: t.about).typeStyle(.body).foregroundStyle(Color.chalk) }
@@ -526,7 +530,7 @@ struct TeamDetail: View {
                     }
                 }
             }
-            HStack {
+            HStack(alignment: .bottom, spacing: Space.s12) {
                 Field("New channel", text: $newChannel, prompt: "lowercase-with-hyphens", limit: 30)
                     .textInputAutocapitalization(.never)
                 SecondaryButton("Add") {
@@ -535,7 +539,7 @@ struct TeamDetail: View {
                     guard !name.isEmpty else { return }
                     act { try await model.env.teams.saveChannel(Channel(teamID: teamID, name: name, kind: .text, sort: model.channels.count)) }
                 }
-                .frame(width: Size.row * 1.4)
+                .frame(width: Size.wideButton)
             }
             .padding(.horizontal, Space.margin)
         }
@@ -849,7 +853,7 @@ struct TeamMeets: View {
             }
         }
         .background(Color.asphalt.ignoresSafeArea())
-        .navigationTitle("Meets")
+        .navigationTitle(Text("Meets", bundle: .module))
         .task {
             var list = (try? await model.env.teams.meets(of: teamID)) ?? []
             if list.isEmpty, let me = model.me {
@@ -900,7 +904,7 @@ struct MembersView: View {
         .scrollContentBackground(.hidden)
         .environment(\.defaultMinListRowHeight, 0)
         .background(Color.asphalt.ignoresSafeArea())
-        .navigationTitle("Members")
+        .navigationTitle(Text("Members", bundle: .module))
         .sheet(item: $changing) { ref in rolePicker(ref.member) }
         .confirmationDialog("Remove \(removing.flatMap { profiles[$0.id]?.displayName } ?? "member")?",
                             isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } }),
