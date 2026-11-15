@@ -17,6 +17,15 @@ public protocol MessageRepository: Sendable {
     func unreadCount() async -> AsyncStream<Int>
     /// Unread messages per text channel (capped at 99), for T1 channel rows.
     func unreadCounts(in channels: [ChannelID]) async throws -> [ChannelID: Int]
+
+    /// MSG-11: reaction counts for one page of messages (one query). Messages with none are absent.
+    func reactions(for messages: [MessageID]) async throws -> [MessageID: [ReactionCount]]
+    /// MSG-11: adds the caller's reaction, or removes it when `on` is false.
+    func setReaction(_ reaction: Reaction, on message: MessageID, to on: Bool) async throws
+    /// SAFE-12: the caller's mutes that have not run out.
+    func mutes() async throws -> Set<MuteTarget>
+    /// SAFE-12: mutes a target for a duration, or unmutes it when `duration` is `nil`.
+    func setMute(_ target: MuteTarget, for duration: MuteDuration?) async throws
 }
 
 public extension MessageRepository {

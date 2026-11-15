@@ -48,6 +48,12 @@ final class ChatModel {
     var error: String?
     var loadFailed = false
     var restore: String?
+    /// MSG-11: reaction counts per message, loaded one page at a time.
+    var reactions: [MessageID: [ReactionCount]] = [:]
+    /// SAFE-12: the caller's active mutes.
+    var mutes: Set<MuteTarget> = []
+    /// The other party of a DM thread, for muting the person.
+    var threadOther: UserID?
 
     init(env: AppEnvironment, target: MessageTarget) { self.env = env; self.target = target }
 
@@ -68,6 +74,7 @@ final class ChatModel {
         case let .thread(id):
             if let t = try? await env.messages.threads().first(where: { $0.id == id }), let me {
                 let other = t.other(than: me)
+                threadOther = other
                 if let p = try? await env.profiles.profile(other) { profiles[other] = p; title = p.displayName }
                 if let l = t.listingID { listing = try? await env.market.listing(l) }
             }
@@ -78,7 +85,63 @@ final class ChatModel {
         items = page.reversed().map { ChatItem(id: "m\($0.id.raw)", message: $0, state: .sent) }
             + items.filter { i in i.state != .sent || !page.contains { $0.id == i.message.id } }
         await resolveAuthors()
+        await loadReactions(page)
+        await refreshMutes()
         markRead()
+    }
+
+    /// MSG-11: one bounded query per page of messages.
+    private func loadReactions(_ page: [Message]) async {
+        guard let found = try? await env.messages.reactions(for: page.map(\.id)) else { return }
+        reactions.merge(found) { _, new in new }
+    }
+
+    /// MSG-11: optimistic toggle; rolls back by refetching on failure.
+    func toggle(_ reaction: Reaction, on id: MessageID) {
+        var counts = reactions[id] ?? []
+        let on = !(counts.first { $0.reaction == reaction }?.mine ?? false)
+        if let i = counts.firstIndex(where: { $0.reaction == reaction }) {
+            if on {
+                if !counts[i].mine { counts[i].count += 1; counts[i].mine = true }
+            } else if counts[i].mine {
+                counts[i].count -= 1
+                counts[i].mine = false
+                if counts[i].count == 0 { counts.remove(at: i) }
+            }
+        } else if on {
+            counts.append(ReactionCount(reaction: reaction, count: 1, mine: true))
+        }
+        reactions[id] = counts
+        Task {
+            do {
+                try await env.messages.setReaction(reaction, on: id, to: on)
+            } catch {
+                self.error = String(localized: "Couldn't update the reaction. Check your connection and try again.", bundle: .module)
+                if let found = try? await env.messages.reactions(for: [id]) {
+                    reactions[id] = found[id]
+                }
+            }
+        }
+    }
+
+    // SAFE-12
+
+    func isMuted(_ target: MuteTarget) -> Bool { mutes.contains(target) }
+
+    func refreshMutes() async {
+        if let found = try? await env.messages.mutes() { mutes = found }
+    }
+
+    /// Returns false and shows the error line on failure.
+    func setMute(_ target: MuteTarget, _ duration: MuteDuration?) async -> Bool {
+        do {
+            try await env.messages.setMute(target, for: duration)
+            await refreshMutes()
+            return true
+        } catch {
+            self.error = String(localized: "Couldn't update mute. Check your connection and try again.", bundle: .module)
+            return false
+        }
     }
 
     func listen() async {
@@ -117,6 +180,7 @@ final class ChatModel {
         loadingOlder = false
         if !page.isEmpty { restore = "m\(first.raw)" }
         await resolveAuthors()
+        await loadReactions(page)
     }
 
     private func resolveAuthors() async {
@@ -174,6 +238,20 @@ final class ChatModel {
     }
 }
 
+/// SAFE-12: which mute the dialog is editing.
+private struct MutePrompt: Identifiable {
+    let target: MuteTarget
+    let name: String
+    var id: String {
+        switch target {
+        case let .user(id): "u\(id.raw)"
+        case let .thread(id): "t\(id.raw)"
+        case let .channel(id): "c\(id.raw)"
+        case let .team(id): "m\(id.raw)"
+        }
+    }
+}
+
 struct ChatView: View {
     @State private var model: ChatModel
     @State private var draft = ""
@@ -181,6 +259,7 @@ struct ChatView: View {
     @State private var photo: PhotosPickerItem?
     @State private var pickPhoto = false
     @State private var zoom: URL?
+    @State private var mutePrompt: MutePrompt?
 
     init(env: AppEnvironment, target: MessageTarget) { _model = State(initialValue: ChatModel(env: env, target: target)) }
 
@@ -188,6 +267,42 @@ struct ChatView: View {
         if model.offline { return "Offline" }
         if case .channel = model.target { return "Message \(model.title)" }
         return "Message"
+    }
+
+    /// SAFE-12: muting here mutes the channel or the whole thread.
+    private var chatMuteTarget: MuteTarget {
+        switch model.target {
+        case let .channel(id): .channel(id)
+        case let .thread(id): .thread(id)
+        }
+    }
+
+    /// The person to mute from a thread header, if any.
+    private var personMute: MutePrompt? {
+        model.threadOther.map { MutePrompt(target: .user($0), name: model.profiles[$0]?.displayName ?? model.title) }
+    }
+
+    private var anyMuted: Bool {
+        model.isMuted(chatMuteTarget) || (personMute.map { model.isMuted($0.target) } ?? false)
+    }
+
+    private func reactionName(_ r: Reaction) -> LocalizedStringKey {
+        switch r {
+        case .fire: "Fire"
+        case .heart: "Heart"
+        case .thumbsUp: "Thumbs up"
+        case .laugh: "Laugh"
+        case .flag: "Flag"
+        case .wrench: "Wrench"
+        }
+    }
+
+    private func muteDurationTitle(_ d: MuteDuration) -> LocalizedStringKey {
+        switch d {
+        case .eightHours: "8 hours"
+        case .week: "1 week"
+        case .untilTurnedOn: "Until turned back on"
+        }
     }
 
     var body: some View {
@@ -248,11 +363,46 @@ struct ChatView: View {
         .task { await model.load() }
         .task { await model.listen() }
         .task { await model.watchConnection() }
+        .confirmationDialog("Mute", isPresented: Binding(
+            get: { mutePrompt != nil }, set: { if !$0 { mutePrompt = nil } }), titleVisibility: .visible) {
+            if let prompt = mutePrompt, model.isMuted(prompt.target) {
+                Button {
+                    mutePrompt = nil
+                    Task { await model.setMute(prompt.target, nil) }
+                } label: { Text("Unmute", bundle: .module) }
+            } else if let prompt = mutePrompt {
+                ForEach(MuteDuration.allCases, id: \.self) { duration in
+                    Button {
+                        mutePrompt = nil
+                        Task { await model.setMute(prompt.target, duration) }
+                    } label: { Text(muteDurationTitle(duration), bundle: .module) }
+                }
+            }
+            Button("Cancel", role: .cancel) { mutePrompt = nil }
+        } message: {
+            if let prompt = mutePrompt { Text(verbatim: prompt.name) }
+        }
         .toolbar {
             if let team = model.teamID {
                 ToolbarItem(placement: .topBarTrailing) {
                     IconButton("person.2", label: "Members") { model.env.router.open(.team(team)) }
                 }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    if case .thread = model.target, let person = personMute {
+                        if model.isMuted(person.target) {
+                            Button { mutePrompt = person } label: { Text("Unmute", bundle: .module) }
+                        } else {
+                            Button { mutePrompt = person } label: { Text("Mute", bundle: .module) + Text(verbatim: " \(person.name)") }
+                        }
+                    }
+                    Button { mutePrompt = MutePrompt(target: chatMuteTarget, name: model.title) }
+                    label: { Text(model.isMuted(chatMuteTarget) ? "Unmute" : "Mute", bundle: .module) }
+                } label: {
+                    Image.symbol(anyMuted ? "bell.slash" : "bell").accessibilityHidden(true)
+                }
+                .accessibilityLabel(Text("Mute", bundle: .module))
             }
         }
     }
@@ -271,7 +421,7 @@ struct ChatView: View {
                 Button { model.env.router.open(.profile(item.message.authorID)) } label: {
                     Avatar(name: author?.displayName ?? "", url: author?.avatarPath.map { model.env.media.publicURL(bucket: .avatars, path: $0) }, size: .s40)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(PressScaleStyle())
             }
             VStack(alignment: .leading, spacing: Space.s2) {
                 if !grouped {
@@ -294,11 +444,29 @@ struct ChatView: View {
                         }
                     }
                 }
+                let counts = (model.reactions[item.message.id] ?? [])
+                    .sorted { Reaction.allCases.firstIndex(of: $0.reaction) ?? 0 < Reaction.allCases.firstIndex(of: $1.reaction) ?? 0 }
+                if !counts.isEmpty {
+                    HStack(spacing: Space.s4) {
+                        ForEach(counts, id: \.reaction) { c in
+                            Button { model.toggle(c.reaction, on: item.message.id) } label: {
+                                Text(verbatim: "\(c.reaction.glyph) \(c.count.formatted(.number))")
+                                    .typeStyle(.foot)
+                                    .foregroundStyle(c.mine ? Color.sodium : Color.chalk)
+                                    .padding(.horizontal, Space.s8).padding(.vertical, Space.s2)
+                                    .background(c.mine ? Color.sodiumDim : Color.concrete, in: Capsule())
+                            }
+                            .buttonStyle(PressScaleStyle())
+                        }
+                    }
+                    .padding(.top, Space.s2)
+                }
                 if item.state == .failed {
                     Button { Task { await model.retry(item) } } label: {
                         Text("Not sent. Tap to retry.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.brake)
                             .frame(minHeight: Size.hitTarget).contentShape(Rectangle())
                     }
+                    .buttonStyle(PressScaleStyle())
                 }
             }
             Spacer(minLength: 0)
@@ -309,6 +477,26 @@ struct ChatView: View {
         .contextMenu {
             Button { UIPasteboard.general.string = item.message.body } label: { Text("Copy", bundle: .module) }
             Button { draft = "> \(item.message.body.split(separator: "\n").first ?? "")\n" } label: { Text("Reply", bundle: .module) }
+            if item.state == .sent, item.message.deletedAt == nil {
+                Menu {
+                    ForEach(Reaction.allCases, id: \.self) { r in
+                        Button { model.toggle(r, on: item.message.id) } label: {
+                            Text(verbatim: "\(r.glyph) \(reactionName(r))")
+                        }
+                    }
+                } label: { Text("React", bundle: .module) }
+                Menu {
+                    if model.isMuted(chatMuteTarget) {
+                        Button { Task { await model.setMute(chatMuteTarget, nil) } }
+                        label: { Text("Unmute", bundle: .module) }
+                    } else {
+                        ForEach(MuteDuration.allCases, id: \.self) { duration in
+                            Button { Task { await model.setMute(chatMuteTarget, duration) } }
+                            label: { Text(muteDurationTitle(duration), bundle: .module) }
+                        }
+                    }
+                } label: { Text("Mute", bundle: .module) }
+            }
             if item.message.authorID == model.me || model.canDelete {
                 Button(role: .destructive) { model.delete(item) } label: { Text("Delete", bundle: .module) }
             }
@@ -372,7 +560,7 @@ struct ChatView: View {
 
     private func listingRow(_ l: Listing) -> some View {
         Button { model.env.router.open(.listing(l.id)) } label: {
-            Row(Text(verbatim: l.title), subtitle: Text(verbatim: (Double(l.priceCents) / 100).formatted(.currency(code: "USD").precision(.fractionLength(0)))),
+            Row(Text(verbatim: l.title), subtitle: Text(verbatim: Format.money(cents: l.priceCents)),
                 leading: {
                     MediaView(url: l.photos.first.map { model.env.media.publicURL(bucket: .listings, path: $0.path) }, aspectRatio: 1,
                               cornerRadius: Radius.r6, label: Text(verbatim: l.title))

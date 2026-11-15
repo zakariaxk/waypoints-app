@@ -40,6 +40,9 @@ final class TeamsModel {
     /// TEAM-4: who is in each voice channel of the selected team.
     var occupants: [ChannelID: [VoiceOccupant]] = [:]
     var unread = 0
+    /// SAFE-12: active mutes and per-channel unread for every team (badge exclusion).
+    var mutes: Set<MuteTarget> = []
+    var allChannelUnread: [ChannelID: Int] = [:]
     var me: UserID?
     var loaded = false
     var failed = false
@@ -60,6 +63,7 @@ final class TeamsModel {
         failed = mine == nil && teams.isEmpty
         if let mine { teams = mine }
         if let found = try? await env.messages.threads() { threads = found }
+        await refreshMutes()
         friends = Set(((try? await env.friends.friends()) ?? []).map(\.id))
         if let me {
             for p in (try? await env.profiles.profiles(threads.map { $0.other(than: me) })) ?? [] { people[p.userID] = p }
@@ -67,6 +71,47 @@ final class TeamsModel {
         if selected == nil { selected = teams.first?.id }
         await loadTeam()
         loaded = true
+    }
+
+    /// SAFE-12: the badge counts nothing from muted threads, people, channels, or teams.
+    var badgeUnread: Int { max(0, unread - mutedUnread) }
+
+    private var mutedUnread: Int {
+        guard let me else { return 0 }
+        var n = 0
+        for t in threads where t.unreadCount > 0 {
+            if mutes.contains(.thread(t.id)) || mutes.contains(.user(t.other(than: me))) {
+                n += t.unreadCount
+            }
+        }
+        for (c, count) in allChannelUnread where mutes.contains(.channel(c)) {
+            n += count
+        }
+        return n
+    }
+
+    func isMuted(_ target: MuteTarget) -> Bool { mutes.contains(target) }
+
+    /// Loads mutes and the unread of every text channel I belong to (one RPC).
+    func refreshMutes() async {
+        mutes = (try? await env.messages.mutes()) ?? mutes
+        var chans: [ChannelID] = []
+        for t in teams {
+            chans += ((try? await env.teams.channels(of: t.id)) ?? []).filter { $0.kind == .text }.map(\.id)
+        }
+        allChannelUnread = (try? await env.messages.unreadCounts(in: chans)) ?? [:]
+    }
+
+    /// Returns false and shows the error line on failure.
+    func setMute(_ target: MuteTarget, _ duration: MuteDuration?) async -> Bool {
+        do {
+            try await env.messages.setMute(target, for: duration)
+            await refreshMutes()
+            return true
+        } catch {
+            self.error = String(localized: "Couldn't update mute. Check your connection and try again.", bundle: .module)
+            return false
+        }
     }
 
     func loadTeam() async {
@@ -90,11 +135,54 @@ final class TeamsModel {
 
 // MARK: T1
 
+/// SAFE-12: which mute a dialog is editing.
+struct MutePrompt: Identifiable {
+    let target: MuteTarget
+    let name: String
+    var id: String {
+        switch target {
+        case let .user(id): "u\(id.raw)"
+        case let .thread(id): "t\(id.raw)"
+        case let .channel(id): "c\(id.raw)"
+        case let .team(id): "m\(id.raw)"
+        }
+    }
+}
+
+func muteDurationTitle(_ d: MuteDuration) -> LocalizedStringKey {
+    switch d {
+    case .eightHours: "8 hours"
+    case .week: "1 week"
+    case .untilTurnedOn: "Until turned back on"
+    }
+}
+
+/// The mute dialog shared by T1 rows and T4/T5: durations, or Unmute when active.
+@MainActor
+@ViewBuilder
+func muteDialog(_ prompt: MutePrompt?, model: TeamsModel, dismiss: @escaping () -> Void) -> some View {
+    if let prompt, model.isMuted(prompt.target) {
+        Button {
+            dismiss()
+            Task { await model.setMute(prompt.target, nil) }
+        } label: { Text("Unmute", bundle: .module) }
+    } else if let prompt {
+        ForEach(MuteDuration.allCases, id: \.self) { duration in
+            Button {
+                dismiss()
+                Task { await model.setMute(prompt.target, duration) }
+            } label: { Text(muteDurationTitle(duration), bundle: .module) }
+        }
+    }
+    Button("Cancel", role: .cancel) { dismiss() }
+}
+
 struct TeamsHome: View {
     @Bindable var model: TeamsModel
     @State private var dms = false
     @State private var showFind = false
     @State private var showStandings = false
+    @State private var mutePrompt: MutePrompt?
 
     var body: some View {
         HStack(spacing: 0) {
@@ -128,6 +216,12 @@ struct TeamsHome: View {
         }
         .navigationDestination(isPresented: $showStandings) { StandingsView(model: model) }
         .sheet(isPresented: $showFind, onDismiss: { Task { await model.load() } }) { FindOrStart(model: model, code: "") }
+        .confirmationDialog("Mute", isPresented: Binding(
+            get: { mutePrompt != nil }, set: { if !$0 { mutePrompt = nil } }), titleVisibility: .visible) {
+            muteDialog(mutePrompt, model: model) { mutePrompt = nil }
+        } message: {
+            if let prompt = mutePrompt { Text(verbatim: prompt.name) }
+        }
         .task { await model.load() }
         .task {
             while !Task.isCancelled {
@@ -147,15 +241,16 @@ struct TeamsHome: View {
                         .frame(width: Size.hitTarget, height: Size.hitTarget)
                         .background(Color.concrete, in: RoundedRectangle(cornerRadius: Radius.r12))
                         .overlay(alignment: .topTrailing) {
-                            if model.unread > 0 {
-                                Text(verbatim: "\(model.unread)").typeStyle(.readoutS).foregroundStyle(Color.sodium)
+                            if model.badgeUnread > 0 {
+                                Text(verbatim: "\(model.badgeUnread)").typeStyle(.readoutS).foregroundStyle(Color.sodium)
                                     .padding(.horizontal, Space.s4).background(Color.sodiumDim, in: RoundedRectangle(cornerRadius: Radius.r6))
                             }
                         }
                 }
                 .accessibilityLabel(Text("Direct messages", bundle: .module))
-                .accessibilityValue(model.unread > 0 ? Text("\(model.unread) unread", bundle: .module) : Text(verbatim: ""))
+                .accessibilityValue(model.badgeUnread > 0 ? Text("\(model.badgeUnread) unread", bundle: .module) : Text(verbatim: ""))
                 .accessibilityAddTraits(dms ? .isSelected : [])
+                .buttonStyle(PressScaleStyle())
                 Hairline().frame(width: Size.hitTarget)
                 ForEach(model.teams) { t in
                     Button {
@@ -163,6 +258,7 @@ struct TeamsHome: View {
                         model.selected = t.id
                         Task { await model.loadTeam() }
                     } label: { TeamIcon(team: t, env: model.env, size: Size.hitTarget, selected: !dms && model.selected == t.id) }
+                    .buttonStyle(PressScaleStyle())
                 }
                 IconButton(Symbol.add, label: "Find or start a team") { showFind = true }
             }
@@ -187,17 +283,29 @@ struct TeamsHome: View {
                 .padding([.horizontal, .top], Space.margin)
                 .contentShape(Rectangle())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(PressScaleStyle())
             SectionLabel("TEXT")
             ForEach(model.channels.filter { $0.kind == .text }) { c in
+                let muted = model.isMuted(.channel(c.id))
                 Button { model.env.router.open(.channel(c.id)) } label: {
-                    Row(Text(verbatim: "# \(c.name)").fontWeight((model.channelUnread[c.id] ?? 0) > 0 ? nil : .regular), trailing: {
-                        if let n = model.channelUnread[c.id] {
-                            Text(verbatim: n > 98 ? "99+" : "\(n)").typeStyle(.readoutS).foregroundStyle(Color.chalk)
+                    Row(Text(verbatim: "# \(c.name)").fontWeight(!muted && (model.channelUnread[c.id] ?? 0) > 0 ? nil : .regular), trailing: {
+                        HStack(spacing: Space.s8) {
+                            if muted {
+                                Image.symbol("bell.slash").imageScale(.small).foregroundStyle(Color.dust)
+                                    .accessibilityLabel(Text("Muted", bundle: .module))
+                            } else if let n = model.channelUnread[c.id] {
+                                Text(verbatim: n > 98 ? "99+" : "\(n)").typeStyle(.readoutS).foregroundStyle(Color.chalk)
+                            }
                         }
                     })
                 }
                 .buttonStyle(RowButtonStyle())
+                .contextMenu {
+                    Button { mutePrompt = MutePrompt(target: .channel(c.id), name: "#\(c.name)") }
+                    label: {
+                        if muted { Text("Unmute", bundle: .module) } else { Text("Mute", bundle: .module) }
+                    }
+                }
             }
             let voice = model.channels.filter { $0.kind == .voice }
             if !voice.isEmpty && model.registry.canOpen(.voice(voice[0].id)) {
@@ -264,6 +372,8 @@ struct TeamsHome: View {
     private func threadRow(_ t: MessageThread, request: Bool) -> some View {
         let other = model.me.map { t.other(than: $0) }
         let p = other.flatMap { model.people[$0] }
+        // SAFE-12: muted thread or muted person: no unread badge, small muted glyph.
+        let muted = model.isMuted(.thread(t.id)) || (other.map { model.isMuted(.user($0)) } ?? false)
         return Button { model.env.router.open(.thread(t.id)) } label: {
             Row(Text(verbatim: p?.displayName ?? "Driver"),
                 subtitle: Text(verbatim: t.lastMessage?.body ?? (t.kind == .listing ? "About a listing" : "")),
@@ -284,7 +394,10 @@ struct TeamsHome: View {
                     } else if let d = t.lastMessage?.createdAt {
                         VStack(alignment: .trailing, spacing: Space.s2) {
                             Text(verbatim: d.formatted(.relative(presentation: .numeric, unitsStyle: .narrow))).typeStyle(.foot)
-                            if t.unreadCount > 0 {
+                            if muted {
+                                Image.symbol("bell.slash").imageScale(.small).foregroundStyle(Color.dust)
+                                    .accessibilityLabel(Text("Muted", bundle: .module))
+                            } else if t.unreadCount > 0 {
                                 Text(verbatim: "\(t.unreadCount)").typeStyle(.readoutS).foregroundStyle(Color.sodium)
                             }
                         }
@@ -293,6 +406,20 @@ struct TeamsHome: View {
                 .lineLimit(2)
         }
         .buttonStyle(RowButtonStyle())
+        .contextMenu {
+            if let other {
+                Button { mutePrompt = MutePrompt(target: .user(other), name: p?.displayName ?? "") }
+                label: {
+                    if model.isMuted(.user(other)) { Text("Unmute", bundle: .module) }
+                    else { Text("Mute", bundle: .module) + Text(verbatim: " \(p?.displayName ?? "")") }
+                }
+            }
+            Button { mutePrompt = MutePrompt(target: .thread(t.id), name: p?.displayName ?? "") }
+            label: {
+                if model.isMuted(.thread(t.id)) { Text("Unmute", bundle: .module) }
+                else { Text("Mute conversation", bundle: .module) }
+            }
+        }
     }
 
     private func answer(_ body: @escaping () async throws -> Void) {
@@ -411,6 +538,7 @@ struct FindOrStart: View {
     }
 
     private func run(_ body: @escaping () async throws -> Void) {
+        guard !working else { return }
         working = true
         error = nil
         Task {
@@ -446,6 +574,7 @@ struct TeamDetail: View {
     @State private var failed = false
     @State private var standings: [TeamStanding]?
     @State private var standingsFailed = false
+    @State private var mutePrompt: MutePrompt?
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -488,6 +617,16 @@ struct TeamDetail: View {
                         Button { editingTeam = true } label: { Row(Text("Edit team", bundle: .module), trailing: { Disclosure() }) }
                             .buttonStyle(RowButtonStyle())
                     }
+                    // SAFE-12: muting the team silences its channels' pushes and badge.
+                    Button { mutePrompt = MutePrompt(target: .team(teamID), name: t.name) } label: {
+                        Row(Text("Mute team", bundle: .module), trailing: {
+                            if model.isMuted(.team(teamID)) {
+                                Image.symbol("bell.slash").imageScale(.small).foregroundStyle(Color.dust)
+                                    .accessibilityLabel(Text("Muted", bundle: .module))
+                            } else { Disclosure() }
+                        })
+                    }
+                    .buttonStyle(RowButtonStyle())
                     if perms.contains(.manageChannels) { channelsSection }
                     if perms.contains(.manageRoles) { rolesSection }
                     VStack(spacing: Space.s12) {
@@ -529,6 +668,12 @@ struct TeamDetail: View {
             }
         }
         .task { await reload() }
+        .confirmationDialog("Mute", isPresented: Binding(
+            get: { mutePrompt != nil }, set: { if !$0 { mutePrompt = nil } }), titleVisibility: .visible) {
+            muteDialog(mutePrompt, model: model) { mutePrompt = nil }
+        } message: {
+            if let prompt = mutePrompt { Text(verbatim: prompt.name) }
+        }
     }
 
     /// TEAM-11: the team's rank this week; nothing while loading.
@@ -543,10 +688,21 @@ struct TeamDetail: View {
         VStack(alignment: .leading, spacing: 0) {
             SectionLabel("CHANNELS")
             ForEach(model.channels) { c in
+                let muted = model.isMuted(.channel(c.id))
                 Row(Text(verbatim: c.kind == .text ? "# \(c.name)" : c.name), trailing: {
-                    Image.symbol(Symbol.more).accessibilityHidden(true)
+                    HStack(spacing: Space.s8) {
+                        if muted {
+                            Image.symbol("bell.slash").imageScale(.small).foregroundStyle(Color.dust)
+                                .accessibilityLabel(Text("Muted", bundle: .module))
+                        }
+                        Image.symbol(Symbol.more).accessibilityHidden(true)
+                    }
                 })
                 .contextMenu {
+                    Button { mutePrompt = MutePrompt(target: .channel(c.id), name: c.name) }
+                    label: {
+                        if muted { Text("Unmute", bundle: .module) } else { Text("Mute", bundle: .module) }
+                    }
                     Button("Rename") { renameText = c.name; renaming = c }
                     if c.id != model.channels.first?.id { Button("Move up") { move(c, by: -1) } }
                     if c.id != model.channels.last?.id { Button("Move down") { move(c, by: 1) } }
@@ -669,6 +825,7 @@ struct IconPicker: View {
                     .typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
             }
         }
+        .buttonStyle(PressScaleStyle())
         .photosPicker(isPresented: $picking, selection: $photo, matching: .images)
         .disabled(uploading)
         .onChange(of: photo) {
@@ -800,6 +957,7 @@ struct RoleEditor: View {
                                     .overlay(Circle().strokeBorder(role.colorHex == s.hex ? Color.sodium : .clear, lineWidth: Size.Marker.ring))
                                     .frame(width: Size.hitTarget, height: Size.hitTarget)
                             }
+                            .buttonStyle(PressScaleStyle())
                             .accessibilityLabel(Text(verbatim: s.name))
                             .accessibilityAddTraits(role.colorHex == s.hex ? .isSelected : [])
                         }
@@ -838,6 +996,7 @@ struct RoleEditor: View {
     }
 
     private func run(_ body: @escaping () async throws -> Void) {
+        guard !working else { return }
         working = true
         error = nil
         Task {

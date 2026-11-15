@@ -45,7 +45,10 @@ public actor PreviewStore {
     var saves: Set<Pair> = []
     var achievements: [Achievement]
     var raceResults: [RaceResult] = []
+    var weeklyRuns: [WeeklyRun] = PreviewCarOfWeek.runs
     var savedBuilds: [CarID: [SavedBuild]] = PreviewSeed.savedBuilds
+    var reactions: [MessageID: [ReactionCount]] = PreviewW10Reactions.seeded
+    var mutes: [String: PreviewW10Reactions.StoredMute] = [:]
     var termsAccepted = true
     var notificationPrefs = NotificationPrefs()
 

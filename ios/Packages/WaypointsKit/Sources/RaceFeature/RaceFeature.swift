@@ -16,6 +16,7 @@ public enum RaceFeature: FeatureModule {
             guard case let .race(id) = route else { return nil }
             return AnyView(Lobby(env: env, carID: id))
         }
+        registry.registerDebugScreen("car-of-week") { AnyView(DebugCarOfWeek(env: env)) }
     }
 }
 
@@ -40,7 +41,7 @@ enum Opponent: Hashable {
     var title: String {
         switch self {
         case .ghost: String(localized: "Your best run", bundle: .module)
-        case let .friend(name, r, _): String(localized: "\(name)'s run · \(String(format: "%.2f", Double(r.etMs) / 1000)) s", bundle: .module)
+        case let .friend(name, r, _): String(localized: "\(name)'s run · \(Format.number(Double(r.etMs) / 1000, fractionDigits: 2)) s", bundle: .module)
         case let .house(h): h.title
         case let .bench(b): b.title
         }
@@ -71,8 +72,21 @@ struct Lobby: View {
     @State private var bench: BenchCar?
     @State private var pickingBench = false
     @State private var failed = false
+    /// MOD-15: the car's saved builds; "" keys the current mods.
+    @State private var builds: [SavedBuild] = []
+    @State private var buildKey = ""
     @AppStorage(Ladder.openedKey) private var opened = 0
     @AppStorage(Ladder.treeKey) private var tree = TreeKind.sportsman
+
+    /// The build picked to run, if any.
+    private var build: SavedBuild? { builds.first { $0.id.uuidString == buildKey } }
+    /// The car as it will run: the picked build's mods replace the car's own.
+    private func withBuild(_ c: Car) -> Car {
+        guard let build else { return c }
+        var copy = c
+        copy.mods = build.mods
+        return copy
+    }
 
     var body: some View {
         ScrollView {
@@ -81,19 +95,21 @@ struct Lobby: View {
                     .typeStyle(.body).foregroundStyle(Color.chalk)
                     .padding(.horizontal, Space.margin)
                 if let car, let spec {
-                    let est = estimate(base: spec, mods: car.mods.compactMap(ModCatalog.mod))
+                    let est = estimate(base: spec, mods: (build?.mods ?? car.mods).compactMap(ModCatalog.mod))
                     VStack(alignment: .leading, spacing: Space.s12) {
                         Text(verbatim: car.nickname ?? car.fullLabel).typeStyle(.title).foregroundStyle(Color.chalk)
-                        Readout(String(format: "%.1f", (est.quarterET.lowerBound + est.quarterET.upperBound) / 2), unit: "s", label: "EST. ¼ MILE",
+                        Readout(Format.number((est.quarterET.lowerBound + est.quarterET.upperBound) / 2, fractionDigits: 1), unit: "s", label: "EST. ¼ MILE",
                                 token: .readoutL,
                                 range: .init(low: est.quarterET.lowerBound, high: est.quarterET.upperBound, bounds: 8...18))
                             .frame(maxWidth: Size.row * 3, alignment: .leading)
+                        if !builds.isEmpty { buildMenu }
                     }
                     .padding(Space.s16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.tarmac, in: RoundedRectangle(cornerRadius: Radius.r20, style: .continuous))
                     .padding(.horizontal, Space.margin)
                     .padding(.top, Space.s16)
+                    CarOfWeekSection(env: env)
                     SectionLabel("OPPONENT")
                     if let best { opponentRow(.ghost(best)) }
                     ForEach(friendRuns, id: \.self) { opponentRow($0) }
@@ -146,7 +162,7 @@ struct Lobby: View {
         .navigationTitle("The Strip")
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(isPresented: $running, onDismiss: { Task { await load() } }) {
-            if let car, let spec, let opponent { RunView(env: env, car: car, spec: spec, opponent: opponent, tree: tree) }
+            if let car, let spec, let opponent { RunView(env: env, car: withBuild(car), spec: spec, opponent: opponent, tree: tree) }
         }
         .sheet(isPresented: $pickingBench) {
             BenchPicker(env: env) { b in
@@ -160,9 +176,9 @@ struct Lobby: View {
                 ScrollView {
                     ForEach(past) { r in
                         // Trap stays in mph everywhere: it is the drag strip's unit, as on a real time slip (SET-3).
-                        Row(Text(verbatim: String(format: "%.3f s", Double(r.etMs) / 1000)),
+                        Row(Text(verbatim: Format.number(Double(r.etMs) / 1000, fractionDigits: 3) + " s"),
                             subtitle: Text(verbatim: r.createdAt.formatted(date: .abbreviated, time: .shortened)),
-                            trailing: { Text(verbatim: String(format: "%.1f mph", Double(r.trapMphX10) / 10)).typeStyle(.readoutS) })
+                            trailing: { Text(verbatim: Format.number(Double(r.trapMphX10) / 10, fractionDigits: 1) + " mph").typeStyle(.readoutS) })
                     }
                 }
             }
@@ -172,6 +188,22 @@ struct Lobby: View {
     }
 
     private var openRung: Int { max(0, min(opened, Ladder.cars.count - 1)) }
+
+    /// MOD-15: run the car's current mods or one of its saved builds.
+    private var buildMenu: some View {
+        Menu {
+            Picker(selection: $buildKey) {
+                Text("Current mods", bundle: .module).tag("")
+                ForEach(builds) { b in Text(verbatim: b.name).tag(b.id.uuidString) }
+            } label: {
+                Text("Build", bundle: .module)
+            }
+        } label: {
+            Row(Text("Build", bundle: .module),
+                subtitle: Text(verbatim: build?.name ?? String(localized: "Current mods", bundle: .module)),
+                showsDivider: false, trailing: { Disclosure() })
+        }
+    }
 
     private func opponentRow(_ o: Opponent) -> some View {
         Button { opponent = o } label: {
@@ -208,6 +240,8 @@ struct Lobby: View {
             }
         }
         friendRuns = runs
+        builds = (try? await env.garage.savedBuilds(for: carID)) ?? []
+        if !buildKey.isEmpty, builds.allSatisfy({ $0.id.uuidString != buildKey }) { buildKey = "" }
     }
 }
 
@@ -389,6 +423,8 @@ final class RaceModel {
 
 struct RunView: View {
     let env: AppEnvironment
+    /// STR-11: a car-of-the-week run saves to the weekly board, not `race_results`.
+    let weekly: Bool
     @State private var model: RaceModel
     @Environment(\.dismiss) private var dismiss
     @State private var saved = false
@@ -397,8 +433,9 @@ struct RunView: View {
     @State private var run = 0
     @AppStorage(Ladder.openedKey) private var opened = 0
 
-    init(env: AppEnvironment, car: Car, spec: VehicleSpec, opponent: Opponent, tree: TreeKind) {
+    init(env: AppEnvironment, car: Car, spec: VehicleSpec, opponent: Opponent, tree: TreeKind, weekly: Bool = false) {
         self.env = env
+        self.weekly = weekly
         _model = State(initialValue: RaceModel(car: car, spec: spec, opponent: opponent, tree: tree))
         _setup = State(initialValue: (car, spec, opponent, tree))
     }
@@ -406,7 +443,7 @@ struct RunView: View {
     var body: some View {
         Group {
             if model.phase == .done || model.phase == .redLight {
-                TimeSlip(model: model, again: { restart() }, close: { dismiss() })
+                TimeSlip(model: model, weekly: weekly, again: { restart() }, close: { dismiss() })
             } else {
                 scene.orientation(.landscape)
                     .background { TwoFingerTap { model.paused = true; model.synth.setMuted(true) } }
@@ -434,11 +471,17 @@ struct RunView: View {
                 if model.won, let rung = model.houseRung, rung >= opened, rung + 1 < Ladder.cars.count { opened = rung + 1 }
                 let r = model.meResult
                 Task {
-                    guard let me = await env.auth.currentSession()?.userID else { return }
-                    _ = try? await env.progress.saveRaceResult(RaceResult(
-                        userID: me, carID: model.car.id, mods: model.car.mods, reactionMs: r.reactionMs, etMs: Int(r.quarterET * 1000),
-                        trapMphX10: Int(r.quarterMph * 10), sixtyFtMs: Int(r.sixtyFt * 1000), inputLog: model.log.encoded(),
-                        modelVersion: PerformanceModelVersion.current))
+                    if weekly {
+                        try? await env.progress.saveCarOfWeekRun(etMs: Int(r.quarterET * 1000),
+                            trapMphX10: Int(r.quarterMph * 10), reactionMs: r.reactionMs,
+                            modelVersion: PerformanceModelVersion.current)
+                    } else {
+                        guard let me = await env.auth.currentSession()?.userID else { return }
+                        _ = try? await env.progress.saveRaceResult(RaceResult(
+                            userID: me, carID: model.car.id, mods: model.car.mods, reactionMs: r.reactionMs, etMs: Int(r.quarterET * 1000),
+                            trapMphX10: Int(r.quarterMph * 10), sixtyFtMs: Int(r.sixtyFt * 1000), inputLog: model.log.encoded(),
+                            modelVersion: PerformanceModelVersion.current))
+                    }
                 }
             }
         }
@@ -475,7 +518,7 @@ struct RunView: View {
                     tree
                     Spacer()
                     HStack(alignment: .bottom) {
-                        Button { model.tapShift(); thud += model.launched ? 0 : 1 } label: {
+                        Button { let launching = model.phase == .racing && !model.launched; model.tapShift(); thud += launching ? 1 : 0 } label: {
                             (model.launched ? Text("Shift", bundle: .module) : Text("Launch", bundle: .module))
                                 .typeStyle(.bodyStrong).foregroundStyle(Color.asphalt)
                                 .minimumScaleFactor(0.5)
@@ -503,7 +546,10 @@ struct RunView: View {
             }
         }
         .accessibilityAction(named: Text("Throttle", bundle: .module)) { model.setThrottle(!model.throttle) }
-        .accessibilityAction(named: Text("Shift", bundle: .module)) { model.tapShift(); thud += model.launched ? 0 : 1 }
+        .accessibilityAction(named: Text("Shift", bundle: .module)) {
+            let launching = model.phase == .racing && !model.launched
+            model.tapShift(); thud += launching ? 1 : 0
+        }
     }
 
     private var tree: some View {
@@ -560,6 +606,8 @@ struct RunView: View {
 
 struct TimeSlip: View {
     let model: RaceModel
+    /// STR-11: marks the slip "Car of the week"; awards nothing.
+    let weekly: Bool
     let again: () -> Void
     let close: () -> Void
 
@@ -574,7 +622,11 @@ struct TimeSlip: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 PrimaryButton("Run again", action: again)
-                SecondaryButton("Change opponent", action: close)
+                if weekly {
+                    SecondaryButton("Done", action: close)
+                } else {
+                    SecondaryButton("Change opponent", action: close)
+                }
                 if let image = ImageRenderer(content: slip.frame(width: Size.row * 6)).uiImage {
                     ShareLink(item: Image(uiImage: image), preview: SharePreview("Virtual run · Waypoints", image: Image(uiImage: image))) {
                         Text("Share", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
@@ -595,15 +647,16 @@ struct TimeSlip: View {
         return VStack(alignment: .leading, spacing: Space.s4) {
             Text("VIRTUAL RUN · WAYPOINTS", bundle: .module).typeStyle(.readoutS)
             Text(verbatim: model.car.fullLabel).typeStyle(.readoutM)
+            if weekly { Text("Car of the week", bundle: .module).typeStyle(.readoutS) }
             rule
             line("", String(localized: "YOU", bundle: .module), String(localized: "OPP", bundle: .module))
-            line("R/T", red ? String(localized: "RED", bundle: .module) : String(format: "%.3f", Double(a.reactionMs) / 1000),
-                 String(format: "%.3f", Double(b.reactionMs) / 1000))
-            line("60 FT", String(format: "%.3f", a.sixtyFt), String(format: "%.3f", b.sixtyFt))
-            line("⅛ ET", String(format: "%.3f", a.eighthET), String(format: "%.3f", b.eighthET))
-            line("⅛ MPH", String(format: "%.2f", a.eighthMph), String(format: "%.2f", b.eighthMph))
-            line("¼ ET", String(format: "%.3f", a.quarterET), String(format: "%.3f", b.quarterET))
-            line("¼ MPH", String(format: "%.2f", a.quarterMph), String(format: "%.2f", b.quarterMph))
+            line("R/T", red ? String(localized: "RED", bundle: .module) : Format.number(Double(a.reactionMs) / 1000, fractionDigits: 3),
+                 Format.number(Double(b.reactionMs) / 1000, fractionDigits: 3))
+            line("60 FT", Format.number(a.sixtyFt, fractionDigits: 3), Format.number(b.sixtyFt, fractionDigits: 3))
+            line("⅛ ET", Format.number(a.eighthET, fractionDigits: 3), Format.number(b.eighthET, fractionDigits: 3))
+            line("⅛ MPH", Format.number(a.eighthMph, fractionDigits: 2), Format.number(b.eighthMph, fractionDigits: 2))
+            line("¼ ET", Format.number(a.quarterET, fractionDigits: 3), Format.number(b.quarterET, fractionDigits: 3))
+            line("¼ MPH", Format.number(a.quarterMph, fractionDigits: 2), Format.number(b.quarterMph, fractionDigits: 2))
             rule
             (red ? Text("RED LIGHT", bundle: .module) : won ? Text("WIN · YOU", bundle: .module) : Text("WIN · OPPONENT", bundle: .module))
                 .typeStyle(.readoutM)
