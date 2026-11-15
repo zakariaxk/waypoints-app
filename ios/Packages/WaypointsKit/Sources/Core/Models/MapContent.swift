@@ -67,16 +67,20 @@ public struct Meet: Identifiable, Hashable, Sendable, Codable {
     public var roadID: RoadID?
     /// People's choice winner, set when a meet or show with votes ends (MEET-14).
     public var winnerCarID: CarID?
+    /// The most cars Going (MEET-15); nil for no cap. Past it, Going joins the waitlist.
+    public var capacity: Int?
     public init(id: MeetID = MeetID(), hostID: UserID, title: String, kind: MeetKind, coordinate: Coordinate,
                 placeName: String, startsAt: Date, endsAt: Date, details: String = "",
                 visibility: MeetVisibility = .public, teamID: TeamID? = nil, cancelledAt: Date? = nil,
                 createdAt: Date = .now, recurrence: MeetRecurrence? = nil, seriesID: UUID? = nil,
-                destination: ConvoyDestination? = nil, roadID: RoadID? = nil, winnerCarID: CarID? = nil) {
+                destination: ConvoyDestination? = nil, roadID: RoadID? = nil, winnerCarID: CarID? = nil,
+                capacity: Int? = nil) {
         self.id = id; self.hostID = hostID; self.title = title; self.kind = kind; self.coordinate = coordinate
         self.placeName = placeName; self.startsAt = startsAt; self.endsAt = endsAt; self.details = details
         self.visibility = visibility; self.teamID = teamID; self.cancelledAt = cancelledAt; self.createdAt = createdAt
         self.recurrence = recurrence; self.seriesID = seriesID; self.destination = destination
         self.roadID = roadID; self.winnerCarID = winnerCarID
+        self.capacity = capacity
     }
     public func isHappening(at date: Date = .now) -> Bool { cancelledAt == nil && startsAt <= date && date < endsAt }
 }
@@ -95,16 +99,21 @@ public struct MeetDraft: Hashable, Sendable, Codable {
     public var recurrence: MeetRecurrence?
     public var destination: ConvoyDestination?
     public var roadID: RoadID?
+    /// The most cars Going (MEET-15); nil for no cap.
+    public var capacity: Int?
     public init(title: String, kind: MeetKind, coordinate: Coordinate, placeName: String, startsAt: Date,
                 endsAt: Date, details: String = "", visibility: MeetVisibility = .public, teamID: TeamID? = nil,
-                recurrence: MeetRecurrence? = nil, destination: ConvoyDestination? = nil, roadID: RoadID? = nil) {
+                recurrence: MeetRecurrence? = nil, destination: ConvoyDestination? = nil, roadID: RoadID? = nil,
+                capacity: Int? = nil) {
         self.title = title; self.kind = kind; self.coordinate = coordinate; self.placeName = placeName
         self.startsAt = startsAt; self.endsAt = endsAt; self.details = details; self.visibility = visibility
         self.teamID = teamID; self.recurrence = recurrence; self.destination = destination; self.roadID = roadID
+        self.capacity = capacity
     }
 }
 
-public enum RSVPStatus: String, Sendable, Codable, Hashable { case going, maybe }
+/// `waitlist` is never sent: the database turns Going into it when the meet is full (MEET-15).
+public enum RSVPStatus: String, Sendable, Codable, Hashable { case going, maybe, waitlist }
 
 public struct MeetRSVP: Hashable, Sendable, Codable {
     public let meetID: MeetID
@@ -113,9 +122,13 @@ public struct MeetRSVP: Hashable, Sendable, Codable {
     public var carID: CarID?
     /// Set while this person, Going, is navigating here (NAV-15). No position, only the flag.
     public var onTheWayUntil: Date?
-    public init(meetID: MeetID, userID: UserID, status: RSVPStatus, carID: CarID? = nil, onTheWayUntil: Date? = nil) {
+    /// When this person joined the waitlist (MEET-15): the order of the line.
+    public var waitlistedAt: Date?
+    public init(meetID: MeetID, userID: UserID, status: RSVPStatus, carID: CarID? = nil, onTheWayUntil: Date? = nil,
+                waitlistedAt: Date? = nil) {
         self.meetID = meetID; self.userID = userID; self.status = status; self.carID = carID
         self.onTheWayUntil = onTheWayUntil
+        self.waitlistedAt = waitlistedAt
     }
     /// "On the way" shows only while the flag is in the future and the RSVP is Going.
     public func isOnTheWay(at now: Date = .now) -> Bool {

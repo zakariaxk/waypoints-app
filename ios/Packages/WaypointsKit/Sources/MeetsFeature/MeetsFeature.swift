@@ -22,6 +22,9 @@ public enum MeetsFeature: FeatureModule {
             guard case let .createMeet(c) = route else { return nil }
             return AnyView(CreateMeet(env: env, start: c))
         }
+        #if DEBUG
+        registry.registerDebugScreen("meet-capacity") { AnyView(DebugCapacity(env: env)) }
+        #endif
     }
 }
 
@@ -126,6 +129,7 @@ struct CreateMeet: View {
     @State private var destName = ""
     @State private var roadID: RoadID?
     @State private var myRoads: [Road] = []
+    @State private var capacity = ""
     @State private var saving = false
     @State private var error: String?
     @State private var failed = 0
@@ -144,6 +148,7 @@ struct CreateMeet: View {
             _details = State(initialValue: m.details); _visibility = State(initialValue: m.visibility)
             _recurrence = State(initialValue: m.recurrence); _destName = State(initialValue: m.destination?.name ?? "")
             _roadID = State(initialValue: m.roadID)
+            _capacity = State(initialValue: m.capacity.map { String($0) } ?? "")
         }
     }
 
@@ -216,6 +221,10 @@ struct CreateMeet: View {
                     Text("Who can see it", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     SegmentedSwitch(selection: $visibility, options: [(.public, "Everyone"), (.friends, "Friends")]
                                     + (hostTeam.map { [(MeetVisibility.team, LocalizedStringKey($0.tag))] } ?? []))
+                    // MEET-15: past this many cars, Going joins the waitlist.
+                    Field("Car limit", text: $capacity, prompt: "No limit")
+                        .keyboardType(.numberPad)
+                        .onChange(of: capacity) { capacity = String(capacity.filter { $0.isASCII && $0.isNumber }.prefix(3)) }
                     if showDetails {
                         Field("Details", text: $details, limit: 500, axis: .vertical)
                     } else {
@@ -296,7 +305,8 @@ struct CreateMeet: View {
             let draft = MeetDraft(title: title, kind: kind, coordinate: Coordinate(latitude: center.latitude, longitude: center.longitude),
                                   placeName: place, startsAt: startsAt, endsAt: endsAt, details: details, visibility: visibility,
                                   teamID: visibility == .team ? hostTeam?.id ?? editing?.teamID : nil, recurrence: recurrence, destination: dest,
-                                  roadID: kind == .cruise ? roadID : nil)
+                                  roadID: kind == .cruise ? roadID : nil,
+                                  capacity: Int(capacity).flatMap { $0 > 0 ? $0 : nil })
             do {
                 let meet = if let editing { try await env.gateway.updateMeet(editing.id, draft) } else { try await env.gateway.createMeet(draft) }
                 done += 1
@@ -362,6 +372,7 @@ struct MeetDetail: View {
                 } else {
                     PrimaryButton("Directions") { env.router.open(.navigate(to: m.coordinate, name: m.placeName)) }
                 }
+                capacity(m)
                 going
                 peoplesChoice(m)
                 MeetPostsStrip(env: env, meetID: meetID)
@@ -481,7 +492,7 @@ struct MeetDetail: View {
     }
 
     private var rsvpControl: some View {
-        SegmentedSwitch(selection: Binding(get: { mine.map { $0 == .going ? 0 : 1 } ?? 2 }, set: { v in
+        SegmentedSwitch(selection: Binding(get: { mine.map { $0 == .maybe ? 1 : 0 } ?? 2 }, set: { v in
             switch v {
             case 0:
                 if cars.count > 1 || MeetReminder.answer(for: meetID) == nil { askGoing = true } else { rsvp(.going, car: cars.first?.id) }
@@ -498,6 +509,27 @@ struct MeetDetail: View {
                 }
             }
         }), options: [(0, "Going"), (1, "Maybe"), (2, "Can't")])
+    }
+
+    /// MEET-15: "12 of 20 cars", "Waitlist · 3", and your place in the line.
+    @ViewBuilder private func capacity(_ m: Meet) -> some View {
+        if let cap = m.capacity {
+            let count = rsvps.filter { $0.status == .going }.count
+            let waiting = rsvps.filter { $0.status == .waitlist }
+                .sorted { $0.waitlistedAt ?? .distantPast < $1.waitlistedAt ?? .distantPast }
+            VStack(alignment: .leading, spacing: Space.s2) {
+                HStack(spacing: Space.s12) {
+                    Text("\(count) of \(cap) cars", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                    if !waiting.isEmpty {
+                        Text("Waitlist · \(waiting.count)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
+                    }
+                }
+                if let place = waiting.firstIndex(where: { $0.userID == me }) {
+                    Text("You're on the waitlist, \(MeetFormat.ordinal(place + 1))", bundle: .module)
+                        .typeStyle(.sub).foregroundStyle(Color.sodium)
+                }
+            }
+        }
     }
 
     @ViewBuilder private var going: some View {
@@ -681,6 +713,25 @@ struct MeetDetail: View {
         }
     }
 }
+
+#if DEBUG
+/// `waypoints://debug/meet-capacity`: E2 for the first capped meet (MEET-15).
+private struct DebugCapacity: View {
+    let env: AppEnvironment
+    @State private var meetID: MeetID?
+
+    var body: some View {
+        ScrollView {
+            if let meetID { MeetDetail(env: env, meetID: meetID).padding(.top, Space.s16) }
+        }
+        .background(Color.tarmac)
+        .task {
+            let world = MapRegion(minLatitude: -90, minLongitude: -180, maxLatitude: 90, maxLongitude: 180)
+            meetID = (try? await env.meets.meets(in: world))?.first { $0.capacity != nil }?.id
+        }
+    }
+}
+#endif
 
 struct VenueNoteSheet: View {
     let env: AppEnvironment

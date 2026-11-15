@@ -40,6 +40,15 @@
     "Add your car": {
       "extractionState": "manual"
     },
+    "Aspect": {
+      "extractionState": "manual"
+    },
+    "At %@ rpm.": {
+      "extractionState": "manual"
+    },
+    "BUILD COST": {
+      "extractionState": "manual"
+    },
     "Bio": {
       "extractionState": "manual"
     },
@@ -49,6 +58,9 @@
     "CARS": {
       "extractionState": "manual"
     },
+    "CRUISING": {
+      "extractionState": "manual"
+    },
     "Cancel": {
       "extractionState": "manual"
     },
@@ -56,6 +68,9 @@
       "extractionState": "manual"
     },
     "Clearance": {
+      "extractionState": "manual"
+    },
+    "Cost": {
       "extractionState": "manual"
     },
     "Couldn't add the photo. Check your connection and try again.": {
@@ -71,6 +86,15 @@
       "extractionState": "manual"
     },
     "Couldn't save. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Cruising speed (km/h)": {
+      "extractionState": "manual"
+    },
+    "Cruising speed (mph)": {
+      "extractionState": "manual"
+    },
+    "DIFFERENT TIRE OR FINAL DRIVE": {
       "extractionState": "manual"
     },
     "Decline": {
@@ -97,10 +121,28 @@
     "Engine": {
       "extractionState": "manual"
     },
+    "Engine speed in top gear": {
+      "extractionState": "manual"
+    },
     "Enter Showdown": {
       "extractionState": "manual"
     },
+    "Enter the cost as a number, like 349.99.": {
+      "extractionState": "manual"
+    },
+    "Enter the stock tire size above and a different tire size or final drive here to see the speedometer error.": {
+      "extractionState": "manual"
+    },
     "Estimates from stock specs and listed mods.": {
+      "extractionState": "manual"
+    },
+    "Fill in the stock setup above to see rpm at this speed.": {
+      "extractionState": "manual"
+    },
+    "Fill in the stock setup above to see the speed in each gear.": {
+      "extractionState": "manual"
+    },
+    "Final drive ratio": {
       "extractionState": "manual"
     },
     "Find people": {
@@ -116,6 +158,12 @@
       "extractionState": "manual"
     },
     "Friends": {
+      "extractionState": "manual"
+    },
+    "Gear %@": {
+      "extractionState": "manual"
+    },
+    "Gearing and tires": {
       "extractionState": "manual"
     },
     "Handle": {
@@ -140,6 +188,9 @@
       "extractionState": "manual"
     },
     "Like 'South Jersey'": {
+      "extractionState": "manual"
+    },
+    "Like 3.73": {
       "extractionState": "manual"
     },
     "Link a mod": {
@@ -178,7 +229,13 @@
     "Odometer": {
       "extractionState": "manual"
     },
+    "Only you can see what the build cost.": {
+      "extractionState": "manual"
+    },
     "Optional": {
+      "extractionState": "manual"
+    },
+    "Optional. Only you see it.": {
       "extractionState": "manual"
     },
     "POSTS": {
@@ -196,6 +253,18 @@
     "Primary car set": {
       "extractionState": "manual"
     },
+    "Reads higher than you are going": {
+      "extractionState": "manual"
+    },
+    "Reads lower than you are going": {
+      "extractionState": "manual"
+    },
+    "Reads true": {
+      "extractionState": "manual"
+    },
+    "Redline (rpm)": {
+      "extractionState": "manual"
+    },
     "Remind me": {
       "extractionState": "manual"
     },
@@ -211,10 +280,22 @@
     "Requested": {
       "extractionState": "manual"
     },
+    "Rim": {
+      "extractionState": "manual"
+    },
     "SPECS": {
       "extractionState": "manual"
     },
+    "SPEED AT REDLINE": {
+      "extractionState": "manual"
+    },
     "SPOTTED": {
+      "extractionState": "manual"
+    },
+    "STOCK SETUP": {
+      "extractionState": "manual"
+    },
+    "Same as stock": {
       "extractionState": "manual"
     },
     "Save": {
@@ -247,6 +328,9 @@
     "Share build": {
       "extractionState": "manual"
     },
+    "Speedometer error": {
+      "extractionState": "manual"
+    },
     "Spotted": {
       "extractionState": "manual"
     },
@@ -262,10 +346,31 @@
     "That handle is taken.": {
       "extractionState": "manual"
     },
+    "That isn't a tire size. Use the three numbers on the sidewall, like 245 / 40 / 18.": {
+      "extractionState": "manual"
+    },
+    "The catalog doesn't list tire size or final drive. Enter the stock ones: the tire size is on the door-jamb sticker, the final drive is in the owner's manual.": {
+      "extractionState": "manual"
+    },
+    "The catalog has no gear ratios for this car, so there is no speed in each gear or cruising rpm to show. The tire comparison below still works.": {
+      "extractionState": "manual"
+    },
+    "The catalog has no redline for this car. Enter it from the tachometer.": {
+      "extractionState": "manual"
+    },
+    "The entry is saved, but its cost isn't. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "This profile isn't available.": {
       "extractionState": "manual"
     },
+    "Total": {
+      "extractionState": "manual"
+    },
     "Transmission": {
+      "extractionState": "manual"
+    },
+    "True speed when it shows %@ %@": {
       "extractionState": "manual"
     },
     "Uploading photo": {
@@ -280,6 +385,12 @@
     "What did you do?": {
       "extractionState": "manual"
     },
+    "Width": {
+      "extractionState": "manual"
+    },
+    "Worked out from nominal tire sizes; a tire under load measures slightly smaller. Speedometer error assumes the speedometer is driven from the transmission.": {
+      "extractionState": "manual"
+    },
     "You're doing that a lot. Try again in a few minutes.": {
       "extractionState": "manual"
     },
@@ -287,6 +398,12 @@
       "extractionState": "manual"
     },
     "edited": {
+      "extractionState": "manual"
+    },
+    "in": {
+      "extractionState": "manual"
+    },
+    "mm": {
       "extractionState": "manual"
     },
     "stock": {

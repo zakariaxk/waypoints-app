@@ -14,6 +14,12 @@ public enum RoadsFeature: FeatureModule {
         registry.registerMapLayer(RoadsLayer(env: env))
         registry.registerMapLayer(DrivenLayer())
         registry.registerMapSheetSection(DrivesSection(env: env))
+        registry.registerRoute(.loop, presentation: .sheet) { route in
+            guard case let .loop(id) = route else { return nil }
+            return AnyView(LoopDetail(env: env, loopID: id))
+        }
+        registry.registerDebugScreen("loop") { AnyView(DebugLoop(env: env, edit: false)) }
+        registry.registerDebugScreen("loop-edit") { AnyView(DebugLoop(env: env, edit: true)) }
         DriveRecorder.shared.start(env: env)
     }
 }
@@ -331,6 +337,7 @@ struct DrivesSection: MapSheetSection {
         AnyView(VStack(alignment: .leading, spacing: 0) {
             DrivenShare(env: env, region: region)
             DrivesView(env: env)
+            LoopsList(env: env)
         })
     }
 }

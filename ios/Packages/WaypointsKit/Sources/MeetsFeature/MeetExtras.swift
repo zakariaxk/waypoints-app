@@ -263,6 +263,13 @@ extension MeetFormat {
 
     /// People's choice runs at meets and shows (MEET-14).
     static func hasChoice(_ m: Meet) -> Bool { m.kind == .meet || m.kind == .show }
+
+    /// "2nd" in the locale's form: a place in the waitlist (MEET-15).
+    static func ordinal(_ n: Int) -> String {
+        let f = NumberFormatter()
+        f.numberStyle = .ordinal
+        return f.string(from: n as NSNumber) ?? "\(n)"
+    }
 }
 
 // MARK: MEET-13 road route

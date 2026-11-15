@@ -58,6 +58,12 @@
     "Couldn't do that. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't load the standings.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load the standings. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't load this team. Check your connection and try again.": {
       "extractionState": "manual"
     },
@@ -154,6 +160,9 @@
     "No team with that invite.": {
       "extractionState": "manual"
     },
+    "No votes yet this week.": {
+      "extractionState": "manual"
+    },
     "PERMISSIONS": {
       "extractionState": "manual"
     },
@@ -161,6 +170,9 @@
       "extractionState": "manual"
     },
     "ROLES": {
+      "extractionState": "manual"
+    },
+    "Rank %@": {
       "extractionState": "manual"
     },
     "Remove": {
@@ -185,6 +197,15 @@
       "extractionState": "manual"
     },
     "Search teams or paste an invite": {
+      "extractionState": "manual"
+    },
+    "Showdown votes this week": {
+      "extractionState": "manual"
+    },
+    "Showdown votes won by members' cars since Monday.": {
+      "extractionState": "manual"
+    },
+    "Standings": {
       "extractionState": "manual"
     },
     "Start a team": {

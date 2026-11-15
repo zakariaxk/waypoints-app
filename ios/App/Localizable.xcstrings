@@ -46,6 +46,9 @@
     "%@ needs a tune": {
       "extractionState": "manual"
     },
+    "%@ of %@ cars": {
+      "extractionState": "manual"
+    },
     "%@ of %@ stretches of road here. Counted on this phone only.": {
       "extractionState": "manual"
     },
@@ -65,6 +68,9 @@
       "extractionState": "manual"
     },
     "%@ rpm, shift now": {
+      "extractionState": "manual"
+    },
+    "%@ to %@": {
       "extractionState": "manual"
     },
     "%@ unread": {
@@ -161,6 +167,12 @@
       "extractionState": "manual"
     },
     "Add a photo": {
+      "extractionState": "manual"
+    },
+    "Add a road from your saved roads below.": {
+      "extractionState": "manual"
+    },
+    "Add a stop": {
       "extractionState": "manual"
     },
     "Add a zone": {
@@ -277,7 +289,13 @@
     "Ask for a hand": {
       "extractionState": "manual"
     },
+    "Aspect": {
+      "extractionState": "manual"
+    },
     "At %@": {
+      "extractionState": "manual"
+    },
+    "At %@ rpm.": {
       "extractionState": "manual"
     },
     "Authorization": {
@@ -287,6 +305,9 @@
       "extractionState": "manual"
     },
     "BACKGROUND": {
+      "extractionState": "manual"
+    },
+    "BUILD COST": {
       "extractionState": "manual"
     },
     "Back": {
@@ -340,6 +361,12 @@
     "Budget %@ · %@": {
       "extractionState": "manual"
     },
+    "Build deleted": {
+      "extractionState": "manual"
+    },
+    "Build saved": {
+      "extractionState": "manual"
+    },
     "Built": {
       "extractionState": "manual"
     },
@@ -358,6 +385,9 @@
     "CONVOY": {
       "extractionState": "manual"
     },
+    "CRUISING": {
+      "extractionState": "manual"
+    },
     "Calendar access is off for Waypoints. Turn it on in Settings.": {
       "extractionState": "manual"
     },
@@ -374,6 +404,9 @@
       "extractionState": "manual"
     },
     "Caption": {
+      "extractionState": "manual"
+    },
+    "Car limit": {
       "extractionState": "manual"
     },
     "Cars and Coffee, Cherry Hill": {
@@ -401,6 +434,9 @@
       "extractionState": "manual"
     },
     "Channels, roles, and messages are deleted.": {
+      "extractionState": "manual"
+    },
+    "Cherry Hill Mall": {
       "extractionState": "manual"
     },
     "Choose a video": {
@@ -448,6 +484,9 @@
     "Comments": {
       "extractionState": "manual"
     },
+    "Compare": {
+      "extractionState": "manual"
+    },
     "Condition": {
       "extractionState": "manual"
     },
@@ -473,6 +512,9 @@
       "extractionState": "manual"
     },
     "Copy": {
+      "extractionState": "manual"
+    },
+    "Cost": {
       "extractionState": "manual"
     },
     "Couldn't add it to your calendar.": {
@@ -520,6 +562,9 @@
     "Couldn't clear it. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't clear the regroup point. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't count that. Check your connection and try again.": {
       "extractionState": "manual"
     },
@@ -530,6 +575,9 @@
       "extractionState": "manual"
     },
     "Couldn't delete the account. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't delete the loop. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't delete the message. Check your connection and try again.": {
@@ -553,6 +601,12 @@
     "Couldn't find that place. Try again.": {
       "extractionState": "manual"
     },
+    "Couldn't find your location. Search for a place instead.": {
+      "extractionState": "manual"
+    },
+    "Couldn't get your data. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't list it. Check your connection and try again.": {
       "extractionState": "manual"
     },
@@ -566,6 +620,9 @@
       "extractionState": "manual"
     },
     "Couldn't load messages. Check your connection.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load saved builds. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't load that photo. Try another one.": {
@@ -586,10 +643,19 @@
     "Couldn't load the rankings. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't load the standings.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load the standings. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't load this car. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't load this listing.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this loop. It may have been deleted.": {
       "extractionState": "manual"
     },
     "Couldn't load this meet. Check your connection and try again.": {
@@ -614,6 +680,12 @@
       "extractionState": "manual"
     },
     "Couldn't load your listings. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load your loops.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load your saved roads.": {
       "extractionState": "manual"
     },
     "Couldn't load your settings. Check your connection and try again.": {
@@ -655,6 +727,9 @@
     "Couldn't save the car. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't save the loop. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't save the meet. Check your connection and try again.": {
       "extractionState": "manual"
     },
@@ -674,6 +749,9 @@
       "extractionState": "manual"
     },
     "Couldn't save. Try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't search along this route.": {
       "extractionState": "manual"
     },
     "Couldn't send it. Try again.": {
@@ -733,6 +811,18 @@
     "Cruise": {
       "extractionState": "manual"
     },
+    "Cruising speed (km/h)": {
+      "extractionState": "manual"
+    },
+    "Cruising speed (mph)": {
+      "extractionState": "manual"
+    },
+    "Current selection": {
+      "extractionState": "manual"
+    },
+    "DIFFERENT TIRE OR FINAL DRIVE": {
+      "extractionState": "manual"
+    },
     "DRIVEN MAP": {
       "extractionState": "manual"
     },
@@ -752,6 +842,9 @@
       "extractionState": "manual"
     },
     "Delete drive": {
+      "extractionState": "manual"
+    },
+    "Delete loop": {
       "extractionState": "manual"
     },
     "Delete role": {
@@ -808,6 +901,9 @@
     "Done": {
       "extractionState": "manual"
     },
+    "Download my data": {
+      "extractionState": "manual"
+    },
     "Drag to reorder. The first photo is the cover.": {
       "extractionState": "manual"
     },
@@ -815,6 +911,9 @@
       "extractionState": "manual"
     },
     "Drive it": {
+      "extractionState": "manual"
+    },
+    "Drive it takes you to the start of the first road. Send to convoy starts a convoy with the whole loop as its route.": {
       "extractionState": "manual"
     },
     "Driven": {
@@ -829,6 +928,9 @@
     "Drivetrain": {
       "extractionState": "manual"
     },
+    "Drop a regroup point": {
+      "extractionState": "manual"
+    },
     "Dyno curve": {
       "extractionState": "manual"
     },
@@ -838,6 +940,9 @@
     "EST. ¼ MILE": {
       "extractionState": "manual"
     },
+    "EV charging": {
+      "extractionState": "manual"
+    },
     "Edit": {
       "extractionState": "manual"
     },
@@ -845,6 +950,9 @@
       "extractionState": "manual"
     },
     "Edit listing": {
+      "extractionState": "manual"
+    },
+    "Edit loop": {
       "extractionState": "manual"
     },
     "Edit meet": {
@@ -880,13 +988,22 @@
     "Engine": {
       "extractionState": "manual"
     },
+    "Engine speed in top gear": {
+      "extractionState": "manual"
+    },
     "Enter Showdown": {
       "extractionState": "manual"
     },
     "Enter specs": {
       "extractionState": "manual"
     },
+    "Enter the cost as a number, like 349.99.": {
+      "extractionState": "manual"
+    },
     "Enter the full address, like name@example.com.": {
+      "extractionState": "manual"
+    },
+    "Enter the stock tire size above and a different tire size or final drive here to see the speedometer error.": {
       "extractionState": "manual"
     },
     "Entrance": {
@@ -905,6 +1022,9 @@
       "extractionState": "manual"
     },
     "Every other %@": {
+      "extractionState": "manual"
+    },
+    "Every road you saved is in this loop.": {
       "extractionState": "manual"
     },
     "Every two weeks": {
@@ -928,13 +1048,25 @@
     "Exterior and aero": {
       "extractionState": "manual"
     },
+    "Exxon": {
+      "extractionState": "manual"
+    },
     "FRIENDS": {
       "extractionState": "manual"
     },
     "Feed": {
       "extractionState": "manual"
     },
+    "Fill in the stock setup above to see rpm at this speed.": {
+      "extractionState": "manual"
+    },
+    "Fill in the stock setup above to see the speed in each gear.": {
+      "extractionState": "manual"
+    },
     "Filter": {
+      "extractionState": "manual"
+    },
+    "Final drive ratio": {
       "extractionState": "manual"
     },
     "Find a team": {
@@ -976,6 +1108,9 @@
     "Fonts": {
       "extractionState": "manual"
     },
+    "Food": {
+      "extractionState": "manual"
+    },
     "For 1 hour": {
       "extractionState": "manual"
     },
@@ -1003,6 +1138,9 @@
     "From": {
       "extractionState": "manual"
     },
+    "Fuel": {
+      "extractionState": "manual"
+    },
     "Full height": {
       "extractionState": "manual"
     },
@@ -1010,6 +1148,9 @@
       "extractionState": "manual"
     },
     "Gear %@": {
+      "extractionState": "manual"
+    },
+    "Gearing and tires": {
       "extractionState": "manual"
     },
     "Ghost mode": {
@@ -1117,6 +1258,9 @@
     "In Showdown · %@": {
       "extractionState": "manual"
     },
+    "In this loop, in order": {
+      "extractionState": "manual"
+    },
     "Inline-4": {
       "extractionState": "manual"
     },
@@ -1183,6 +1327,9 @@
     "LENGTH": {
       "extractionState": "manual"
     },
+    "LOOPS": {
+      "extractionState": "manual"
+    },
     "Last": {
       "extractionState": "manual"
     },
@@ -1237,7 +1384,13 @@
     "Like 'South Jersey'": {
       "extractionState": "manual"
     },
+    "Like 'Sunday pines loop'": {
+      "extractionState": "manual"
+    },
     "Like 'V-Spec'": {
+      "extractionState": "manual"
+    },
+    "Like 3.73": {
       "extractionState": "manual"
     },
     "Link a mod": {
@@ -1261,6 +1414,12 @@
     "Lit: yes": {
       "extractionState": "manual"
     },
+    "Load": {
+      "extractionState": "manual"
+    },
+    "Loaded %@": {
+      "extractionState": "manual"
+    },
     "Loading": {
       "extractionState": "manual"
     },
@@ -1268,6 +1427,9 @@
       "extractionState": "manual"
     },
     "Look up": {
+      "extractionState": "manual"
+    },
+    "Loop": {
       "extractionState": "manual"
     },
     "Lost signal": {
@@ -1432,6 +1594,9 @@
     "New icon": {
       "extractionState": "manual"
     },
+    "New loop": {
+      "extractionState": "manual"
+    },
     "New role": {
       "extractionState": "manual"
     },
@@ -1459,6 +1624,12 @@
     "No friends on the map yet.": {
       "extractionState": "manual"
     },
+    "No limit": {
+      "extractionState": "manual"
+    },
+    "No loops yet. Group your saved roads into one drive.": {
+      "extractionState": "manual"
+    },
     "No meet": {
       "extractionState": "manual"
     },
@@ -1469,6 +1640,9 @@
       "extractionState": "manual"
     },
     "No permissions": {
+      "extractionState": "manual"
+    },
+    "No place found. Try another search.": {
       "extractionState": "manual"
     },
     "No posts near you yet. Post the first one.": {
@@ -1486,7 +1660,16 @@
     "No route avoids these. Apple Maps routing can't be steered around them.": {
       "extractionState": "manual"
     },
+    "No saved builds on this car.": {
+      "extractionState": "manual"
+    },
+    "No saved builds yet. Save the mods switched on now as a build, then compare builds on the chart.": {
+      "extractionState": "manual"
+    },
     "No team with that invite.": {
+      "extractionState": "manual"
+    },
+    "No votes yet this week.": {
       "extractionState": "manual"
     },
     "No zone placed": {
@@ -1526,6 +1709,9 @@
       "extractionState": "manual"
     },
     "Nothing": {
+      "extractionState": "manual"
+    },
+    "Nothing along this route.": {
       "extractionState": "manual"
     },
     "Nothing for sale near you yet.": {
@@ -1591,6 +1777,9 @@
     "Only the first 30 seconds are posted.": {
       "extractionState": "manual"
     },
+    "Only you can see what the build cost.": {
+      "extractionState": "manual"
+    },
     "Open Settings": {
       "extractionState": "manual"
     },
@@ -1601,6 +1790,9 @@
       "extractionState": "manual"
     },
     "Optional": {
+      "extractionState": "manual"
+    },
+    "Optional. Only you see it.": {
       "extractionState": "manual"
     },
     "Optional: where you're headed": {
@@ -1768,6 +1960,9 @@
     "Radius": {
       "extractionState": "manual"
     },
+    "Rank %@": {
+      "extractionState": "manual"
+    },
     "Rankings": {
       "extractionState": "manual"
     },
@@ -1775,6 +1970,15 @@
       "extractionState": "manual"
     },
     "Read the full Terms": {
+      "extractionState": "manual"
+    },
+    "Reads higher than you are going": {
+      "extractionState": "manual"
+    },
+    "Reads lower than you are going": {
+      "extractionState": "manual"
+    },
+    "Reads true": {
       "extractionState": "manual"
     },
     "Recent": {
@@ -1798,6 +2002,9 @@
     "Redline": {
       "extractionState": "manual"
     },
+    "Redline (rpm)": {
+      "extractionState": "manual"
+    },
     "Reference cars": {
       "extractionState": "manual"
     },
@@ -1805,6 +2012,12 @@
       "extractionState": "manual"
     },
     "Regroup": {
+      "extractionState": "manual"
+    },
+    "Regroup here": {
+      "extractionState": "manual"
+    },
+    "Regroup there": {
       "extractionState": "manual"
     },
     "Relist": {
@@ -1828,6 +2041,12 @@
     "Remove friend": {
       "extractionState": "manual"
     },
+    "Remove from loop": {
+      "extractionState": "manual"
+    },
+    "Remove stop": {
+      "extractionState": "manual"
+    },
     "Removed": {
       "extractionState": "manual"
     },
@@ -1835,6 +2054,9 @@
       "extractionState": "manual"
     },
     "Rename": {
+      "extractionState": "manual"
+    },
+    "Rename build": {
       "extractionState": "manual"
     },
     "Rename channel": {
@@ -1882,7 +2104,13 @@
     "Revving": {
       "extractionState": "manual"
     },
+    "Rim": {
+      "extractionState": "manual"
+    },
     "Roll out": {
+      "extractionState": "manual"
+    },
+    "Rolling": {
       "extractionState": "manual"
     },
     "Rolling out to": {
@@ -1903,10 +2131,22 @@
     "Run again": {
       "extractionState": "manual"
     },
+    "SAVED BUILDS": {
+      "extractionState": "manual"
+    },
     "SPECS": {
       "extractionState": "manual"
     },
+    "SPEED AT REDLINE": {
+      "extractionState": "manual"
+    },
     "SPOTTED": {
+      "extractionState": "manual"
+    },
+    "STOCK SETUP": {
+      "extractionState": "manual"
+    },
+    "Same as stock": {
       "extractionState": "manual"
     },
     "Saturday 8:00": {
@@ -1924,10 +2164,19 @@
     "Save and add to timeline": {
       "extractionState": "manual"
     },
+    "Save build": {
+      "extractionState": "manual"
+    },
     "Save car": {
       "extractionState": "manual"
     },
     "Save changes": {
+      "extractionState": "manual"
+    },
+    "Save current as a build": {
+      "extractionState": "manual"
+    },
+    "Save loop": {
       "extractionState": "manual"
     },
     "Save meet": {
@@ -1972,6 +2221,9 @@
     "Search by handle": {
       "extractionState": "manual"
     },
+    "Search for a place": {
+      "extractionState": "manual"
+    },
     "Search needs a connection.": {
       "extractionState": "manual"
     },
@@ -2008,6 +2260,9 @@
     "Send report": {
       "extractionState": "manual"
     },
+    "Send to convoy": {
+      "extractionState": "manual"
+    },
     "Service": {
       "extractionState": "manual"
     },
@@ -2041,6 +2296,9 @@
     "Share location": {
       "extractionState": "manual"
     },
+    "Share loop": {
+      "extractionState": "manual"
+    },
     "Share with convoy": {
       "extractionState": "manual"
     },
@@ -2054,6 +2312,12 @@
       "extractionState": "manual"
     },
     "Showdown": {
+      "extractionState": "manual"
+    },
+    "Showdown votes this week": {
+      "extractionState": "manual"
+    },
+    "Showdown votes won by members' cars since Monday.": {
       "extractionState": "manual"
     },
     "Shows less": {
@@ -2086,6 +2350,9 @@
     "Speed camera": {
       "extractionState": "manual"
     },
+    "Speedometer error": {
+      "extractionState": "manual"
+    },
     "Sportsman": {
       "extractionState": "manual"
     },
@@ -2099,6 +2366,9 @@
       "extractionState": "manual"
     },
     "Staged": {
+      "extractionState": "manual"
+    },
+    "Standings": {
       "extractionState": "manual"
     },
     "Start": {
@@ -2155,6 +2425,9 @@
     "Sunday cruise to Lake Nockamixon, leaving at 9": {
       "extractionState": "manual"
     },
+    "Sunoco": {
+      "extractionState": "manual"
+    },
     "Suspension": {
       "extractionState": "manual"
     },
@@ -2168,6 +2441,9 @@
       "extractionState": "manual"
     },
     "TIMELINE": {
+      "extractionState": "manual"
+    },
+    "TOTAL LENGTH": {
       "extractionState": "manual"
     },
     "TREE": {
@@ -2230,6 +2506,9 @@
     "That handle or name can't be used. Try another.": {
       "extractionState": "manual"
     },
+    "That isn't a tire size. Use the three numbers on the sidewall, like 245 / 40 / 18.": {
+      "extractionState": "manual"
+    },
     "That listing can't be posted.": {
       "extractionState": "manual"
     },
@@ -2254,10 +2533,28 @@
     "The build timeline and photos for this car are deleted.": {
       "extractionState": "manual"
     },
+    "The catalog doesn't list tire size or final drive. Enter the stock ones: the tire size is on the door-jamb sticker, the final drive is in the owner's manual.": {
+      "extractionState": "manual"
+    },
+    "The catalog has no gear ratios for this car, so there is no speed in each gear or cruising rpm to show. The tire comparison below still works.": {
+      "extractionState": "manual"
+    },
     "The catalog has no power figure for that car. Pick another.": {
       "extractionState": "manual"
     },
+    "The catalog has no redline for this car. Enter it from the tachometer.": {
+      "extractionState": "manual"
+    },
+    "The entry is saved, but its cost isn't. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "The group has split. Set a regroup point?": {
+      "extractionState": "manual"
+    },
+    "The loop is removed. Its roads stay.": {
+      "extractionState": "manual"
+    },
+    "The roads in this loop are no longer available.": {
       "extractionState": "manual"
     },
     "The rules": {
@@ -2344,6 +2641,9 @@
     "Torque, lb-ft": {
       "extractionState": "manual"
     },
+    "Total": {
+      "extractionState": "manual"
+    },
     "Track day": {
       "extractionState": "manual"
     },
@@ -2357,6 +2657,9 @@
       "extractionState": "manual"
     },
     "Trim (optional)": {
+      "extractionState": "manual"
+    },
+    "True speed when it shows %@ %@": {
       "extractionState": "manual"
     },
     "Try again": {
@@ -2434,6 +2737,9 @@
     "Version": {
       "extractionState": "manual"
     },
+    "Via %@": {
+      "extractionState": "manual"
+    },
     "Video": {
       "extractionState": "manual"
     },
@@ -2459,6 +2765,12 @@
       "extractionState": "manual"
     },
     "WIN · YOU": {
+      "extractionState": "manual"
+    },
+    "Waitlist · %@": {
+      "extractionState": "manual"
+    },
+    "Wawa": {
       "extractionState": "manual"
     },
     "Wawa and chill": {
@@ -2536,10 +2848,16 @@
     "Why can't I see more?": {
       "extractionState": "manual"
     },
+    "Width": {
+      "extractionState": "manual"
+    },
     "With mods": {
       "extractionState": "manual"
     },
     "Without your name, as \"A driver needs a hand\"": {
+      "extractionState": "manual"
+    },
+    "Worked out from nominal tire sizes; a tire under load measures slightly smaller. Speedometer error assumes the speedometer is driven from the transmission.": {
       "extractionState": "manual"
     },
     "YOU": {
@@ -2567,6 +2885,12 @@
       "extractionState": "manual"
     },
     "You blocked the person who added this road.": {
+      "extractionState": "manual"
+    },
+    "You blocked the person who made this loop.": {
+      "extractionState": "manual"
+    },
+    "You have no saved roads yet. Record a drive, then save a stretch of it.": {
       "extractionState": "manual"
     },
     "You haven't blocked anyone.": {
@@ -2599,6 +2923,9 @@
     "You're offline. Connect to sign in.": {
       "extractionState": "manual"
     },
+    "You're on the waitlist, %@": {
+      "extractionState": "manual"
+    },
     "You've arrived": {
       "extractionState": "manual"
     },
@@ -2627,6 +2954,9 @@
       "extractionState": "manual"
     },
     "Your request": {
+      "extractionState": "manual"
+    },
+    "Your saved roads": {
       "extractionState": "manual"
     },
     "Yours": {
@@ -2665,6 +2995,9 @@
     "help request": {
       "extractionState": "manual"
     },
+    "in": {
+      "extractionState": "manual"
+    },
     "listing": {
       "extractionState": "manual"
     },
@@ -2684,6 +3017,9 @@
       "extractionState": "manual"
     },
     "min": {
+      "extractionState": "manual"
+    },
+    "mm": {
       "extractionState": "manual"
     },
     "moving": {

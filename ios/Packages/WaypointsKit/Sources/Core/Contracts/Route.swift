@@ -10,6 +10,7 @@ public enum Route: Hashable, Sendable {
     case convoyVoice(ConvoyID)
     case activity     // NTF-6, the Activity list (W7-2)
     case askForHelp(Coordinate), help(HelpRequestID)           // PRD HELP (ReportsFeature)
+    case loop(LoopID)     // ROAD-6 (RoadsFeature)
 
     /// The case without its payload, used to key route handlers in `FeatureRegistry`.
     public enum Kind: Hashable, Sendable, CaseIterable {
@@ -18,6 +19,7 @@ public enum Route: Hashable, Sendable {
         case convoyVoice
         case activity
         case askForHelp, help
+        case loop
     }
 
     public var kind: Kind {
@@ -48,6 +50,7 @@ public enum Route: Hashable, Sendable {
         case .activity: .activity
         case .askForHelp: .askForHelp
         case .help: .help
+        case .loop: .loop
         }
     }
 }

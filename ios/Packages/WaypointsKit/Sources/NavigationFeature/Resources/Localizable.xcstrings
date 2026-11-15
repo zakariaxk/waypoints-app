@@ -4,7 +4,16 @@
     "%@ in %@": {
       "extractionState": "manual"
     },
+    "%@ to %@": {
+      "extractionState": "manual"
+    },
+    "Add a stop": {
+      "extractionState": "manual"
+    },
     "Best for your car": {
+      "extractionState": "manual"
+    },
+    "Cherry Hill Mall": {
       "extractionState": "manual"
     },
     "Clear for a lowered car": {
@@ -19,6 +28,9 @@
     "Couldn't find a route there.": {
       "extractionState": "manual"
     },
+    "Couldn't search along this route.": {
+      "extractionState": "manual"
+    },
     "Couldn't send it. Try again.": {
       "extractionState": "manual"
     },
@@ -28,7 +40,19 @@
     "Destination": {
       "extractionState": "manual"
     },
+    "EV charging": {
+      "extractionState": "manual"
+    },
     "End": {
+      "extractionState": "manual"
+    },
+    "Exxon": {
+      "extractionState": "manual"
+    },
+    "Food": {
+      "extractionState": "manual"
+    },
+    "Fuel": {
       "extractionState": "manual"
     },
     "Go": {
@@ -49,6 +73,9 @@
     "No route avoids these. Apple Maps routing can't be steered around them.": {
       "extractionState": "manual"
     },
+    "Nothing along this route.": {
+      "extractionState": "manual"
+    },
     "Offline. Follow the route line.": {
       "extractionState": "manual"
     },
@@ -56,6 +83,9 @@
       "extractionState": "manual"
     },
     "Pothole": {
+      "extractionState": "manual"
+    },
+    "Remove stop": {
       "extractionState": "manual"
     },
     "Rerouting": {
@@ -88,6 +118,9 @@
     "Still there?": {
       "extractionState": "manual"
     },
+    "Sunoco": {
+      "extractionState": "manual"
+    },
     "Switches to your next car": {
       "extractionState": "manual"
     },
@@ -95,6 +128,12 @@
       "extractionState": "manual"
     },
     "Unmute": {
+      "extractionState": "manual"
+    },
+    "Via %@": {
+      "extractionState": "manual"
+    },
+    "Wawa": {
       "extractionState": "manual"
     },
     "You're doing that a lot. Try again in a few minutes.": {

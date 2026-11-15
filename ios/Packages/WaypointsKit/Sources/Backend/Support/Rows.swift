@@ -237,6 +237,8 @@ struct MeetRow: Decodable, Sendable {
     let destName: String?
     let roadId: UUID?
     let winnerCarId: UUID?
+    /// MEET-15. Absent from `meets_in_bbox` rows.
+    var capacity: Int?
 
     var model: Meet {
         let coordinate = latitude.flatMap { lat in longitude.map { Coordinate(latitude: lat, longitude: $0) } }
@@ -247,7 +249,8 @@ struct MeetRow: Decodable, Sendable {
                     createdAt: createdAt ?? .distantPast, recurrence: recurrence, seriesID: seriesId,
                     destination: destLat.flatMap { lat in destLng.map {
                         ConvoyDestination(coordinate: Coordinate(latitude: lat, longitude: $0), name: destName ?? "")
-                    } }, roadID: roadId.map(RoadID.init(raw:)), winnerCarID: winnerCarId.map(CarID.init(raw:)))
+                    } }, roadID: roadId.map(RoadID.init(raw:)), winnerCarID: winnerCarId.map(CarID.init(raw:)),
+                    capacity: capacity)
     }
 }
 
@@ -258,10 +261,12 @@ struct RSVPRow: Codable, Sendable {
     let carId: UUID?
     /// NAV-15, migration 20261114060000. Absent before it is applied.
     var onTheWayUntil: Date?
+    /// MEET-15, migration 20261115020000.
+    var waitlistedAt: Date?
 
     var model: MeetRSVP {
         MeetRSVP(meetID: MeetID(raw: meetId), userID: UserID(raw: userId), status: status,
-                 carID: carId.map(CarID.init(raw:)), onTheWayUntil: onTheWayUntil)
+                 carID: carId.map(CarID.init(raw:)), onTheWayUntil: onTheWayUntil, waitlistedAt: waitlistedAt)
     }
 }
 

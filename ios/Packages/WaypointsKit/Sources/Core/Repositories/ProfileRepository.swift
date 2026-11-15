@@ -19,4 +19,6 @@ public protocol ProfileRepository: Sendable {
     func setNotificationPrefs(_ prefs: NotificationPrefs) async throws
     /// Emits the signed-in user's profile whenever it changes.
     func myProfileChanges() async -> AsyncStream<Profile>
+    /// ACC-12: everything the signed-in user owns, as one JSON document (`export_my_data`).
+    func exportMyData() async throws -> Data
 }

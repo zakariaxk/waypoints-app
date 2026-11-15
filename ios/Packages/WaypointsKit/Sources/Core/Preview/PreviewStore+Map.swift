@@ -47,12 +47,28 @@ extension PreviewStore: MeetRepository {
     }
     public func setRSVP(_ status: RSVPStatus, for meet: MeetID, car: CarID?) async throws {
         let me = try me()
+        let old = rsvps.first { $0.meetID == meet && $0.userID == me }
         rsvps.removeAll { $0.meetID == meet && $0.userID == me }
-        rsvps.append(MeetRSVP(meetID: meet, userID: me, status: status, carID: car))
+        // MEET-15, as the database does it: Going past the cap waits; a seat or a place in line is kept.
+        let full = meets[meet]?.capacity.map { cap in rsvps.filter { $0.meetID == meet && $0.status == .going }.count >= cap } ?? false
+        let waits = status != .maybe && old?.status != .going && full
+        rsvps.append(MeetRSVP(meetID: meet, userID: me, status: waits ? .waitlist : status, carID: car,
+                              waitlistedAt: waits ? old?.waitlistedAt ?? .now : nil))
+        promoteWaitlist(meet)
     }
     public func clearRSVP(for meet: MeetID) async throws {
         let me = try me()
         rsvps.removeAll { $0.meetID == meet && $0.userID == me }
+        promoteWaitlist(meet)
+    }
+    /// MEET-15: seats the first people waiting while there is room.
+    func promoteWaitlist(_ meet: MeetID) {
+        while meets[meet]?.capacity.map({ cap in rsvps.filter { $0.meetID == meet && $0.status == .going }.count < cap }) ?? true,
+              let i = rsvps.indices.filter({ rsvps[$0].meetID == meet && rsvps[$0].status == .waitlist })
+                  .min(by: { rsvps[$0].waitlistedAt ?? .distantPast < rsvps[$1].waitlistedAt ?? .distantPast }) {
+            rsvps[i].status = .going
+            rsvps[i].waitlistedAt = nil
+        }
     }
     public func venueNotes(near coordinate: Coordinate, meters: Int) async throws -> [VenueNote] {
         venueNotes.filter { $0.coordinate.distance(to: coordinate) <= Double(meters) }
@@ -179,7 +195,7 @@ extension PreviewStore: GatewayService {
                         placeName: draft.placeName, startsAt: draft.startsAt, endsAt: draft.endsAt,
                         details: draft.details, visibility: draft.visibility, teamID: draft.teamID,
                         recurrence: draft.recurrence, seriesID: draft.recurrence == nil ? nil : UUID(),
-                        destination: draft.destination)
+                        destination: draft.destination, capacity: draft.capacity)
         meets[meet.id] = meet
         return meet
     }
@@ -192,7 +208,9 @@ extension PreviewStore: GatewayService {
         meet.details = draft.details; meet.visibility = draft.visibility; meet.teamID = draft.teamID
         meet.recurrence = draft.recurrence; meet.destination = draft.destination
         if draft.recurrence != nil && meet.seriesID == nil { meet.seriesID = UUID() }
+        meet.capacity = draft.capacity
         meets[id] = meet
+        promoteWaitlist(id)
         return meet
     }
     public func cancelMeet(_ id: MeetID) async throws {
@@ -218,10 +236,12 @@ extension PreviewStore: GatewayService {
         let uid = profiles[me]?.uid ?? 0
         return ConvoyState(id: ConvoyID(raw: "preview-\(code.lowercased())"), leaderUID: 2, memberUIDs: [2, 3, uid],
                            destination: ConvoyDestination(coordinate: PreviewSeed.meets[1].coordinate,
-                                                          name: PreviewSeed.meets[1].placeName))
+                                                          name: PreviewSeed.meets[1].placeName),
+                           regroup: ConvoyRegroup(coordinate: PreviewSeed.meets[0].coordinate, setAt: .now))
     }
     public func setConvoyDestination(_ id: ConvoyID, _ destination: ConvoyDestination) async throws { _ = try me() }
     public func setConvoyRegroup(_ id: ConvoyID, at coordinate: Coordinate) async throws { _ = try me() }
+    public func clearConvoyRegroup(_ id: ConvoyID) async throws { _ = try me() }
     public func endConvoy(_ id: ConvoyID) async throws { _ = try me() }
     public func inviteToConvoy(_ id: ConvoyID, users: [UserID]) async throws { _ = try me() }
     public func voiceToken(for channel: ChannelID) async throws -> VoiceCredentials {

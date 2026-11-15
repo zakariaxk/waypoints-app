@@ -63,6 +63,7 @@ public extension Route {
         case .thread(let id): "thread/\(id)"
         case .channel(let id): "channel/\(id)"
         case .help(let id): "help/\(id)"
+        case .loop(let id): "loop/\(id)"
         case .joinTeam(let code): "invite/team/\(code)"
         case .joinConvoy(let code): "invite/convoy/\(code)"
         default: nil
@@ -94,6 +95,7 @@ public extension Route {
         case "thread": route = ThreadID(string: value).map(Route.thread)
         case "channel": route = ChannelID(string: value).map(Route.channel)
         case "help": route = HelpRequestID(string: value).map(Route.help)
+        case "loop": route = LoopID(string: value).map(Route.loop)
         case "invite" where parts.count >= 3 && !parts[2].isEmpty:
             switch value.lowercased() {
             case "team": route = .joinTeam(code: parts[2])

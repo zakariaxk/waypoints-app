@@ -160,7 +160,7 @@ public enum PreviewSeed {
         Meet(id: MeetID(raw: uuid(6, 4)), hostID: marcus, title: "Waterfront night meet", kind: .meet,
              coordinate: at(39.9179, -75.1400), placeName: "Pier 70 lot, Columbus Blvd",
              startsAt: hours(24 * 2 + 21, from: today), endsAt: hours(24 * 2 + 23.5, from: today),
-             details: "Engines off once parked. Security closes the lot at midnight."),
+             details: "Engines off once parked. Security closes the lot at midnight.", capacity: 4),
     ]
 
     public static let rsvps: [MeetRSVP] = [
@@ -169,6 +169,14 @@ public enum PreviewSeed {
         MeetRSVP(meetID: meets[0].id, userID: nina, status: .maybe),
         MeetRSVP(meetID: meets[1].id, userID: lena, status: .going, carID: car(9)),
         MeetRSVP(meetID: meets[2].id, userID: devon, status: .going, carID: car(2)),
+        // MEET-15: a full meet with a waitlist; the signed-in user is second in line.
+        MeetRSVP(meetID: meets[5].id, userID: jae, status: .going, carID: car(4)),
+        MeetRSVP(meetID: meets[5].id, userID: devon, status: .going, carID: car(2)),
+        MeetRSVP(meetID: meets[5].id, userID: lena, status: .going, carID: car(9)),
+        MeetRSVP(meetID: meets[5].id, userID: rosa, status: .going),
+        MeetRSVP(meetID: meets[5].id, userID: nina, status: .waitlist, waitlistedAt: hours(-3)),
+        MeetRSVP(meetID: meets[5].id, userID: maya, status: .waitlist, carID: car(1), waitlistedAt: hours(-2)),
+        MeetRSVP(meetID: meets[5].id, userID: sam, status: .waitlist, waitlistedAt: hours(-1)),
     ]
 
     public static let reports: [Report] = [
@@ -210,6 +218,9 @@ public enum PreviewSeed {
         Road(id: RoadID(raw: uuid(2, 6)), authorID: rosa, name: "Atsion Road",
              path: [at(39.7426, -74.7258), at(39.7690, -74.7060), at(39.8010, -74.6830)],
              lengthMeters: 9_700, ratings: RoadRatingSummary(surface: 4.1, scenery: 4.2, traffic: 4.5, count: 6)),
+        Road(id: RoadID(raw: uuid(3, 6)), authorID: maya, name: "Quaker Bridge Road",
+             path: [at(39.7426, -74.7258), at(39.7210, -74.6990), at(39.7030, -74.6660)],
+             lengthMeters: 6_900, ratings: RoadRatingSummary(surface: 2.9, scenery: 4.6, traffic: 4.9, count: 3)),
     ]
 
     public static let spots: [Spot] = [
@@ -423,7 +434,8 @@ public enum PreviewSeed {
                        transmission: "6-speed manual", hp: 287, torqueLbFt: 274, weightLb: 3325, redline: 6600),
         CatalogVariant(id: 1012, modelID: 104, make: "Honda", model: "Civic", year: 2017, trim: "Type R",
                        engine: "2.0 L I4", displacementL: 2.0, cylinders: 4, aspiration: .turbo, drive: .fwd,
-                       transmission: "6-speed manual", hp: 306, torqueLbFt: 295, weightLb: 3117, redline: 7000),
+                       transmission: "6-speed manual", hp: 306, torqueLbFt: 295, weightLb: 3117, redline: 7000,
+                       gears: [3.625, 2.115, 1.529, 1.125, 0.911, 0.734]),
         CatalogVariant(id: 1014, modelID: 112, make: "Subaru", model: "BRZ", year: 2022, trim: "Limited",
                        engine: "2.4 L flat-4", displacementL: 2.4, cylinders: 4, aspiration: .natural, drive: .rwd,
                        transmission: "6-speed manual", hp: 228, torqueLbFt: 184, weightLb: 2815, redline: 7500),

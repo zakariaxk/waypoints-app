@@ -35,6 +35,8 @@ public protocol GatewayService: Sendable {
     func joinConvoy(code: String) async throws -> ConvoyState
     func setConvoyDestination(_ id: ConvoyID, _ destination: ConvoyDestination) async throws
     func setConvoyRegroup(_ id: ConvoyID, at coordinate: Coordinate) async throws
+    /// The leader's "Rolling": clears the regroup point for everyone (CNV-12).
+    func clearConvoyRegroup(_ id: ConvoyID) async throws
     func endConvoy(_ id: ConvoyID) async throws
     /// Pushes the join code to these users (M9 "Invite friends").
     func inviteToConvoy(_ id: ConvoyID, users: [UserID]) async throws

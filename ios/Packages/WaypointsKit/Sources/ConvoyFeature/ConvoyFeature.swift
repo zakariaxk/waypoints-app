@@ -18,6 +18,9 @@ public enum ConvoyFeature: FeatureModule {
             guard case let .joinConvoy(code) = route else { return nil }
             return AnyView(ConvoySheet(store: store, code: code))
         }
+        #if DEBUG
+        registry.registerDebugScreen("convoy-regroup") { AnyView(RegroupSheet(store: store)) }
+        #endif
         store.start()
     }
 }
@@ -213,7 +216,28 @@ final class ConvoyStore {
         }
     }
 
+    /// Any member drops the regroup point (CNV-12). Shown at once; the gateway's ConvoyState follows.
+    func dropRegroup(at c: Coordinate) async throws {
+        guard let id = state?.id else { return }
+        try await env.gateway.setConvoyRegroup(id, at: c)
+        state?.regroup = ConvoyRegroup(coordinate: c, setAt: .now)
+        resolveRegroup(c)
+    }
+
+    /// The leader's "Rolling": clears the regroup point for everyone (CNV-12).
+    func rolling() async {
+        guard let id = state?.id else { return }
+        do {
+            try await env.gateway.clearConvoyRegroup(id)
+            state?.regroup = nil
+            error = nil
+        } catch {
+            self.error = String(localized: "Couldn't clear the regroup point. Check your connection and try again.", bundle: .module)
+        }
+    }
+
     private func resolveRegroup(_ c: Coordinate) {
+        regroupPlace = nil
         CLGeocoder().reverseGeocodeLocation(CLLocation(latitude: c.latitude, longitude: c.longitude)) { marks, _ in
             let name = marks?.first?.name
             MainActor.assumeIsolated { self.regroupPlace = name ?? "the pin" }
@@ -265,6 +289,7 @@ struct ConvoySection: MapSheetSection {
 struct ConvoySectionView: View {
     let store: ConvoyStore
     @State private var confirmEnd = false
+    @State private var dropping = false
 
     var body: some View {
         if let s = store.state {
@@ -301,8 +326,14 @@ struct ConvoySectionView: View {
                         Text("Regroup at \(store.regroupPlace ?? "the pin")", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.go)
                         Spacer()
                         QuietButton("Directions") { store.env.router.open(.navigate(to: r.coordinate, name: store.regroupPlace)) }
+                        if store.isLeader {
+                            QuietButton("Rolling") { Task { await store.rolling() } }
+                        }
                     }
                     .padding(.horizontal, Space.margin).padding(.vertical, Space.s8)
+                } else {
+                    QuietButton("Drop a regroup point") { dropping = true }
+                        .padding(.horizontal, Space.margin)
                 }
                 SectionLabel("CONVOY")
                 ForEach(store.members.sorted { (store.gap($0) ?? 0) < (store.gap($1) ?? 0) }) { m in
@@ -324,6 +355,7 @@ struct ConvoySectionView: View {
             .confirmationDialog("End the convoy for all \(s.memberUIDs.count) drivers?", isPresented: $confirmEnd) {
                 Button("End convoy", role: .destructive) { Task { await store.end() } }
             }
+            .sheet(isPresented: $dropping) { RegroupSheet(store: store) }
         } else if store.ended {
             Text("Convoy ended.", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -451,6 +483,64 @@ struct ConvoySheet: View {
                 self.error = String(localized: "Couldn't reach the convoy. Check your connection and try again.", bundle: .module)
             }
             working = false
+        }
+    }
+}
+
+/// Drop a regroup point by place search or "here" (CNV-12).
+struct RegroupSheet: View {
+    let store: ConvoyStore
+    @Environment(\.dismiss) private var dismiss
+    @State private var place = ""
+    @State private var working = false
+    @State private var error: String?
+
+    var body: some View {
+        Sheet(Text("Regroup", bundle: .module)) {
+            VStack(alignment: .leading, spacing: Space.s16) {
+                Field("Place", text: $place, prompt: "Search for a place")
+                    .onSubmit { drop(searching: true) }
+                PrimaryButton("Regroup there", isLoading: working) { drop(searching: true) }
+                    .disabled(place.isEmpty)
+                SecondaryButton("Regroup here") { drop(searching: false) }
+                if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
+            }
+            .padding(Space.margin)
+        }
+        .presentationDetents([.medium])
+    }
+
+    private func drop(searching: Bool) {
+        guard !working, !searching || !place.isEmpty else { return }
+        working = true
+        error = nil
+        Task {
+            defer { working = false }
+            let found: Coordinate? = if searching { await find() } else { store.me }
+            guard let point = found else {
+                error = searching ? String(localized: "No place found. Try another search.", bundle: .module)
+                    : String(localized: "Couldn't find your location. Search for a place instead.", bundle: .module)
+                return
+            }
+            do {
+                try await store.dropRegroup(at: point)
+                dismiss()
+            } catch {
+                self.error = String(localized: "Couldn't set the regroup point. Check your connection and try again.", bundle: .module)
+            }
+        }
+    }
+
+    /// First local search hit for the typed place, near the driver.
+    private func find() async -> Coordinate? {
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = place
+        if let me = store.me { request.region = MKCoordinateRegion(center: me.cl, latitudinalMeters: 50_000, longitudinalMeters: 50_000) }
+        return await withCheckedContinuation { done in
+            MKLocalSearch(request: request).start { response, _ in
+                let c = response?.mapItems.first?.placemark.coordinate
+                done.resume(returning: c.map { Coordinate(latitude: $0.latitude, longitude: $0.longitude) })
+            }
         }
     }
 }

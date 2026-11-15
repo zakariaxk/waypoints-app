@@ -105,6 +105,10 @@ public struct LiveGatewayService: GatewayService {
                               body: PointDTO(lat: coordinate.latitude, lng: coordinate.longitude))
     }
 
+    public func clearConvoyRegroup(_ id: ConvoyID) async throws {
+        try await client.send("DELETE", "v1/convoys/\(id.raw)/regroup")
+    }
+
     public func inviteToConvoy(_ id: ConvoyID, users: [UserID]) async throws {
         try await client.send("POST", "v1/convoys/\(id.raw)/invite", body: InviteBody(userIds: users))
     }

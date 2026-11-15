@@ -19,6 +19,7 @@ public enum TeamsFeature: FeatureModule {
             guard case let .joinTeam(code) = route else { return nil }
             return AnyView(FindOrStart(model: model, code: code))
         }
+        registry.registerDebugScreen("standings") { AnyView(NavigationStack { StandingsView(model: model) }) }
         model.start()
     }
 }
@@ -93,6 +94,7 @@ struct TeamsHome: View {
     @Bindable var model: TeamsModel
     @State private var dms = false
     @State private var showFind = false
+    @State private var showStandings = false
 
     var body: some View {
         HStack(spacing: 0) {
@@ -121,6 +123,10 @@ struct TeamsHome: View {
         .background(Color.asphalt.ignoresSafeArea())
         .navigationTitle(Text("Teams", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) { IconButton("list.number", label: "Standings") { showStandings = true } }
+        }
+        .navigationDestination(isPresented: $showStandings) { StandingsView(model: model) }
         .sheet(isPresented: $showFind, onDismiss: { Task { await model.load() } }) { FindOrStart(model: model, code: "") }
         .task { await model.load() }
         .task {
@@ -438,6 +444,8 @@ struct TeamDetail: View {
     @State private var editingTeam = false
     @State private var error: String?
     @State private var failed = false
+    @State private var standings: [TeamStanding]?
+    @State private var standingsFailed = false
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -452,6 +460,15 @@ struct TeamDetail: View {
                         Text("\(t.memberCount) members", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     }
                     .padding(Space.margin)
+                    NavigationLink { StandingsView(model: model) } label: {
+                        Row(Text("Showdown votes this week", bundle: .module), subtitle: standingNote, trailing: {
+                            if let s = standings?.first(where: { $0.id == teamID }) {
+                                Text(verbatim: "\(s.score)").typeStyle(.readoutS).foregroundStyle(Color.chalk)
+                            }
+                            Disclosure()
+                        })
+                    }
+                    .buttonStyle(RowButtonStyle())
                     if let code = t.inviteCode, let url = Route.joinTeam(code: code).shareURL {
                         NavigationLink {
                             QRCodeScreen(Text("Invite people", bundle: .module), heading: Text(verbatim: t.name),
@@ -512,6 +529,14 @@ struct TeamDetail: View {
             }
         }
         .task { await reload() }
+    }
+
+    /// TEAM-11: the team's rank this week; nothing while loading.
+    private var standingNote: Text? {
+        if standingsFailed { return Text("Couldn't load the standings.", bundle: .module) }
+        guard let standings else { return nil }
+        guard let s = standings.first(where: { $0.id == teamID }) else { return Text("No votes yet this week.", bundle: .module) }
+        return Text("Rank \(s.rank)", bundle: .module)
     }
 
     private var channelsSection: some View {
@@ -576,6 +601,9 @@ struct TeamDetail: View {
         }
         perms = (try? await model.env.teams.myPermissions(in: teamID)) ?? []
         roles = (try? await model.env.teams.roles(of: teamID)) ?? []
+        let ranks = try? await model.env.teams.standings(including: teamID)
+        if let ranks { standings = ranks }
+        standingsFailed = ranks == nil
     }
 
     private func act(_ body: @escaping () async throws -> Void) {

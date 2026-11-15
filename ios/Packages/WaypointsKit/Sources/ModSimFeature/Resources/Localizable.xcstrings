@@ -19,13 +19,34 @@
     "Adjust to read power at an rpm": {
       "extractionState": "manual"
     },
+    "Build deleted": {
+      "extractionState": "manual"
+    },
+    "Build saved": {
+      "extractionState": "manual"
+    },
+    "Cancel": {
+      "extractionState": "manual"
+    },
+    "Compare": {
+      "extractionState": "manual"
+    },
+    "Couldn't load saved builds. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't load this car. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't save to the car. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Current selection": {
+      "extractionState": "manual"
+    },
     "Debug: model beside published tests": {
+      "extractionState": "manual"
+    },
+    "Delete": {
       "extractionState": "manual"
     },
     "Dyno curve": {
@@ -46,10 +67,25 @@
     "Idle": {
       "extractionState": "manual"
     },
+    "Load": {
+      "extractionState": "manual"
+    },
+    "Loaded %@": {
+      "extractionState": "manual"
+    },
     "Mod simulator": {
       "extractionState": "manual"
     },
+    "More options": {
+      "extractionState": "manual"
+    },
     "Needs a tune · %@": {
+      "extractionState": "manual"
+    },
+    "No saved builds on this car.": {
+      "extractionState": "manual"
+    },
+    "No saved builds yet. Save the mods switched on now as a build, then compare builds on the chart.": {
       "extractionState": "manual"
     },
     "Not now": {
@@ -64,16 +100,31 @@
     "Reference cars": {
       "extractionState": "manual"
     },
+    "Rename": {
+      "extractionState": "manual"
+    },
+    "Rename build": {
+      "extractionState": "manual"
+    },
     "Rev": {
       "extractionState": "manual"
     },
     "Revving": {
       "extractionState": "manual"
     },
+    "SAVED BUILDS": {
+      "extractionState": "manual"
+    },
     "Save": {
       "extractionState": "manual"
     },
     "Save and add to timeline": {
+      "extractionState": "manual"
+    },
+    "Save build": {
+      "extractionState": "manual"
+    },
+    "Save current as a build": {
       "extractionState": "manual"
     },
     "Save to car": {

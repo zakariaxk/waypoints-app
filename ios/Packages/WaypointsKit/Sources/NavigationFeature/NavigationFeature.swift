@@ -15,6 +15,7 @@ public enum NavigationFeature: FeatureModule {
             guard case let .navigate(to, name) = route else { return nil }
             return AnyView(NavigationRoot(env: env, destination: to, name: name))
         }
+        registry.registerDebugScreen("stops") { AnyView(StopsSheet(model: .stopsSeed(env)).background(Color.tarmac).preferredColorScheme(.dark)) }
     }
 }
 
@@ -74,6 +75,18 @@ final class NavigationModel {
     var etaFailed = false
     var etaLimited = false
     var sendingETA = false
+    /// Stop on the way (NAV-16): the chosen stop, and the candidates for the "Add a stop" sheet.
+    var stop: Stop?
+    var stops: [Stop] = []
+    var stopKind = StopKind.fuel
+    var stopsLoading = false
+    var stopsError = false
+    /// Reached the stop; waiting for the route on to the destination.
+    @ObservationIgnored var continuing = false
+    @ObservationIgnored var stopSearch = 0
+    @ObservationIgnored var stopPending = 0
+    @ObservationIgnored var stopFailed = false
+    @ObservationIgnored var stopFound: [(name: String, at: CLLocationCoordinate2D, off: Double)] = []
     /// The meet at this destination that you're Going to, if any. Navigating marks you "on the way".
     @ObservationIgnored private var meet: MeetID?
     @ObservationIgnored private var monitor = NWPathMonitor()
@@ -127,11 +140,12 @@ final class NavigationModel {
         return nil
     }
 
-    /// Arrival from the loaded route, scaled by what is left of it.
+    /// Arrival at the destination from the loaded route, scaled by what is left of it, plus the
+    /// leg after the stop when there is one.
     var arrival: Date {
         guard let r = current?.route else { return .now }
         let left = remaining > 0 ? r.expectedTravelTime * (remaining / max(r.distance, 1)) : r.expectedTravelTime
-        return Date.now.addingTimeInterval(left)
+        return Date.now.addingTimeInterval(left + (stop?.onward?.expectedTravelTime ?? 0))
     }
 
     /// Sends the chosen friends one notice: destination name and arrival time, no position.
@@ -197,10 +211,7 @@ final class NavigationModel {
 
     func calculate(from origin: CLLocationCoordinate2D?) {
         loading = true
-        let request = MKDirections.Request()
-        request.source = origin.map { MKMapItem(placemark: MKPlacemark(coordinate: $0)) } ?? .forCurrentLocation()
-        request.destination = MKMapItem(placemark: MKPlacemark(coordinate: destination.cl))
-        request.transportType = .automobile
+        let request = Self.request(from: origin, to: stop?.coordinate ?? destination.cl)
         request.requestsAlternateRoutes = origin == nil
         MKDirections(request: request).calculate { response, _ in
             MainActor.assumeIsolated { self.received(response?.routes ?? []) }
@@ -213,6 +224,7 @@ final class NavigationModel {
         offSince = nil
         guard !found.isEmpty else { error = true; return }
         error = false
+        continuing = false
         routes = found.prefix(3).map { ScoredRoute(route: $0) }
         selected = bestIndex()
         if guiding, let r = current { prepare(r.route) }
@@ -291,7 +303,7 @@ final class NavigationModel {
         }
     }
 
-    func stop() {
+    func endGuidance() {
         task?.cancel()
         guiding = false
         voice.stopSpeaking(at: .immediate)
@@ -340,9 +352,17 @@ final class NavigationModel {
             offSince = nil
         }
 
-        if remaining < 30 && !arrived {
-            arrived = true
-            say(String(localized: "You've arrived", bundle: .module), key: "arrive")
+        if remaining < 30 && !arrived && !loading && !continuing {
+            if stop != nil {
+                // At the stop: carry on to the destination. If that route fails, the off-route check
+                // asks again once you drive away.
+                stop = nil
+                continuing = true
+                calculate(from: here)
+            } else {
+                arrived = true
+                say(String(localized: "You've arrived", bundle: .module), key: "arrive")
+            }
         }
 
         // Voice at 800 m, 200 m, and the maneuver.
@@ -458,7 +478,7 @@ struct NavigationRoot: View {
 
     var body: some View {
         Group {
-            if model.guiding { GuidanceView(model: model) { model.stop(); dismiss() } } else { RoutePreview(model: model) { dismiss() } }
+            if model.guiding { GuidanceView(model: model) { model.endGuidance(); dismiss() } } else { RoutePreview(model: model) { dismiss() } }
         }
         .preferredColorScheme(.dark)
         .task { await model.load() }
@@ -472,6 +492,7 @@ struct RoutePreview: View {
     @Bindable var model: NavigationModel
     let close: () -> Void
     @State private var position: MapCameraPosition = .automatic
+    @State private var addingStop = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -486,6 +507,10 @@ struct RoutePreview: View {
                     }
                 }
                 Marker(model.name ?? "", coordinate: model.destination.cl).tint(Color.sodium)
+                if let stop = model.stop {
+                    if let onward = stop.onward { MapPolyline(onward.polyline).stroke(Color.sodium, lineWidth: Size.Route.selected) }
+                    Marker(stop.name, coordinate: stop.coordinate).tint(Color.sodium)
+                }
             }
             .mapStyle(.standard(emphasis: .muted))
             .ignoresSafeArea()
@@ -494,6 +519,7 @@ struct RoutePreview: View {
             }
             sheet
         }
+        .sheet(isPresented: $addingStop) { StopsSheet(model: model).presentationDetents([.medium, .large]) }
     }
 
     private var sheet: some View {
@@ -507,6 +533,13 @@ struct RoutePreview: View {
                             .frame(minHeight: Size.hitTarget).contentShape(Rectangle())
                     }
                     .accessibilityHint(Text("Switches to your next car", bundle: .module))
+                }
+            }
+            if let stop = model.stop {
+                HStack {
+                    Text("Via \(stop.name)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
+                    Spacer()
+                    QuietButton("Remove stop") { model.removeStop() }
                 }
             }
             if model.loading {
@@ -526,6 +559,9 @@ struct RoutePreview: View {
                         .typeStyle(.foot).foregroundStyle(Color.dust)
                 }
                 PrimaryButton("Go") { model.start() }
+                if model.stop == nil {
+                    QuietButton("Add a stop") { model.findStops(model.stopKind); addingStop = true }
+                }
                 if model.convoyID != nil {
                     if model.sharedWithConvoy {
                         Text("Shared with your convoy.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.go)
@@ -549,7 +585,7 @@ struct RoutePreview: View {
         let hazards = r.clearanceHazards(for: model.clearance)
         return VStack(alignment: .leading, spacing: Space.s2) {
             HStack(alignment: .firstTextBaseline, spacing: Space.s8) {
-                Text(verbatim: "\(Int(r.route.expectedTravelTime / 60))").font(TypeToken.readoutL.font)
+                Text(verbatim: "\(Int((r.route.expectedTravelTime + (model.stop?.onward?.expectedTravelTime ?? 0)) / 60))").font(TypeToken.readoutL.font)
                     .foregroundStyle(selected ? Color.sodium : Color.chalk)
                     + Text(verbatim: thinSpace + String(localized: "min", bundle: .module)).font(TypeToken.readoutS.font)
                     .foregroundStyle(Color.dust)
@@ -557,7 +593,7 @@ struct RoutePreview: View {
                 Spacer(minLength: 0)
                 if selected { Image.symbol(Symbol.confirm).foregroundStyle(Color.sodium).accessibilityHidden(true) }
             }
-            Text(verbatim: "\(NavigationModel.distance(r.route.distance)) · \(r.route.name)").typeStyle(.sub).foregroundStyle(Color.dust)
+            Text(verbatim: "\(NavigationModel.distance(r.route.distance + (model.stop?.onward?.distance ?? 0))) · \(r.route.name)").typeStyle(.sub).foregroundStyle(Color.dust)
             if model.clearance != .stock {
                 if hazards.isEmpty {
                     Text("Clear for a lowered car", bundle: .module).typeStyle(.sub).foregroundStyle(Color.go)
@@ -579,12 +615,17 @@ struct GuidanceView: View {
     let end: () -> Void
     @State private var position: MapCameraPosition = .userLocation(followsHeading: true, fallback: .automatic)
     @State private var sharingETA = false
+    @State private var addingStop = false
 
     var body: some View {
         ZStack {
             Map(position: $position) {
                 UserAnnotation()
                 if let r = model.current { MapPolyline(r.route.polyline).stroke(Color.sodium, lineWidth: Size.Route.selected) }
+                if let stop = model.stop {
+                    if let onward = stop.onward { MapPolyline(onward.polyline).stroke(Color.dust, lineWidth: Size.Route.alternate) }
+                    Marker(stop.name, coordinate: stop.coordinate).tint(Color.sodium)
+                }
             }
             .mapStyle(.standard(elevation: .realistic, emphasis: .muted))
             .ignoresSafeArea()
@@ -623,6 +664,14 @@ struct GuidanceView: View {
                     .mapShadow()
                     .accessibilityElement(children: .combine)
                     Spacer()
+                    if !model.arrived {
+                        QuietButton(model.stop == nil ? "Add a stop" : "Remove stop") {
+                            if model.stop == nil { model.findStops(model.stopKind); addingStop = true } else { model.removeStop() }
+                        }
+                        .padding(.horizontal, Space.s16)
+                        .background(Color.tarmac, in: Capsule())
+                        .mapShadow()
+                    }
                 }
                 .padding(.horizontal, Space.margin)
                 .padding(.bottom, Space.s12)
@@ -636,6 +685,7 @@ struct GuidanceView: View {
             if !Task.isCancelled { end() }
         }
         .sheet(isPresented: $sharingETA) { ShareETASheet(model: model).presentationDetents([.medium, .large]) }
+        .sheet(isPresented: $addingStop) { StopsSheet(model: model).presentationDetents([.medium, .large]) }
     }
 
     private var banner: some View {
@@ -671,7 +721,8 @@ struct GuidanceView: View {
                     + Text(verbatim: thinSpace + String(localized: "min", bundle: .module)).font(TypeToken.readoutS.font)
                     .foregroundStyle(Color.dust))
                     .contentTransition(.numericText())
-                Text(verbatim: NavigationModel.distance(model.remaining)).typeStyle(.foot).foregroundStyle(Color.dust)
+                Text(verbatim: model.stop.map { String(localized: "\(NavigationModel.distance(model.remaining)) to \($0.name)", bundle: .module) }
+                     ?? NavigationModel.distance(model.remaining)).typeStyle(.foot).foregroundStyle(Color.dust)
             }
             .accessibilityElement(children: .combine)
             Spacer()

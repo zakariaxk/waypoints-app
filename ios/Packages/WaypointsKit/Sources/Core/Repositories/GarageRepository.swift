@@ -19,6 +19,17 @@ public protocol GarageRepository: Sendable {
     @discardableResult func updateBuildEntry(_ entry: BuildEntry) async throws -> BuildEntry
     func deleteBuildEntry(_ id: BuildEntryID) async throws
 
+    /// MOD-15: the car's saved builds, readable wherever the car is.
+    func savedBuilds(for car: CarID) async throws -> [SavedBuild]
+    /// Replaces the car's saved builds. Owner only; at most `SavedBuild.limit`.
+    func setSavedBuilds(_ builds: [SavedBuild], for car: CarID) async throws
+
+    /// GAR-18: what the car's timeline entries cost, in cents, keyed by entry. Empty for anyone
+    /// but the car's owner: cost never reaches another user.
+    func buildCosts(of car: CarID) async throws -> [BuildEntryID: Int]
+    /// Sets or clears (`nil`) the cost of one of the caller's own timeline entries.
+    func setBuildCost(_ id: BuildEntryID, cents: Int?) async throws
+
     /// Emits the owner's full car list whenever it changes.
     func carChanges(of owner: UserID) async -> AsyncStream<[Car]>
 }

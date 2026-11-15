@@ -93,6 +93,7 @@ struct MeetBody: Encodable, Sendable {
     var timeZone: String
     var destination: PlaceDTO?
     var roadId: RoadID?
+    var capacity: Int?
 
     init(_ d: MeetDraft) {
         title = d.title; kind = d.kind; lat = d.coordinate.latitude; lng = d.coordinate.longitude
@@ -100,6 +101,7 @@ struct MeetBody: Encodable, Sendable {
         visibility = d.visibility; teamId = d.teamID
         recurrence = d.recurrence; timeZone = TimeZone.current.identifier; destination = d.destination.map(PlaceDTO.init)
         roadId = d.roadID
+        capacity = d.capacity
     }
 }
 
@@ -144,13 +146,14 @@ struct MeetDTO: Decodable, Sendable {
     var destination: PlaceDTO?
     var roadId: RoadID?
     var winnerCarId: CarID?
+    var capacity: Int?
 
     var model: Meet {
         Meet(id: id, hostID: hostId, title: title, kind: kind, coordinate: Coordinate(latitude: lat, longitude: lng),
              placeName: placeName, startsAt: startsAt, endsAt: endsAt, details: details ?? "", visibility: visibility,
              teamID: teamId, cancelledAt: cancelledAt, createdAt: createdAt ?? .now,
              recurrence: recurrence, seriesID: seriesId, destination: destination?.model, roadID: roadId,
-             winnerCarID: winnerCarId)
+             winnerCarID: winnerCarId, capacity: capacity)
     }
 }
 

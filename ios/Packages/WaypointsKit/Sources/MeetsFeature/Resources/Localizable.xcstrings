@@ -4,6 +4,9 @@
     "%@ %@ of the month": {
       "extractionState": "manual"
     },
+    "%@ of %@ cars": {
+      "extractionState": "manual"
+    },
     "30 minutes before": {
       "extractionState": "manual"
     },
@@ -26,6 +29,9 @@
       "extractionState": "manual"
     },
     "Cancelled": {
+      "extractionState": "manual"
+    },
+    "Car limit": {
       "extractionState": "manual"
     },
     "Couldn't add it to your calendar.": {
@@ -142,6 +148,9 @@
     "More options": {
       "extractionState": "manual"
     },
+    "No limit": {
+      "extractionState": "manual"
+    },
     "No road": {
       "extractionState": "manual"
     },
@@ -250,6 +259,9 @@
     "Track day": {
       "extractionState": "manual"
     },
+    "Waitlist · %@": {
+      "extractionState": "manual"
+    },
     "Wawa and chill": {
       "extractionState": "manual"
     },
@@ -281,6 +293,9 @@
       "extractionState": "manual"
     },
     "Who's going · %@": {
+      "extractionState": "manual"
+    },
+    "You're on the waitlist, %@": {
       "extractionState": "manual"
     },
     "You've started 3 meets today. That's the limit.": {

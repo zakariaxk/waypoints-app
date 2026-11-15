@@ -31,6 +31,9 @@
     "Couldn't delete the account. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't get your data. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't load blocked people. Check your connection and try again.": {
       "extractionState": "manual"
     },
@@ -50,6 +53,9 @@
       "extractionState": "manual"
     },
     "Design gallery": {
+      "extractionState": "manual"
+    },
+    "Download my data": {
       "extractionState": "manual"
     },
     "Email": {

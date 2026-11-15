@@ -113,6 +113,7 @@ func Register(a *app.App) {
 	a.Mux.HandleFunc("POST /v1/convoys/join", api.Authed(v, s.join))
 	a.Mux.HandleFunc("PUT /v1/convoys/{id}/destination", api.Authed(v, s.setDestination))
 	a.Mux.HandleFunc("PUT /v1/convoys/{id}/regroup", api.Authed(v, s.setRegroup))
+	a.Mux.HandleFunc("DELETE /v1/convoys/{id}/regroup", api.Authed(v, s.clearRegroup))
 	a.Mux.HandleFunc("DELETE /v1/convoys/{id}", api.Authed(v, s.end))
 	a.Mux.HandleFunc("POST /v1/convoys/{id}/invite", api.Authed(v, s.invite))
 	app.Provide(a, s)
@@ -373,10 +374,19 @@ func (s *Service) setDestination(w http.ResponseWriter, r *http.Request, cl auth
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// setRegroup drops the regroup point; any member may (CNV-12).
 func (s *Service) setRegroup(w http.ResponseWriter, r *http.Request, cl auth.Claims) {
-	c, err := s.leaderConvoy(r, cl)
-	if err != nil {
-		s.fail(w, err)
+	c := s.get(r.Context(), r.PathValue("id"))
+	uid, err := s.uid(r.Context(), cl.UserID)
+	if c != nil {
+		s.mu.Lock()
+		if c.Ended || !c.has(uid) {
+			c = nil
+		}
+		s.mu.Unlock()
+	}
+	if c == nil || err != nil {
+		api.Error(w, http.StatusNotFound, "not found")
 		return
 	}
 	var p struct {
@@ -389,6 +399,20 @@ func (s *Service) setRegroup(w http.ResponseWriter, r *http.Request, cl auth.Cla
 	}
 	s.mu.Lock()
 	c.Regroup = &regroup{Lat: p.Lat, Lng: p.Lng, SetAt: time.Now()}
+	s.mu.Unlock()
+	s.changed(r.Context(), c)
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// clearRegroup is the leader's "Rolling" (CNV-12).
+func (s *Service) clearRegroup(w http.ResponseWriter, r *http.Request, cl auth.Claims) {
+	c, err := s.leaderConvoy(r, cl)
+	if err != nil {
+		s.fail(w, err)
+		return
+	}
+	s.mu.Lock()
+	c.Regroup = nil
 	s.mu.Unlock()
 	s.changed(r.Context(), c)
 	w.WriteHeader(http.StatusNoContent)

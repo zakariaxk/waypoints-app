@@ -26,6 +26,9 @@ public enum GarageFeature: FeatureModule {
             guard case let .vehiclePicker(carID) = route else { return nil }
             return AnyView(PickerSheet(ctx: ctx, editing: carID))
         }
+        #if DEBUG
+        registry.registerDebugScreen("gearing") { AnyView(DebugGearing(ctx: ctx)) }
+        #endif
     }
 }
 

@@ -19,7 +19,13 @@
     "Convoy ended.": {
       "extractionState": "manual"
     },
+    "Couldn't clear the regroup point. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't end the convoy. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't find your location. Search for a place instead.": {
       "extractionState": "manual"
     },
     "Couldn't reach the convoy. Check your connection and try again.": {
@@ -38,6 +44,9 @@
       "extractionState": "manual"
     },
     "Driver": {
+      "extractionState": "manual"
+    },
+    "Drop a regroup point": {
       "extractionState": "manual"
     },
     "End convoy": {
@@ -79,10 +88,28 @@
     "No convoy with that code.": {
       "extractionState": "manual"
     },
+    "No place found. Try another search.": {
+      "extractionState": "manual"
+    },
     "Optional: where you're headed": {
       "extractionState": "manual"
     },
+    "Place": {
+      "extractionState": "manual"
+    },
     "Regroup": {
+      "extractionState": "manual"
+    },
+    "Regroup here": {
+      "extractionState": "manual"
+    },
+    "Regroup there": {
+      "extractionState": "manual"
+    },
+    "Rolling": {
+      "extractionState": "manual"
+    },
+    "Search for a place": {
       "extractionState": "manual"
     },
     "Set regroup point": {

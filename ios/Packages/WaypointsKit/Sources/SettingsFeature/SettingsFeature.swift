@@ -475,6 +475,9 @@ struct AccountView: View {
     @State private var confirming = false
     @State private var deleting = false
     @State private var error: String?
+    @State private var exporting = false
+    @State private var exportFile: DataExportFile?
+    @State private var exportError: String?
 
     var body: some View {
         SettingsList(title: "Account") {
@@ -489,6 +492,19 @@ struct AccountView: View {
                 }
             } label: { Row(Text("Sign out", bundle: .module)) }
                 .buttonStyle(RowButtonStyle())
+            Button {
+                Task { await downloadData() }
+            } label: {
+                Row(Text("Download my data", bundle: .module), trailing: {
+                    if exporting { ProgressView() } else { Image.symbol(Symbol.share) }
+                })
+            }
+            .buttonStyle(RowButtonStyle())
+            .disabled(exporting)
+            if let exportError {
+                Text(verbatim: exportError).typeStyle(.foot).foregroundStyle(Color.brake)
+                    .padding(.horizontal, Space.margin).padding(.top, Space.s8)
+            }
             VStack(alignment: .leading, spacing: Space.s12) {
                 if confirming {
                     Text("This deletes your profile, cars, posts, messages you sent, and listings. Type your handle to confirm.", bundle: .module)
@@ -517,7 +533,43 @@ struct AccountView: View {
             email = await env.auth.currentSession()?.email
             handle = (try? await env.profiles.myProfile().handle) ?? ""
         }
+        .sheet(item: $exportFile) { file in
+            DataShareSheet(url: file.url).presentationDetents([.medium, .large])
+                .onDisappear { try? FileManager.default.removeItem(at: file.url) }
+        }
     }
+
+    /// ACC-12: one JSON file of everything the person owns, handed to the share sheet.
+    private func downloadData() async {
+        exporting = true
+        exportError = nil
+        defer { exporting = false }
+        do {
+            let data = try await env.profiles.exportMyData()
+            let object = try JSONSerialization.jsonObject(with: data)
+            let pretty = try JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted, .sortedKeys])
+            let day = Date.now.formatted(.iso8601.year().month().day())
+            let url = FileManager.default.temporaryDirectory.appending(path: "waypoints-data-\(day).json")
+            try pretty.write(to: url, options: .atomic)
+            exportFile = DataExportFile(url: url)
+        } catch {
+            exportError = String(localized: "Couldn't get your data. Check your connection and try again.", bundle: .module)
+        }
+    }
+}
+
+struct DataExportFile: Identifiable {
+    let url: URL
+    var id: URL { url }
+}
+
+/// The system share sheet for the exported file.
+struct DataShareSheet: UIViewControllerRepresentable {
+    let url: URL
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: [url], applicationActivities: nil)
+    }
+    func updateUIViewController(_ vc: UIActivityViewController, context: Context) {}
 }
 
 // MARK: S6 About

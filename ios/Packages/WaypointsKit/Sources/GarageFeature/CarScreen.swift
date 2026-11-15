@@ -15,6 +15,8 @@ final class CarModel {
     var owner: Profile?
     var photos: [CarPhoto] = []
     var entries: [BuildEntry] = []
+    /// GAR-18: cost in cents per entry. Only ever filled for the owner.
+    var costs: [BuildEntryID: Int] = [:]
     var variant: CatalogVariant?
     var showdown: ShowdownEntry?
     var me: UserID?
@@ -39,6 +41,7 @@ final class CarModel {
         owner = try? await env.profiles.profile(c.ownerID)
         photos = (try? await env.garage.photos(of: carID)) ?? []
         entries = ((try? await env.garage.buildEntries(of: carID)) ?? []).sorted { $0.happenedOn > $1.happenedOn }
+        costs = c.ownerID == me ? ((try? await env.garage.buildCosts(of: carID)) ?? [:]) : [:]
         if let v = c.catalogVariantID { variant = try? await env.catalog.variant(v) }
         showdown = try? await env.showdown.entry(for: carID)
     }
@@ -86,6 +89,7 @@ struct CarScreen: View {
                     if let est = model.estimate { readouts(est, car: car) }
                     if model.own { ownActions(car) } else { otherActions(car) }
                     timeline
+                    costSummary
                     specs(car)
                 }
                 .padding(.bottom, Space.s48)
@@ -260,6 +264,10 @@ struct CarScreen: View {
                 actionRow("Enter Showdown") { askShowdown = true }
                     .disabled(model.photos.isEmpty)
             }
+            NavigationLink { GearingScreen(car: car, variant: model.variant) } label: {
+                Row(Text("Gearing and tires", bundle: .module), trailing: { Disclosure() })
+            }
+            .buttonStyle(RowButtonStyle())
             actionRow("Edit car") { ctx.env.router.open(.vehiclePicker(forCar: car.id)) }
             if model.uploading { Text("Uploading photo", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust).padding(Space.margin) }
         }
@@ -304,6 +312,9 @@ struct CarScreen: View {
                 VStack(alignment: .leading, spacing: Space.s4) {
                     Text(verbatim: e.happenedOn.formatted(date: .abbreviated, time: .omitted)).typeStyle(.readoutS).foregroundStyle(Color.dust)
                     Text(verbatim: e.title).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                    if let cents = model.costs[e.id] {
+                        Text(verbatim: GarageUnits.money(cents: cents)).typeStyle(.sub).foregroundStyle(Color.dust)
+                    }
                     if e.isService {
                         let odo = e.odometer.map { GarageUnits.odometer($0, e.odometerUnit ?? GarageUnits.defaultOdometer) }
                         (odo.map { Text("Service · \($0)", bundle: .module) } ?? Text("Service", bundle: .module)).typeStyle(.sub).foregroundStyle(Color.dust)
@@ -321,6 +332,25 @@ struct CarScreen: View {
                 .overlay(alignment: .bottom) { Hairline().padding(.leading, Space.margin) }
             }
             if model.own { SecondaryButton("Add an entry") { addEntry = true }.padding(Space.margin) }
+        }
+    }
+
+    /// GAR-18: the owner's running total and per-year subtotals. Nobody else gets costs.
+    @ViewBuilder private var costSummary: some View {
+        let costed = model.entries.compactMap { e in
+            model.costs[e.id].map { (year: Calendar.current.component(.year, from: e.happenedOn), cents: $0) }
+        }
+        if model.own, !costed.isEmpty {
+            let years = Dictionary(grouping: costed) { $0.year }.mapValues { $0.reduce(0) { $0 + $1.cents } }.sorted { $0.key > $1.key }
+            SectionLabel("BUILD COST")
+            Row(Text("Total", bundle: .module), subtitle: Text("Only you can see what the build cost.", bundle: .module), trailing: {
+                Text(verbatim: GarageUnits.money(cents: costed.reduce(0) { $0 + $1.cents })).typeStyle(.readoutM).foregroundStyle(Color.chalk)
+            })
+            ForEach(years, id: \.key) { year, cents in
+                Row(Text(verbatim: String(year)), showsDivider: year != years.last?.key, trailing: {
+                    Text(verbatim: GarageUnits.money(cents: cents)).typeStyle(.readoutS)
+                })
+            }
         }
     }
 
@@ -386,6 +416,10 @@ struct TimelineEntrySheet: View {
     @State private var unit = GarageUnits.defaultOdometer
     @State private var remind = false
     @State private var remindOn = Calendar.current.date(byAdding: .month, value: 6, to: .now) ?? .now
+    /// GAR-18
+    @State private var cost = ""
+    /// The entry is saved and only its cost failed: the next tap retries the cost alone.
+    @State private var costPending: BuildEntryID?
     @State private var saving = false
     @State private var error: String?
 
@@ -410,6 +444,7 @@ struct TimelineEntrySheet: View {
                             Text(verbatim: modID.flatMap { ModCatalog.mod($0)?.name } ?? "").typeStyle(.sub)
                         })
                     }
+                    Field("Cost", text: $cost, prompt: "Optional. Only you see it.", limit: 11).keyboardType(.decimalPad)
                     Toggle("Service", isOn: $isService).tint(.sodium).typeStyle(.body).foregroundStyle(Color.chalk)
                     if isService {
                         HStack(alignment: .bottom, spacing: Space.s12) {
@@ -439,8 +474,24 @@ struct TimelineEntrySheet: View {
 
     private func save() {
         guard !saving else { return }
+        let cents = GarageUnits.cents(cost)
+        guard cost.isEmpty || cents != nil else {
+            error = String(localized: "Enter the cost as a number, like 349.99.", bundle: .module)
+            return
+        }
         saving = true
         Task {
+            if let costPending {
+                do {
+                    if let cents { try await ctx.env.garage.setBuildCost(costPending, cents: cents) }
+                    onSave()
+                    dismiss()
+                } catch {
+                    self.error = String(localized: "The entry is saved, but its cost isn't. Check your connection and try again.", bundle: .module)
+                }
+                saving = false
+                return
+            }
             do {
                 var path: String?
                 if let photo, let data = try await photo.loadTransferable(type: Data.self) {
@@ -461,6 +512,15 @@ struct TimelineEntrySheet: View {
                     }
                     updated.mods.append(modID)
                     try await ctx.env.garage.updateCar(updated)
+                }
+                if let cents {
+                    do { try await ctx.env.garage.setBuildCost(saved.id, cents: cents) } catch {
+                        costPending = saved.id
+                        onSave()
+                        self.error = String(localized: "The entry is saved, but its cost isn't. Check your connection and try again.", bundle: .module)
+                        saving = false
+                        return
+                    }
                 }
                 onSave()
                 dismiss()

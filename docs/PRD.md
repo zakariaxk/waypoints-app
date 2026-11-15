@@ -260,7 +260,7 @@ Get from install to a car on the map with the least typing. Plan 10.2, 10.10.
 | ACC-9 | The session survives relaunch and refreshes its token without the user noticing. Sign out returns to sign-in and clears local state. | P0 | Partial (W9-H review): sign-out clears the session, router, block cache, realtime state, and device token; `UserDefaults` flags and on-phone home zones persist into the next account. |
 | ACC-10 | Delete account: explains what is deleted, requires typing the handle, deletes the auth user and every row immediately, signs out. | P0 | Coded |
 | ACC-11 | A link opened while signed out continues to its target after sign-in. | P0 | Coded |
-| ACC-12 | Your data. Settings > Account offers "Download my data": one JSON file of your profile, cars, timeline, posts, listings, messages you sent, and settings, built by one RPC and handed to the share sheet. | P3 | New |
+| ACC-12 | Your data. Settings > Account offers "Download my data": one JSON file of your profile, cars, timeline, posts, listings, messages you sent, and settings, built by one RPC and handed to the share sheet. | P3 | Coded (W10-10): RPC `export_my_data()` and "Download my data" in Settings > Account (JSON file to the share sheet, removed afterwards). `make check-db` not yet run. |
 
 ### 4.2 Privacy and location sharing (PRV)
 
@@ -342,7 +342,7 @@ Waze-grade guidance built on MapKit, with the one thing nobody else has: routes 
 | NAV-13 | With a convoy active, route preview offers "Share with convoy". | P0 | Coded |
 | NAV-14 | Directions is offered wherever a place appears: a friend, a meet, a road, a regroup point, a help request. | P0 | Coded |
 | NAV-15 | Share ETA. While navigating, the user can send chosen friends one notice with the destination name and arrival time. No position is shared. Navigating to a meet you are Going to shows you as "on the way" in its list. | P2 | Coded (W8-1F): "Share ETA" in M4 guidance sends chosen friends one push and Activity row through `POST /v1/eta` (friends only, no position); starting guidance to a meet you are Going to sets `meet_rsvps.on_the_way_until`, shown as "On the way" in E2's Who's going. |
-| NAV-16 | Stop on the way. During route preview or guidance, "Add a stop" searches fuel, EV charging, and food along the route with MapKit, shows the detour in minutes for each, and inserts the chosen one as a waypoint. One stop at a time. | P3 | New |
+| NAV-16 | Stop on the way. During route preview or guidance, "Add a stop" searches fuel, EV charging, and food along the route with MapKit, shows the detour in minutes for each, and inserts the chosen one as a waypoint. One stop at a time. | P3 | Coded (W10-1): "Add a stop" in route preview and guidance; fuel, EV charging, or food searched at three points ahead on the route; detour minutes for the four nearest; one stop with "Remove stop". Seen in preview (`debug/stops`); the live MapKit search is not yet run. |
 
 ### 4.6 Community reports (RPT)
 
@@ -396,7 +396,7 @@ Anyone drops a meet on the map in three fields, from a full show to "Wawa and ch
 | MEET-12 | Recurring meets. A host can make a meet repeat weekly, every two weeks, or monthly on the same weekday. When one occurrence ends the next is created. RSVPs do not carry over; people who checked in last time are told once. Cancelling asks "This meet" or "This and every one after". | P1 | Coded |
 | MEET-13 | Roll out. A cruise can carry a destination or a saved road. At start time its host sees "Roll out", which starts a convoy named for the meet with that route and invites everyone Going. | P1 | Coded: a destination place or one of your saved roads (sent as the convoy's `route_polyline`); Roll out joins the host to the convoy. |
 | MEET-14 | People's choice. During a show or meet, each person checked in can pick one car from those brought. When it ends, the meet shows the winner and the car's timeline gains a line. | P2 | Coded: `meet_votes` with RLS, settled by the gateway's `meet-choice` sweep (W8-1A). |
-| MEET-15 | Capacity. A host can cap a meet at a number of cars. Going past the cap joins a waitlist in order; when someone drops, the first waiting person becomes Going and is told once. E2 shows "12 of 20 cars" and "Waitlist · 3". | P3 | New |
+| MEET-15 | Capacity. A host can cap a meet at a number of cars. Going past the cap joins a waitlist in order; when someone drops, the first waiting person becomes Going and is told once. E2 shows "12 of 20 cars" and "Waitlist · 3". | P3 | Coded (W10-2): `meets.capacity`, a `waitlist` RSVP state, seats and promotion decided by triggers on `meet_rsvps` under a lock on the meet; the promoted person gets one Activity row and a push from the gateway's `meet-waitlist` sweep (up to 15 s later). Seen in preview (`debug/meet-capacity`); `make check-db` not yet run. Lowering the cap bumps nobody. |
 
 ### 4.9 Convoys (CNV)
 
@@ -415,7 +415,7 @@ Drive together and stay together. Plan 6, 7.6, 10.3 (M9).
 | CNV-9 | Precise positions flow only while a member is in the convoy and stop the moment they leave. | P0 | Partial (W9-H review): leaving stops precise sharing on every device connected to the same node; not across nodes. |
 | CNV-10 | A convoy survives a gateway restart or a move to another node. | P0 | Partial (W9-H review): survives a restart; members connected to different nodes do not see each other (convoy fan-out has no bus path). |
 | CNV-11 | Every convoy has voice. "Talk" opens the voice sheet for the convoy's own room; you join muted; the room ends with the convoy. This replaces the plan's team-only Talk button. | P1 | Coded |
-| CNV-12 | Regroup. Any member can drop a regroup point (a place search or "here"). Every member sees it on the convoy line with one tap to route there; it clears when the host taps "Rolling" or the convoy ends. No speed, gap times, or ordering by position are shown. | P3 | New |
+| CNV-12 | Regroup. Any member can drop a regroup point (a place search or "here"). Every member sees it on the convoy line with one tap to route there; it clears when the host taps "Rolling" or the convoy ends. No speed, gap times, or ordering by position are shown. | P3 | Coded (W10-3): any member drops a regroup point by search or "here"; the leader's "Rolling" clears it (`DELETE /v1/convoys/{id}/regroup`). Gap times in the member list stay, as CNV-4 requires them. |
 
 ### 4.10 Friends, follows, and profiles (SOC)
 
@@ -455,8 +455,8 @@ Every car, chosen without clutter. Plan 5.2, 10.8 (G3 to G5), 11.1.
 | GAR-14 | Someone else's car shows its owner and "Message about this car". | P0 | Coded |
 | GAR-15 | Share build. A car's overflow renders a card (lead photo, name, the four estimates marked "est.", handle) to the share sheet. | P1 | Coded |
 | GAR-16 | Service log. A timeline entry can be marked as service with an odometer reading and an optional reminder date, delivered as a local notification. | P2 | Coded |
-| GAR-17 | Gearing and tire calculator. From the car's catalog ratios and tire size: speed at redline in each gear, rpm at a chosen cruising speed, and the speedometer error for a different tire size or final drive. Cars without ratios in the catalog say so instead of guessing. On the device only. | P3 | New |
-| GAR-18 | Build cost. A timeline entry can carry what it cost. The owner alone sees a running total on the car and per-year subtotals; cost is never shown to anyone else and never ranked. | P3 | New |
+| GAR-17 | Gearing and tire calculator. From the car's catalog ratios and tire size: speed at redline in each gear, rpm at a chosen cruising speed, and the speedometer error for a different tire size or final drive. Cars without ratios in the catalog say so instead of guessing. On the device only. | P3 | Coded (W10-4): speed at redline per gear, rpm at a cruising speed, speedometer error for another tire or final drive. The catalog carries no tire size or final drive, so the owner enters the stock ones (kept on the device); a car without ratios says so. Seen in preview (`debug/gearing`). |
+| GAR-18 | Build cost. A timeline entry can carry what it cost. The owner alone sees a running total on the car and per-year subtotals; cost is never shown to anyone else and never ranked. | P3 | Coded (W10-4): cost set when adding an entry; `build_entries.cost_cents` is not selectable by other users (column privilege) and the owner reads totals through `build_costs(car)`. `make check-db` not yet run. No editing of a cost afterwards, because entries cannot be edited at all. |
 
 ### 4.12 Mod simulator (MOD)
 
@@ -478,7 +478,7 @@ See and hear what a part does to your car, honestly. Plan 10.8 (G6), 11.2, 11.3.
 | MOD-12 | A car without specs asks for power and weight and then simulates. | P0 | Coded |
 | MOD-13 | The model is checked against 12 stock cars with published times: trap speed within 3%, quarter-mile time within 5%, 0 to 60 within 0.4 s. A debug screen lists model output beside the published figure. | P0 | Coded: 12 cars in `ReferenceCars.swift`, debug row under G6's mod list. W8-1F scratch run (swiftc against a Core stub) after turbo gearing and boost margin, automatic torque fill, and 8/10-speed typical ratios: 12 of 12 inside the stated error. Tightest: WRX trap -2.9%, ET +3.0%; Mustang 10-speed trap -2.8%. |
 | MOD-14 | Everything works offline, and toggling a mod updates chart, readouts, and sound within one frame. | P0 | Coded |
-| MOD-15 | Saved builds. Up to three named mod sets per car, kept with the car. Any two overlay on the dyno chart with both estimate ranges side by side, and a saved build can be the car that runs the Strip. | P3 | New |
+| MOD-15 | Saved builds. Up to three named mod sets per car, kept with the car. Any two overlay on the dyno chart with both estimate ranges side by side, and a saved build can be the car that runs the Strip. | P3 | Partial (W10-5): three named builds per car in `cars.saved_builds`, save, load, rename, delete, and a two-build overlay with ranges side by side (seen in preview, `debug/modsim-builds`). Left: the Strip does not yet offer a saved build. |
 
 ### 4.13 The Strip (STR)
 
@@ -514,7 +514,7 @@ Servers for car clubs. Plan 5.4, 10.7 (T1, T4 to T6).
 | TEAM-8 | A team's page offers Invite people, Members, Meets, and, when permitted, Channels, Roles, and Edit team. Members can leave; the owner deletes by typing the team's name. | P0 | Coded |
 | TEAM-9 | Teammates see each other on the map at the level each chose for Teams. | P0 | Coded |
 | TEAM-10 | Only the Teams tab carries an unread count. | P0 | Coded |
-| TEAM-11 | Team standings. Each week a team's score is the sum of Showdown votes its members' cars won, shown on the team page and in a weekly list of teams. Votes only: nothing from driving, distance, or the Strip counts. | P3 | New |
+| TEAM-11 | Team standings. Each week a team's score is the sum of Showdown votes its members' cars won, shown on the team page and in a weekly list of teams. Votes only: nothing from driving, distance, or the Strip counts. | P3 | Coded (W10-7): RPC `team_standings` counts votes won since Monday 00:00 UTC by current members' cars, for public teams and the caller's own; score and rank on T5 and a Standings list from the Teams tab (seen in preview, `debug/standings`). `make check-db` not yet run. |
 
 ### 4.15 Messaging (MSG)
 
@@ -620,7 +620,7 @@ Good roads, rated by people who drove them. Plan 10.3 (M11).
 | ROAD-3 | A stretch cannot start or end inside one of the user's home zones. | P0 | Coded |
 | ROAD-4 | Rated roads draw on the map as a layer. A road's sheet shows its length, three averages with the count, "Drive it" (routes to its start, then along it), and "Rate". | P0 | Coded |
 | ROAD-5 | Driven map. On the device only, the share of road cells in your region you have driven, shown as a number and a map shading. It rewards exploring, never speed or distance. | P2 | Coded: a 0.0025 degree lat/lng grid on the device; the share counts the cells of rated roads in view that your traces cross (the only road data on the phone), shaded through the `driven_map` layer. |
-| ROAD-6 | Loops. Saved roads can be grouped in order into a named loop with a total length. A loop has a share link, opens as one route in navigation, and can be sent to a convoy as its route. | P3 | New |
+| ROAD-6 | Loops. Saved roads can be grouped in order into a named loop with a total length. A loop has a share link, opens as one route in navigation, and can be sent to a convoy as its route. | P3 | Partial (W10-9): loops of your saved roads with total length, create, reorder, rename, delete, share link (`loop/<id>`), and "Send to convoy" (starts a convoy on the loop's route). Left: "Drive it" navigates to the start of the first road, because navigation takes only a destination. |
 
 ### 4.22 Notifications (NTF)
 

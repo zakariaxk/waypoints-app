@@ -7,13 +7,31 @@
     "A road can't start or end in one of your home zones. Move the handles.": {
       "extractionState": "manual"
     },
+    "Add a road from your saved roads below.": {
+      "extractionState": "manual"
+    },
     "Block": {
       "extractionState": "manual"
     },
     "Couldn't block them. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't delete the loop. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this loop. It may have been deleted.": {
+      "extractionState": "manual"
+    },
     "Couldn't load this road.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load your loops.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load your saved roads.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save the loop. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't save the rating. Check your connection and try again.": {
@@ -22,10 +40,16 @@
     "Couldn't save the road. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't start the convoy. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "DRIVEN MAP": {
       "extractionState": "manual"
     },
     "Delete drive": {
+      "extractionState": "manual"
+    },
+    "Delete loop": {
       "extractionState": "manual"
     },
     "Delete this drive": {
@@ -34,22 +58,58 @@
     "Drive it": {
       "extractionState": "manual"
     },
+    "Drive it takes you to the start of the first road. Send to convoy starts a convoy with the whole loop as its route.": {
+      "extractionState": "manual"
+    },
     "Driven": {
+      "extractionState": "manual"
+    },
+    "Edit": {
+      "extractionState": "manual"
+    },
+    "Edit loop": {
       "extractionState": "manual"
     },
     "End": {
       "extractionState": "manual"
     },
+    "Every road you saved is in this loop.": {
+      "extractionState": "manual"
+    },
+    "In this loop, in order": {
+      "extractionState": "manual"
+    },
     "LENGTH": {
+      "extractionState": "manual"
+    },
+    "LOOPS": {
       "extractionState": "manual"
     },
     "Like 'Route 9 through the pines'": {
       "extractionState": "manual"
     },
+    "Like 'Sunday pines loop'": {
+      "extractionState": "manual"
+    },
+    "Loop": {
+      "extractionState": "manual"
+    },
     "More options": {
       "extractionState": "manual"
     },
+    "Move down": {
+      "extractionState": "manual"
+    },
+    "Move up": {
+      "extractionState": "manual"
+    },
     "Name": {
+      "extractionState": "manual"
+    },
+    "New loop": {
+      "extractionState": "manual"
+    },
+    "No loops yet. Group your saved roads into one drive.": {
       "extractionState": "manual"
     },
     "No ratings": {
@@ -59,6 +119,9 @@
       "extractionState": "manual"
     },
     "Rate": {
+      "extractionState": "manual"
+    },
+    "Remove from loop": {
       "extractionState": "manual"
     },
     "Report": {
@@ -73,10 +136,28 @@
     "Save a stretch": {
       "extractionState": "manual"
     },
+    "Save loop": {
+      "extractionState": "manual"
+    },
     "Save road": {
       "extractionState": "manual"
     },
+    "Send to convoy": {
+      "extractionState": "manual"
+    },
+    "Share loop": {
+      "extractionState": "manual"
+    },
     "Start": {
+      "extractionState": "manual"
+    },
+    "TOTAL LENGTH": {
+      "extractionState": "manual"
+    },
+    "The loop is removed. Its roads stay.": {
+      "extractionState": "manual"
+    },
+    "The roads in this loop are no longer available.": {
       "extractionState": "manual"
     },
     "The trace is removed from this phone.": {
@@ -91,7 +172,16 @@
     "You blocked the person who added this road.": {
       "extractionState": "manual"
     },
+    "You blocked the person who made this loop.": {
+      "extractionState": "manual"
+    },
+    "You have no saved roads yet. Record a drive, then save a stretch of it.": {
+      "extractionState": "manual"
+    },
     "You're doing that a lot. Try again in a few minutes.": {
+      "extractionState": "manual"
+    },
+    "Your saved roads": {
       "extractionState": "manual"
     }
   },

@@ -14,6 +14,7 @@ public actor PreviewStore {
     var cars: [CarID: Car]
     var carPhotos: [CarPhoto]
     var buildEntries: [BuildEntry]
+    var buildCosts: [BuildEntryID: Int] = PreviewSeed.buildCosts
     var friendships: [Friendship]
     var blocks: Set<Pair> = []
     var reports: [ReportID: Report]
@@ -25,6 +26,7 @@ public actor PreviewStore {
     var venueNotes: [VenueNote]
     var roads: [RoadID: Road]
     var roadRatings: [Pair: RoadRating] = [:]
+    var roadLoops: [LoopID: RoadLoop] = [PreviewSeed.roadLoop.id: PreviewSeed.roadLoop]
     var spots: [Spot]
     var teams: [TeamID: Team]
     var roles: [TeamRole]
@@ -43,6 +45,7 @@ public actor PreviewStore {
     var saves: Set<Pair> = []
     var achievements: [Achievement]
     var raceResults: [RaceResult] = []
+    var savedBuilds: [CarID: [SavedBuild]] = PreviewSeed.savedBuilds
     var termsAccepted = true
     var notificationPrefs = NotificationPrefs()
 

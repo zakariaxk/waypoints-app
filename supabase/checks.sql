@@ -1005,6 +1005,148 @@ begin
   perform pg_temp.deny('storage: anon cannot list message attachments', 'anon',
     $s$select 1 from storage.objects where bucket_id = 'messages'$s$);
 
+  ---------------------------------------------------------------- export_my_data (ACC-12)
+  insert into messages (thread_id, author_id, body) values (thr_ab::uuid, a::uuid, 'Export check from Avery');
+  insert into device_tokens (user_id, apns_token) values (a::uuid, 'exportchecktoken');
+  perform pg_temp.allow('export_my_data: caller gets own profile and cars', a,
+    format($s$select 1 from (select public.export_my_data() d) x
+      where d -> 'profile' ->> 'user_id' = %L and d -> 'cars' @> jsonb_build_array(jsonb_build_object('id', %L))$s$, a, car_a));
+  perform pg_temp.allow('export_my_data: includes messages the caller sent', a,
+    $s$select 1 from jsonb_array_elements(public.export_my_data() -> 'messages') m
+      where m ->> 'body' = 'Export check from Avery'$s$);
+  perform pg_temp.deny('export_my_data: no messages the caller received', a,
+    format($s$select 1 from jsonb_array_elements(public.export_my_data() -> 'messages') m
+      where m ->> 'author_id' <> %L$s$, a));
+  perform pg_temp.deny('export_my_data: no device tokens', a,
+    $s$select 1 where public.export_my_data()::text like '%exportchecktoken%'$s$);
+  perform pg_temp.deny('export_my_data: another user''s cars, posts and messages are absent', b,
+    format($s$select 1 from (select public.export_my_data() d) x
+      where d -> 'profile' ->> 'user_id' <> %1$L
+         or exists (select 1 from jsonb_array_elements(d -> 'cars') c where c ->> 'owner_id' <> %1$L)
+         or exists (select 1 from jsonb_array_elements(d -> 'posts') p where p ->> 'author_id' <> %1$L)
+         or exists (select 1 from jsonb_array_elements(d -> 'messages') m where m ->> 'author_id' <> %1$L)
+         or d::text like '%%Export check from Avery%%'$s$, b));
+  perform pg_temp.deny('export_my_data: not callable by anon', 'anon',
+    $s$select public.export_my_data()$s$);
+  delete from device_tokens where apns_token = 'exportchecktoken';
+
+  ---------------------------------------------------------------- build cost (W10-4, GAR-18)
+  perform pg_temp.allow('build_entries: owner logs an entry with a cost', a,
+    format($s$insert into build_entries (car_id, title, cost_cents) values (%L, 'Cost check exhaust', 84900)$s$, car_a), true);
+  perform pg_temp.allow('build_entries: another user still reads the entry', b,
+    format($s$select id, title from build_entries where car_id = %L and title = 'Cost check exhaust'$s$, car_a));
+  perform pg_temp.deny('build_entries: another user cannot select the cost', b,
+    format($s$select cost_cents from build_entries where car_id = %L$s$, car_a), '42501');
+  perform pg_temp.deny('build_entries: another user cannot select * (it would carry the cost)', b,
+    format($s$select * from build_entries where car_id = %L$s$, car_a), '42501');
+  perform pg_temp.deny('build_entries: another user cannot filter on the cost', b,
+    format($s$select id from build_entries where car_id = %L and cost_cents > 0$s$, car_a), '42501');
+  perform pg_temp.deny('build_entries: another user cannot set a cost', b,
+    format($s$update build_entries set cost_cents = 1 where car_id = %L$s$, car_a));
+  perform pg_temp.allow('build_costs: owner reads own costs', a,
+    format($s$select 1 from build_costs(%L) where cost_cents = 84900$s$, car_a));
+  perform pg_temp.deny('build_costs: another user gets nothing', b,
+    format($s$select 1 from build_costs(%L)$s$, car_a));
+  perform pg_temp.deny('build_costs: not callable by anon', 'anon',
+    format($s$select 1 from build_costs(%L)$s$, car_a));
+  perform pg_temp.allow('build_entries: owner changes a cost', a,
+    format($s$update build_entries set cost_cents = 90000 where car_id = %L and title = 'Cost check exhaust'$s$, car_a));
+  perform pg_temp.deny('build_entries: cost cannot be negative', a,
+    format($s$update build_entries set cost_cents = -1 where car_id = %L and title = 'Cost check exhaust'$s$, car_a), '23514');
+
+  ---------------------------------------------------------------- team_standings (W10-7)
+  -- B's car won a vote this week (cast_showdown_vote above); B is in private team P.
+  perform pg_temp.allow('team_standings: setup, B joins the public team', b,
+    format($s$insert into team_members (team_id, user_id) values (%L, %L)$s$, team_o, b), true);
+  perform pg_temp.allow('team_standings: a public team is listed with its score and rank', c,
+    format($s$select 1 from team_standings() where team_id = %L and score >= 1 and rank = 1$s$, team_o));
+  perform pg_temp.allow('team_standings: a member sees their private team', b,
+    format($s$select 1 from team_standings() where team_id = %L and score >= 1$s$, team_p));
+  perform pg_temp.deny('team_standings: a private team is hidden from non-members', c,
+    format($s$select 1 from team_standings(%L) where team_id = %L$s$, team_p, team_p));
+  perform pg_temp.deny('team_standings: not callable by anon', 'anon',
+    $s$select 1 from team_standings()$s$);
+  perform pg_temp.truth('team_standings: returns only team id, name, tag, icon, score and rank',
+    (select pg_get_function_result('public.team_standings(uuid)'::regprocedure)
+       = 'TABLE(team_id uuid, name text, tag text, icon_path text, score integer, rank integer)'));
+
+  ---------------------------------------------------------------- W10-9 road loops (ROAD-6)
+  perform pg_temp.allow('road_loops: owner creates a loop', a,
+    format($s$insert into road_loops (id, owner_id, name, road_ids) values ('cccccccc-0000-4000-8109-00000000000a', %L,
+      'Check loop', array['cccccccc-0000-4000-8007-00000000000a']::uuid[])$s$, a), true);
+  perform pg_temp.deny('road_loops: cannot create as someone else', b,
+    format($s$insert into road_loops (owner_id, name, road_ids) values (%L, 'x',
+      array['cccccccc-0000-4000-8007-00000000000a']::uuid[])$s$, a));
+  perform pg_temp.deny('road_loops: a loop needs at least one road', a,
+    format($s$insert into road_loops (owner_id, name, road_ids) values (%L, 'x', '{}')$s$, a), '23514');
+  perform pg_temp.allow('road_loops: owner renames and reorders', a,
+    $s$update road_loops set name = 'Check loop 2', road_ids = road_ids || road_ids
+       where id = 'cccccccc-0000-4000-8109-00000000000a'$s$);
+  perform pg_temp.deny('road_loops: others cannot list loops', b,
+    $s$select 1 from road_loops$s$);
+  perform pg_temp.deny('road_loops: others cannot rename', b,
+    $s$update road_loops set name = 'x' where id = 'cccccccc-0000-4000-8109-00000000000a'$s$);
+  perform pg_temp.deny('road_loops: others cannot delete', b,
+    $s$delete from road_loops where id = 'cccccccc-0000-4000-8109-00000000000a'$s$);
+  perform pg_temp.deny('road_loops: not readable by anon', 'anon',
+    $s$select 1 from road_loops$s$);
+  perform pg_temp.allow('road_loop: a signed-in user with the id reads it', b,
+    $s$select 1 from road_loop('cccccccc-0000-4000-8109-00000000000a')$s$);
+  perform pg_temp.deny('road_loop: an unknown id returns nothing', b,
+    $s$select 1 from road_loop('cccccccc-0000-4000-8109-0000000000ff')$s$);
+  insert into blocks (blocker_id, blocked_id) values (a::uuid, c::uuid) on conflict do nothing;
+  perform pg_temp.deny('road_loop: hidden across a block', c,
+    $s$select 1 from road_loop('cccccccc-0000-4000-8109-00000000000a')$s$);
+  perform pg_temp.deny('road_loop: not callable by anon', 'anon',
+    $s$select 1 from road_loop('cccccccc-0000-4000-8109-00000000000a')$s$);
+  perform pg_temp.allow('road_loops: owner deletes own loop', a,
+    $s$delete from road_loops where id = 'cccccccc-0000-4000-8109-00000000000a'$s$);
+
+  ---------------------------------------------------------------- saved builds (MOD-15)
+  perform pg_temp.allow('saved_builds: owner saves builds on own car', a,
+    format($s$update cars set saved_builds = '[{"id":"cccccccc-0000-4000-800a-000000000001","name":"Street","mods":["catback"]}]' where id = %L$s$, car_a), true);
+  perform pg_temp.deny('saved_builds: non-owner cannot write', b,
+    format($s$update cars set saved_builds = '[]' where id = %L$s$, car_a));
+  perform pg_temp.allow('saved_builds: readable where the car is', b,
+    format($s$select 1 from cars where id = %L and saved_builds -> 0 ->> 'name' = 'Street'$s$, car_a));
+  perform pg_temp.deny('saved_builds: hidden from users the owner blocked', c,
+    format($s$select 1 from cars where id = %L and jsonb_array_length(saved_builds) > 0$s$, car_a));
+  perform pg_temp.deny('saved_builds: anon cannot read', 'anon',
+    $s$select 1 from cars where jsonb_array_length(saved_builds) > 0$s$);
+  perform pg_temp.deny('saved_builds: at most three per car', a,
+    format($s$update cars set saved_builds = '[{"name":"1"},{"name":"2"},{"name":"3"},{"name":"4"}]' where id = %L$s$, car_a), '23514');
+
+  ---------------------------------------------------------------- meet capacity (MEET-15)
+  insert into meets (id, host_id, title, kind, geom, starts_at, ends_at, visibility, capacity) values
+    ('cccccccc-0000-4000-8003-000000000015', b::uuid, 'Check: capped meet', 'meet',
+     st_setsrid(st_makepoint(-75.05, 39.91), 4326)::geography, now() + interval '1 day', now() + interval '1 day 2 hours', 'public', 1);
+  perform pg_temp.allow('meet_rsvps: Going under the cap', a,
+    format($s$insert into meet_rsvps (meet_id, user_id) values ('cccccccc-0000-4000-8003-000000000015', %L)$s$, a), true);
+  insert into meet_rsvps (meet_id, user_id) values ('cccccccc-0000-4000-8003-000000000015', c::uuid);
+  perform pg_temp.truth('meet_rsvps: Going past the cap joins the waitlist',
+    exists (select 1 from meet_rsvps where meet_id = 'cccccccc-0000-4000-8003-000000000015' and user_id = a::uuid and status = 'going')
+    and exists (select 1 from meet_rsvps where meet_id = 'cccccccc-0000-4000-8003-000000000015' and user_id = c::uuid
+                and status::text = 'waitlist' and waitlisted_at is not null));
+  update meet_rsvps set status = 'going', waitlisted_at = null
+    where meet_id = 'cccccccc-0000-4000-8003-000000000015' and user_id = c::uuid;
+  perform pg_temp.truth('meet_rsvps: a waiting RSVP cannot seat itself',
+    exists (select 1 from meet_rsvps where meet_id = 'cccccccc-0000-4000-8003-000000000015' and user_id = c::uuid
+            and status::text = 'waitlist' and waitlisted_at is not null));
+  perform pg_temp.deny('meets: capacity changes only through the gateway', b,
+    $s$update meets set capacity = 50 where id = 'cccccccc-0000-4000-8003-000000000015'$s$);
+  perform pg_temp.allow('meet_rsvps: someone Going drops', a,
+    format($s$delete from meet_rsvps where meet_id = 'cccccccc-0000-4000-8003-000000000015' and user_id = %L$s$, a), true);
+  perform pg_temp.truth('meet_rsvps: the first waiting person becomes Going and is told once',
+    exists (select 1 from meet_rsvps where meet_id = 'cccccccc-0000-4000-8003-000000000015' and user_id = c::uuid
+            and status = 'going' and waitlisted_at is null)
+    and (select count(*) from notifications where user_id = c::uuid
+          and dedupe_key = 'meet_spot:cccccccc-0000-4000-8003-000000000015') = 1
+    and (select count(*) from meet_promotions where meet_id = 'cccccccc-0000-4000-8003-000000000015' and user_id = c::uuid) = 1);
+  perform pg_temp.deny('meet_promotions: not readable by signed-in users', c,
+    $s$select 1 from meet_promotions$s$);
+  perform pg_temp.deny('meet_promotions: not readable by anon', 'anon',
+    $s$select 1 from meet_promotions$s$);
+
   ---------------------------------------------------------------- cascade
   delete from storage.objects where name like a || '/%';
   delete from auth.users where id = a::uuid;

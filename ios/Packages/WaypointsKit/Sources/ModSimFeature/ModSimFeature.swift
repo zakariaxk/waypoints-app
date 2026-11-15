@@ -15,8 +15,29 @@ public enum ModSimFeature: FeatureModule {
             guard case let .modSim(id) = route else { return nil }
             return AnyView(ModSimView(env: env, carID: id))
         }
+        #if DEBUG
+        registry.registerDebugScreen("modsim-builds") { AnyView(DebugBuilds(env: env)) }
+        #endif
     }
 }
+
+#if DEBUG
+/// `waypoints://debug/modsim-builds`: G6 on my first car with its first two saved builds overlaid.
+private struct DebugBuilds: View {
+    let env: AppEnvironment
+    @State private var carID: CarID?
+
+    var body: some View {
+        NavigationStack {
+            if let carID { ModSimView(env: env, carID: carID, comparing: true) } else { Color.asphalt.ignoresSafeArea() }
+        }
+        .task {
+            guard let me = await env.auth.currentSession()?.userID else { return }
+            carID = (try? await env.garage.cars(of: me))?.first?.id
+        }
+    }
+}
+#endif
 
 extension SoundProfile {
     /// The synthesizer profile for a spec with mods.
@@ -58,14 +79,84 @@ final class ModSimModel {
     var prompt: Mod?
     var failed = false
     var toast: ToastMessage?
+    /// MOD-15: the car's saved builds, and the one or two picked to overlay on the chart.
+    var builds: [SavedBuild] = []
+    var buildsFailed = false
+    var own = false
+    var compare: [UUID] = []
     @ObservationIgnored let synth = EngineSynth()
     @ObservationIgnored private var revTask: Task<Void, Never>?
+    @ObservationIgnored private let comparing: Bool
 
-    init(env: AppEnvironment, carID: CarID) { self.env = env; self.carID = carID }
+    init(env: AppEnvironment, carID: CarID, comparing: Bool = false) {
+        self.env = env; self.carID = carID; self.comparing = comparing
+    }
 
     var selected: [Mod] { mods.compactMap(ModCatalog.mod) }
     var stockEstimate: Estimate? { stock.map { estimate(base: $0, mods: []) } }
     var modEstimate: Estimate? { stock.map { estimate(base: $0, mods: selected) } }
+
+    /// What the chart overlays: two saved builds, or the current selection against one. Empty when nothing is picked.
+    var compared: [(name: String, estimate: Estimate)] {
+        guard let stock, let current = modEstimate else { return [] }
+        let picked = compare.compactMap { id in builds.first { $0.id == id } }
+            .map { (name: $0.name, estimate: estimate(base: stock, mods: $0.mods.compactMap(ModCatalog.mod))) }
+        if picked.count == 1 { return [(name: String(localized: "Current selection", bundle: .module), estimate: current)] + picked }
+        return picked
+    }
+
+    func loadBuilds() async {
+        do {
+            builds = try await env.garage.savedBuilds(for: carID)
+            buildsFailed = false
+            if comparing && compare.isEmpty { compare = builds.prefix(2).map(\.id) }
+        } catch { buildsFailed = true }
+    }
+
+    private func store(_ next: [SavedBuild]) async -> Bool {
+        do {
+            try await env.garage.setSavedBuilds(next, for: carID)
+            builds = next
+            compare.removeAll { id in !next.contains { $0.id == id } }
+            return true
+        } catch {
+            toast = ToastMessage(Text("Couldn't save to the car. Check your connection and try again.", bundle: .module))
+            return false
+        }
+    }
+
+    /// Saves the mods switched on now as a new build, or renames `renaming`.
+    func saveBuild(named name: String, renaming: SavedBuild?) async {
+        var next = builds
+        if let i = next.firstIndex(where: { $0.id == renaming?.id }) {
+            next[i].name = name
+        } else if next.count < SavedBuild.limit {
+            next.append(SavedBuild(name: name, mods: mods.sorted()))
+        } else { return }
+        if await store(next) { toast = ToastMessage(Text("Build saved", bundle: .module)) }
+    }
+
+    func deleteBuild(_ b: SavedBuild) async {
+        let before = builds
+        if await store(before.filter { $0.id != b.id }) {
+            toast = ToastMessage(Text("Build deleted", bundle: .module)) { [weak self] in
+                Task { _ = await self?.store(before) }
+            }
+        }
+    }
+
+    func loadBuild(_ b: SavedBuild) {
+        mods = Set(b.mods).intersection(available.map(\.id))
+        applySound()
+        toast = ToastMessage(Text("Loaded \(b.name)", bundle: .module))
+    }
+
+    func toggleCompare(_ b: SavedBuild) {
+        if let i = compare.firstIndex(of: b.id) { compare.remove(at: i) } else {
+            if compare.count == 2 { compare.removeFirst() }
+            compare.append(b.id)
+        }
+    }
 
     var available: [Mod] {
         guard let stock, let car else { return [] }
@@ -80,6 +171,8 @@ final class ModSimModel {
             stock = VehicleSpec.from(variant: variant, car: car)
             mods = stock == nil ? Set(car.mods) : Set(car.mods).intersection(available.map(\.id))
             saved = mods
+            own = await env.auth.currentSession()?.userID == car.ownerID
+            await loadBuilds()
         }
         loaded = true
         applySound()
@@ -200,8 +293,13 @@ struct ModSimView: View {
     @State private var weight = ""
     @State private var torque = ""
     @State private var redline = "6500"
+    @State private var askName = false
+    @State private var renaming: SavedBuild?
+    @State private var buildName = ""
 
-    init(env: AppEnvironment, carID: CarID) { _model = State(initialValue: ModSimModel(env: env, carID: carID)) }
+    init(env: AppEnvironment, carID: CarID, comparing: Bool = false) {
+        _model = State(initialValue: ModSimModel(env: env, carID: carID, comparing: comparing))
+    }
 
     var body: some View {
         ScrollView {
@@ -218,9 +316,10 @@ struct ModSimView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     chart
                     legend.padding(.horizontal, Space.margin).padding(.bottom, Space.s16)
-                    readouts
+                    if model.compared.isEmpty { readouts } else { comparison }
                     Text("Estimates. Real results depend on the tune, the dyno, and the day.", bundle: .module)
                         .typeStyle(.foot).foregroundStyle(Color.dust).padding(.horizontal, Space.margin)
+                    buildList
                     soundControls
                     modList
                     #if DEBUG
@@ -262,6 +361,15 @@ struct ModSimView: View {
             }
             Button("Not now", role: .cancel) {}
         }
+        .alert(Text(renaming == nil ? "Save build" : "Rename build", bundle: .module), isPresented: $askName) {
+            TextField("Build name", text: $buildName)
+            Button("Save") {
+                let name = String(buildName.trimmingCharacters(in: .whitespacesAndNewlines).prefix(SavedBuild.nameLimit))
+                guard !name.isEmpty else { return }
+                Task { await model.saveBuild(named: name, renaming: renaming) }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
         .haptic(.tick, trigger: tick)
         .toast(Binding(get: { model.toast }, set: { model.toast = $0 }))
         .task { await model.load() }
@@ -301,7 +409,9 @@ struct ModSimView: View {
 
     private var chart: some View {
         let stockCurve = model.stockEstimate?.curve ?? []
-        let modCurve = model.modEstimate?.curve ?? []
+        let overlay = model.compared
+        let modCurve = overlay.first?.estimate.curve ?? model.modEstimate?.curve ?? []
+        let secondCurve = overlay.count > 1 ? overlay[1].estimate.curve : []
         return Chart {
             ForEach(stockCurve, id: \.rpm) { p in
                 LineMark(x: .value("rpm", p.rpm), y: .value("hp", p.hp), series: .value("s", "stock hp")).foregroundStyle(Color.dust)
@@ -311,6 +421,11 @@ struct ModSimView: View {
             ForEach(modCurve, id: \.rpm) { p in
                 LineMark(x: .value("rpm", p.rpm), y: .value("hp", p.hp), series: .value("s", "hp")).foregroundStyle(Color.sodium)
                 LineMark(x: .value("rpm", p.rpm), y: .value("tq", p.torque), series: .value("s", "tq")).foregroundStyle(Color.sodium)
+                    .lineStyle(StrokeStyle(lineWidth: Size.Chart.modded, dash: Size.Chart.moddedDash))
+            }
+            ForEach(secondCurve, id: \.rpm) { p in
+                LineMark(x: .value("rpm", p.rpm), y: .value("hp", p.hp), series: .value("s", "hp b")).foregroundStyle(Color.xenon)
+                LineMark(x: .value("rpm", p.rpm), y: .value("tq", p.torque), series: .value("s", "tq b")).foregroundStyle(Color.xenon)
                     .lineStyle(StrokeStyle(lineWidth: Size.Chart.modded, dash: Size.Chart.moddedDash))
             }
             if let rpm = model.scrubRpm {
@@ -382,7 +497,8 @@ struct ModSimView: View {
 
     @ViewBuilder private var legendColors: some View {
         legendKey(Text("Stock", bundle: .module), color: .dust, dash: [])
-        legendKey(Text("With mods", bundle: .module), color: .sodium, dash: [])
+        // While builds are overlaid, the comparison columns name the sodium and xenon lines.
+        if model.compare.isEmpty { legendKey(Text("With mods", bundle: .module), color: .sodium, dash: []) }
     }
 
     private func legendKey(_ title: Text, color: Color, dash: [CGFloat]) -> some View {
@@ -429,6 +545,69 @@ struct ModSimView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// MOD-15: the two overlaid sets side by side, each estimate with its range and its change from stock.
+    private var comparison: some View {
+        HStack(alignment: .top, spacing: Space.s16) {
+            if let s = model.stockEstimate {
+                ForEach(Array(model.compared.enumerated()), id: \.offset) { i, c in
+                    VStack(alignment: .leading, spacing: Space.s12) {
+                        Text(verbatim: c.name).typeStyle(.sub).foregroundStyle(i == 0 ? Color.sodium : Color.xenon).lineLimit(1)
+                        HStack(alignment: .top, spacing: Space.s12) {
+                            readout(c.estimate.hp, s.hp, "EST. HP", fmt: "%.0f", bounds: 0...1200, higherBetter: true)
+                            readout(c.estimate.torque, s.torque, "EST. TQ", fmt: "%.0f", bounds: 0...1000, higherBetter: true)
+                        }
+                        HStack(alignment: .top, spacing: Space.s12) {
+                            readout(c.estimate.zeroToSixty, s.zeroToSixty, "0–60", fmt: "%.1f", unit: "s", bounds: 2...12, higherBetter: false)
+                            readout(c.estimate.quarterET, s.quarterET, "¼ MILE", fmt: "%.1f", unit: "s", bounds: 8...18, higherBetter: false)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+        }
+        .padding(.horizontal, Space.margin)
+        .padding(.bottom, Space.s8)
+    }
+
+    private var buildList: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            SectionLabel("SAVED BUILDS")
+            if model.buildsFailed {
+                ErrorState(Text("Couldn't load saved builds. Check your connection and try again.", bundle: .module)) {
+                    Task { await model.loadBuilds() }
+                }
+            } else {
+                if model.builds.isEmpty {
+                    Text(model.own ? "No saved builds yet. Save the mods switched on now as a build, then compare builds on the chart."
+                         : "No saved builds on this car.", bundle: .module)
+                        .typeStyle(.sub).foregroundStyle(Color.dust).padding(.horizontal, Space.margin)
+                }
+                ForEach(model.builds) { b in
+                    let names = b.mods.compactMap(ModCatalog.mod).map(\.name)
+                    Row(Text(verbatim: b.name),
+                        subtitle: names.isEmpty ? Text("Stock", bundle: .module) : Text(verbatim: names.formatted(.list(type: .and))),
+                        trailing: {
+                            HStack(spacing: Space.s8) {
+                                Chip("Compare", isSelected: model.compare.contains(b.id)) { model.toggleCompare(b) }
+                                Menu {
+                                    Button("Load") { model.loadBuild(b) }
+                                    if model.own {
+                                        Button("Rename") { renaming = b; buildName = b.name; askName = true }
+                                        Button("Delete", role: .destructive) { Task { await model.deleteBuild(b) } }
+                                    }
+                                } label: { Image.symbol(Symbol.more).frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget) }
+                                .accessibilityLabel(Text("More options", bundle: .module))
+                            }
+                        })
+                }
+                if model.own && model.builds.count < SavedBuild.limit {
+                    QuietButton("Save current as a build") { renaming = nil; buildName = ""; askName = true }
+                        .padding(.horizontal, Space.margin)
+                }
+            }
+        }
     }
 
     private var soundControls: some View {

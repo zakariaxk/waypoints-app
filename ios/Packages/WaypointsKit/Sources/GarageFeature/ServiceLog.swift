@@ -32,6 +32,33 @@ enum GarageUnits {
     static func odometer(_ value: Int, _ unit: OdometerUnit) -> String {
         "\(value.formatted(.number)) \(unit.rawValue)"
     }
+
+    /// GAR-17: speeds in mph where the locale drives in miles, km/h elsewhere.
+    static var drivesInMiles: Bool { defaultOdometer == .mi }
+    static var speedSymbol: String { drivesInMiles ? "mph" : "km/h" }
+    private static var speedUnit: UnitSpeed { drivesInMiles ? .milesPerHour : .kilometersPerHour }
+
+    /// "157", in the unit `speedSymbol` names.
+    static func speed(metersPerSecond: Double) -> String {
+        String(format: "%.0f", Measurement(value: metersPerSecond, unit: UnitSpeed.metersPerSecond).converted(to: speedUnit).value)
+    }
+
+    /// A speed typed in the locale's unit, in m/s.
+    static func metersPerSecond(_ speed: Double) -> Double {
+        Measurement(value: speed, unit: speedUnit).converted(to: .metersPerSecond).value
+    }
+
+    /// GAR-18: "$1,299.00" in the device's currency. Costs are stored as bare cents.
+    static func money(cents: Int) -> String {
+        (Decimal(cents) / 100).formatted(.currency(code: Locale.current.currency?.identifier ?? "USD"))
+    }
+
+    /// Cents from a typed amount; `nil` when it is not a non-negative number.
+    static func cents(_ text: String) -> Int? {
+        guard let value = try? Decimal(text.trimmingCharacters(in: .whitespaces), format: .number),
+              value >= 0, value <= 20_000_000 else { return nil }
+        return Int((NSDecimalNumber(decimal: value).doubleValue * 100).rounded())
+    }
 }
 
 /// The local service reminder for a timeline entry. Scheduled on the device at 9:00 on the

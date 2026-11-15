@@ -24,6 +24,7 @@ func (s *Service) registerMeets(a *app.App) {
 	a.Go("meet-checkins", s.runCheckins)
 	a.Go("meet-series", s.runSeries)
 	a.Go("meet-choice", s.runChoice)
+	a.Go("meet-waitlist", s.runWaitlist)
 }
 
 // runChoice settles people's choice (MEET-14) for meets that have ended: the database
@@ -40,6 +41,38 @@ func (s *Service) runChoice(ctx context.Context) {
 		if pool := s.store.Pool(); pool != nil {
 			_, _ = pool.Exec(ctx, `select public.settle_peoples_choice()`)
 		}
+	}
+}
+
+// runWaitlist pushes "a spot opened up" to people the database moved from a meet's waitlist
+// to Going (MEET-15). The promotion and its Activity row are written by the database
+// (promote_waitlist); deleting the meet_promotions row hands each push to one node, once.
+func (s *Service) runWaitlist(ctx context.Context) {
+	t := time.NewTicker(15 * time.Second)
+	defer t.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
+		}
+		pool := s.store.Pool()
+		if pool == nil || s.push == nil {
+			continue
+		}
+		rows, err := pool.Query(ctx, `delete from public.meet_promotions p using public.meets m
+			where m.id = p.meet_id returning p.user_id::text, m.id::text, m.title`)
+		if err != nil {
+			continue
+		}
+		for rows.Next() {
+			var user, meet, title string
+			if rows.Scan(&user, &meet, &title) == nil {
+				go s.push.Send(context.WithoutCancel(ctx), []string{user}, push.Note{Kind: push.MeetReminders, Title: title,
+					Body: "A spot opened up. You're going.", URL: "waypoints://meet/" + meet, Recorded: true})
+			}
+		}
+		rows.Close()
 	}
 }
 
@@ -164,9 +197,9 @@ func (s *Service) spawnNext(ctx context.Context, pool *pgxpool.Pool, old meetJSO
 	}
 	m, err := scanMeet(pool.QueryRow(ctx, `insert into public.meets
 		(host_id, title, kind, geom, h3_r7, place_name, starts_at, ends_at, details, visibility, team_id,
-		 recurrence, series_id, time_zone, dest_lat, dest_lng, dest_name, road_id)
+		 recurrence, series_id, time_zone, dest_lat, dest_lng, dest_name, road_id, capacity)
 		select host_id, title, kind, geom, h3_r7, place_name, $2, $3, details, visibility, team_id,
-		       recurrence, series_id, time_zone, dest_lat, dest_lng, dest_name, road_id
+		       recurrence, series_id, time_zone, dest_lat, dest_lng, dest_name, road_id, capacity
 		from public.meets where id = $1
 		on conflict (series_id, starts_at) do nothing
 		returning `+meetCols, old.ID, start, start.Add(length)))
@@ -219,6 +252,7 @@ type meetBody struct {
 	TimeZone    *string   `json:"time_zone"`   // IANA name the series repeats in
 	Destination *destJSON `json:"destination"` // where a cruise rolls out to
 	RoadID      *string   `json:"road_id"`     // the saved road a cruise drives (MEET-13)
+	Capacity    *int      `json:"capacity"`    // the most cars Going; null for no cap (MEET-15)
 }
 
 func (b meetBody) validate() string {
@@ -245,6 +279,8 @@ func (b meetBody) validate() string {
 		return "destination"
 	case b.RoadID != nil && n(*b.RoadID) != 36:
 		return "road_id"
+	case b.Capacity != nil && (*b.Capacity < 1 || *b.Capacity > 999):
+		return "capacity"
 	}
 	return ""
 }
@@ -279,11 +315,12 @@ type meetJSON struct {
 	Destination *destJSON  `json:"destination"`
 	RoadID      *string    `json:"road_id"`
 	WinnerCarID *string    `json:"winner_car_id"`
+	Capacity    *int       `json:"capacity"`
 }
 
 const meetCols = `id::text, host_id::text, title, kind::text, st_y(geom::geometry), st_x(geom::geometry),
 	coalesce(place_name, ''), starts_at, ends_at, coalesce(details, ''), visibility::text, team_id::text, cancelled_at, created_at,
-	recurrence, series_id::text, dest_lat, dest_lng, coalesce(dest_name, ''), road_id::text, winner_car_id::text`
+	recurrence, series_id::text, dest_lat, dest_lng, coalesce(dest_name, ''), road_id::text, winner_car_id::text, capacity`
 
 func scanMeet(row pgx.Row) (meetJSON, error) { return scanMeetWith(row) }
 
@@ -294,7 +331,7 @@ func scanMeetWith(row pgx.Row, extra ...any) (meetJSON, error) {
 	var dName string
 	dest := []any{&m.ID, &m.HostID, &m.Title, &m.Kind, &m.Lat, &m.Lng, &m.PlaceName, &m.StartsAt, &m.EndsAt,
 		&m.Details, &m.Visibility, &m.TeamID, &m.CancelledAt, &m.CreatedAt, &m.Recurrence, &m.SeriesID, &dLat, &dLng, &dName,
-		&m.RoadID, &m.WinnerCarID}
+		&m.RoadID, &m.WinnerCarID, &m.Capacity}
 	err := row.Scan(append(dest, extra...)...)
 	if dLat != nil && dLng != nil {
 		m.Destination = &destJSON{Lat: *dLat, Lng: *dLng, Name: dName}
@@ -348,12 +385,12 @@ func (s *Service) createMeet(w http.ResponseWriter, r *http.Request, c auth.Clai
 	dLat, dLng, dName := b.destArgs()
 	m, err := scanMeet(pool.QueryRow(ctx, `insert into public.meets
 		(host_id, title, kind, geom, h3_r7, place_name, starts_at, ends_at, details, visibility, team_id,
-		 recurrence, series_id, time_zone, dest_lat, dest_lng, dest_name, road_id)
+		 recurrence, series_id, time_zone, dest_lat, dest_lng, dest_name, road_id, capacity)
 		values ($1, $2, $3::public.meet_kind, st_setsrid(st_makepoint($4, $5), 4326)::geography, $6, $7, $8, $9, $10,
 		        $11::public.meet_visibility, $12,
-		        $13::text, case when $13::text is null then null else gen_random_uuid() end, $14, $15, $16, $17, $18::uuid)
+		        $13::text, case when $13::text is null then null else gen_random_uuid() end, $14, $15, $16, $17, $18::uuid, $19)
 		returning `+meetCols, c.UserID, b.Title, b.Kind, b.Lng, b.Lat, h3, b.PlaceName, b.StartsAt, b.EndsAt, b.Details,
-		b.Visibility, b.TeamID, b.Recurrence, b.TimeZone, dLat, dLng, dName, b.RoadID))
+		b.Visibility, b.TeamID, b.Recurrence, b.TimeZone, dLat, dLng, dName, b.RoadID, b.Capacity))
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "could not save meet")
 		return
@@ -410,9 +447,10 @@ func (s *Service) updateMeet(w http.ResponseWriter, r *http.Request, c auth.Clai
 		details = $10, visibility = $11::public.meet_visibility, team_id = $12,
 		recurrence = $13::text,
 		series_id = coalesce(series_id, case when $13::text is null then null else gen_random_uuid() end),
-		time_zone = coalesce($14, time_zone), dest_lat = $15, dest_lng = $16, dest_name = $17, road_id = $18::uuid
+		time_zone = coalesce($14, time_zone), dest_lat = $15, dest_lng = $16, dest_name = $17, road_id = $18::uuid,
+		capacity = $19
 		where id = $1 returning `+meetCols, old.ID, b.Title, b.Kind, b.Lng, b.Lat, h3, b.PlaceName, b.StartsAt, b.EndsAt,
-		b.Details, b.Visibility, b.TeamID, b.Recurrence, b.TimeZone, dLat, dLng, dName, b.RoadID))
+		b.Details, b.Visibility, b.TeamID, b.Recurrence, b.TimeZone, dLat, dLng, dName, b.RoadID, b.Capacity))
 	if err != nil {
 		Error(w, http.StatusInternalServerError, "could not save meet")
 		return

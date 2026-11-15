@@ -104,7 +104,7 @@ struct LiveGarage: GarageRepository {
 
     func buildEntries(of car: CarID) async throws -> [BuildEntry] {
         try await ctx.run {
-            let rows: [BuildEntryRow] = try await ctx.table("build_entries").select().eq("car_id", value: car.key)
+            let rows: [BuildEntryRow] = try await ctx.table("build_entries").select(Self.buildEntryColumns).eq("car_id", value: car.key)
                 .order("happened_on", ascending: false).order("created_at", ascending: false).execute().value
             return rows.map(\.model)
         }
@@ -113,7 +113,7 @@ struct LiveGarage: GarageRepository {
     func addBuildEntry(_ entry: BuildEntry) async throws -> BuildEntry {
         try await ctx.run {
             let row: BuildEntryRow = try await ctx.table("build_entries")
-                .insert(BuildEntryWrite(entry), returning: .representation).select().single().execute().value
+                .insert(BuildEntryWrite(entry), returning: .representation).select(Self.buildEntryColumns).single().execute().value
             return row.model
         }
     }
@@ -121,7 +121,7 @@ struct LiveGarage: GarageRepository {
     func updateBuildEntry(_ entry: BuildEntry) async throws -> BuildEntry {
         try await ctx.run {
             let row: BuildEntryRow = try await ctx.table("build_entries").update(BuildEntryWrite(entry))
-                .eq("id", value: entry.id.key).select().single().execute().value
+                .eq("id", value: entry.id.key).select(Self.buildEntryColumns).single().execute().value
             return row.model
         }
     }

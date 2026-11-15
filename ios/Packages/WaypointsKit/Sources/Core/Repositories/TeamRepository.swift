@@ -28,6 +28,9 @@ public protocol TeamRepository: Sendable {
     func deleteChannel(_ id: ChannelID) async throws
     /// The team's meets that have not ended, soonest first (T1 "Upcoming", T5 "Meets").
     func meets(of team: TeamID) async throws -> [Meet]
+    /// RPC `team_standings(team)` (TEAM-11): this week's standings, best first. The caller's teams and the
+    /// top 100 public teams that have won a vote, plus `team` if it is public and has.
+    func standings(including team: TeamID?) async throws -> [TeamStanding]
 }
 
 public extension TeamRepository {
