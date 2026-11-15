@@ -1,0 +1,10 @@
+.git
+**/.env
+**/.env.*
+!**/.env.example
+ios
+docs
+bench/results
+.build
+supabase/.temp
+supabase/.branches

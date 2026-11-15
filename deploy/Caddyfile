@@ -1,5 +1,10 @@
 # Replace the host with the gateway's domain; Caddy provisions TLS itself.
 gateway.example.com {
+	# Dev-only seeding endpoints must never be reachable in production even if
+	# a gateway were misconfigured into dev/bench mode.
+	@dev path /dev/*
+	respond @dev 404
+
 	reverse_proxy gateway-a:8080 gateway-b:8080 {
 		lb_policy round_robin
 		health_uri /healthz

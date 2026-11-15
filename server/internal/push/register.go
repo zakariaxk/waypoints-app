@@ -155,6 +155,8 @@ func (s *Service) providerToken() (string, error) {
 
 // Send records an activity row for every recipient (unless n.Recorded) and delivers n to
 // every device of every newly recorded user who has n.Kind turned on.
+// A recipient who muted the actor, or the thread, channel or team behind n.URL, gets no push
+// (SAFE-12, public.is_muted).
 func (s *Service) Send(ctx context.Context, userIDs []string, n Note) {
 	pool := s.store.Pool()
 	if pool == nil || len(userIDs) == 0 {
@@ -170,7 +172,8 @@ func (s *Service) Send(ctx context.Context, userIDs []string, n Note) {
 	rows, err := pool.Query(ctx, `select d.apns_token, d.environment::text from public.device_tokens d
 		left join public.notification_prefs p on p.user_id = d.user_id
 		where d.user_id = any($1::uuid[])
-		  and coalesce((to_jsonb(p) ->> $2)::boolean, true)`, userIDs, string(n.Kind))
+		  and coalesce((to_jsonb(p) ->> $2)::boolean, true)
+		  and not public.is_muted(d.user_id, nullif($3, '')::uuid, $4)`, userIDs, string(n.Kind), n.ActorID, n.URL)
 	if err != nil {
 		s.log.Warn("push query", "err", err)
 		return
@@ -392,6 +395,7 @@ func (s *Service) handleNotify(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "kind", http.StatusBadRequest)
 		return
 	}
+	n.ActorID = b.ActorID
 	n.Recorded = true // the trigger wrote the activity rows (migration W7-2)
 	go s.Send(context.WithoutCancel(r.Context()), ids, n)
 	w.WriteHeader(http.StatusAccepted)

@@ -241,6 +241,26 @@ const maxPolyline = 64 << 10
 
 const codeAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
+// Join codes are 6 characters from a 32-character alphabet (~1B values), so
+// guessing is impractical; the per-user join limit below makes scripted
+// guessing infeasible on top of that.
+var (
+	createLimit = api.NewLimiter(10, time.Hour) // convoys created per user
+	joinLimit   = api.NewLimiter(30, time.Hour) // join attempts per user
+)
+
+func validJoinCode(code string) bool {
+	if len(code) != 6 {
+		return false
+	}
+	for i := 0; i < len(code); i++ {
+		if !strings.ContainsRune(codeAlphabet, rune(code[i])) {
+			return false
+		}
+	}
+	return true
+}
+
 func randomCode(n int) string {
 	var b strings.Builder
 	for range n {
@@ -270,6 +290,10 @@ func (s *Service) create(w http.ResponseWriter, r *http.Request, cl auth.Claims)
 		api.Error(w, http.StatusBadRequest, "bad body")
 		return
 	}
+	if !createLimit.Allow(cl.UserID) {
+		api.Error(w, http.StatusTooManyRequests, "rate limited")
+		return
+	}
 	uid, err := s.uid(r.Context(), cl.UserID)
 	if err != nil {
 		api.Error(w, http.StatusUnauthorized, "no profile")
@@ -294,6 +318,10 @@ func (s *Service) join(w http.ResponseWriter, r *http.Request, cl auth.Claims) {
 		return
 	}
 	code := strings.ToUpper(strings.TrimSpace(b.JoinCode))
+	if !validJoinCode(code) || !joinLimit.Allow(cl.UserID) {
+		api.Error(w, http.StatusNotFound, "not found")
+		return
+	}
 	s.mu.Lock()
 	id := s.byCode[code]
 	c := s.byID[id]

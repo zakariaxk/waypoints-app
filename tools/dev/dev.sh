@@ -18,11 +18,6 @@ docker info >/dev/null 2>&1 || { echo "dev: Docker is not running" >&2; exit 1; 
 echo "==> supabase start"
 supabase start >/dev/null
 
-if [ -z "${NO_RESET:-}" ]; then
-  echo "==> supabase db reset (migrations + seed.sql)"
-  supabase db reset
-fi
-
 # KEY="value" lines: API_URL, ANON_KEY, SERVICE_ROLE_KEY, DB_URL, JWT_SECRET, ...
 STATUS=$(supabase status -o env)
 get() { printf '%s\n' "$STATUS" | sed -n "s/^$1=\"\{0,1\}\([^\"]*\)\"\{0,1\}$/\1/p" | head -n1; }
@@ -35,6 +30,23 @@ DB_URL=$(get DB_URL)
 JWT_SECRET=$(get JWT_SECRET)
 : "${API_URL:?supabase status printed no API_URL}"
 : "${ANON_KEY:?supabase status printed no ANON_KEY}"
+
+# This script resets the database and writes secrets into config files: refuse
+# to touch anything that is not the local stack.
+url_host() { printf '%s' "$1" | sed -E 's#^[a-zA-Z][a-zA-Z0-9+.-]*://([^/@]*@)?([^/:?#]+).*#\2#'; }
+for u in "$API_URL" "$DB_URL"; do
+  [ -n "$u" ] || continue
+  h=$(url_host "$u")
+  case "$h" in
+    127.0.0.1|localhost|::1) ;;
+    *) echo "dev: refusing non-local URL host '$h' in '$u'" >&2; exit 1 ;;
+  esac
+done
+
+if [ -z "${NO_RESET:-}" ]; then
+  echo "==> supabase db reset (migrations + seed.sql)"
+  supabase db reset
+fi
 
 GATEWAY_PORT=${GATEWAY_PORT:-8080}
 INTERNAL_SECRET=${WAYPOINTS_INTERNAL_SECRET:-dev-internal-secret}

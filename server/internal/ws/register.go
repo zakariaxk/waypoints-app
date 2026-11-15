@@ -41,6 +41,9 @@ const (
 	approxInterval = 15 * time.Second
 	maxBadFrames   = 20
 	maxFrameBytes  = 16 << 10
+	// maxConnsPerUser bounds simultaneous sockets per account; each holds an
+	// outbox, subscriptions, and two goroutines.
+	maxConnsPerUser = 8
 
 	closeSlowConsumer websocket.StatusCode = 4008
 	closeBadFrame     websocket.StatusCode = 4002
@@ -66,20 +69,22 @@ const MapEventSubject = "mapev"
 
 // Server owns every live connection on this node.
 type Server struct {
-	a       *app.App
-	hub     *hub.Hub
-	priv    *privacy.Service
-	store   *store.Store
-	auth    *auth.Verifier
-	bus     bus.Bus
-	tick    time.Duration
-	bench   bool
-	m       serverMetrics
-	mu      sync.RWMutex
-	conns   map[*conn]struct{}
-	byUID   map[uint64]map[*conn]struct{}
-	convoys map[string]map[*conn]struct{}
-	cauth   ConvoyAuthority
+	a        *app.App
+	hub      *hub.Hub
+	priv     *privacy.Service
+	store    *store.Store
+	auth     *auth.Verifier
+	bus      bus.Bus
+	tick     time.Duration
+	bench    bool
+	maxConns int
+	ipLim    *app.Limiter
+	m        serverMetrics
+	mu       sync.RWMutex
+	conns    map[*conn]struct{}
+	byUID    map[uint64]map[*conn]struct{}
+	convoys  map[string]map[*conn]struct{}
+	cauth    ConvoyAuthority
 }
 
 type serverMetrics struct {
@@ -87,6 +92,7 @@ type serverMetrics struct {
 	frames     *metrics.Counter
 	badFrames  *metrics.Counter
 	rateDrops  *metrics.Counter
+	frameDrops *metrics.Counter
 	slowClosed *metrics.Counter
 	flush      *metrics.Histogram
 	bytesOut   *metrics.Counter
@@ -95,17 +101,19 @@ type serverMetrics struct {
 // Register mounts /v1/rt and provides *Server.
 func Register(a *app.App) {
 	s := &Server{
-		a:       a,
-		hub:     app.MustLookup[*hub.Hub](a),
-		priv:    app.MustLookup[*privacy.Service](a),
-		store:   app.MustLookup[*store.Store](a),
-		auth:    app.MustLookup[*auth.Verifier](a),
-		bus:     bus.From(a),
-		tick:    *tickFlag,
-		bench:   auth.Bench(),
-		conns:   map[*conn]struct{}{},
-		byUID:   map[uint64]map[*conn]struct{}{},
-		convoys: map[string]map[*conn]struct{}{},
+		a:        a,
+		hub:      app.MustLookup[*hub.Hub](a),
+		priv:     app.MustLookup[*privacy.Service](a),
+		store:    app.MustLookup[*store.Store](a),
+		auth:     app.MustLookup[*auth.Verifier](a),
+		bus:      bus.From(a),
+		tick:     *tickFlag,
+		bench:    auth.Bench(),
+		maxConns: a.Config.MaxConns,
+		ipLim:    app.NewLimiter(300, time.Minute), // upgrade attempts per client IP
+		conns:    map[*conn]struct{}{},
+		byUID:    map[uint64]map[*conn]struct{}{},
+		convoys:  map[string]map[*conn]struct{}{},
 	}
 	reg := a.Metrics
 	s.m = serverMetrics{
@@ -113,6 +121,7 @@ func Register(a *app.App) {
 		frames:     reg.Counter("ws_frames_in_total", "Client frames decoded.", nil),
 		badFrames:  reg.Counter("ws_bad_frames_total", "Client frames that failed to decode.", nil),
 		rateDrops:  reg.Counter("ws_location_rate_dropped_total", "Location updates dropped by the 400 ms limit.", nil),
+		frameDrops: reg.Counter("ws_frame_rate_dropped_total", "Frames dropped by per-type rate limits.", nil),
 		slowClosed: reg.Counter("ws_slow_consumer_closed_total", "Connections closed with 4008.", nil),
 		flush:      reg.Histogram("ws_flush_seconds", "Time to encode and write one batch.", nil, nil),
 		bytesOut:   reg.Counter("ws_bytes_out_total", "Bytes written to clients.", nil),
@@ -273,6 +282,23 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "draining", http.StatusServiceUnavailable)
 		return
 	}
+	// Pre-auth limits: each attempt costs a hello timeout and two goroutines,
+	// so cap attempts per IP and total open connections before upgrading.
+	// Bench skips them: the load generators dial thousands of sockets from
+	// loopback by design.
+	if !s.bench {
+		if !s.ipLim.Allow(app.ClientIP(r)) {
+			http.Error(w, "rate limited", http.StatusTooManyRequests)
+			return
+		}
+		s.mu.RLock()
+		n := len(s.conns)
+		s.mu.RUnlock()
+		if s.maxConns > 0 && n >= s.maxConns {
+			http.Error(w, "too many connections", http.StatusServiceUnavailable)
+			return
+		}
+	}
 	ws, err := websocket.Accept(w, r, &websocket.AcceptOptions{
 		CompressionMode:    websocket.CompressionDisabled,
 		InsecureSkipVerify: true, // native clients send no Origin
@@ -286,6 +312,37 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 	// The request context is cancelled the moment shutdown begins, which would drop the
 	// socket before closeAll can say why.
 	c.run(context.WithoutCancel(r.Context()))
+}
+
+// frameBucket is a per-connection token bucket for one client frame family.
+// Only the reader goroutine touches it.
+type frameBucket struct {
+	tokens float64
+	rate   float64 // tokens per second
+	burst  float64
+	last   time.Time
+}
+
+func (b *frameBucket) allow(now time.Time) bool {
+	b.tokens = min(b.burst, b.tokens+b.rate*now.Sub(b.last).Seconds())
+	b.last = now
+	if b.tokens < 1 {
+		return false
+	}
+	b.tokens--
+	return true
+}
+
+// initGates sizes the per-connection frame limits. The values are generous
+// for the real client (viewport changes on map moves, one ping per 25 s,
+// convoy joins are rare, tokens refresh about hourly) and only stop floods.
+func (c *conn) initGates() {
+	c.any = frameBucket{tokens: 200, rate: 100, burst: 200}
+	c.viewport = frameBucket{tokens: 15, rate: 5, burst: 15}
+	c.ping = frameBucket{tokens: 10, rate: 5, burst: 10}
+	c.convoyGate = frameBucket{tokens: 2, rate: 0.5, burst: 2}
+	c.zoneGate = frameBucket{tokens: 3, rate: 0.2, burst: 3}
+	c.refresh = frameBucket{tokens: 2, rate: 0.2, burst: 2}
 }
 
 // conn is one client.
@@ -328,11 +385,28 @@ type conn struct {
 	pubAgg     uint64
 	bad        int
 	badSince   time.Time
+
+	// Frame rate gates; the reader goroutine is their only user.
+	any        frameBucket
+	viewport   frameBucket
+	ping       frameBucket
+	convoyGate frameBucket
+	zoneGate   frameBucket
+	refresh    frameBucket
 }
 
 func (c *conn) run(ctx context.Context) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
+	defer func() {
+		// The socket is hijacked, so net/http's per-request recovery does not
+		// cover this goroutine: a panic here must not take the process down.
+		if rec := recover(); rec != nil {
+			c.s.a.Log.Error("ws connection panicked", "panic", rec)
+			cancel()
+		}
+	}()
+	c.initGates()
 
 	hctx, hcancel := context.WithTimeout(ctx, helloTimeout)
 	f, err := c.read(hctx)
@@ -384,9 +458,30 @@ func (c *conn) run(ctx context.Context) {
 		return
 	}
 
+	// Bound connections per account and in total before registering.
+	c.s.mu.RLock()
+	perUser, total := len(c.s.byUID[c.uid]), len(c.s.conns)
+	c.s.mu.RUnlock()
+	if perUser >= maxConnsPerUser || (c.s.maxConns > 0 && total >= c.s.maxConns) {
+		c.closeWith(wire.Error_RATE_LIMITED, "too many connections", closeBadFrame)
+		return
+	}
+
 	c.out = newOutbox(c.uid, rels.Blocked, func() {
+		defer func() {
+			if rec := recover(); rec != nil {
+				c.s.a.Log.Error("ws outbox overflow handler panicked", "panic", rec)
+			}
+		}()
 		c.s.m.slowClosed.Inc()
-		go c.ws.Close(closeSlowConsumer, "slow consumer")
+		go func() {
+			defer func() {
+				if rec := recover(); rec != nil {
+					c.s.a.Log.Error("ws slow-consumer close panicked", "panic", rec)
+				}
+			}()
+			c.ws.Close(closeSlowConsumer, "slow consumer")
+		}()
 	})
 	c.s.add(c)
 	defer c.s.remove(c)
@@ -468,6 +563,12 @@ func (c *conn) startPinger(ctx context.Context, cancel context.CancelFunc) (stop
 	var t *time.Timer
 	armed := make(chan struct{})
 	t = time.AfterFunc(pingEvery, func() {
+		// A panic in a timer goroutine would kill the process.
+		defer func() {
+			if rec := recover(); rec != nil {
+				c.s.a.Log.Error("ws pinger panicked", "panic", rec)
+			}
+		}()
 		<-armed
 		if time.Now().UnixMilli() > c.expiry.Load() {
 			c.closeWith(wire.Error_UNAUTHORIZED, "token expired", closeUnauthorized)
@@ -546,14 +647,32 @@ func (c *conn) reader(ctx context.Context) {
 			c.closeWith(wire.Error_UNAUTHORIZED, "token expired", closeUnauthorized)
 			return
 		}
+		if !c.any.allow(now) {
+			c.s.m.frameDrops.Inc()
+			continue
+		}
+		gate := func(b *frameBucket) bool {
+			if b.allow(now) {
+				return true
+			}
+			c.s.m.frameDrops.Inc()
+			return false
+		}
 		switch b := f.Body.(type) {
 		case *wire.ClientFrame_Location:
 			c.onLocation(b.Location, now)
 		case *wire.ClientFrame_Viewport:
-			c.onViewport(b.Viewport)
+			if gate(&c.viewport) {
+				c.onViewport(b.Viewport)
+			}
 		case *wire.ClientFrame_Ping:
-			c.enqueue(&wire.ServerFrame{Body: &wire.ServerFrame_Pong{Pong: &wire.Pong{ClientMs: b.Ping.ClientMs, ServerMs: uint64(now.UnixMilli())}}})
+			if gate(&c.ping) {
+				c.enqueue(&wire.ServerFrame{Body: &wire.ServerFrame_Pong{Pong: &wire.Pong{ClientMs: b.Ping.ClientMs, ServerMs: uint64(now.UnixMilli())}}})
+			}
 		case *wire.ClientFrame_RefreshToken:
+			if !gate(&c.refresh) {
+				continue
+			}
 			if cl, err := c.s.auth.Verify(ctx, b.RefreshToken.AccessToken); err == nil && cl.UserID == c.userID {
 				c.expiry.Store(cl.Expiry.UnixMilli())
 			} else {
@@ -561,6 +680,9 @@ func (c *conn) reader(ctx context.Context) {
 				return
 			}
 		case *wire.ClientFrame_HomeZones:
+			if !gate(&c.zoneGate) {
+				continue
+			}
 			zones := make([]geo.Zone, 0, 3)
 			for i, z := range b.HomeZones.Zones {
 				if i == 3 {
@@ -577,8 +699,13 @@ func (c *conn) reader(ctx context.Context) {
 			c.mu.Unlock()
 			c.updatePolicy(now)
 		case *wire.ClientFrame_JoinConvoy:
-			c.joinConvoy(b.JoinConvoy.ConvoyId)
+			if gate(&c.convoyGate) {
+				c.joinConvoy(b.JoinConvoy.ConvoyId)
+			}
 		case *wire.ClientFrame_LeaveConvoy:
+			if !gate(&c.convoyGate) {
+				continue
+			}
 			c.mu.Lock()
 			id := c.convoy
 			c.mu.Unlock()
@@ -611,6 +738,12 @@ func (c *conn) countBad() bool {
 
 func (c *conn) writer(ctx context.Context, cancel context.CancelFunc) {
 	defer cancel()
+	defer func() {
+		if rec := recover(); rec != nil {
+			c.s.a.Log.Error("ws writer panicked", "panic", rec)
+			cancel()
+		}
+	}()
 	var tick <-chan time.Time
 	if c.s.tick > 0 {
 		t := time.NewTicker(c.s.tick)

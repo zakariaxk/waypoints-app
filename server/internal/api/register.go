@@ -8,9 +8,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -50,6 +50,12 @@ func Register(a *app.App) {
 
 // MARK: shared HTTP helpers, used by convoy and voice too.
 
+// userLimit is the per-user ceiling on authenticated JSON endpoints: 2 req/s
+// sustained is far above anything the app does (REST is event-driven; live
+// data flows over the socket) and stops a scripted client from turning every
+// endpoint into a database write amplifier.
+var userLimit = app.NewLimiter(120, time.Minute)
+
 // Handler is an authenticated handler.
 type Handler func(w http.ResponseWriter, r *http.Request, c auth.Claims)
 
@@ -63,6 +69,10 @@ func Authed(v *auth.Verifier, h Handler) http.HandlerFunc {
 		}
 		if err != nil {
 			Error(w, http.StatusUnauthorized, "unauthorized")
+			return
+		}
+		if !userLimit.Allow(c.UserID) {
+			Error(w, http.StatusTooManyRequests, "rate limited")
 			return
 		}
 		h(w, r, c)
@@ -83,9 +93,20 @@ func JSON(w http.ResponseWriter, code int, v any) {
 	}
 }
 
-// Decode reads a JSON body of at most 64 KB.
+// Decode reads a JSON body of at most 64 KB. Unknown fields and trailing
+// data are rejected: every client body is a fixed DTO, so anything else is a
+// bug or an attempt to smuggle fields past validation.
 func Decode(r *http.Request, v any) error {
-	return json.NewDecoder(http.MaxBytesReader(nil, r.Body, 64<<10)).Decode(v)
+	dec := json.NewDecoder(http.MaxBytesReader(nil, r.Body, 64<<10))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(v); err != nil {
+		return err
+	}
+	var extra json.RawMessage
+	if err := dec.Decode(&extra); !errors.Is(err, io.EOF) {
+		return errors.New("trailing data")
+	}
+	return nil
 }
 
 // Pool returns the pool or writes 503.
@@ -97,37 +118,11 @@ func Pool(w http.ResponseWriter, s *store.Store) *pgxpool.Pool {
 	return p
 }
 
-// Limiter is a per-key sliding window.
-type Limiter struct {
-	mu     sync.Mutex
-	n      int
-	window time.Duration
-	hits   map[string][]time.Time
-}
+// Limiter is a per-key sliding window (app.Limiter).
+type Limiter = app.Limiter
 
 // NewLimiter allows n events per window per key.
-func NewLimiter(n int, window time.Duration) *Limiter {
-	return &Limiter{n: n, window: window, hits: map[string][]time.Time{}}
-}
-
-// Allow records an event for key and reports whether it is within the limit.
-func (l *Limiter) Allow(key string) bool {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	now := time.Now()
-	h := l.hits[key][:0]
-	for _, t := range l.hits[key] {
-		if now.Sub(t) < l.window {
-			h = append(h, t)
-		}
-	}
-	if len(h) >= l.n {
-		l.hits[key] = h
-		return false
-	}
-	l.hits[key] = append(h, now)
-	return true
-}
+func NewLimiter(n int, window time.Duration) *Limiter { return app.NewLimiter(n, window) }
 
 // MARK: reports
 
@@ -136,6 +131,10 @@ const (
 	reportLimit  = 10
 	reportWindow = "10 minutes"
 )
+
+// reportVoteLimit bounds vote and undo writes per user; the Postgres-backed
+// report limit only covers creation.
+var reportVoteLimit = app.NewLimiter(60, time.Hour)
 
 var lifetimes = map[string]time.Duration{
 	"police":     45 * time.Minute,
@@ -275,6 +274,10 @@ func (s *Service) voteReport(w http.ResponseWriter, r *http.Request, c auth.Clai
 		Error(w, http.StatusBadRequest, "bad body")
 		return
 	}
+	if !reportVoteLimit.Allow(c.UserID) {
+		Error(w, http.StatusTooManyRequests, "rate limited")
+		return
+	}
 	pool := Pool(w, s.store)
 	if pool == nil {
 		return
@@ -317,6 +320,10 @@ func (s *Service) voteReport(w http.ResponseWriter, r *http.Request, c auth.Clai
 
 // undoReport removes the author's own report within 5 minutes of posting (M5 "Undo").
 func (s *Service) undoReport(w http.ResponseWriter, r *http.Request, c auth.Claims) {
+	if !reportVoteLimit.Allow(c.UserID) {
+		Error(w, http.StatusTooManyRequests, "rate limited")
+		return
+	}
 	pool := Pool(w, s.store)
 	if pool == nil {
 		return

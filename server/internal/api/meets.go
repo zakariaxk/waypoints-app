@@ -421,6 +421,10 @@ func (s *Service) hostMeet(w http.ResponseWriter, r *http.Request, c auth.Claims
 	return pool, m, true
 }
 
+// meetWriteLimit bounds host edits and cancellations per user; creation has
+// its own daily cap counted in Postgres.
+var meetWriteLimit = app.NewLimiter(30, time.Hour)
+
 func (s *Service) updateMeet(w http.ResponseWriter, r *http.Request, c auth.Claims) {
 	var b meetBody
 	if Decode(r, &b) != nil {
@@ -429,6 +433,10 @@ func (s *Service) updateMeet(w http.ResponseWriter, r *http.Request, c auth.Clai
 	}
 	if f := b.validate(); f != "" {
 		Error(w, http.StatusBadRequest, f)
+		return
+	}
+	if !meetWriteLimit.Allow(c.UserID) {
+		Error(w, http.StatusTooManyRequests, "rate limited")
 		return
 	}
 	pool, old, ok := s.hostMeet(w, r, c)
@@ -476,6 +484,10 @@ func (s *Service) cancelMeet(w http.ResponseWriter, r *http.Request, c auth.Clai
 	following := b.Scope == "following" || r.URL.Query().Get("scope") == "following"
 	pool, m, ok := s.hostMeet(w, r, c)
 	if !ok {
+		return
+	}
+	if !meetWriteLimit.Allow(c.UserID) {
+		Error(w, http.StatusTooManyRequests, "rate limited")
 		return
 	}
 	ctx := r.Context()

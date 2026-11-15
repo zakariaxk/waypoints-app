@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
 	"waypoints/server/internal/app"
@@ -48,6 +49,26 @@ func Register(a *app.App) {
 	}
 
 	s.mountDev(a.Mux, a.Config.Env == "dev" || a.Config.IsBench())
+
+	// Readiness: 503 while draining or when Postgres does not answer. The
+	// in-memory backend (dev/bench) is always ready.
+	a.Mux.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
+		if a.Draining() {
+			http.Error(w, "draining", http.StatusServiceUnavailable)
+			return
+		}
+		if p := s.Pool(); p != nil {
+			ctx, cancel := context.WithTimeout(r.Context(), time.Second)
+			defer cancel()
+			if err := p.Ping(ctx); err != nil {
+				http.Error(w, "not ready", http.StatusServiceUnavailable)
+				return
+			}
+		}
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		_, _ = w.Write([]byte("ok\n"))
+	})
+
 	a.Go("store-presence", func(ctx context.Context) { s.runPresence(ctx, log) })
 	a.OnStop("store", func(context.Context) error { s.b.Close(); return nil })
 	app.Provide(a, s)

@@ -1,21 +1,42 @@
 # Two gateway nodes behind Caddy, joined by NATS (plan 7.6).
 # docker compose -f deploy/compose.yml up --build
+# server/.env must set WAYPOINTS_ENV=prod and the production secrets; the
+# environment entries below pin prod regardless of what .env says.
 services:
   nats:
     image: nats:2.10-alpine
     command: ["-js=false"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
   gateway-a:
     build: { context: .., dockerfile: deploy/Dockerfile }
     env_file: ../server/.env
-    environment: { NATS_URL: "nats://nats:4222", WAYPOINTS_NODE: "a", WAYPOINTS_ADDR: ":8080" }
+    environment:
+      NATS_URL: "nats://nats:4222"
+      WAYPOINTS_NODE: "a"
+      WAYPOINTS_ADDR: ":8080"
+      WAYPOINTS_ENV: "prod"
     depends_on: [nats]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
   gateway-b:
     build: { context: .., dockerfile: deploy/Dockerfile }
     env_file: ../server/.env
-    environment: { NATS_URL: "nats://nats:4222", WAYPOINTS_NODE: "b", WAYPOINTS_ADDR: ":8080" }
+    environment:
+      NATS_URL: "nats://nats:4222"
+      WAYPOINTS_NODE: "b"
+      WAYPOINTS_ADDR: ":8080"
+      WAYPOINTS_ENV: "prod"
     depends_on: [nats]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
   caddy:
     image: caddy:2-alpine
     ports: ["80:80", "443:443"]
     volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro"]
     depends_on: [gateway-a, gateway-b]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped

@@ -14,19 +14,24 @@ import (
 //	POST /dev/team     {"members": [...]}
 //	POST /dev/block    {"blocker", "blocked"}
 func (s *Store) mountDev(mux *http.ServeMux, devEnv bool) {
-	guard := func(h func(w http.ResponseWriter, r *http.Request) error) http.HandlerFunc {
+	guard := func(h func(w http.ResponseWriter, r *http.Request, decode func(any) error) error) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			if !devEnv || s.mem == nil {
 				http.NotFound(w, r)
 				return
 			}
 			r.Body = http.MaxBytesReader(w, r.Body, 64<<10)
-			if err := h(w, r); err != nil {
+			decode := func(v any) error {
+				dec := json.NewDecoder(r.Body)
+				dec.DisallowUnknownFields()
+				return dec.Decode(v)
+			}
+			if err := h(w, r, decode); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 			}
 		}
 	}
-	mux.HandleFunc("POST /dev/profile", guard(func(w http.ResponseWriter, r *http.Request) error {
+	mux.HandleFunc("POST /dev/profile", guard(func(w http.ResponseWriter, r *http.Request, decode func(any) error) error {
 		var b struct {
 			UserID      string `json:"user_id"`
 			DisplayName string `json:"display_name"`
@@ -35,7 +40,7 @@ func (s *Store) mountDev(mux *http.ServeMux, devEnv bool) {
 			PaintRGB    uint32 `json:"paint_rgb"`
 			CarLabel    string `json:"car_label"`
 		}
-		if err := json.NewDecoder(r.Body).Decode(&b); err != nil || b.UserID == "" {
+		if err := decode(&b); err != nil || b.UserID == "" {
 			return errBadBody
 		}
 		p := s.mem.setProfile(Profile{UserID: b.UserID, DisplayName: b.DisplayName, MarkerIcon: b.MarkerIcon,
@@ -43,27 +48,27 @@ func (s *Store) mountDev(mux *http.ServeMux, devEnv bool) {
 		w.Header().Set("Content-Type", "application/json")
 		return json.NewEncoder(w).Encode(map[string]any{"uid": p.UID})
 	}))
-	mux.HandleFunc("POST /dev/friends", guard(func(w http.ResponseWriter, r *http.Request) error {
+	mux.HandleFunc("POST /dev/friends", guard(func(w http.ResponseWriter, r *http.Request, decode func(any) error) error {
 		var b struct{ A, B string }
-		if err := json.NewDecoder(r.Body).Decode(&b); err != nil || b.A == "" || b.B == "" || b.A == b.B {
+		if err := decode(&b); err != nil || b.A == "" || b.B == "" || b.A == b.B {
 			return errBadBody
 		}
 		s.mem.addFriends(b.A, b.B)
 		w.WriteHeader(http.StatusNoContent)
 		return nil
 	}))
-	mux.HandleFunc("POST /dev/team", guard(func(w http.ResponseWriter, r *http.Request) error {
+	mux.HandleFunc("POST /dev/team", guard(func(w http.ResponseWriter, r *http.Request, decode func(any) error) error {
 		var b struct{ Members []string }
-		if err := json.NewDecoder(r.Body).Decode(&b); err != nil || len(b.Members) < 2 {
+		if err := decode(&b); err != nil || len(b.Members) < 2 {
 			return errBadBody
 		}
 		s.mem.addTeam(b.Members)
 		w.WriteHeader(http.StatusNoContent)
 		return nil
 	}))
-	mux.HandleFunc("POST /dev/block", guard(func(w http.ResponseWriter, r *http.Request) error {
+	mux.HandleFunc("POST /dev/block", guard(func(w http.ResponseWriter, r *http.Request, decode func(any) error) error {
 		var b struct{ Blocker, Blocked string }
-		if err := json.NewDecoder(r.Body).Decode(&b); err != nil || b.Blocker == "" || b.Blocked == "" {
+		if err := decode(&b); err != nil || b.Blocker == "" || b.Blocked == "" {
 			return errBadBody
 		}
 		s.mem.addBlock(b.Blocker, b.Blocked)

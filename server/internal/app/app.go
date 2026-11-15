@@ -8,6 +8,7 @@
 package app
 
 import (
+	"bufio"
 	"context"
 	"errors"
 	"fmt"
@@ -17,6 +18,7 @@ import (
 	"net/http/pprof"
 	"os"
 	"reflect"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -127,6 +129,104 @@ func (a *App) Go(name string, fn func(ctx context.Context)) {
 	a.tasks = append(a.tasks, task{name, fn})
 }
 
+// publicHandler wraps the public mux with panic recovery, request metrics,
+// and per-IP rate limits. Health and readiness probes, dev-only seeding, and
+// the realtime upgrade are exempt (the upgrade has its own per-IP attempt
+// limit in package ws); /internal/* gets a tighter limiter of its own. Bench
+// mode skips the IP limits: the load generators open thousands of
+// connections from loopback by design.
+func (a *App) publicHandler() http.Handler {
+	requests := a.Metrics.Counter("http_requests_total", "HTTP requests on the public listener.", nil)
+	errors5xx := a.Metrics.Counter("http_5xx_total", "HTTP requests answered 5xx.", nil)
+	limited := a.Metrics.Counter("http_rate_limited_total", "HTTP requests rejected 429.", nil)
+	panics := a.Metrics.Counter("http_panics_total", "Panics recovered while serving HTTP.", nil)
+
+	ipLimit := NewLimiter(1200, time.Minute)      // ~20 req/s sustained per client IP
+	internalLimit := NewLimiter(300, time.Minute) // pg_net webhook bursts
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if rec := recover(); rec != nil {
+				panics.Inc()
+				a.Log.Error("http handler panicked", "path", r.URL.Path, "panic", rec)
+				http.Error(w, "internal error", http.StatusInternalServerError)
+			}
+		}()
+		requests.Inc()
+		sw := &statusWriter{ResponseWriter: w, code: http.StatusOK}
+
+		if !a.Config.IsBench() {
+			var lim *Limiter
+			switch path := r.URL.Path; {
+			case path == "/healthz" || path == "/readyz" || strings.HasPrefix(path, "/dev/"):
+				// Probes and dev-only seeding are exempt.
+			case strings.HasPrefix(path, "/internal/"):
+				lim = internalLimit
+			case path == "/v1/rt":
+				// WebSocket upgrades carry their own per-IP attempt limit.
+			default:
+				lim = ipLimit
+			}
+			if lim != nil && !lim.Allow(ClientIP(r)) {
+				limited.Inc()
+				http.Error(w, "rate limited", http.StatusTooManyRequests)
+				return
+			}
+		}
+
+		a.Mux.ServeHTTP(sw, r)
+		if sw.code >= 500 {
+			errors5xx.Inc()
+		}
+	})
+}
+
+// ClientIP is the address the rate limiters key on. Behind Caddy the peer is
+// the proxy, so the rightmost X-Forwarded-For entry (the client as seen by
+// the last proxy; Go's ReverseProxy appends it) wins over RemoteAddr.
+func ClientIP(r *http.Request) string {
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		if i := strings.LastIndex(xff, ","); i >= 0 {
+			xff = xff[i+1:]
+		}
+		if ip := strings.TrimSpace(xff); ip != "" {
+			return ip
+		}
+	}
+	if host, _, err := net.SplitHostPort(r.RemoteAddr); err == nil {
+		return host
+	}
+	return r.RemoteAddr
+}
+
+// statusWriter captures the response code for metrics. It forwards Hijack and
+// Flush so WebSocket upgrades and streaming keep working through it.
+type statusWriter struct {
+	http.ResponseWriter
+	code int
+}
+
+func (w *statusWriter) WriteHeader(code int) {
+	w.code = code
+	w.ResponseWriter.WriteHeader(code)
+}
+
+func (w *statusWriter) Unwrap() http.ResponseWriter { return w.ResponseWriter }
+
+func (w *statusWriter) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	h, ok := w.ResponseWriter.(http.Hijacker)
+	if !ok {
+		return nil, nil, errors.New("hijack not supported")
+	}
+	return h.Hijack()
+}
+
+func (w *statusWriter) Flush() {
+	if f, ok := w.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
+
 // Draining reports whether shutdown has begun.
 func (a *App) Draining() bool { return a.draining.Load() }
 
@@ -206,7 +306,7 @@ func (a *App) Run(ctx context.Context) error {
 	}
 
 	errLog := slog.NewLogLogger(a.Log.Handler(), slog.LevelWarn)
-	pub := &http.Server{Handler: a.Mux, ReadHeaderTimeout: 10 * time.Second, ErrorLog: errLog,
+	pub := &http.Server{Handler: a.publicHandler(), ReadHeaderTimeout: 10 * time.Second, ErrorLog: errLog,
 		BaseContext: func(net.Listener) context.Context { return runCtx }}
 	dbg := &http.Server{Handler: a.DebugMux, ReadHeaderTimeout: 10 * time.Second, ErrorLog: errLog}
 

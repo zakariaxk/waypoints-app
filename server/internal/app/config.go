@@ -42,6 +42,7 @@ type Config struct {
 
 	InternalSecret string // WAYPOINTS_INTERNAL_SECRET, shared with the pg_net trigger
 	BenchSecret    string // WAYPOINTS_BENCH_SECRET, HS256 key accepted only with -bench
+	MaxConns       int    // WAYPOINTS_MAX_CONNS, cap on open realtime connections
 }
 
 // IsBench reports whether the process runs in the benchmark environment.
@@ -64,8 +65,13 @@ func LoadConfig() (Config, error) {
 		addr = ":" + p
 	}
 
+	// WAYPOINTS_ENV fails closed: unset or empty means prod, so a deployment
+	// that forgets the variable gets production behaviour, never the dev
+	// backdoors (HS256 dev tokens, /dev/* seeding, in-memory store).
+	env := Env("WAYPOINTS_ENV", "prod")
+
 	c := Config{
-		Env:         Env("WAYPOINTS_ENV", "dev"),
+		Env:         env,
 		Addr:        Env("WAYPOINTS_ADDR", addr),
 		MetricsAddr: Env("WAYPOINTS_METRICS_ADDR", "127.0.0.1:9090"),
 		Node:        Env("WAYPOINTS_NODE", host),
@@ -90,10 +96,43 @@ func LoadConfig() (Config, error) {
 	}
 
 	var errs []error
+	var err error
+	if c.MaxConns, err = EnvInt("WAYPOINTS_MAX_CONNS", 65536); err != nil {
+		errs = append(errs, err)
+	}
 	switch c.Env {
 	case "dev", "bench", "prod":
 	default:
 		errs = append(errs, fmt.Errorf("WAYPOINTS_ENV=%q: want dev, bench, or prod", c.Env))
+	}
+	// Fail closed on secrets: the bench key exists only in bench, and prod
+	// must have the three values it cannot run safely without.
+	if c.Env != "bench" {
+		c.BenchSecret = ""
+	}
+	if c.Env == "prod" {
+		for _, req := range []struct{ key, val string }{
+			{"SUPABASE_URL", c.SupabaseURL},
+			{"DATABASE_URL", c.DatabaseURL},
+			{"WAYPOINTS_INTERNAL_SECRET", c.InternalSecret},
+		} {
+			if strings.TrimSpace(req.val) == "" {
+				errs = append(errs, fmt.Errorf("%s is required when WAYPOINTS_ENV=prod", req.key))
+			}
+		}
+	}
+	if c.Env == "bench" {
+		// Bench runs entirely in memory; a database or Supabase project here
+		// means the environment was misconfigured.
+		if c.DatabaseURL != "" || c.SupabaseURL != "" {
+			errs = append(errs, errors.New("WAYPOINTS_ENV=bench requires DATABASE_URL and SUPABASE_URL to be unset"))
+		}
+	}
+	if c.Env == "dev" || c.Env == "bench" {
+		// A dev gateway must never write to a remote database.
+		if host := dbHost(c.DatabaseURL); host != "" && !localDBHost(host) {
+			errs = append(errs, fmt.Errorf("DATABASE_URL host %q is not loopback; dev and bench only use a local database", host))
+		}
 	}
 	if err := c.LogLevel.UnmarshalText([]byte(Env("WAYPOINTS_LOG_LEVEL", "info"))); err != nil {
 		errs = append(errs, fmt.Errorf("WAYPOINTS_LOG_LEVEL: %w", err))
@@ -106,7 +145,6 @@ func LoadConfig() (Config, error) {
 	if c.LogFormat != "text" && c.LogFormat != "json" {
 		errs = append(errs, fmt.Errorf("WAYPOINTS_LOG_FORMAT=%q: want text or json", c.LogFormat))
 	}
-	var err error
 	if c.ShutdownTimeout, err = EnvDuration("WAYPOINTS_SHUTDOWN_TIMEOUT", 5*time.Second); err != nil {
 		errs = append(errs, err)
 	}
@@ -116,6 +154,53 @@ func LoadConfig() (Config, error) {
 		errs = append(errs, fmt.Errorf("APNS_ENV=%q: want sandbox or production", c.APNsEnv))
 	}
 	return c, errors.Join(errs...)
+}
+
+// dbHost extracts the host from a Postgres connection string, in either the
+// URL form (postgres://user:pass@host:port/db or postgresql://...) or the
+// keyword form (host=... port=... dbname=...). It returns "" when no host can
+// be found.
+func dbHost(url string) string {
+	url = strings.TrimSpace(url)
+	if url == "" {
+		return ""
+	}
+	if i := strings.Index(url, "://"); i >= 0 {
+		authority := url[i+3:]
+		if j := strings.IndexAny(authority, "/?"); j >= 0 {
+			authority = authority[:j]
+		}
+		if at := strings.LastIndex(authority, "@"); at >= 0 {
+			authority = authority[at+1:]
+		}
+		host := authority
+		if strings.HasPrefix(host, "[") { // [::1]:5432
+			if end := strings.Index(host, "]"); end >= 0 {
+				return host[1:end]
+			}
+		}
+		if colon := strings.LastIndex(host, ":"); colon >= 0 {
+			host = host[:colon]
+		}
+		return strings.ToLower(host)
+	}
+	// keyword/value form: first host= wins, like libpq.
+	for _, f := range strings.Fields(url) {
+		if h, ok := strings.CutPrefix(f, "host="); ok {
+			return strings.ToLower(strings.Trim(h, `'"`))
+		}
+	}
+	return ""
+}
+
+// localDBHost reports whether host names this machine or the local Docker
+// daemon. Anything else is a remote database dev and bench must not touch.
+func localDBHost(host string) bool {
+	switch host {
+	case "localhost", "127.0.0.1", "::1", "0.0.0.0", "host.docker.internal":
+		return true
+	}
+	return false
 }
 
 // Env returns the variable's value, or def when it is unset or empty.

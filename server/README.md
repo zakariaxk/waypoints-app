@@ -7,7 +7,8 @@ Go realtime gateway: WebSocket fan-out of live location (`/v1/rt`) and a small J
 ```sh
 cd server
 go run ./cmd/gateway
-curl localhost:8080/healthz          # ok
+curl localhost:8080/healthz          # liveness
+curl localhost:8080/readyz           # readiness (503 while draining or if Postgres is down)
 curl 127.0.0.1:9090/metrics          # Prometheus text
 ```
 
@@ -19,8 +20,9 @@ Read from the environment. If `server/.env` exists (or the file named by `WAYPOI
 
 | Variable | Default | Used for |
 |---|---|---|
-| `WAYPOINTS_ENV` | `dev` | `dev`, `bench`, or `prod`. `-bench` refuses to start unless this is `bench`. |
-| `WAYPOINTS_ADDR` | `:8080` (or `:$PORT` if `PORT` is set) | Public listener: `/healthz`, `/v1/...`, `/internal/...`. |
+| `WAYPOINTS_ENV` | `prod` | `dev`, `bench`, or `prod`. Unset means `prod` (fail closed). `prod` requires `SUPABASE_URL`, `DATABASE_URL`, and `WAYPOINTS_INTERNAL_SECRET`; `bench` requires `DATABASE_URL` and `SUPABASE_URL` unset; dev and bench refuse a non-loopback `DATABASE_URL`. `-bench` refuses to start unless this is `bench`. |
+| `WAYPOINTS_ADDR` | `:8080` (or `:$PORT` if `PORT` is set) | Public listener: `/healthz`, `/readyz`, `/v1/...`, `/internal/...`. |
+| `WAYPOINTS_MAX_CONNS` | `65536` | Cap on open realtime connections. |
 | `WAYPOINTS_METRICS_ADDR` | `127.0.0.1:9090` | Private listener: `/metrics`, `/debug/pprof/`. Never expose publicly. |
 | `WAYPOINTS_NODE` | hostname | Node name in logs and `Welcome.node`. |
 | `WAYPOINTS_LOG_LEVEL` | `info` | `debug`, `info`, `warn`, `error`. |

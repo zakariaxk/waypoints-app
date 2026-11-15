@@ -12,6 +12,14 @@ if [ -z "$DB_URL" ] && command -v supabase >/dev/null; then
 fi
 DB_URL=${DB_URL:-postgresql://postgres:postgres@127.0.0.1:54322/postgres}
 
+# checks.sql is read-only, but it still must never run against a remote
+# database by accident.
+host=$(printf '%s' "$DB_URL" | sed -E 's#^[a-zA-Z][a-zA-Z0-9+.-]*://([^/@]*@)?([^/:?#]+).*#\2#')
+case "$host" in
+  127.0.0.1|localhost|::1) ;;
+  *) echo "check-db: refusing non-local database host '$host'" >&2; exit 1 ;;
+esac
+
 OUT=$(mktemp)
 trap 'rm -f "$OUT"' EXIT
 set +e

@@ -8,6 +8,7 @@ package bus
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -75,12 +76,24 @@ func NewInProc() *InProc { return &InProc{subs: map[string][]sub{}} }
 
 func (b *InProc) Local() bool { return true }
 
+// call runs one handler with panic recovery: handlers run on the publisher's
+// goroutine in-process (and on the NATS client's goroutine under natsbus), so
+// a panic must not take the process down.
+func call(h Handler, m Msg) {
+	defer func() {
+		if rec := recover(); rec != nil {
+			slog.Warn("bus handler panicked", "subject", m.Subject, "panic", rec)
+		}
+	}()
+	h(m)
+}
+
 func (b *InProc) Publish(subject string, data []byte) error {
 	b.mu.RLock()
 	hs := b.subs[subject]
 	b.mu.RUnlock()
 	for _, s := range hs {
-		s.h(Msg{Subject: subject, Data: data})
+		call(s.h, Msg{Subject: subject, Data: data})
 	}
 	return nil
 }
@@ -132,7 +145,7 @@ func (b *InProc) Request(ctx context.Context, subject string, data []byte, _ tim
 		if ctx.Err() != nil {
 			break
 		}
-		s.h(Msg{Subject: subject, Data: data, Reply: reply})
+		call(s.h, Msg{Subject: subject, Data: data, Reply: reply})
 	}
 	mu.Lock()
 	defer mu.Unlock()

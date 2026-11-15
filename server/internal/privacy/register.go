@@ -13,6 +13,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"strconv"
 	"sync"
@@ -180,6 +181,10 @@ func httpError(w http.ResponseWriter, code int, msg string) {
 	_ = json.NewEncoder(w).Encode(map[string]string{"error": msg})
 }
 
+// putLimit bounds privacy writes per user; this handler does its own auth
+// rather than api.Authed, so it carries its own limiter.
+var putLimit = app.NewLimiter(120, time.Hour)
+
 // handlePut merges the body into the current settings. Omitted fields keep
 // their value, so a client may send only what changed.
 func (s *Service) handlePut(w http.ResponseWriter, r *http.Request) {
@@ -188,10 +193,19 @@ func (s *Service) handlePut(w http.ResponseWriter, r *http.Request) {
 		httpError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
+	if !putLimit.Allow(claims.UserID) {
+		httpError(w, http.StatusTooManyRequests, "rate limited")
+		return
+	}
 	var b putBody
 	dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4<<10))
 	dec.DisallowUnknownFields()
 	if err := dec.Decode(&b); err != nil {
+		httpError(w, http.StatusBadRequest, "malformed body")
+		return
+	}
+	var extra json.RawMessage
+	if err := dec.Decode(&extra); !errors.Is(err, io.EOF) {
 		httpError(w, http.StatusBadRequest, "malformed body")
 		return
 	}

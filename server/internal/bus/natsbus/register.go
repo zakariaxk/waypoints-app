@@ -4,6 +4,7 @@ package natsbus
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -28,7 +29,7 @@ func Register(a *app.App) {
 		return
 	}
 	a.OnStop("natsbus", func(context.Context) error { return nc.Drain() })
-	a.Log.Info("bus connected to nats", "url", nc.ConnectedUrl())
+	a.Log.Info("bus connected to nats", "addr", nc.ConnectedAddr())
 	app.Provide[bus.Bus](a, &Bus{nc: nc})
 }
 
@@ -42,6 +43,12 @@ func (b *Bus) Subscribe(subject string, h bus.Handler) (func(), error) {
 		if m.Reply != "" {
 			msg.Reply = func(data []byte) { _ = m.Respond(data) }
 		}
+		// A panic here would kill the NATS client's delivery goroutine.
+		defer func() {
+			if rec := recover(); rec != nil {
+				slog.Warn("bus handler panicked", "subject", m.Subject, "panic", rec)
+			}
+		}()
 		h(msg)
 	})
 	if err != nil {

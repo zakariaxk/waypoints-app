@@ -28,11 +28,14 @@ type service struct {
 	store   *store.Store
 	convoys *convoy.Service
 	http    *http.Client
+	tokLim  *api.Limiter
+	occLim  *api.Limiter
 }
 
 // Register mounts the token endpoint and installs the convoy room closer.
 func Register(a *app.App) {
-	s := &service{cfg: a.Config, store: app.MustLookup[*store.Store](a), http: &http.Client{Timeout: 5 * time.Second}}
+	s := &service{cfg: a.Config, store: app.MustLookup[*store.Store](a), http: &http.Client{Timeout: 5 * time.Second},
+		tokLim: api.NewLimiter(30, time.Hour), occLim: api.NewLimiter(30, time.Minute)}
 	if c, ok := app.Lookup[*convoy.Service](a); ok {
 		s.convoys = c
 		c.SetVoice(s)
@@ -56,6 +59,10 @@ func (s *service) token(w http.ResponseWriter, r *http.Request, cl auth.Claims) 
 	}
 	if api.Decode(r, &b) != nil || (b.ChannelID == "") == (b.ConvoyID == "") {
 		api.Error(w, http.StatusBadRequest, "bad body")
+		return
+	}
+	if !s.tokLim.Allow(cl.UserID) {
+		api.Error(w, http.StatusTooManyRequests, "rate limited")
 		return
 	}
 	p, perr := s.store.Profile(r.Context(), cl.UserID)
@@ -134,6 +141,10 @@ type occupant struct {
 // cannot join are omitted; an empty object when LiveKit is not configured.
 func (s *service) occupants(w http.ResponseWriter, r *http.Request, cl auth.Claims) {
 	out := map[string][]occupant{}
+	if !s.occLim.Allow(cl.UserID) {
+		api.Error(w, http.StatusTooManyRequests, "rate limited")
+		return
+	}
 	if !s.configured() {
 		api.JSON(w, http.StatusOK, out)
 		return
