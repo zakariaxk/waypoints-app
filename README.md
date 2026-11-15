@@ -53,6 +53,20 @@ Debug screens (`waypoints://debug/<name>`, `waypoints://debug/list` prints them)
 
 Two simulators booted with different `-wp-login` handles cover every two-person flow.
 
+## Benchmarks
+
+The gateway on one Apple M2 laptop with the load generator beside it (loopback, 2026-11-14). Full tables, raw data, and what limited each number are in [docs/BENCHMARKS.md](docs/BENCHMARKS.md); the reference-VM run waits on a host.
+
+| Target | Loopback result |
+|---|---|
+| 100,000 deliveries/s (5,000 publishers, fan-out 20), tick 100 ms: p50 ≤ 60, p99 ≤ 150, p99.9 ≤ 250 ms | 99,962/s at 52 / 109 / 196 ms; p99 161 ms in a second run |
+| Immediate mode: p50 ≤ 5, p99 ≤ 40 ms | 1.0 / 14 ms at 2,000x20; missed at 5,000x20 on one machine |
+| Under 30 bytes per update | 30 measured with the benchmark's timing field, about 23 without it |
+| Under 50 KB per idle connection, 50,000 per node | 50 to 55 KB at 8,657, the most macOS lets one process hold |
+| 5% stalled readers: others unaffected, stalled closed within 6 s | healthy p99 unchanged; all closed by 4.3 s |
+| Two nodes over NATS add under 10 ms to p99 | no measurable difference |
+| 10,000 reconnect within 15 s | 9,000 of 9,000 live 10.3 s after the drop |
+
 ## Layout
 
 - `ios/App/`: app target. `CompositionRoot.swift` builds the `AppEnvironment` from each infrastructure module's `makeLive(config:)`.

@@ -1,0 +1,12 @@
+
+PID    COMMAND          %CPU  #TH  
+0      kernel_task      163.9 546/9
+57655  gateway          110.0 414  
+24011  Devin Helper (Re 44.9  20   
+57664  loadgen          36.6  108/1
+378    WindowServer     24.5  17   
+24009  Devin Helper     9.0   23   
+            input          (lo0)           output
+   packets  errs      bytes    packets  errs      bytes colls
+    132691     0   13327742     133252     0   13383306     0
+    114574     0   11473770     114927     0   11507273     0

@@ -217,7 +217,7 @@ Found by the audit. Each is carried by the requirement in the last column.
 | No app icon | The icon set has no image. | CMP-6 |
 | No String Catalogs | Strings were inline in every module. Now catalogued (W8-3). | L10N-1 |
 | No MetricKit | Nothing subscribes to it. | OBS-2 |
-| No realtime debug client | Done (W6-A): `server/cmd/rtdebug` and `make check-rt` script the eight W1-2 scenarios (precise, approximate, hidden, ghost, nearby anonymity, viewport swap, slow consumer, convoy) and print PASS or FAIL. Not yet run. | W6-A |
+| No realtime debug client | Done (W6-A): `server/cmd/rtdebug` and `make check-rt` script the eight W1-2 scenarios (precise, approximate, hidden, ghost, nearby anonymity, viewport swap, slow consumer, convoy) and print PASS or FAIL. Run 2026-11-14 against the bench gateway: 8 of 8 PASS. | W6-A |
 | "For you" is not ranked | The repository has one feed query ordered by recency. | FEED-2 |
 | Units | Only navigation formats distance by locale. | SET-3 |
 | Device token is never removed | `removeDeviceToken` exists; nothing calls it on sign-out. | NTF-5 |
@@ -713,13 +713,13 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| PERF-1 | 50,000 idle connections per node under 2.5 GB; under 50 KB per connection. | P0 | Coded |
-| PERF-2 | 5,000 publishers at 1 Hz with mean fan-out 20: p50 at most 60 ms, p99 at most 150 ms, p99.9 at most 250 ms with a 100 ms tick. | P0 | Coded |
-| PERF-3 | Under 30 bytes per delivered update. | P0 | Partial: 27 to 28 bytes with the 100 ms tick, 33 in immediate mode (Benchmark I, local). |
-| PERF-4 | With 5% of subscribers stalled, healthy subscribers' p99 moves under 10% and stalled ones are closed within 6 s. | P0 | Coded |
-| PERF-5 | Two nodes over NATS add under 10 ms to p99 against one node at the same load. | P0 | Coded |
-| PERF-6 | 10,000 connections that drop return within 15 s with no restart. | P0 | Coded |
-| PERF-7 | The results, the raw data behind every number, and a short account of what limited it are in `docs/BENCHMARKS.md` and summarised in `README.md`. | P0 | Partial: Benchmark I only. |
+| PERF-1 | 50,000 idle connections per node under 2.5 GB; under 50 KB per connection. | P0 | Partial: 50 to 55 KB per idle connection at 8,657, the most macOS allows one process (loopback, 2026-11-14); 36 KB before the stalled-reader ping. 50,000 needs the Linux host (9.1 step 7). |
+| PERF-2 | 5,000 publishers at 1 Hz with mean fan-out 20: p50 at most 60 ms, p99 at most 150 ms, p99.9 at most 250 ms with a 100 ms tick. | P0 | Partial: 52 / 109 / 196 ms in one loopback run and 52 / 161 / 226 ms in another, generator on the same machine; not yet run on the reference host. |
+| PERF-3 | Under 30 bytes per delivered update. | P0 | Partial: 29.9 to 30.3 bytes with the tick and 34.9 immediate at fan-out 20, measured with the bench-only `origin_ms` field (7 bytes); about 23 and 28 without it, which is computed, not measured. |
+| PERF-4 | With 5% of subscribers stalled, healthy subscribers' p99 moves under 10% and stalled ones are closed within 6 s. | P0 | Verified: bench-matrix and bench-cluster, loopback, 2026-11-14: healthy p99 100 ms against 100 ms, all 100 stalled closed by 4.3 s. Needed a gateway fix (WebSocket ping every 2 s, close 4008 on a pong 3 s late); before it none were closed. |
+| PERF-5 | Two nodes over NATS add under 10 ms to p99 against one node at the same load. | P0 | Verified: bench-delta and bench-matrix, loopback, 2026-11-14: two nodes never slower than one across three alternated pairs. |
+| PERF-6 | 10,000 connections that drop return within 15 s with no restart. | P0 | Partial: 9,000 of 9,000 over two nodes live 10.3 s after the drop (loopback; macOS descriptor limit stops short of 10,000). Needed a gateway fix: dropped connections leaked their sockets. |
+| PERF-7 | The results, the raw data behind every number, and a short account of what limited it are in `docs/BENCHMARKS.md` and summarised in `README.md`. | P0 | Partial: Benchmarks I, II, and III recorded on loopback with raw data and profiles; the reference-host run is left. |
 | PERF-8 | The app is under 60 MB installed. | P0 | Coded |
 
 ### 5.5 Reliability (REL)

@@ -1,41 +1,43 @@
 #!/usr/bin/env bash
-# Two gateway nodes joined by a local NATS server (plan 8.3, Benchmark II). Odd clients connect
-# to the second node, so every friend group spans both. Needs `nats-server` on PATH
-# (`brew install nats-server`, plan section 14).
-set -euo pipefail
-cd "$(dirname "$0")/.."
+# Benchmark II (plan 8.3): two gateway nodes joined by a local NATS server. Client i connects to
+# node i mod 2, so every friend group spans both nodes. Scenarios: plain fan-out, 5% stalled
+# subscribers, and a reconnect storm. Needs `nats-server` on PATH (`brew install nats-server`).
+#
+# Writes bench/results/<date>/cluster.jsonl and prints a table. DURATION (default 15s) sets each
+# measurement window; STORM_CLIENTS (default 9000) sizes the storm.
+source "$(dirname "$0")/lib.sh"
 command -v nats-server &>/dev/null || { echo "bench-cluster: install nats-server first (brew install nats-server)"; exit 1; }
 
-export WAYPOINTS_ENV=bench WAYPOINTS_BENCH_SECRET=${WAYPOINTS_BENCH_SECRET:-bench-secret} DATABASE_URL= SUPABASE_URL=
-export WAYPOINTS_LOG_LEVEL=warn NATS_URL=nats://127.0.0.1:14222
-OUT="bench/results/cluster-$(date -u +%Y%m%d-%H%M%S).jsonl"
-DURATION=${DURATION:-20s}
+DIR="bench/results/$(date -u +%Y%m%d)"
+mkdir -p "$DIR"
+OUT="$DIR/cluster.jsonl"
+STORM_CLIENTS=${STORM_CLIENTS:-9000} # split over two nodes; see run-matrix.sh on descriptors
+build
 
-(cd server && go build -o ../.build/gateway ./cmd/gateway && go build -o ../.build/loadgen ./cmd/loadgen)
-nats-server -p 14222 & nats=$!
-trap 'kill $nats 2>/dev/null || true' EXIT
+nats-server -a 127.0.0.1 -p 14222 & nats=$!
+trap 'stop_nodes; kill $nats 2>/dev/null || true' EXIT
 sleep 0.5
+export NATS_URL=nats://127.0.0.1:14222
 
-run() { # label, clients, group
-  WAYPOINTS_NODE=a WAYPOINTS_ADDR=127.0.0.1:18081 WAYPOINTS_METRICS_ADDR=127.0.0.1:19091 ./.build/gateway -bench & local a=$!
-  WAYPOINTS_NODE=b WAYPOINTS_ADDR=127.0.0.1:18082 WAYPOINTS_METRICS_ADDR=127.0.0.1:19092 ./.build/gateway -bench & local b=$!
-  sleep 1
-  ./.build/loadgen -url http://127.0.0.1:18081 -url2 http://127.0.0.1:18082 -clients "$2" -group "$3" -hz 1 \
-    -duration "$DURATION" -scenario "$1" -out "$OUT" || true
-  kill "$a" "$b"; wait "$a" "$b" 2>/dev/null || true
+two() { # tick, then loadgen flags
+  local tick=$1
+  shift
+  start_node a 18081 19091 -tick "$tick"
+  start_node b 18082 19092 -tick "$tick"
+  loadgen -url http://127.0.0.1:18081,http://127.0.0.1:18082 \
+    -metrics http://127.0.0.1:19091/metrics,http://127.0.0.1:19092/metrics -pid "$pid_a,$pid_b" -out "$OUT" "$@"
+  stop_nodes
 }
 
-run "two nodes, 200 drivers, groups of 10" 200 10
-run "two nodes, 2,000 drivers, groups of 20" 2000 20
+two 100ms -scenario "two nodes, 200 drivers, groups of 10" -clients 200 -group 10
+two 100ms -scenario "two nodes, 2,000 drivers, groups of 20" -clients 2000 -group 20
+two 0 -scenario "two nodes, 2,000 drivers, groups of 20, immediate" -clients 2000 -group 20
+two 100ms -scenario "two nodes, 2,000x20, 5% stalled" -clients 2000 -group 20 -stall 0.05 -stall-rcvbuf 4096
+if (($(fd_headroom) > STORM_CLIENTS * 2 + 3000)); then
+  two 100ms -scenario "two nodes, reconnect storm, $STORM_CLIENTS connections" -clients "$STORM_CLIENTS" -group 10 -hz 0.2 \
+    -storm -storm-spread 10s -duration 30s -ports 20000-48000
+else
+  echo "bench-cluster: skipping the storm, only $(fd_headroom) open files left on this machine" >&2
+fi
 
-python3 - "$OUT" <<'PY'
-import json, sys, datetime
-rows = [json.loads(l) for l in open(sys.argv[1]) if l.strip()]
-table = ["| Scenario | Clients | Deliveries/s | p50 | p99 | p99.9 | Errors |", "|---|---|---|---|---|---|---|"]
-for r in rows:
-    table.append(f"| {r['scenario']} | {r['clients']} | {r['deliveries_per_sec']:.0f} | {r['p50_ms']:.1f} ms | "
-                 f"{r['p99_ms']:.1f} ms | {r['p999_ms']:.1f} ms | {r['errors']} |")
-section = f"## Two-node run {datetime.date.today()}\n\nRaw: `{sys.argv[1]}`. Two gateways and NATS on one machine.\n\n" + "\n".join(table) + "\n"
-open("docs/BENCHMARKS.md", "a").write("\n" + section)
-print("\n".join(table))
-PY
+python3 bench/table.py "$OUT"

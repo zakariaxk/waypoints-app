@@ -1,0 +1,113 @@
+goroutine profile: total 10044
+5000 @ 0x104ee0568 0x104ea1b80 0x104edf7a0 0x104f35cb8 0x104f3665c 0x104f3664d 0x104faebe8 0x104fb6e84 0x104f30a1c 0x10503336c 0x105033a3c 0x10536dd98 0x10536f394 0x10536ebdc 0x10536fe08 0x10536e7b8 0x10536e7b1 0x105377128 0x10537745c 0x1053770c8 0x10537645c 0x1050ad4d8 0x1050aebe4 0x1050c9900 0x1050abd30 0x104ee7b94
+#	0x104edf79f	internal/poll.runtime_pollWait+0x9f			/opt/homebrew/Cellar/go/1.27.2/libexec/src/runtime/netpoll.go:351
+#	0x104f35cb7	internal/poll.(*pollDesc).wait+0x27			/opt/homebrew/Cellar/go/1.27.2/libexec/src/internal/poll/fd_poll_runtime.go:84
+#	0x104f3665b	internal/poll.(*pollDesc).waitRead+0x22b		/opt/homebrew/Cellar/go/1.27.2/libexec/src/internal/poll/fd_poll_runtime.go:89
+#	0x104f3664c	internal/poll.(*FD).Read+0x21c				/opt/homebrew/Cellar/go/1.27.2/libexec/src/internal/poll/fd_unix.go:170
+#	0x104faebe7	net.(*netFD).Read+0x27					/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/fd_posix.go:68
+#	0x104fb6e83	net.(*conn).Read+0x33					/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/net.go:196
+#	0x104f30a1b	io.(*multiReader).Read+0x8b				/opt/homebrew/Cellar/go/1.27.2/libexec/src/io/multi.go:26
+#	0x10503336b	bufio.(*Reader).fill+0xdb				/opt/homebrew/Cellar/go/1.27.2/libexec/src/bufio/bufio.go:113
+#	0x105033a3b	bufio.(*Reader).ReadByte+0x2b				/opt/homebrew/Cellar/go/1.27.2/libexec/src/bufio/bufio.go:273
+#	0x10536dd97	github.com/coder/websocket.readFrameHeader+0x67		/Users/zakariakhan/go/pkg/mod/github.com/coder/websocket@v1.8.15/frame.go:55
+#	0x10536f393	github.com/coder/websocket.(*Conn).readFrameHeader+0xa3	/Users/zakariakhan/go/pkg/mod/github.com/coder/websocket@v1.8.15/read.go:267
+#	0x10536ebdb	github.com/coder/websocket.(*Conn).readLoop+0x4b	/Users/zakariakhan/go/pkg/mod/github.com/coder/websocket@v1.8.15/read.go:185
+#	0x10536fe07	github.com/coder/websocket.(*Conn).reader+0xa7		/Users/zakariakhan/go/pkg/mod/github.com/coder/websocket@v1.8.15/read.go:382
+#	0x10536e7b7	github.com/coder/websocket.(*Conn).Reader+0x27		/Users/zakariakhan/go/pkg/mod/github.com/coder/websocket@v1.8.15/read.go:36
+#	0x10536e7b0	github.com/coder/websocket.(*Conn).Read+0x20		/Users/zakariakhan/go/pkg/mod/github.com/coder/websocket@v1.8.15/read.go:42
+#	0x105377127	waypoints/server/internal/ws.(*conn).read+0x27		/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/ws/register.go:429
+#	0x10537745b	waypoints/server/internal/ws.(*conn).reader+0x3b	/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/ws/register.go:467
+#	0x1053770c7	waypoints/server/internal/ws.(*conn).run+0xc07		/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/ws/register.go:425
+#	0x10537645b	waypoints/server/internal/ws.(*Server).serve+0x14b	/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/ws/register.go:272
+#	0x1050ad4d7	net/http.HandlerFunc.ServeHTTP+0x37			/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/http/server.go:2358
+#	0x1050aebe3	net/http.(*ServeMux).ServeHTTP+0x193			/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/http/server.go:2923
+#	0x1050c98ff	net/http.serverHandler.ServeHTTP+0xaf			/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/http/server.go:3436
+#	0x1050abd2f	net/http.(*conn).serve+0x59f				/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/http/server.go:2157
+
+5000 @ 0x104ee0568 0x104ebab28 0x105377e8c 0x104ee7b94
+#	0x105377e8b	waypoints/server/internal/ws.(*conn).writer+0x14b	/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/ws/register.go:580
+
+16 @ 0x104ee0568 0x104ebab28 0x105366c4c 0x1052b2880 0x104ee7b94
+#	0x105366c4b	waypoints/server/internal/hub.(*shard).run+0xdb		/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/hub/shard.go:54
+#	0x1052b287f	waypoints/server/internal/app.(*App).Run.func3+0x7f	/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/app/app.go:231
+
+15 @ 0x104ee0568 0x104ea1b80 0x104edf7a0 0x104f35cb8 0x104f3665c 0x104f3664d 0x104faebe8 0x104fb6e84 0x1050a6ad8 0x10503336c 0x1050334a8 0x1050abe5c 0x104ee7b94
+#	0x104edf79f	internal/poll.runtime_pollWait+0x9f		/opt/homebrew/Cellar/go/1.27.2/libexec/src/runtime/netpoll.go:351
+#	0x104f35cb7	internal/poll.(*pollDesc).wait+0x27		/opt/homebrew/Cellar/go/1.27.2/libexec/src/internal/poll/fd_poll_runtime.go:84
+#	0x104f3665b	internal/poll.(*pollDesc).waitRead+0x22b	/opt/homebrew/Cellar/go/1.27.2/libexec/src/internal/poll/fd_poll_runtime.go:89
+#	0x104f3664c	internal/poll.(*FD).Read+0x21c			/opt/homebrew/Cellar/go/1.27.2/libexec/src/internal/poll/fd_unix.go:170
+#	0x104faebe7	net.(*netFD).Read+0x27				/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/fd_posix.go:68
+#	0x104fb6e83	net.(*conn).Read+0x33				/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/net.go:196
+#	0x1050a6ad7	net/http.(*connReader).Read+0x227		/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/http/server.go:856
+#	0x10503336b	bufio.(*Reader).fill+0xdb			/opt/homebrew/Cellar/go/1.27.2/libexec/src/bufio/bufio.go:113
+#	0x1050334a7	bufio.(*Reader).Peek+0x57			/opt/homebrew/Cellar/go/1.27.2/libexec/src/bufio/bufio.go:152
+#	0x1050abe5b	net/http.(*conn).serve+0x6cb			/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/http/server.go:2193
+
+2 @ 0x104ee0568 0x104ea1b80 0x104edf7a0 0x104f35cb8 0x104f36ed0 0x104f36ec1 0x104faf5f8 0x104fbdb84 0x104fbd12c 0x1050b01a8 0x1052b2aac 0x104ee7b94
+#	0x104edf79f	internal/poll.runtime_pollWait+0x9f			/opt/homebrew/Cellar/go/1.27.2/libexec/src/runtime/netpoll.go:351
+#	0x104f35cb7	internal/poll.(*pollDesc).wait+0x27			/opt/homebrew/Cellar/go/1.27.2/libexec/src/internal/poll/fd_poll_runtime.go:84
+#	0x104f36ecf	internal/poll.(*pollDesc).waitRead+0x20f		/opt/homebrew/Cellar/go/1.27.2/libexec/src/internal/poll/fd_poll_runtime.go:89
+#	0x104f36ec0	internal/poll.(*FD).Accept+0x200			/opt/homebrew/Cellar/go/1.27.2/libexec/src/internal/poll/fd_unix.go:618
+#	0x104faf5f7	net.(*netFD).accept+0x27				/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/fd_unix.go:149
+#	0x104fbdb83	net.(*TCPListener).accept+0x23				/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/tcpsock_posix.go:159
+#	0x104fbd12b	net.(*TCPListener).Accept+0x2b				/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/tcpsock.go:387
+#	0x1050b01a7	net/http.(*Server).Serve+0x2a7				/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/http/server.go:3574
+#	0x1052b2aab	waypoints/server/internal/app.(*App).Run.func2+0x2b	/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/app/app.go:215
+
+1 @ 0x104e9e6ac 0x104edf334 0x105297e84 0x105297b30 0x105295394 0x1052a9b14 0x1052aa340 0x1050ad4d8 0x1050aebe4 0x1050c9900 0x1050abd30 0x104ee7b94
+#	0x105297e83	runtime/pprof.writeRuntimeProfile+0xb3	/opt/homebrew/Cellar/go/1.27.2/libexec/src/runtime/pprof/pprof.go:848
+#	0x105297b2f	runtime/pprof.writeGoroutine+0x4f	/opt/homebrew/Cellar/go/1.27.2/libexec/src/runtime/pprof/pprof.go:781
+#	0x105295393	runtime/pprof.(*Profile).WriteTo+0x143	/opt/homebrew/Cellar/go/1.27.2/libexec/src/runtime/pprof/pprof.go:405
+#	0x1052a9b13	net/http/pprof.handler.ServeHTTP+0x433	/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/http/pprof/pprof.go:272
+#	0x1052aa33f	net/http/pprof.Index+0xaf		/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/http/pprof/pprof.go:391
+#	0x1050ad4d7	net/http.HandlerFunc.ServeHTTP+0x37	/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/http/server.go:2358
+#	0x1050aebe3	net/http.(*ServeMux).ServeHTTP+0x193	/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/http/server.go:2923
+#	0x1050c98ff	net/http.serverHandler.ServeHTTP+0xaf	/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/http/server.go:3436
+#	0x1050abd2f	net/http.(*conn).serve+0x59f		/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/http/server.go:2157
+
+1 @ 0x104ea2c10 0x104ee2884 0x104f5398c 0x104ee7b94
+#	0x104ee2883	os/signal.signal_recv+0x103	/opt/homebrew/Cellar/go/1.27.2/libexec/src/runtime/sigqueue.go:149
+#	0x104f5398b	os/signal.loop+0x1b		/opt/homebrew/Cellar/go/1.27.2/libexec/src/os/signal/signal_unix.go:23
+
+1 @ 0x104ee0568 0x104ea1b80 0x104edf7a0 0x104f35cb8 0x104f3665c 0x104f3664d 0x104faebe8 0x104fb6e84 0x1050a65b8 0x104ee7b94
+#	0x104edf79f	internal/poll.runtime_pollWait+0x9f		/opt/homebrew/Cellar/go/1.27.2/libexec/src/runtime/netpoll.go:351
+#	0x104f35cb7	internal/poll.(*pollDesc).wait+0x27		/opt/homebrew/Cellar/go/1.27.2/libexec/src/internal/poll/fd_poll_runtime.go:84
+#	0x104f3665b	internal/poll.(*pollDesc).waitRead+0x22b	/opt/homebrew/Cellar/go/1.27.2/libexec/src/internal/poll/fd_poll_runtime.go:89
+#	0x104f3664c	internal/poll.(*FD).Read+0x21c			/opt/homebrew/Cellar/go/1.27.2/libexec/src/internal/poll/fd_unix.go:170
+#	0x104faebe7	net.(*netFD).Read+0x27				/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/fd_posix.go:68
+#	0x104fb6e83	net.(*conn).Read+0x33				/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/net.go:196
+#	0x1050a65b7	net/http.(*connReader).backgroundRead+0x37	/opt/homebrew/Cellar/go/1.27.2/libexec/src/net/http/server.go:746
+
+1 @ 0x104ee0568 0x104ebab28 0x104f53d84 0x104ee7b94
+#	0x104f53d83	os/signal.NotifyContext.func1+0x73	/opt/homebrew/Cellar/go/1.27.2/libexec/src/os/signal/signal.go:304
+
+1 @ 0x104ee0568 0x104ebab28 0x1052b0674 0x1053c69b0 0x104ea7f70 0x104ee7b94
+#	0x1052b0673	waypoints/server/internal/app.(*App).Run+0x963	/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/app/app.go:238
+#	0x1053c69af	main.main+0x22f					/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/cmd/gateway/main.go:71
+#	0x104ea7f6f	runtime.main+0x37f				/opt/homebrew/Cellar/go/1.27.2/libexec/src/runtime/proc.go:302
+
+1 @ 0x104ee0568 0x104ebab28 0x1052bd0f8 0x1052bf024 0x1052b2880 0x104ee7b94
+#	0x1052bd0f7	waypoints/server/internal/store.(*Store).runPresence+0xd7	/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/store/presence.go:52
+#	0x1052bf023	waypoints/server/internal/store.Register.func3+0x33		/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/store/register.go:51
+#	0x1052b287f	waypoints/server/internal/app.(*App).Run.func3+0x7f		/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/app/app.go:231
+
+1 @ 0x104ee0568 0x104ebab28 0x105379f3c 0x1052b2880 0x104ee7b94
+#	0x105379f3b	waypoints/server/internal/ws.(*Server).sweepSuspended+0xbb	/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/ws/suspend.go:22
+#	0x1052b287f	waypoints/server/internal/app.(*App).Run.func3+0x7f		/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/app/app.go:231
+
+1 @ 0x104ee0568 0x104ebab28 0x10537bf28 0x1052b2880 0x104ee7b94
+#	0x10537bf27	waypoints/server/internal/api.(*Service).runChoice+0xa7	/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/api/meets.go:35
+#	0x1052b287f	waypoints/server/internal/app.(*App).Run.func3+0x7f	/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/app/app.go:231
+
+1 @ 0x104ee0568 0x104ebab28 0x10537c08c 0x1052b2880 0x104ee7b94
+#	0x10537c08b	waypoints/server/internal/api.(*Service).runCheckins+0xbb	/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/api/meets.go:52
+#	0x1052b287f	waypoints/server/internal/app.(*App).Run.func3+0x7f		/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/app/app.go:231
+
+1 @ 0x104ee0568 0x104ebab28 0x10537c9c0 0x1052b2880 0x104ee7b94
+#	0x10537c9bf	waypoints/server/internal/api.(*Service).runSeries+0xaf	/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/api/meets.go:119
+#	0x1052b287f	waypoints/server/internal/app.(*App).Run.func3+0x7f	/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/app/app.go:231
+
+1 @ 0x104ee0568 0x104ebab28 0x1053c3028 0x1052b2880 0x104ee7b94
+#	0x1053c3027	waypoints/server/internal/help.(*Service).runExpiry+0xa7	/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/help/register.go:518
+#	0x1052b287f	waypoints/server/internal/app.(*App).Run.func3+0x7f		/Users/zakariakhan/Documents/Waypoints/.build/wt/bench/server/internal/app/app.go:231
+

@@ -25,7 +25,7 @@ BUNDLE_ID    := app.waypoints.ios
 CONFIG       := ios/App/Config.xcconfig
 CATALOG      := ios/App/Resources/catalog.sqlite.lzfse
 
-.PHONY: build go ios generate run proto clean bench-local bench-cluster dev dev-install check-db check-rt shot drive
+.PHONY: build go ios generate run proto clean bench-local bench-cluster bench-matrix bench-delta dev dev-install check-db check-rt shot drive
 
 build: go ios
 
@@ -77,6 +77,14 @@ bench-local:
 # Benchmark II: two nodes and NATS on this machine (needs nats-server).
 bench-cluster:
 	bench/run-cluster.sh
+
+# Benchmark III: the plan 8.1 target matrix on this machine, labelled loopback.
+bench-matrix:
+	bench/run-matrix.sh
+
+# PERF-5: one node against two over NATS, alternated.
+bench-delta:
+	bench/run-delta.sh
 
 # W8-2: Release archive for App Store Connect. Config.xcconfig must point at the hosted
 # backend and set LINK_HOST (docs/APP_STORE.md, Release build). Signing uses the team in

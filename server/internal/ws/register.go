@@ -34,6 +34,8 @@ const Protocol = 1
 const (
 	helloTimeout   = 10 * time.Second
 	writeTimeout   = 5 * time.Second
+	pingEvery      = 2 * time.Second
+	pongTimeout    = 3 * time.Second
 	minInterval    = 400 * time.Millisecond
 	approxInterval = 15 * time.Second
 	maxBadFrames   = 20
@@ -267,6 +269,7 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+	defer ws.CloseNow() // the socket is hijacked: nothing else closes it when the client just drops
 	ws.SetReadLimit(maxFrameBytes)
 	c := &conn{s: s, ws: ws, log: s.a.Log.With("pkg", "ws")}
 	c.run(r.Context())
@@ -422,7 +425,34 @@ func (c *conn) run(ctx context.Context) {
 	}()
 
 	go c.writer(ctx, cancel)
+	defer c.startPinger(ctx, cancel)()
 	c.reader(ctx)
+}
+
+// startPinger closes a client that has stopped reading (PERF-4). The conflated lane never backs
+// up far enough to block a write, so a stalled reader is found by a WebSocket ping it does not
+// answer: at most pingEvery + pongTimeout after it stalls. A timer, not a goroutine per
+// connection: an idle connection pays for one only while a ping is in flight.
+func (c *conn) startPinger(ctx context.Context, cancel context.CancelFunc) (stop func() bool) {
+	var t *time.Timer
+	armed := make(chan struct{})
+	t = time.AfterFunc(pingEvery, func() {
+		<-armed
+		pctx, pcancel := context.WithTimeout(ctx, pongTimeout)
+		err := c.ws.Ping(pctx)
+		pcancel()
+		if err == nil {
+			t.Reset(pingEvery)
+			return
+		}
+		if ctx.Err() == nil {
+			c.s.m.slowClosed.Inc()
+			go c.ws.Close(closeSlowConsumer, "slow consumer")
+			time.AfterFunc(250*time.Millisecond, cancel) // let the close frame leave, then stop waiting on the peer
+		}
+	})
+	close(armed)
+	return t.Stop
 }
 
 func (c *conn) read(ctx context.Context) (*wire.ClientFrame, error) {
