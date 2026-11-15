@@ -496,7 +496,7 @@ A virtual drag strip driven by your real build. Plan 10.8 (G7 to G9), 11.4.
 | STR-8 | A two-finger tap pauses: Resume, Restart, Quit. | P0 | Coded |
 | STR-9 | The ladder. Ten house cars from a 16.5 s car to an 8.9 s car, described by plain specs. Beating one opens the next. A choice of sportsman or pro tree. | P1 | Coded |
 | STR-10 | Bench race. Any car in the catalog, stock or with chosen mods, can be picked as the opponent. | P2 | Coded (W8-1F): "Pick any car" in G7 opens the vehicle picker, then that car's `ModCatalog` mods; the model runs it with a clean launch. Ghosts and friend runs recorded under an older `PerformanceModelVersion` (`race_results.model_version`) are hidden. |
-| STR-11 | Car of the week. Each Monday one catalog car, stock, is the same for everyone. Your best virtual run in it that week is listed against your friends' and teammates' runs. Virtual times only; the list resets weekly and awards nothing but its own line on the time slip. | P3 | New |
+| STR-11 | Car of the week. Each Monday one catalog car, stock, is the same for everyone. Your best virtual run in it that week is listed against your friends' and teammates' runs. Virtual times only; the list resets weekly and awards nothing but its own line on the time slip. | P3 | Coded |
 
 ### 4.14 Teams (TEAM)
 
@@ -532,7 +532,7 @@ Channels and direct messages. Plan 5.4, 10.7 (T2, T7).
 | MSG-8 | Direct messages between two people. A thread about a listing pins that listing at the top. A first message from someone who is not a friend lands in Requests with Accept and Block. | P0 | Coded |
 | MSG-9 | Text passes the safety filter before sending; a blocked message reads "That message can't be sent." | P0 | Coded |
 | MSG-10 | Offline, the composer is disabled and messages already loaded stay readable. | P0 | Coded |
-| MSG-11 | Reactions. Press and hold a message to add one of six fixed reactions; counts sit under the message and a second tap removes yours. No custom emoji, no notification for a reaction. | P3 | New |
+| MSG-11 | Reactions. Press and hold a message to add one of six fixed reactions; counts sit under the message and a second tap removes yours. No custom emoji, no notification for a reaction. | P3 | Coded |
 
 ### 4.16 Voice (VOX)
 
@@ -655,7 +655,7 @@ Required by App Review for any app with user content, and by the kind of place t
 | SAFE-9 | Abuse limits, enforced on the server: 3 meets a day, 10 map reports in 10 minutes, 3 help requests a day, 10 posts a day, 30 comments an hour, 10 listings a day, 30 friend requests a day, 3 teams a day, 20 content reports a day, 5 messages in 5 seconds. Over a limit the client says "You're doing that a lot. Try again in a few minutes." | P1 | Coded: every action the server limits shows the copy on `rateLimited`: meets, map reports, help requests, posts, comments, listings, friend requests (G2 and G11), teams, content reports, messages, and Share ETA. |
 | SAFE-10 | Minimum age 17, asked at sign-up. | P0 | Coded |
 | SAFE-11 | The contact address is shown in About and in the suspension message. | P0 | Coded |
-| SAFE-12 | Mute. A person, a thread, a channel, or a team can be muted for 8 hours, a week, or until turned back on. Muted sources send no push and show no badge; nothing is hidden and the other side is not told. | P3 | New |
+| SAFE-12 | Mute. A person, a thread, a channel, or a team can be muted for 8 hours, a week, or until turned back on. Muted sources send no push and show no badge; nothing is hidden and the other side is not told. | P3 | Coded |
 
 ### 4.24 Settings (SET)
 
@@ -776,7 +776,7 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 | OBS-1 | The gateway exposes connection, publish, delivery, drop, outbox, and flush metrics on a private port, with `pprof`. | P0 | Coded |
 | OBS-2 | The client collects MetricKit diagnostics and can show the last payload on a debug screen. No third-party SDK. | P1 | Coded |
 | L10N-1 | English only. Every string lives in a String Catalog in its module. | P1 | Coded: every module with copy has a String Catalog (`tools/l10n/extract.py`, 790 keys in all). Plain `Text` and `String(localized:)` resolve from `.module`; copy held in a `String` before it is shown (error lines, switch arms, fallbacks) is wrapped in `String(localized:bundle:)`; and the script writes the union of the module catalogs to `ios/App/Localizable.xcstrings` so keys handed to DesignSystem components and SwiftUI modifiers resolve from the main bundle. Not checked with a second language. |
-| L10N-2 | Spanish. Every catalog key has a Spanish translation written by an agent and read back in screenshots of each root screen launched in Spanish; units and dates already follow the locale. Plan copy stays the English source. | P3 | New |
+| L10N-2 | Spanish. Every catalog key has a Spanish translation written by an agent and read back in screenshots of each root screen launched in Spanish; units and dates already follow the locale. Plan copy stays the English source. | P3 | Coded |
 
 ---
 
