@@ -117,13 +117,13 @@ enumerable (they are public by URL anyway), `messages` objects are readable only
 the first path folder equals `auth.uid()`. Insert/update/delete already require
 authenticated ownership of the first folder.
 
-**Limitation (follow-up, outside this pass's file set):** every bucket including
-`messages` is `public = true`, so a DM attachment is fetchable by anyone holding its
-URL (`/storage/v1/object/public/messages/<uid>/<uuid>.<ext>`). Paths contain a random
-UUID and the objects API no longer enumerates them, so exposure requires the URL to
-leak. Making `messages` private needs authenticated or signed-URL downloads in the
-feature layer (`LiveMedia.publicURL` is the only URL helper today), which is outside
-the permitted file set — tracked as follow-up work.
+**Resolved (W11-H-5, `20261115140000_w11-h-5_private_messages_bucket.sql`):** the
+`messages` bucket is now `public = false` and its objects are readable only by the
+uploader's own folder or by a caller who can read the `messages` row pointing at the
+path (thread party / channel member). The client resolves attachments through
+`signedURL` (1 h expiry) in `MessagingFeature`; verified live against the local
+stack. The other seven buckets stay public by design (map/feed/market content is
+visible to non-friends; `catalog` is fetched session-less).
 
 ## Item 7 — Migration ordering and signatures
 

@@ -524,6 +524,11 @@ struct FindOrStart: View {
             Row(Text("Anyone can find and join", bundle: .module), showsDivider: false, trailing: { Toggle("", isOn: $isPublic).labelsHidden().tint(.sodium) })
             PrimaryButton("Start team", isLoading: working) {
                 run {
+                    // SAFE-4: same client-side word check as posts, listings, and messages.
+                    if case .blocked = await model.env.safety.check(name + " " + tag + " " + about) {
+                        self.error = String(localized: "That team can't be created.", bundle: .module)
+                        return
+                    }
                     let t = try await model.env.teams.createTeam(TeamDraft(name: name, tag: tag, about: about, iconPath: iconPath, isPublic: isPublic))
                     await model.load()
                     model.selected = t.id
@@ -627,6 +632,13 @@ struct TeamDetail: View {
                         })
                     }
                     .buttonStyle(RowButtonStyle())
+                    // SAFE-1: a team can be reported; its owner is not the viewer's own team.
+                    if t.ownerID != model.me {
+                        Button { model.env.router.open(.reportContent(ContentRef(kind: .team, id: teamID.description))) } label: {
+                            Row(Text("Report team", bundle: .module), trailing: { Disclosure() })
+                        }
+                        .buttonStyle(RowButtonStyle())
+                    }
                     if perms.contains(.manageChannels) { channelsSection }
                     if perms.contains(.manageRoles) { rolesSection }
                     VStack(spacing: Space.s12) {
@@ -893,6 +905,12 @@ struct EditTeam: View {
                         error = nil
                         let t = draft
                         Task {
+                            // SAFE-4: same client-side word check as posts, listings, and messages.
+                            if case .blocked = await model.env.safety.check(t.name + " " + t.about) {
+                                self.error = String(localized: "That team can't be saved.", bundle: .module)
+                                working = false
+                                return
+                            }
                             do {
                                 let saved = try await model.env.teams.updateTeam(t)
                                 onSave(saved)
@@ -976,6 +994,11 @@ struct RoleEditor: View {
                     if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                     PrimaryButton("Save role", isLoading: working) {
                         run {
+                            // SAFE-4: same client-side word check as posts, listings, and messages.
+                            if case .blocked = await model.env.safety.check(role.name) {
+                                self.error = String(localized: "That role can't be saved.", bundle: .module)
+                                return
+                            }
                             var r = role
                             r.name = r.name.trimmingCharacters(in: .whitespacesAndNewlines)
                             _ = try await model.env.teams.saveRole(r)
@@ -1118,6 +1141,11 @@ struct MembersView: View {
         }
         .buttonStyle(RowButtonStyle())
         .plainRow()
+        .contextMenu {
+            if m.userID != model.me {
+                Button("Report") { model.env.router.open(.reportContent(.user(m.userID))) }
+            }
+        }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             if actionable && perms.contains(.kick) {
                 Button("Remove", role: .destructive) { removing = MemberRef(member: m) }

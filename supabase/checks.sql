@@ -643,9 +643,10 @@ begin
     format($s$insert into race_results (user_id, car_id, et_ms, input_log) values (%L, %L, 15000, decode(repeat('00', 5000), 'hex'))$s$, a, car_a), '23514');
 
   ---------------------------------------------------------------- storage
-  perform pg_temp.truth('storage: eight public buckets exist',
-    (select count(*) = 8 from storage.buckets where public and id in
-      ('avatars', 'cars', 'posts', 'listings', 'spots', 'teams', 'messages', 'catalog')));
+  perform pg_temp.truth('storage: seven public buckets exist, messages is private',
+    (select count(*) = 7 from storage.buckets where public and id in
+      ('avatars', 'cars', 'posts', 'listings', 'spots', 'teams', 'catalog'))
+    and (select not public from storage.buckets where id = 'messages'));
   perform pg_temp.allow('storage: owner uploads under own folder', a,
     format($s$insert into storage.objects (bucket_id, name) values ('avatars', %L)$s$, a || '/avatar.jpg'), true);
   perform pg_temp.deny('storage: cannot upload into another user''s folder', a,
@@ -1389,6 +1390,86 @@ begin
       'cccccccc-0000-4000-8000-00000000000b'::uuid, 'x')$s$);
   perform pg_temp.allow('mutes: owner unmutes', a,
     format($s$delete from mutes where owner_id = %L and target_kind = 'user' and target_id = %L$s$, a, b));
+
+  ---------------------------------------------------------------- block gaps (W11-H-6)
+  -- a blocked c back in the "blocks" section above. These prove spots_read,
+  -- teams_read, and venue_notes_read now hide content across a block while
+  -- content_reports still files (SAFE-1, SAFE-2).
+  perform pg_temp.allow('w11h6 setup: owner adds a venue note', a,
+    format($s$insert into venue_notes (geom, author_id, note) values
+      (st_setsrid(st_makepoint(-75.025, 39.945), 4326)::geography, %L, 'Check: blocked note')$s$, a), true);
+  perform pg_temp.truth('w11h6 setup: fixtures exist (a''s spot, a''s public team, a''s note)',
+    exists (select 1 from spots where spotter_id = a::uuid and model = 'Supra')
+    and exists (select 1 from teams where id = team_o::uuid and owner_id = a::uuid)
+    and exists (select 1 from venue_notes where note = 'Check: blocked note'));
+  perform pg_temp.truth('w11h6 policies: is_blocked_pair on all three reads',
+    (select count(*) = 3 from pg_policies
+      where schemaname = 'public'
+        and ((tablename = 'spots' and policyname = 'spots_read')
+          or (tablename = 'teams' and policyname = 'teams_read')
+          or (tablename = 'venue_notes' and policyname = 'venue_notes_read'))
+        and qual like '%is_blocked_pair%'));
+
+  perform pg_temp.allow('w11h6 setup: blocked user logs a spot of their own', c,
+    format($s$insert into spots (spotter_id, make, model) values (%L, 'Nissan', 'Silvia')$s$, c), true);
+  perform pg_temp.deny('w11h6 spots: hidden from a user the spotter blocked', c,
+    format($s$select 1 from spots where spotter_id = %L$s$, a));
+  perform pg_temp.deny('w11h6 spots: hidden from the spotter too (both directions)', a,
+    format($s$select 1 from spots where spotter_id = %L and model = 'Silvia'$s$, c));
+  perform pg_temp.allow('w11h6 spots: spotter still sees own spot', c,
+    format($s$select 1 from spots where spotter_id = %L and model = 'Silvia'$s$, c));
+  perform pg_temp.allow('w11h6 spots: still readable by an unblocked user', b,
+    format($s$select 1 from spots where spotter_id = %L$s$, a));
+  perform pg_temp.deny('w11h6 spots: anon cannot read', 'anon', $s$select 1 from spots$s$);
+
+  perform pg_temp.deny('w11h6 teams: public team hidden across a block', c,
+    format($s$select 1 from teams where id = %L$s$, team_o));
+  perform pg_temp.allow('w11h6 teams: owner still sees own team', a,
+    format($s$select 1 from teams where id = %L$s$, team_o));
+  perform pg_temp.allow('w11h6 teams: still readable by an unblocked user', b,
+    format($s$select 1 from teams where id = %L$s$, team_o));
+  perform pg_temp.deny('w11h6 teams: anon cannot read', 'anon', $s$select 1 from teams$s$);
+
+  perform pg_temp.deny('w11h6 venue_notes: hidden across a block', c,
+    $s$select 1 from venue_notes where note = 'Check: blocked note'$s$);
+  perform pg_temp.allow('w11h6 venue_notes: still readable by an unblocked user', b,
+    $s$select 1 from venue_notes where note = 'Check: blocked note'$s$);
+  perform pg_temp.deny('w11h6 venue_notes: anon cannot read', 'anon', $s$select 1 from venue_notes$s$);
+
+  perform pg_temp.allow('w11h6 content_reports: blocked user can still report a team', c,
+    format($s$insert into content_reports (reporter_id, target_kind, target_id, reason)
+      values (%L, 'team', %L, 'spam')$s$, c, team_o));
+  perform pg_temp.allow('w11h6 content_reports: report on a spot still files', b,
+    format($s$insert into content_reports (reporter_id, target_kind, target_id, reason)
+      select %L, 'spot', id::text, 'spam' from spots where spotter_id = %L$s$, b, a));
+  perform pg_temp.deny('w11h6 content_reports: anon cannot file', 'anon',
+    $s$insert into content_reports (reporter_id, target_kind, target_id, reason)
+       values ('cccccccc-0000-4000-8000-00000000000b', 'team', 'x', 'spam')$s$);
+
+  ---------------------------------------------------------------- private messages bucket (W11-H-5)
+  perform pg_temp.truth('w11h5 storage: messages bucket is private, the rest public',
+    (select not public from storage.buckets where id = 'messages')
+    and (select count(*) = 7 from storage.buckets
+         where public and id in ('avatars', 'cars', 'posts', 'listings', 'spots', 'teams', 'catalog')));
+  -- A DM attachment: the object and the message row pointing at it.
+  perform pg_temp.allow('w11h5 setup: uploader stores a DM attachment', a,
+    format($s$insert into storage.objects (bucket_id, name) values ('messages', %L)$s$,
+      a || '/dm-private.jpg'), true);
+  perform pg_temp.allow('w11h5 setup: DM message references the attachment', a,
+    format($s$insert into messages (thread_id, author_id, body, attachment_path)
+      values (%L, %L, 'pic', %L)$s$, thr_ab, a, a || '/dm-private.jpg'), true);
+  perform pg_temp.allow('w11h5 storage: uploader reads own DM attachment', a,
+    format($s$select 1 from storage.objects where bucket_id = 'messages' and name = %L$s$,
+      a || '/dm-private.jpg'));
+  perform pg_temp.allow('w11h5 storage: thread party reads the DM attachment', b,
+    format($s$select 1 from storage.objects where bucket_id = 'messages' and name = %L$s$,
+      a || '/dm-private.jpg'));
+  perform pg_temp.deny('w11h5 storage: outsider cannot read the DM attachment', c,
+    format($s$select 1 from storage.objects where bucket_id = 'messages' and name = %L$s$,
+      a || '/dm-private.jpg'));
+  perform pg_temp.deny('w11h5 storage: anon cannot read the DM attachment', 'anon',
+    format($s$select 1 from storage.objects where bucket_id = 'messages' and name = %L$s$,
+      a || '/dm-private.jpg'));
 
   ---------------------------------------------------------------- cascade
   delete from storage.objects where name like a || '/%';

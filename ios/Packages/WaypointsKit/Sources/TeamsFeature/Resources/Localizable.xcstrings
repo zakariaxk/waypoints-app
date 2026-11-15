@@ -727,6 +727,12 @@
         }
       }
     },
+    "Report": {
+      "extractionState": "manual"
+    },
+    "Report team": {
+      "extractionState": "manual"
+    },
     "Save": {
       "extractionState": "manual",
       "localizations": {
@@ -881,6 +887,9 @@
         }
       }
     },
+    "That role can't be saved.": {
+      "extractionState": "manual"
+    },
     "That tag is taken.": {
       "extractionState": "manual",
       "localizations": {
@@ -891,6 +900,12 @@
           }
         }
       }
+    },
+    "That team can't be created.": {
+      "extractionState": "manual"
+    },
+    "That team can't be saved.": {
+      "extractionState": "manual"
     },
     "They'll need an invite to come back to a private team.": {
       "extractionState": "manual",

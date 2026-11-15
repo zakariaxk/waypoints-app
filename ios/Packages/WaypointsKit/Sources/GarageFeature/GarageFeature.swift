@@ -473,6 +473,11 @@ struct SpottedView: View {
                         ForEach(shots) { s in
                             MediaView(url: ctx.url(.spots, s.photoPath), aspectRatio: 1, cornerRadius: 0,
                                       label: Text(verbatim: "\(s.make) \(s.model), \(s.city)"))
+                                .contextMenu {
+                                    Button("Report") {
+                                        ctx.env.router.open(.reportContent(ContentRef(kind: .spot, id: s.id.raw.uuidString)))
+                                    }
+                                }
                         }
                     }
                 }
