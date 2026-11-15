@@ -16,7 +16,7 @@ Written 2026-11-13 against commit `80823e1`. Facts marked *(verify)* could not b
 5. Requirements that cut across areas
 6. What this document adds to the plan
 7. Verification without a test suite
-8. Roadmap and work packages (waves 6 to 9)
+8. Roadmap and work packages (waves 6 to 10)
 9. Owner's actions
 10. Free-tier ceilings
 11. Risks
@@ -58,6 +58,7 @@ Every requirement has a stable ID (`MAP-4`). IDs are never renumbered or reused;
 | P0 | Needed for version 1.0. Everything in the owner's original brief, plus what App Review requires. |
 | P1 | Also in version 1.0. Small additions that close a visible gap and need no new infrastructure. |
 | P2 | Version 1.1. Starts only after 1.0 is on TestFlight. |
+| P3 | Version 1.2. Extensions added 2026-11-14 at the owner's request (section 8.8). Starts after 1.1. |
 
 **Status**
 
@@ -132,6 +133,7 @@ It must not look generated. Plan section 9 is the design law; section 5.1 here i
 
 - **1.0**: every P0 and P1 requirement Verified, a build on TestFlight, the App Store submission ready.
 - **1.1**: P2.
+- **1.2**: P3 (section 8.8).
 
 ---
 
@@ -258,6 +260,7 @@ Get from install to a car on the map with the least typing. Plan 10.2, 10.10.
 | ACC-9 | The session survives relaunch and refreshes its token without the user noticing. Sign out returns to sign-in and clears local state. | P0 | Coded |
 | ACC-10 | Delete account: explains what is deleted, requires typing the handle, deletes the auth user and every row immediately, signs out. | P0 | Coded |
 | ACC-11 | A link opened while signed out continues to its target after sign-in. | P0 | Coded |
+| ACC-12 | Your data. Settings > Account offers "Download my data": one JSON file of your profile, cars, timeline, posts, listings, messages you sent, and settings, built by one RPC and handed to the share sheet. | P3 | New |
 
 ### 4.2 Privacy and location sharing (PRV)
 
@@ -339,6 +342,7 @@ Waze-grade guidance built on MapKit, with the one thing nobody else has: routes 
 | NAV-13 | With a convoy active, route preview offers "Share with convoy". | P0 | Coded |
 | NAV-14 | Directions is offered wherever a place appears: a friend, a meet, a road, a regroup point, a help request. | P0 | Coded |
 | NAV-15 | Share ETA. While navigating, the user can send chosen friends one notice with the destination name and arrival time. No position is shared. Navigating to a meet you are Going to shows you as "on the way" in its list. | P2 | Coded (W8-1F): "Share ETA" in M4 guidance sends chosen friends one push and Activity row through `POST /v1/eta` (friends only, no position); starting guidance to a meet you are Going to sets `meet_rsvps.on_the_way_until`, shown as "On the way" in E2's Who's going. |
+| NAV-16 | Stop on the way. During route preview or guidance, "Add a stop" searches fuel, EV charging, and food along the route with MapKit, shows the detour in minutes for each, and inserts the chosen one as a waypoint. One stop at a time. | P3 | New |
 
 ### 4.6 Community reports (RPT)
 
@@ -392,6 +396,7 @@ Anyone drops a meet on the map in three fields, from a full show to "Wawa and ch
 | MEET-12 | Recurring meets. A host can make a meet repeat weekly, every two weeks, or monthly on the same weekday. When one occurrence ends the next is created. RSVPs do not carry over; people who checked in last time are told once. Cancelling asks "This meet" or "This and every one after". | P1 | Coded |
 | MEET-13 | Roll out. A cruise can carry a destination or a saved road. At start time its host sees "Roll out", which starts a convoy named for the meet with that route and invites everyone Going. | P1 | Coded: a destination place or one of your saved roads (sent as the convoy's `route_polyline`); Roll out joins the host to the convoy. |
 | MEET-14 | People's choice. During a show or meet, each person checked in can pick one car from those brought. When it ends, the meet shows the winner and the car's timeline gains a line. | P2 | Coded: `meet_votes` with RLS, settled by the gateway's `meet-choice` sweep (W8-1A). |
+| MEET-15 | Capacity. A host can cap a meet at a number of cars. Going past the cap joins a waitlist in order; when someone drops, the first waiting person becomes Going and is told once. E2 shows "12 of 20 cars" and "Waitlist · 3". | P3 | New |
 
 ### 4.9 Convoys (CNV)
 
@@ -410,6 +415,7 @@ Drive together and stay together. Plan 6, 7.6, 10.3 (M9).
 | CNV-9 | Precise positions flow only while a member is in the convoy and stop the moment they leave. | P0 | Coded |
 | CNV-10 | A convoy survives a gateway restart or a move to another node. | P0 | Coded |
 | CNV-11 | Every convoy has voice. "Talk" opens the voice sheet for the convoy's own room; you join muted; the room ends with the convoy. This replaces the plan's team-only Talk button. | P1 | Coded |
+| CNV-12 | Regroup. Any member can drop a regroup point (a place search or "here"). Every member sees it on the convoy line with one tap to route there; it clears when the host taps "Rolling" or the convoy ends. No speed, gap times, or ordering by position are shown. | P3 | New |
 
 ### 4.10 Friends, follows, and profiles (SOC)
 
@@ -449,6 +455,8 @@ Every car, chosen without clutter. Plan 5.2, 10.8 (G3 to G5), 11.1.
 | GAR-14 | Someone else's car shows its owner and "Message about this car". | P0 | Coded |
 | GAR-15 | Share build. A car's overflow renders a card (lead photo, name, the four estimates marked "est.", handle) to the share sheet. | P1 | Coded |
 | GAR-16 | Service log. A timeline entry can be marked as service with an odometer reading and an optional reminder date, delivered as a local notification. | P2 | Coded |
+| GAR-17 | Gearing and tire calculator. From the car's catalog ratios and tire size: speed at redline in each gear, rpm at a chosen cruising speed, and the speedometer error for a different tire size or final drive. Cars without ratios in the catalog say so instead of guessing. On the device only. | P3 | New |
+| GAR-18 | Build cost. A timeline entry can carry what it cost. The owner alone sees a running total on the car and per-year subtotals; cost is never shown to anyone else and never ranked. | P3 | New |
 
 ### 4.12 Mod simulator (MOD)
 
@@ -470,6 +478,7 @@ See and hear what a part does to your car, honestly. Plan 10.8 (G6), 11.2, 11.3.
 | MOD-12 | A car without specs asks for power and weight and then simulates. | P0 | Coded |
 | MOD-13 | The model is checked against 12 stock cars with published times: trap speed within 3%, quarter-mile time within 5%, 0 to 60 within 0.4 s. A debug screen lists model output beside the published figure. | P0 | Coded: 12 cars in `ReferenceCars.swift`, debug row under G6's mod list. W8-1F scratch run (swiftc against a Core stub) after turbo gearing and boost margin, automatic torque fill, and 8/10-speed typical ratios: 12 of 12 inside the stated error. Tightest: WRX trap -2.9%, ET +3.0%; Mustang 10-speed trap -2.8%. |
 | MOD-14 | Everything works offline, and toggling a mod updates chart, readouts, and sound within one frame. | P0 | Coded |
+| MOD-15 | Saved builds. Up to three named mod sets per car, kept with the car. Any two overlay on the dyno chart with both estimate ranges side by side, and a saved build can be the car that runs the Strip. | P3 | New |
 
 ### 4.13 The Strip (STR)
 
@@ -487,6 +496,7 @@ A virtual drag strip driven by your real build. Plan 10.8 (G7 to G9), 11.4.
 | STR-8 | A two-finger tap pauses: Resume, Restart, Quit. | P0 | Coded |
 | STR-9 | The ladder. Ten house cars from a 16.5 s car to an 8.9 s car, described by plain specs. Beating one opens the next. A choice of sportsman or pro tree. | P1 | Coded |
 | STR-10 | Bench race. Any car in the catalog, stock or with chosen mods, can be picked as the opponent. | P2 | Coded (W8-1F): "Pick any car" in G7 opens the vehicle picker, then that car's `ModCatalog` mods; the model runs it with a clean launch. Ghosts and friend runs recorded under an older `PerformanceModelVersion` (`race_results.model_version`) are hidden. |
+| STR-11 | Car of the week. Each Monday one catalog car, stock, is the same for everyone. Your best virtual run in it that week is listed against your friends' and teammates' runs. Virtual times only; the list resets weekly and awards nothing but its own line on the time slip. | P3 | New |
 
 ### 4.14 Teams (TEAM)
 
@@ -504,6 +514,7 @@ Servers for car clubs. Plan 5.4, 10.7 (T1, T4 to T6).
 | TEAM-8 | A team's page offers Invite people, Members, Meets, and, when permitted, Channels, Roles, and Edit team. Members can leave; the owner deletes by typing the team's name. | P0 | Coded |
 | TEAM-9 | Teammates see each other on the map at the level each chose for Teams. | P0 | Coded |
 | TEAM-10 | Only the Teams tab carries an unread count. | P0 | Coded |
+| TEAM-11 | Team standings. Each week a team's score is the sum of Showdown votes its members' cars won, shown on the team page and in a weekly list of teams. Votes only: nothing from driving, distance, or the Strip counts. | P3 | New |
 
 ### 4.15 Messaging (MSG)
 
@@ -521,6 +532,7 @@ Channels and direct messages. Plan 5.4, 10.7 (T2, T7).
 | MSG-8 | Direct messages between two people. A thread about a listing pins that listing at the top. A first message from someone who is not a friend lands in Requests with Accept and Block. | P0 | Coded |
 | MSG-9 | Text passes the safety filter before sending; a blocked message reads "That message can't be sent." | P0 | Coded |
 | MSG-10 | Offline, the composer is disabled and messages already loaded stay readable. | P0 | Coded |
+| MSG-11 | Reactions. Press and hold a message to add one of six fixed reactions; counts sit under the message and a second tap removes yours. No custom emoji, no notification for a reaction. | P3 | New |
 
 ### 4.16 Voice (VOX)
 
@@ -608,6 +620,7 @@ Good roads, rated by people who drove them. Plan 10.3 (M11).
 | ROAD-3 | A stretch cannot start or end inside one of the user's home zones. | P0 | Coded |
 | ROAD-4 | Rated roads draw on the map as a layer. A road's sheet shows its length, three averages with the count, "Drive it" (routes to its start, then along it), and "Rate". | P0 | Coded |
 | ROAD-5 | Driven map. On the device only, the share of road cells in your region you have driven, shown as a number and a map shading. It rewards exploring, never speed or distance. | P2 | Coded: a 0.0025 degree lat/lng grid on the device; the share counts the cells of rated roads in view that your traces cross (the only road data on the phone), shaded through the `driven_map` layer. |
+| ROAD-6 | Loops. Saved roads can be grouped in order into a named loop with a total length. A loop has a share link, opens as one route in navigation, and can be sent to a convoy as its route. | P3 | New |
 
 ### 4.22 Notifications (NTF)
 
@@ -642,6 +655,7 @@ Required by App Review for any app with user content, and by the kind of place t
 | SAFE-9 | Abuse limits, enforced on the server: 3 meets a day, 10 map reports in 10 minutes, 3 help requests a day, 10 posts a day, 30 comments an hour, 10 listings a day, 30 friend requests a day, 3 teams a day, 20 content reports a day, 5 messages in 5 seconds. Over a limit the client says "You're doing that a lot. Try again in a few minutes." | P1 | Coded: every action the server limits shows the copy on `rateLimited`: meets, map reports, help requests, posts, comments, listings, friend requests (G2 and G11), teams, content reports, messages, and Share ETA. |
 | SAFE-10 | Minimum age 17, asked at sign-up. | P0 | Coded |
 | SAFE-11 | The contact address is shown in About and in the suspension message. | P0 | Coded |
+| SAFE-12 | Mute. A person, a thread, a channel, or a team can be muted for 8 hours, a week, or until turned back on. Muted sources send no push and show no badge; nothing is hidden and the other side is not told. | P3 | New |
 
 ### 4.24 Settings (SET)
 
@@ -762,6 +776,7 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 | OBS-1 | The gateway exposes connection, publish, delivery, drop, outbox, and flush metrics on a private port, with `pprof`. | P0 | Coded |
 | OBS-2 | The client collects MetricKit diagnostics and can show the last payload on a debug screen. No third-party SDK. | P1 | Coded |
 | L10N-1 | English only. Every string lives in a String Catalog in its module. | P1 | Coded: every module with copy has a String Catalog (`tools/l10n/extract.py`, 790 keys in all). Plain `Text` and `String(localized:)` resolve from `.module`; copy held in a `String` before it is shown (error lines, switch arms, fallbacks) is wrapped in `String(localized:bundle:)`; and the script writes the union of the module catalogs to `ios/App/Localizable.xcstrings` so keys handed to DesignSystem components and SwiftUI modifiers resolve from the main bundle. Not checked with a second language. |
+| L10N-2 | Spanish. Every catalog key has a Spanish translation written by an agent and read back in screenshots of each root screen launched in Spanish; units and dates already follow the locale. Plan copy stays the English source. | P3 | New |
 
 ---
 
@@ -949,6 +964,7 @@ Starts after 1.0 is on TestFlight. One package per row, in parallel, then W9-INT
 | 7 | 1 to 8, then 9, 10, INT | Version 1.0 feature-complete and verified. |
 | 8 | 1, 2, INT | Deployed, benchmarked, on TestFlight, ready to submit. |
 | 9 | 1 to 7, INT | Version 1.1. |
+| 10 | 1 to 11, INT | Version 1.2. |
 
 ### 8.7 Wave 8 as run (2026-11-14)
 
@@ -970,6 +986,26 @@ The owner chose code first, build later: packages push without running `make bui
 
 Then, each alone: L10N-1 (String Catalogs in every module), the accessibility sweep (A11Y), and W8-0 green build. All three are in `main`, with W8-1 Benchmarks (loopback) and W8-5, which closed the client rows left Partial (ACC-7, SAFE-9, SET-3, LINK-3, LINK-5). The screenshot walk (DES-7), the Verified pass, and the owner's device check follow.
 
+### 8.8 Wave 10: version 1.2
+
+Thirteen extensions, each small enough for one session and each passing section 2.2: no new service, no paid tier, no asset that is not code, provable from the harness. They deepen what exists (the builder's tools, the host's control, the team) rather than adding a pillar. One package per row, in parallel, then W10-INT.
+
+| Package | Covers | Owns |
+|---|---|---|
+| **W10-1 Stops** | NAV-16 | `Sources/NavigationFeature/**` |
+| **W10-2 Capacity** | MEET-15 | A migration, `server/internal/api/meets.go`, `Sources/MeetsFeature/**` |
+| **W10-3 Regroup** | CNV-12 | `proto/**` and generated types, `server/internal/convoy/**`, `Sources/ConvoyFeature/**` |
+| **W10-4 Builder's tools** | GAR-17, GAR-18 | A migration (one nullable column), `Sources/GarageFeature/**`, `Sources/PerformanceModel/**` (gearing math only) |
+| **W10-5 Saved builds** | MOD-15 | A migration, `Sources/ModSimFeature/**`, one hook in `Sources/RaceFeature/**` |
+| **W10-6 Car of the week** | STR-11 | A migration (a weekly pick by scheduled function, like SHOW-7), `Sources/RaceFeature/**` |
+| **W10-7 Team standings** | TEAM-11 | A migration (a view over Showdown votes), `Sources/TeamsFeature/**` |
+| **W10-8 Reactions and mute** | MSG-11, SAFE-12 | A migration, `server/internal/push/**` (skip muted), `Sources/MessagingFeature/**`, `Sources/TeamsFeature/**` (mute rows only) |
+| **W10-9 Loops** | ROAD-6 | A migration, `Sources/RoadsFeature/**`, one `Route` case in `Core` |
+| **W10-10 Your data** | ACC-12 | A migration (one RPC), `Sources/SettingsFeature/**` |
+| **W10-11 Spanish** | L10N-2 | Every `Localizable.xcstrings`, `tools/l10n/**` |
+
+W10-8 and W10-7 both touch `TeamsFeature`: W10-7 runs first.
+
 ---
 
 ## 9. Owner's actions
@@ -988,7 +1024,7 @@ Only these need a person. Nothing else in this document may wait on one.
 | 6 | A host name for links, Terms, and Privacy. Free: a GitHub Pages user site (`<user>.github.io`) serving `site/`. Or a domain. Tell the W7-9 agent which. | W7-9 | Not done. |
 | 7 | A host for the gateway. Free: an Oracle Cloud Always Free VM *(verify availability)*, per `deploy/README.md`. Otherwise any free tier that allows WebSockets, accepting that it sleeps. | W8-1 | Not done. |
 | 8 | A contact email that is really monitored. `docs/APP_STORE.md` names `support@waypoints.app`; confirm that address exists or replace it. | W7-9 | Unconfirmed. |
-| 9 | Delete the old Render service, any Fly.io app, and the old Expo project. | Any time | Unknown. |
+| 9 | Delete the old Render service, any Fly.io app, and the old Expo project. | Any time | Open. Render still deploys both services (`waypoints-api`, `waypoints-api-4csy`) on every push; only the owner can delete them in the Render dashboard and revoke Render's GitHub access. Fly and Expo: the CLIs are not signed in, so check fly.io and expo.dev by hand. Done 2026-11-14: old branches, the old pull request, agent worktrees, and the old GitHub deployment records are gone. |
 | 10 | App Store Connect: create the app record, upload the build from W8-2, paste the listing, answer the questionnaires from `docs/APP_STORE.md`, submit. | After W8-INT | Not started. |
 
 ### 9.2 Ongoing
@@ -1047,10 +1083,10 @@ Findings go to W8-INT as a list.
 
 - CarPlay (needs an entitlement Apple grants on request), Live Activities and widgets, Apple Watch, iPad layouts, Android, a web client.
 - Passed-you digest (plan 2.4).
-- Message reactions, threads, typing indicators.
-- Meet weather (WeatherKit), tire-size and gearing calculators, fuel log.
-- A light theme, more languages.
-- Team-against-team rankings.
+- Message threads, typing indicators. (Reactions are MSG-11.)
+- Meet weather (WeatherKit), fuel log. (The gearing and tire calculator is GAR-17.)
+- A light theme, languages beyond Spanish (L10N-2).
+- Team rankings by anything other than Showdown votes (TEAM-11 is votes only).
 - An admin app for moderation (the SQL functions are enough until volume says otherwise).
 
 **Never.** These contradict section 2.1.
@@ -1072,3 +1108,4 @@ Findings go to W8-INT as a list.
 | Date | Change |
 |---|---|
 | 2026-11-13 | First version. Written from the owner's original brief, `docs/PLAN.md`, and an audit of commit `80823e1`. Adds the requirements marked New, the harness in section 7, and waves 6 to 9. Sets the order of authority in section 0.1. |
+| 2026-11-14 | Version 1.2 added at the owner's request: priority P3, wave 10 (section 8.8), and thirteen requirements marked New (ACC-12, NAV-16, MEET-15, CNV-12, GAR-17, GAR-18, MOD-15, STR-11, TEAM-11, MSG-11, ROAD-6, SAFE-12, L10N-2). Four came off the backlog in section 12. Also this day: `AGENTS.md` replaced `CLAUDE.md` as the agent instructions, and the pull-request ruleset on `main` was deleted (owner's rule: straight to `main`). |
