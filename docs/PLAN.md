@@ -556,7 +556,7 @@ message MapEvent { Kind kind = 1; string id = 2; Op op = 3; sfixed32 lat_e7 = 4;
 
 Rules:
 
-- Two delivery lanes per connection. **Conflated lane**: `EntityUpdate`s, keyed by uid, newest overwrites, flushed as one `Batch` per tick. **Reliable lane**: `Welcome`, `Error`, `ConvoyState`, `MapEvent`, `gone` lists; bounded queue of 64 frames; overflow closes the connection with `SLOW_CONSUMER` (close code 4008) and the client reconnects.
+- Two delivery lanes per connection. **Conflated lane**: `EntityUpdate`s, keyed by uid, newest overwrites, flushed as one `Batch` per tick. **Reliable lane**: `Welcome`, `Error`, `ConvoyState`, `MapEvent`, `gone` lists; bounded queue of 64 frames; overflow closes the connection with `SLOW_CONSUMER` (close code 4008) and the client reconnects. Contract change (W8-1): the conflated lane cannot overflow, so a client that stops reading is found by a WebSocket ping instead: the gateway pings every 2 s and closes with 4008 when the pong is 3 s late. Clients answer pings at the protocol level (`URLSessionWebSocketTask` does without code).
 - No replay log. On connect or reconnect the client sends `Hello`, `SetHomeZones`, `SetViewport`, and `JoinConvoy` if applicable, and the server answers with a `Batch` containing current state. Location is conflatable, so resuming from "now" is correct.
 - Server-side rate limit: `LocationUpdate` more often than every 400 ms is dropped silently. Twenty malformed frames in a minute closes with `BAD_FRAME`.
 - Expected size: about 22 bytes per `EntityUpdate` without `info`. The old JSON event was about 190 bytes.

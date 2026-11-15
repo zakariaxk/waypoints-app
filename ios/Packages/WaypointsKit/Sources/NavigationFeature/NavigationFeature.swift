@@ -71,6 +71,7 @@ final class NavigationModel {
     var friends: [Friend] = []
     var etaSent: Int?
     var etaFailed = false
+    var etaLimited = false
     var sendingETA = false
     /// The meet at this destination that you're Going to, if any. Navigating marks you "on the way".
     @ObservationIgnored private var meet: MeetID?
@@ -138,6 +139,7 @@ final class NavigationModel {
             etaFailed = false
         } catch {
             etaFailed = true
+            etaLimited = (error as? WaypointsError) == .rateLimited
         }
     }
 
@@ -659,7 +661,14 @@ struct ShareETASheet: View {
                     }
                 }
                 if model.etaFailed {
-                    Text("Couldn't send it. Try again.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.brake)
+                    Group {
+                        if model.etaLimited {
+                            Text("You're doing that a lot. Try again in a few minutes.", bundle: .module)
+                        } else {
+                            Text("Couldn't send it. Try again.", bundle: .module)
+                        }
+                    }
+                    .typeStyle(.foot).foregroundStyle(Color.brake)
                 }
                 PrimaryButton("Send", isLoading: model.sendingETA) {
                     let users = Array(chosen)

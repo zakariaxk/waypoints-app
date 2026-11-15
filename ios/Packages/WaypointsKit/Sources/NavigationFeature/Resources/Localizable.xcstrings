@@ -52,6 +52,9 @@
     "They get one notice: %@, arriving %@. Not your location.": {
       "extractionState": "manual"
     },
+    "You're doing that a lot. Try again in a few minutes.": {
+      "extractionState": "manual"
+    },
     "You've arrived": {
       "extractionState": "manual"
     }

@@ -7,12 +7,19 @@
 
 Keys are the English copy. Interpolations become %@ placeholders. Existing entries are kept,
 so translations added in Xcode survive a re-run.
+
+Every run also writes ios/App/Localizable.xcstrings, the union of the module catalogs, into the
+app target. Copy handed to a DesignSystem component or a SwiftUI modifier as a
+`LocalizedStringKey` (`PrimaryButton("…")`, `.navigationTitle("…")`) is looked up in the main
+bundle, not the module's, so the union is what makes those resolve. Translate in the module
+catalogs; the union is generated and a key translated differently in two modules is reported.
 """
 import json
 import os
 import re
 import sys
 
+APP_CATALOG = os.path.join(os.path.dirname(__file__), "..", "..", "ios", "App", "Localizable.xcstrings")
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..", "ios", "Packages", "WaypointsKit", "Sources")
 
 # A Swift string literal that may contain simple interpolations without nested quotes.
@@ -59,6 +66,7 @@ def apply_bundle(text: str) -> str:
 
 def main() -> None:
     apply = "--apply" in sys.argv
+    union: dict[str, dict] = {}
     for module in sorted(os.listdir(ROOT)):
         src = os.path.join(ROOT, module)
         if not os.path.isdir(src):
@@ -87,6 +95,16 @@ def main() -> None:
         json.dump({"sourceLanguage": "en", "strings": strings, "version": "1.0"},
                   open(cat_path, "w", encoding="utf-8"), indent=2, ensure_ascii=False, sort_keys=True)
         print(f"{module:20s} {len(keys)} keys")
+        for k, v in strings.items():
+            if k in union and union[k] != v and v.get("localizations"):
+                if union[k].get("localizations"):
+                    print(f"  conflict: {k!r} is translated differently in {module}; the first one wins", file=sys.stderr)
+                    continue
+                union[k] = v
+            union.setdefault(k, v)
+    json.dump({"sourceLanguage": "en", "strings": dict(sorted(union.items())), "version": "1.0"},
+              open(APP_CATALOG, "w", encoding="utf-8"), indent=2, ensure_ascii=False, sort_keys=True)
+    print(f"{'App (union)':20s} {len(union)} keys")
 
 
 if __name__ == "__main__":

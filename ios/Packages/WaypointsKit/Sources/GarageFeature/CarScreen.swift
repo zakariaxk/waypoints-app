@@ -506,6 +506,7 @@ struct FriendsScreen: View {
     @State private var handle = ""
     @State private var meID: UserID?
     @State private var scanning = false
+    @State private var toast: ToastMessage?
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -519,12 +520,19 @@ struct FriendsScreen: View {
                             Row(Text(verbatim: p.displayName), subtitle: Text(verbatim: "@\(p.handle)"), leading: {
                                 Avatar(name: p.displayName, size: .s40)
                             }, trailing: {
-                                SecondaryButton("Add") { Task { try? await ctx.env.friends.sendRequest(to: p.userID) } }
+                                SecondaryButton("Add") {
+                                    askForNotifications()
+                                    Task {
+                                        do { try await ctx.env.friends.sendRequest(to: p.userID) } catch WaypointsError.rateLimited {
+                                            toast = ToastMessage(Text(GarageCopy.rateLimited))
+                                        } catch {}
+                                    }
+                                }
                                     .frame(width: Size.row * 1.6)
                             })
                         }
                     } else {
-                        if let url = URL(string: "https://waypoints.app/u/\(handle)") {
+                        if let meID, let url = Route.profile(meID).shareURL {
                             ShareLink(item: url) { Row(Text("Invite a friend", bundle: .module), trailing: { Image.symbol(Symbol.share) }) }
                         }
                         if let meID, let link = ProfileLink.url(for: meID) {
@@ -573,6 +581,7 @@ struct FriendsScreen: View {
             .background(Color.asphalt.ignoresSafeArea())
             .navigationTitle("Friends")
             .navigationBarTitleDisplayMode(.inline)
+            .toast($toast)
         }
         .fullScreenCover(isPresented: $scanning) {
             ScanSheet { id in

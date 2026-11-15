@@ -12,7 +12,7 @@ struct HouseCar: Hashable, Identifiable {
 
     var title: String { "House car \(rung + 1)" }
 
-    /// "175 hp, 2,900 lb, front-drive automatic".
+    /// "175 hp, 2,900 lb, front-drive automatic", the weight in the locale's unit (SET-3).
     var specLine: String {
         let drive = switch spec.drivetrain {
         case .fwd: "front-drive"
@@ -21,8 +21,9 @@ struct HouseCar: Hashable, Identifiable {
         case .fourWD: "four-wheel-drive"
         }
         let boost = spec.aspiration == .turbo ? " turbo" : spec.aspiration == .supercharged ? " supercharged" : ""
-        let lb = Int(spec.weightLb).formatted(.number.grouping(.automatic))
-        return "\(Int(spec.hpCrank)) hp\(boost), \(lb) lb, \(drive) \(spec.automatic ? "automatic" : "manual")"
+        let weight = Measurement(value: Double(Int(spec.weightLb)), unit: UnitMass.pounds)
+            .formatted(.measurement(width: .abbreviated, usage: .general, numberFormatStyle: .number.precision(.fractionLength(0))))
+        return "\(Int(spec.hpCrank)) hp\(boost), \(weight), \(drive) \(spec.automatic ? "automatic" : "manual")"
     }
 }
 

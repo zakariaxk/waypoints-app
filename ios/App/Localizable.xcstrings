@@ -1,0 +1,1974 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "%@": {
+      "extractionState": "manual"
+    },
+    "%@ %@": {
+      "extractionState": "manual"
+    },
+    "%@ %@ of the month": {
+      "extractionState": "manual"
+    },
+    "%@ characters left": {
+      "extractionState": "manual"
+    },
+    "%@ coming": {
+      "extractionState": "manual"
+    },
+    "%@ drivers": {
+      "extractionState": "manual"
+    },
+    "%@ icon, earned": {
+      "extractionState": "manual"
+    },
+    "%@ in voice": {
+      "extractionState": "manual"
+    },
+    "%@ members": {
+      "extractionState": "manual"
+    },
+    "%@ of %@ stretches of road here. Counted on this phone only.": {
+      "extractionState": "manual"
+    },
+    "%@ of 3 lit": {
+      "extractionState": "manual"
+    },
+    "%@ on %@": {
+      "extractionState": "manual"
+    },
+    "%@ on the way": {
+      "extractionState": "manual"
+    },
+    "%@ rpm": {
+      "extractionState": "manual"
+    },
+    "%@ rpm, %@ horsepower, %@ pound-feet": {
+      "extractionState": "manual"
+    },
+    "%@ rpm, shift now": {
+      "extractionState": "manual"
+    },
+    "%@ unread": {
+      "extractionState": "manual"
+    },
+    "%@%@": {
+      "extractionState": "manual"
+    },
+    "%@%@, happening now": {
+      "extractionState": "manual"
+    },
+    "%@%@, last seen %@ minutes ago": {
+      "extractionState": "manual"
+    },
+    "%@%@, moving": {
+      "extractionState": "manual"
+    },
+    "%@, locked": {
+      "extractionState": "manual"
+    },
+    "%@, speaking": {
+      "extractionState": "manual"
+    },
+    "17 characters": {
+      "extractionState": "manual"
+    },
+    "1995 Mazda MX-5 Miata, 98k miles": {
+      "extractionState": "manual"
+    },
+    "2–5 letters": {
+      "extractionState": "manual"
+    },
+    "30 minutes before": {
+      "extractionState": "manual"
+    },
+    "6 characters": {
+      "extractionState": "manual"
+    },
+    "6 digits": {
+      "extractionState": "manual"
+    },
+    "A driver nearby": {
+      "extractionState": "manual"
+    },
+    "A driver nearby%@": {
+      "extractionState": "manual"
+    },
+    "A driver needs a hand": {
+      "extractionState": "manual"
+    },
+    "A road can't start or end in one of your home zones. Move the handles.": {
+      "extractionState": "manual"
+    },
+    "ALL": {
+      "extractionState": "manual"
+    },
+    "About": {
+      "extractionState": "manual"
+    },
+    "Accept": {
+      "extractionState": "manual"
+    },
+    "Account": {
+      "extractionState": "manual"
+    },
+    "Activity": {
+      "extractionState": "manual"
+    },
+    "Activity, new": {
+      "extractionState": "manual"
+    },
+    "Add": {
+      "extractionState": "manual"
+    },
+    "Add Stage 1 tune too": {
+      "extractionState": "manual"
+    },
+    "Add a car": {
+      "extractionState": "manual"
+    },
+    "Add a comment": {
+      "extractionState": "manual"
+    },
+    "Add a note": {
+      "extractionState": "manual"
+    },
+    "Add a photo": {
+      "extractionState": "manual"
+    },
+    "Add a zone": {
+      "extractionState": "manual"
+    },
+    "Add an entry": {
+      "extractionState": "manual"
+    },
+    "Add an hour": {
+      "extractionState": "manual"
+    },
+    "Add details": {
+      "extractionState": "manual"
+    },
+    "Add here": {
+      "extractionState": "manual"
+    },
+    "Add photos": {
+      "extractionState": "manual"
+    },
+    "Add role": {
+      "extractionState": "manual"
+    },
+    "Add someone from their code": {
+      "extractionState": "manual"
+    },
+    "Add to Calendar": {
+      "extractionState": "manual"
+    },
+    "Add to collection": {
+      "extractionState": "manual"
+    },
+    "Add to timeline": {
+      "extractionState": "manual"
+    },
+    "Add what you know": {
+      "extractionState": "manual"
+    },
+    "Add your car": {
+      "extractionState": "manual"
+    },
+    "Adjust to read power at an rpm": {
+      "extractionState": "manual"
+    },
+    "Agree": {
+      "extractionState": "manual"
+    },
+    "All makes": {
+      "extractionState": "manual"
+    },
+    "All parts": {
+      "extractionState": "manual"
+    },
+    "All ten house cars are open.": {
+      "extractionState": "manual"
+    },
+    "Also block @%@": {
+      "extractionState": "manual"
+    },
+    "Also show drivers nearby": {
+      "extractionState": "manual"
+    },
+    "Any": {
+      "extractionState": "manual"
+    },
+    "Any year": {
+      "extractionState": "manual"
+    },
+    "Anyone can find and join": {
+      "extractionState": "manual"
+    },
+    "Approximate location": {
+      "extractionState": "manual"
+    },
+    "Approximate location%@": {
+      "extractionState": "manual"
+    },
+    "Ask for a hand": {
+      "extractionState": "manual"
+    },
+    "At %@": {
+      "extractionState": "manual"
+    },
+    "Available": {
+      "extractionState": "manual"
+    },
+    "B16 out for rebuild": {
+      "extractionState": "manual"
+    },
+    "BACKGROUND": {
+      "extractionState": "manual"
+    },
+    "BENCH RACE": {
+      "extractionState": "manual"
+    },
+    "Back": {
+      "extractionState": "manual"
+    },
+    "Bench race": {
+      "extractionState": "manual"
+    },
+    "Best for your car": {
+      "extractionState": "manual"
+    },
+    "Bio": {
+      "extractionState": "manual"
+    },
+    "Birth year": {
+      "extractionState": "manual"
+    },
+    "Block": {
+      "extractionState": "manual"
+    },
+    "Blocked people": {
+      "extractionState": "manual"
+    },
+    "Blur the middle of the photo": {
+      "extractionState": "manual"
+    },
+    "Blurred area": {
+      "extractionState": "manual"
+    },
+    "Budget": {
+      "extractionState": "manual"
+    },
+    "Budget %@": {
+      "extractionState": "manual"
+    },
+    "Budget %@ · %@": {
+      "extractionState": "manual"
+    },
+    "Built": {
+      "extractionState": "manual"
+    },
+    "By continuing you agree to the [Terms](https://waypoints.app/terms) and [Privacy Policy](https://waypoints.app/privacy).": {
+      "extractionState": "manual"
+    },
+    "CARS": {
+      "extractionState": "manual"
+    },
+    "CHANNELS": {
+      "extractionState": "manual"
+    },
+    "COLOR": {
+      "extractionState": "manual"
+    },
+    "CONVOY": {
+      "extractionState": "manual"
+    },
+    "Cancel": {
+      "extractionState": "manual"
+    },
+    "Cancel meet": {
+      "extractionState": "manual"
+    },
+    "Cancel this meet? %@ people who RSVP'd will be told.": {
+      "extractionState": "manual"
+    },
+    "Cancelled": {
+      "extractionState": "manual"
+    },
+    "Caption": {
+      "extractionState": "manual"
+    },
+    "Cars and coffee": {
+      "extractionState": "manual"
+    },
+    "Category": {
+      "extractionState": "manual"
+    },
+    "Change": {
+      "extractionState": "manual"
+    },
+    "Change clearance": {
+      "extractionState": "manual"
+    },
+    "Change opponent": {
+      "extractionState": "manual"
+    },
+    "Change role": {
+      "extractionState": "manual"
+    },
+    "Changes this choice": {
+      "extractionState": "manual"
+    },
+    "Channels, roles, and messages are deleted.": {
+      "extractionState": "manual"
+    },
+    "Choose a video": {
+      "extractionState": "manual"
+    },
+    "Choose from library": {
+      "extractionState": "manual"
+    },
+    "Choose from your garage": {
+      "extractionState": "manual"
+    },
+    "Choose one": {
+      "extractionState": "manual"
+    },
+    "Choose photos": {
+      "extractionState": "manual"
+    },
+    "Clear": {
+      "extractionState": "manual"
+    },
+    "Clear for a lowered car": {
+      "extractionState": "manual"
+    },
+    "Close": {
+      "extractionState": "manual"
+    },
+    "Cobb Accessport V3, Subaru": {
+      "extractionState": "manual"
+    },
+    "Code": {
+      "extractionState": "manual"
+    },
+    "Coilovers": {
+      "extractionState": "manual"
+    },
+    "Cold air intake": {
+      "extractionState": "manual"
+    },
+    "Collapsed": {
+      "extractionState": "manual"
+    },
+    "Comment": {
+      "extractionState": "manual"
+    },
+    "Comments": {
+      "extractionState": "manual"
+    },
+    "Condition": {
+      "extractionState": "manual"
+    },
+    "Confirmed by %@": {
+      "extractionState": "manual"
+    },
+    "Connecting": {
+      "extractionState": "manual"
+    },
+    "Continue": {
+      "extractionState": "manual"
+    },
+    "Continue with email": {
+      "extractionState": "manual"
+    },
+    "Convoy": {
+      "extractionState": "manual"
+    },
+    "Convoy ended.": {
+      "extractionState": "manual"
+    },
+    "Cooper River classics": {
+      "extractionState": "manual"
+    },
+    "Copy": {
+      "extractionState": "manual"
+    },
+    "Couldn't add it. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't ask for a hand. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't clear it. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't extend it. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't find a route there.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load activity. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load the feed.": {
+      "extractionState": "manual"
+    },
+    "Couldn't play this.": {
+      "extractionState": "manual"
+    },
+    "Couldn't post. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't post. Saved as a draft.": {
+      "extractionState": "manual"
+    },
+    "Couldn't send it. Try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't send that. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't share the destination. Try again.": {
+      "extractionState": "manual"
+    },
+    "Cover": {
+      "extractionState": "manual"
+    },
+    "Cover frame": {
+      "extractionState": "manual"
+    },
+    "Cover photo": {
+      "extractionState": "manual"
+    },
+    "Cruise": {
+      "extractionState": "manual"
+    },
+    "DRIVEN MAP": {
+      "extractionState": "manual"
+    },
+    "Decline": {
+      "extractionState": "manual"
+    },
+    "Delete": {
+      "extractionState": "manual"
+    },
+    "Delete account": {
+      "extractionState": "manual"
+    },
+    "Delete car": {
+      "extractionState": "manual"
+    },
+    "Delete drive": {
+      "extractionState": "manual"
+    },
+    "Delete role": {
+      "extractionState": "manual"
+    },
+    "Delete team": {
+      "extractionState": "manual"
+    },
+    "Delete this car?": {
+      "extractionState": "manual"
+    },
+    "Delete this drive": {
+      "extractionState": "manual"
+    },
+    "Description": {
+      "extractionState": "manual"
+    },
+    "Design gallery": {
+      "extractionState": "manual"
+    },
+    "Destination": {
+      "extractionState": "manual"
+    },
+    "Details": {
+      "extractionState": "manual"
+    },
+    "Direct messages": {
+      "extractionState": "manual"
+    },
+    "Directions": {
+      "extractionState": "manual"
+    },
+    "Dismiss": {
+      "extractionState": "manual"
+    },
+    "Distance": {
+      "extractionState": "manual"
+    },
+    "Done": {
+      "extractionState": "manual"
+    },
+    "Drag to reorder. The first photo is the cover.": {
+      "extractionState": "manual"
+    },
+    "Drive": {
+      "extractionState": "manual"
+    },
+    "Drive it": {
+      "extractionState": "manual"
+    },
+    "Driven": {
+      "extractionState": "manual"
+    },
+    "Drivers who aren't your friends choose whether to show up at all, and when they do, only a half-mile area is shared. Your own setting works the same way.": {
+      "extractionState": "manual"
+    },
+    "Dyno curve": {
+      "extractionState": "manual"
+    },
+    "EST. HP": {
+      "extractionState": "manual"
+    },
+    "EST. ¼ MILE": {
+      "extractionState": "manual"
+    },
+    "Edit": {
+      "extractionState": "manual"
+    },
+    "Edit meet": {
+      "extractionState": "manual"
+    },
+    "Edit profile": {
+      "extractionState": "manual"
+    },
+    "Edit team": {
+      "extractionState": "manual"
+    },
+    "Email": {
+      "extractionState": "manual"
+    },
+    "End": {
+      "extractionState": "manual"
+    },
+    "End convoy": {
+      "extractionState": "manual"
+    },
+    "End the convoy for all %@ drivers?": {
+      "extractionState": "manual"
+    },
+    "Engine": {
+      "extractionState": "manual"
+    },
+    "Enter Showdown": {
+      "extractionState": "manual"
+    },
+    "Enter specs": {
+      "extractionState": "manual"
+    },
+    "Entrance": {
+      "extractionState": "manual"
+    },
+    "Entrance: %@": {
+      "extractionState": "manual"
+    },
+    "Estimates from stock specs and listed mods.": {
+      "extractionState": "manual"
+    },
+    "Estimates. Real results depend on the tune, the dyno, and the day.": {
+      "extractionState": "manual"
+    },
+    "Every %@": {
+      "extractionState": "manual"
+    },
+    "Every other %@": {
+      "extractionState": "manual"
+    },
+    "Everyone in the convoy sees your exact location until you leave.": {
+      "extractionState": "manual"
+    },
+    "Everything you own in Waypoints is deleted now.": {
+      "extractionState": "manual"
+    },
+    "Exact color": {
+      "extractionState": "manual"
+    },
+    "Expired": {
+      "extractionState": "manual"
+    },
+    "FRIENDS": {
+      "extractionState": "manual"
+    },
+    "Filter": {
+      "extractionState": "manual"
+    },
+    "Find a team": {
+      "extractionState": "manual"
+    },
+    "Find or start a team": {
+      "extractionState": "manual"
+    },
+    "Find people": {
+      "extractionState": "manual"
+    },
+    "Finished": {
+      "extractionState": "manual"
+    },
+    "First": {
+      "extractionState": "manual"
+    },
+    "Fits": {
+      "extractionState": "manual"
+    },
+    "Flat tire": {
+      "extractionState": "manual"
+    },
+    "Follow": {
+      "extractionState": "manual"
+    },
+    "For 1 hour": {
+      "extractionState": "manual"
+    },
+    "For parts": {
+      "extractionState": "manual"
+    },
+    "Found": {
+      "extractionState": "manual"
+    },
+    "Fourth": {
+      "extractionState": "manual"
+    },
+    "Friend request": {
+      "extractionState": "manual"
+    },
+    "Friend request accepted": {
+      "extractionState": "manual"
+    },
+    "Friend requests": {
+      "extractionState": "manual"
+    },
+    "Friends": {
+      "extractionState": "manual"
+    },
+    "Friends see where you are. Everyone else sees nothing unless you say so. You can go ghost any time.": {
+      "extractionState": "manual"
+    },
+    "Full height": {
+      "extractionState": "manual"
+    },
+    "Gear %@": {
+      "extractionState": "manual"
+    },
+    "Ghost mode": {
+      "extractionState": "manual"
+    },
+    "Ghost mode on. Privacy settings": {
+      "extractionState": "manual"
+    },
+    "Ghost until %@. Nobody sees you.": {
+      "extractionState": "manual"
+    },
+    "Ghost until you turn it off. Nobody sees you.": {
+      "extractionState": "manual"
+    },
+    "Go": {
+      "extractionState": "manual"
+    },
+    "Go ghost": {
+      "extractionState": "manual"
+    },
+    "Go ghost for 1 hour": {
+      "extractionState": "manual"
+    },
+    "Going": {
+      "extractionState": "manual"
+    },
+    "Gone": {
+      "extractionState": "manual"
+    },
+    "Green": {
+      "extractionState": "manual"
+    },
+    "HOME ZONES": {
+      "extractionState": "manual"
+    },
+    "Half height": {
+      "extractionState": "manual"
+    },
+    "Handle": {
+      "extractionState": "manual"
+    },
+    "Hangout": {
+      "extractionState": "manual"
+    },
+    "Happening now": {
+      "extractionState": "manual"
+    },
+    "Have them scan it in Friends to add you.": {
+      "extractionState": "manual"
+    },
+    "Heading to %@": {
+      "extractionState": "manual"
+    },
+    "Hold to rev": {
+      "extractionState": "manual"
+    },
+    "Home region": {
+      "extractionState": "manual"
+    },
+    "Horsepower": {
+      "extractionState": "manual"
+    },
+    "Hosted by %@": {
+      "extractionState": "manual"
+    },
+    "I'm a passenger": {
+      "extractionState": "manual"
+    },
+    "I'm going": {
+      "extractionState": "manual"
+    },
+    "I'm good": {
+      "extractionState": "manual"
+    },
+    "ICONS": {
+      "extractionState": "manual"
+    },
+    "INVITE FRIENDS": {
+      "extractionState": "manual"
+    },
+    "Icon and trail": {
+      "extractionState": "manual"
+    },
+    "Idle": {
+      "extractionState": "manual"
+    },
+    "In Showdown · %@": {
+      "extractionState": "manual"
+    },
+    "Inside a zone, nobody gets your exact position. Zones are stored on this phone.": {
+      "extractionState": "manual"
+    },
+    "Invite a friend": {
+      "extractionState": "manual"
+    },
+    "Invite people": {
+      "extractionState": "manual"
+    },
+    "Invite to convoy": {
+      "extractionState": "manual"
+    },
+    "Its photos and timeline are deleted too.": {
+      "extractionState": "manual"
+    },
+    "Jae Park is going": {
+      "extractionState": "manual"
+    },
+    "Join": {
+      "extractionState": "manual"
+    },
+    "Join convoy": {
+      "extractionState": "manual"
+    },
+    "Join with code": {
+      "extractionState": "manual"
+    },
+    "Join with this invite": {
+      "extractionState": "manual"
+    },
+    "Jump start": {
+      "extractionState": "manual"
+    },
+    "Keep sharing when the app is closed": {
+      "extractionState": "manual"
+    },
+    "LADDER": {
+      "extractionState": "manual"
+    },
+    "LAST DIAGNOSTIC": {
+      "extractionState": "manual"
+    },
+    "LAST METRICS": {
+      "extractionState": "manual"
+    },
+    "LENGTH": {
+      "extractionState": "manual"
+    },
+    "Last": {
+      "extractionState": "manual"
+    },
+    "Launch": {
+      "extractionState": "manual"
+    },
+    "Layers": {
+      "extractionState": "manual"
+    },
+    "Leader": {
+      "extractionState": "manual"
+    },
+    "Leave": {
+      "extractionState": "manual"
+    },
+    "Leave team": {
+      "extractionState": "manual"
+    },
+    "Leave voice": {
+      "extractionState": "manual"
+    },
+    "Licences": {
+      "extractionState": "manual"
+    },
+    "Like": {
+      "extractionState": "manual"
+    },
+    "Like '1999'": {
+      "extractionState": "manual"
+    },
+    "Like '5.0 L V8'": {
+      "extractionState": "manual"
+    },
+    "Like 'Datsun'": {
+      "extractionState": "manual"
+    },
+    "Like 'GT Premium'": {
+      "extractionState": "manual"
+    },
+    "Like 'Grabber Blue'": {
+      "extractionState": "manual"
+    },
+    "Like 'Route 9 through the pines'": {
+      "extractionState": "manual"
+    },
+    "Like 'Skyline GT-R'": {
+      "extractionState": "manual"
+    },
+    "Like 'South Jersey'": {
+      "extractionState": "manual"
+    },
+    "Like 'V-Spec'": {
+      "extractionState": "manual"
+    },
+    "Link a mod": {
+      "extractionState": "manual"
+    },
+    "List it": {
+      "extractionState": "manual"
+    },
+    "List something": {
+      "extractionState": "manual"
+    },
+    "Listing": {
+      "extractionState": "manual"
+    },
+    "Lit at night": {
+      "extractionState": "manual"
+    },
+    "Loading": {
+      "extractionState": "manual"
+    },
+    "Location is off. You're not on the map.": {
+      "extractionState": "manual"
+    },
+    "Look up": {
+      "extractionState": "manual"
+    },
+    "Looking for a B18C1 head, any condition": {
+      "extractionState": "manual"
+    },
+    "Lost signal": {
+      "extractionState": "manual"
+    },
+    "Lot": {
+      "extractionState": "manual"
+    },
+    "Lot: %@": {
+      "extractionState": "manual"
+    },
+    "MEETS": {
+      "extractionState": "manual"
+    },
+    "MEMBERS": {
+      "extractionState": "manual"
+    },
+    "MESSAGES": {
+      "extractionState": "manual"
+    },
+    "MODS": {
+      "extractionState": "manual"
+    },
+    "Make": {
+      "extractionState": "manual"
+    },
+    "Make cover": {
+      "extractionState": "manual"
+    },
+    "Map": {
+      "extractionState": "manual"
+    },
+    "Map sheet": {
+      "extractionState": "manual"
+    },
+    "Market": {
+      "extractionState": "manual"
+    },
+    "Meet": {
+      "extractionState": "manual"
+    },
+    "Meet in a public place. Waypoints doesn't handle payment.": {
+      "extractionState": "manual"
+    },
+    "Meet title": {
+      "extractionState": "manual"
+    },
+    "Meets": {
+      "extractionState": "manual"
+    },
+    "Meets tonight": {
+      "extractionState": "manual"
+    },
+    "Members": {
+      "extractionState": "manual"
+    },
+    "Members with this role keep their place in the team without it.": {
+      "extractionState": "manual"
+    },
+    "Message": {
+      "extractionState": "manual"
+    },
+    "Message about this car": {
+      "extractionState": "manual"
+    },
+    "Message deleted": {
+      "extractionState": "manual"
+    },
+    "MetricKit payload": {
+      "extractionState": "manual"
+    },
+    "Microphone is off for Waypoints.": {
+      "extractionState": "manual"
+    },
+    "Mine isn't listed": {
+      "extractionState": "manual"
+    },
+    "Model": {
+      "extractionState": "manual"
+    },
+    "More": {
+      "extractionState": "manual"
+    },
+    "More options": {
+      "extractionState": "manual"
+    },
+    "Move down": {
+      "extractionState": "manual"
+    },
+    "Move left": {
+      "extractionState": "manual"
+    },
+    "Move right": {
+      "extractionState": "manual"
+    },
+    "Move up": {
+      "extractionState": "manual"
+    },
+    "My code": {
+      "extractionState": "manual"
+    },
+    "NEEDS A HAND": {
+      "extractionState": "manual"
+    },
+    "Name": {
+      "extractionState": "manual"
+    },
+    "Nearby": {
+      "extractionState": "manual"
+    },
+    "Needs at least one photo.": {
+      "extractionState": "manual"
+    },
+    "New": {
+      "extractionState": "manual"
+    },
+    "New channel": {
+      "extractionState": "manual"
+    },
+    "New icon": {
+      "extractionState": "manual"
+    },
+    "New marker earned": {
+      "extractionState": "manual"
+    },
+    "New trail": {
+      "extractionState": "manual"
+    },
+    "Next class": {
+      "extractionState": "manual"
+    },
+    "No car": {
+      "extractionState": "manual"
+    },
+    "No comments yet.": {
+      "extractionState": "manual"
+    },
+    "No entries yet. Log the first thing you did to it.": {
+      "extractionState": "manual"
+    },
+    "No friends on the map yet.": {
+      "extractionState": "manual"
+    },
+    "No meet": {
+      "extractionState": "manual"
+    },
+    "No meets planned for this team.": {
+      "extractionState": "manual"
+    },
+    "No messages yet.": {
+      "extractionState": "manual"
+    },
+    "No posts near you yet. Post the first one.": {
+      "extractionState": "manual"
+    },
+    "No requests.": {
+      "extractionState": "manual"
+    },
+    "No road": {
+      "extractionState": "manual"
+    },
+    "No route avoids these. Apple Maps routing can't be steered around them.": {
+      "extractionState": "manual"
+    },
+    "No zone placed": {
+      "extractionState": "manual"
+    },
+    "Nobody has posted a wanted ad yet.": {
+      "extractionState": "manual"
+    },
+    "Nobody is looking for %@ parts yet.": {
+      "extractionState": "manual"
+    },
+    "Nobody is on the way yet.": {
+      "extractionState": "manual"
+    },
+    "Nobody you follow has posted yet.": {
+      "extractionState": "manual"
+    },
+    "None": {
+      "extractionState": "manual"
+    },
+    "Not interested": {
+      "extractionState": "manual"
+    },
+    "Not now": {
+      "extractionState": "manual"
+    },
+    "Not sent. Tap to retry.": {
+      "extractionState": "manual"
+    },
+    "Not sure yet": {
+      "extractionState": "manual"
+    },
+    "Note": {
+      "extractionState": "manual"
+    },
+    "Nothing": {
+      "extractionState": "manual"
+    },
+    "Nothing for sale near you yet.": {
+      "extractionState": "manual"
+    },
+    "Nothing found for '%@'.": {
+      "extractionState": "manual"
+    },
+    "Nothing listed for a %@ yet.": {
+      "extractionState": "manual"
+    },
+    "Nothing yet. Friend requests, likes, comments, and RSVPs to your meets show up here.": {
+      "extractionState": "manual"
+    },
+    "Notifications": {
+      "extractionState": "manual"
+    },
+    "Notifications are off for Waypoints.": {
+      "extractionState": "manual"
+    },
+    "Now": {
+      "extractionState": "manual"
+    },
+    "OEM 19 inch wheels, S550 Mustang GT": {
+      "extractionState": "manual"
+    },
+    "OF RATED ROADS IN VIEW": {
+      "extractionState": "manual"
+    },
+    "OPPONENT": {
+      "extractionState": "manual"
+    },
+    "Odometer": {
+      "extractionState": "manual"
+    },
+    "Off": {
+      "extractionState": "manual"
+    },
+    "Offline. Follow the route line.": {
+      "extractionState": "manual"
+    },
+    "Offline. Showing what was saved.": {
+      "extractionState": "manual"
+    },
+    "Older models": {
+      "extractionState": "manual"
+    },
+    "On": {
+      "extractionState": "manual"
+    },
+    "On my way": {
+      "extractionState": "manual"
+    },
+    "On the way": {
+      "extractionState": "manual"
+    },
+    "Open Settings": {
+      "extractionState": "manual"
+    },
+    "Open car": {
+      "extractionState": "manual"
+    },
+    "Open-source licences": {
+      "extractionState": "manual"
+    },
+    "Optional": {
+      "extractionState": "manual"
+    },
+    "Optional: where you're headed": {
+      "extractionState": "manual"
+    },
+    "Out of fuel": {
+      "extractionState": "manual"
+    },
+    "PEOPLE'S CHOICE": {
+      "extractionState": "manual"
+    },
+    "PERMISSIONS": {
+      "extractionState": "manual"
+    },
+    "POSTS": {
+      "extractionState": "manual"
+    },
+    "Paint name": {
+      "extractionState": "manual"
+    },
+    "Past runs": {
+      "extractionState": "manual"
+    },
+    "Paused": {
+      "extractionState": "manual"
+    },
+    "People": {
+      "extractionState": "manual"
+    },
+    "People's choice: %@": {
+      "extractionState": "manual"
+    },
+    "Photo": {
+      "extractionState": "manual"
+    },
+    "Photo %@": {
+      "extractionState": "manual"
+    },
+    "Photos and timeline go too.": {
+      "extractionState": "manual"
+    },
+    "Pick %@": {
+      "extractionState": "manual"
+    },
+    "Pick a time": {
+      "extractionState": "manual"
+    },
+    "Pick another car": {
+      "extractionState": "manual"
+    },
+    "Pick one car here. The winner shows when it ends.": {
+      "extractionState": "manual"
+    },
+    "Picked it up": {
+      "extractionState": "manual"
+    },
+    "Pine Barrens cruise": {
+      "extractionState": "manual"
+    },
+    "Place": {
+      "extractionState": "manual"
+    },
+    "Place the zone at the map's centre": {
+      "extractionState": "manual"
+    },
+    "Plates and faces are blurred. Tap a box to remove it. Tap the photo to blur more.": {
+      "extractionState": "manual"
+    },
+    "Playing": {
+      "extractionState": "manual"
+    },
+    "Popular": {
+      "extractionState": "manual"
+    },
+    "Post": {
+      "extractionState": "manual"
+    },
+    "Post report": {
+      "extractionState": "manual"
+    },
+    "Post what you want": {
+      "extractionState": "manual"
+    },
+    "Posted": {
+      "extractionState": "manual"
+    },
+    "Posts": {
+      "extractionState": "manual"
+    },
+    "Power": {
+      "extractionState": "manual"
+    },
+    "Privacy and location": {
+      "extractionState": "manual"
+    },
+    "Privacy settings": {
+      "extractionState": "manual"
+    },
+    "Pro": {
+      "extractionState": "manual"
+    },
+    "QR code": {
+      "extractionState": "manual"
+    },
+    "Quit": {
+      "extractionState": "manual"
+    },
+    "REPORTS NEARBY": {
+      "extractionState": "manual"
+    },
+    "REQUESTS": {
+      "extractionState": "manual"
+    },
+    "ROLES": {
+      "extractionState": "manual"
+    },
+    "RWD, FWD, AWD, or 4WD": {
+      "extractionState": "manual"
+    },
+    "Race this car": {
+      "extractionState": "manual"
+    },
+    "Radius": {
+      "extractionState": "manual"
+    },
+    "Rally wheels, 15x7, set of four": {
+      "extractionState": "manual"
+    },
+    "Rankings": {
+      "extractionState": "manual"
+    },
+    "Rate": {
+      "extractionState": "manual"
+    },
+    "Read the full Terms": {
+      "extractionState": "manual"
+    },
+    "Recent": {
+      "extractionState": "manual"
+    },
+    "Recenter": {
+      "extractionState": "manual"
+    },
+    "Reconnecting": {
+      "extractionState": "manual"
+    },
+    "Record my drives on this phone": {
+      "extractionState": "manual"
+    },
+    "Red light": {
+      "extractionState": "manual"
+    },
+    "Redline": {
+      "extractionState": "manual"
+    },
+    "Reference cars": {
+      "extractionState": "manual"
+    },
+    "Region": {
+      "extractionState": "manual"
+    },
+    "Regroup": {
+      "extractionState": "manual"
+    },
+    "Relist": {
+      "extractionState": "manual"
+    },
+    "Remind me": {
+      "extractionState": "manual"
+    },
+    "Remind you before it starts?": {
+      "extractionState": "manual"
+    },
+    "Reminder %@": {
+      "extractionState": "manual"
+    },
+    "Remove": {
+      "extractionState": "manual"
+    },
+    "Remove %@ as a friend?": {
+      "extractionState": "manual"
+    },
+    "Remove friend": {
+      "extractionState": "manual"
+    },
+    "Removes the blur": {
+      "extractionState": "manual"
+    },
+    "Rename": {
+      "extractionState": "manual"
+    },
+    "Rename channel": {
+      "extractionState": "manual"
+    },
+    "Repeats": {
+      "extractionState": "manual"
+    },
+    "Reply": {
+      "extractionState": "manual"
+    },
+    "Report": {
+      "extractionState": "manual"
+    },
+    "Report %@": {
+      "extractionState": "manual"
+    },
+    "Report a hazard": {
+      "extractionState": "manual"
+    },
+    "Report person": {
+      "extractionState": "manual"
+    },
+    "Reported. We review reports within 24 hours.": {
+      "extractionState": "manual"
+    },
+    "Rerouting": {
+      "extractionState": "manual"
+    },
+    "Restart": {
+      "extractionState": "manual"
+    },
+    "Resume": {
+      "extractionState": "manual"
+    },
+    "Rev": {
+      "extractionState": "manual"
+    },
+    "Revving": {
+      "extractionState": "manual"
+    },
+    "Roll out": {
+      "extractionState": "manual"
+    },
+    "Rolling out to": {
+      "extractionState": "manual"
+    },
+    "Rolling out to %@": {
+      "extractionState": "manual"
+    },
+    "Route": {
+      "extractionState": "manual"
+    },
+    "Run again": {
+      "extractionState": "manual"
+    },
+    "SPECS": {
+      "extractionState": "manual"
+    },
+    "SPOTTED": {
+      "extractionState": "manual"
+    },
+    "Save": {
+      "extractionState": "manual"
+    },
+    "Save a road": {
+      "extractionState": "manual"
+    },
+    "Save and add to timeline": {
+      "extractionState": "manual"
+    },
+    "Save road": {
+      "extractionState": "manual"
+    },
+    "Save role": {
+      "extractionState": "manual"
+    },
+    "Save to car": {
+      "extractionState": "manual"
+    },
+    "Save zone": {
+      "extractionState": "manual"
+    },
+    "Saved roads": {
+      "extractionState": "manual"
+    },
+    "Scan": {
+      "extractionState": "manual"
+    },
+    "Scan to join, or share the link.": {
+      "extractionState": "manual"
+    },
+    "Scan with the camera": {
+      "extractionState": "manual"
+    },
+    "Search": {
+      "extractionState": "manual"
+    },
+    "Search all cars": {
+      "extractionState": "manual"
+    },
+    "Search by handle": {
+      "extractionState": "manual"
+    },
+    "Search needs a connection.": {
+      "extractionState": "manual"
+    },
+    "Search parts and cars": {
+      "extractionState": "manual"
+    },
+    "Search teams or paste an invite": {
+      "extractionState": "manual"
+    },
+    "Search, like '2019 mustang gt'": {
+      "extractionState": "manual"
+    },
+    "Second": {
+      "extractionState": "manual"
+    },
+    "See For you": {
+      "extractionState": "manual"
+    },
+    "See all": {
+      "extractionState": "manual"
+    },
+    "See who's out. Find the meet. Show the build.": {
+      "extractionState": "manual"
+    },
+    "Send": {
+      "extractionState": "manual"
+    },
+    "Send code": {
+      "extractionState": "manual"
+    },
+    "Send it again": {
+      "extractionState": "manual"
+    },
+    "Send report": {
+      "extractionState": "manual"
+    },
+    "Service": {
+      "extractionState": "manual"
+    },
+    "Service reminder: %@": {
+      "extractionState": "manual"
+    },
+    "Set regroup point": {
+      "extractionState": "manual"
+    },
+    "Settings": {
+      "extractionState": "manual"
+    },
+    "Share": {
+      "extractionState": "manual"
+    },
+    "Share ETA": {
+      "extractionState": "manual"
+    },
+    "Share build": {
+      "extractionState": "manual"
+    },
+    "Share invite": {
+      "extractionState": "manual"
+    },
+    "Share link": {
+      "extractionState": "manual"
+    },
+    "Share with convoy": {
+      "extractionState": "manual"
+    },
+    "Shared with your convoy.": {
+      "extractionState": "manual"
+    },
+    "Shift": {
+      "extractionState": "manual"
+    },
+    "Show": {
+      "extractionState": "manual"
+    },
+    "Showdown": {
+      "extractionState": "manual"
+    },
+    "Shows less": {
+      "extractionState": "manual"
+    },
+    "Shows the whole caption": {
+      "extractionState": "manual"
+    },
+    "Sign out": {
+      "extractionState": "manual"
+    },
+    "Skip": {
+      "extractionState": "manual"
+    },
+    "Skip for now": {
+      "extractionState": "manual"
+    },
+    "Sold": {
+      "extractionState": "manual"
+    },
+    "Something else": {
+      "extractionState": "manual"
+    },
+    "Sportsman": {
+      "extractionState": "manual"
+    },
+    "Spot a car": {
+      "extractionState": "manual"
+    },
+    "Spotted": {
+      "extractionState": "manual"
+    },
+    "Stage": {
+      "extractionState": "manual"
+    },
+    "Staged": {
+      "extractionState": "manual"
+    },
+    "Start": {
+      "extractionState": "manual"
+    },
+    "Start a convoy": {
+      "extractionState": "manual"
+    },
+    "Start a meet": {
+      "extractionState": "manual"
+    },
+    "Start a team": {
+      "extractionState": "manual"
+    },
+    "Start convoy": {
+      "extractionState": "manual"
+    },
+    "Start meet": {
+      "extractionState": "manual"
+    },
+    "Start team": {
+      "extractionState": "manual"
+    },
+    "Starts in 30 minutes at %@.": {
+      "extractionState": "manual"
+    },
+    "Starts in 30 minutes.": {
+      "extractionState": "manual"
+    },
+    "Still there": {
+      "extractionState": "manual"
+    },
+    "Stop ghost mode": {
+      "extractionState": "manual"
+    },
+    "Street": {
+      "extractionState": "manual"
+    },
+    "Stuck": {
+      "extractionState": "manual"
+    },
+    "Synthesized sound": {
+      "extractionState": "manual"
+    },
+    "TEXT": {
+      "extractionState": "manual"
+    },
+    "TIMELINE": {
+      "extractionState": "manual"
+    },
+    "TREE": {
+      "extractionState": "manual"
+    },
+    "Tag": {
+      "extractionState": "manual"
+    },
+    "Tag a car": {
+      "extractionState": "manual"
+    },
+    "Tag a meet": {
+      "extractionState": "manual"
+    },
+    "Take a photo": {
+      "extractionState": "manual"
+    },
+    "Taken": {
+      "extractionState": "manual"
+    },
+    "Talk": {
+      "extractionState": "manual"
+    },
+    "Tap again to move it.": {
+      "extractionState": "manual"
+    },
+    "Tap the map to place the zone.": {
+      "extractionState": "manual"
+    },
+    "Teams": {
+      "extractionState": "manual"
+    },
+    "Teams are where your people talk. Join one or start your own.": {
+      "extractionState": "manual"
+    },
+    "Tein Flex Z coilovers, EK Civic": {
+      "extractionState": "manual"
+    },
+    "Thanks. Counted.": {
+      "extractionState": "manual"
+    },
+    "That code isn't a Waypoints profile.": {
+      "extractionState": "manual"
+    },
+    "That's a lot of requests. Try again later.": {
+      "extractionState": "manual"
+    },
+    "The Strip": {
+      "extractionState": "manual"
+    },
+    "The build timeline and photos for this car are deleted.": {
+      "extractionState": "manual"
+    },
+    "The catalog has no power figure for that car. Pick another.": {
+      "extractionState": "manual"
+    },
+    "The group has split. Set a regroup point?": {
+      "extractionState": "manual"
+    },
+    "The rules": {
+      "extractionState": "manual"
+    },
+    "The trace is removed from this phone.": {
+      "extractionState": "manual"
+    },
+    "They get one notice: %@, arriving %@. Not your location.": {
+      "extractionState": "manual"
+    },
+    "They know you're on the way.": {
+      "extractionState": "manual"
+    },
+    "They'll need an invite to come back to a private team.": {
+      "extractionState": "manual"
+    },
+    "Third": {
+      "extractionState": "manual"
+    },
+    "This and every one after": {
+      "extractionState": "manual"
+    },
+    "This car needs power and weight before it can run. Add them in the Mod simulator.": {
+      "extractionState": "manual"
+    },
+    "This deletes your profile, cars, posts, messages you sent, and listings. Type your handle to confirm.": {
+      "extractionState": "manual"
+    },
+    "This meet": {
+      "extractionState": "manual"
+    },
+    "This profile isn't available.": {
+      "extractionState": "manual"
+    },
+    "This request has ended.": {
+      "extractionState": "manual"
+    },
+    "This uses more battery. Sharing stops by itself after 5 minutes parked.": {
+      "extractionState": "manual"
+    },
+    "Throttle": {
+      "extractionState": "manual"
+    },
+    "Thunderbolt open lapping": {
+      "extractionState": "manual"
+    },
+    "Thursday night hangout": {
+      "extractionState": "manual"
+    },
+    "Title": {
+      "extractionState": "manual"
+    },
+    "To": {
+      "extractionState": "manual"
+    },
+    "Tonight 8 PM": {
+      "extractionState": "manual"
+    },
+    "Torque (lb-ft)": {
+      "extractionState": "manual"
+    },
+    "Track day": {
+      "extractionState": "manual"
+    },
+    "Tree": {
+      "extractionState": "manual"
+    },
+    "Trim": {
+      "extractionState": "manual"
+    },
+    "Trim (optional)": {
+      "extractionState": "manual"
+    },
+    "Try again": {
+      "extractionState": "manual"
+    },
+    "Turn on": {
+      "extractionState": "manual"
+    },
+    "Turn on location": {
+      "extractionState": "manual"
+    },
+    "Type the team name to delete it": {
+      "extractionState": "manual"
+    },
+    "UPCOMING": {
+      "extractionState": "manual"
+    },
+    "Unblock": {
+      "extractionState": "manual"
+    },
+    "Undo": {
+      "extractionState": "manual"
+    },
+    "Until I turn it off": {
+      "extractionState": "manual"
+    },
+    "Until tomorrow": {
+      "extractionState": "manual"
+    },
+    "Uploading photo": {
+      "extractionState": "manual"
+    },
+    "Use VIN": {
+      "extractionState": "manual"
+    },
+    "Use it": {
+      "extractionState": "manual"
+    },
+    "Use this": {
+      "extractionState": "manual"
+    },
+    "Used": {
+      "extractionState": "manual"
+    },
+    "VIN": {
+      "extractionState": "manual"
+    },
+    "VIRTUAL RUN · WAYPOINTS": {
+      "extractionState": "manual"
+    },
+    "VOICE": {
+      "extractionState": "manual"
+    },
+    "Version": {
+      "extractionState": "manual"
+    },
+    "Video": {
+      "extractionState": "manual"
+    },
+    "View profile": {
+      "extractionState": "manual"
+    },
+    "Virtual drag strip. A game, not a challenge. Keep it off the street.": {
+      "extractionState": "manual"
+    },
+    "Voice": {
+      "extractionState": "manual"
+    },
+    "Voice disconnected.": {
+      "extractionState": "manual"
+    },
+    "WHO SEES YOU": {
+      "extractionState": "manual"
+    },
+    "Waterfront night meet": {
+      "extractionState": "manual"
+    },
+    "Wawa and chill": {
+      "extractionState": "manual"
+    },
+    "Waypoints": {
+      "extractionState": "manual"
+    },
+    "Waypoints is for drivers 17 and up.": {
+      "extractionState": "manual"
+    },
+    "We don't have specs for this car. Enter power and weight to simulate it.": {
+      "extractionState": "manual"
+    },
+    "What did you do?": {
+      "extractionState": "manual"
+    },
+    "What do you drive?": {
+      "extractionState": "manual"
+    },
+    "What friends call you": {
+      "extractionState": "manual"
+    },
+    "What is it?": {
+      "extractionState": "manual"
+    },
+    "What's here?": {
+      "extractionState": "manual"
+    },
+    "When": {
+      "extractionState": "manual"
+    },
+    "Where does the cruise end?": {
+      "extractionState": "manual"
+    },
+    "Where is it?": {
+      "extractionState": "manual"
+    },
+    "Where to?": {
+      "extractionState": "manual"
+    },
+    "Which car are you bringing?": {
+      "extractionState": "manual"
+    },
+    "Who can see it": {
+      "extractionState": "manual"
+    },
+    "Who sees you": {
+      "extractionState": "manual"
+    },
+    "Who's going": {
+      "extractionState": "manual"
+    },
+    "Who's going · %@": {
+      "extractionState": "manual"
+    },
+    "Why can't I see more?": {
+      "extractionState": "manual"
+    },
+    "Without your name, as \"A driver needs a hand\"": {
+      "extractionState": "manual"
+    },
+    "YOUR DRIVES": {
+      "extractionState": "manual"
+    },
+    "YOUR MARKER": {
+      "extractionState": "manual"
+    },
+    "YOURS": {
+      "extractionState": "manual"
+    },
+    "Year": {
+      "extractionState": "manual"
+    },
+    "Year (optional)": {
+      "extractionState": "manual"
+    },
+    "You": {
+      "extractionState": "manual"
+    },
+    "You already have a request out. Clear it before asking again.": {
+      "extractionState": "manual"
+    },
+    "You haven't blocked anyone.": {
+      "extractionState": "manual"
+    },
+    "You'll need an invite to come back to a private team.": {
+      "extractionState": "manual"
+    },
+    "You're doing that a lot. Try again in a few minutes.": {
+      "extractionState": "manual"
+    },
+    "You're muted. Tap to talk.": {
+      "extractionState": "manual"
+    },
+    "You're not in this convoy.": {
+      "extractionState": "manual"
+    },
+    "You're not in this team.": {
+      "extractionState": "manual"
+    },
+    "You've arrived": {
+      "extractionState": "manual"
+    },
+    "You've judged every pair in %@. Try another class.": {
+      "extractionState": "manual"
+    },
+    "Your garage is empty.": {
+      "extractionState": "manual"
+    },
+    "Your marker": {
+      "extractionState": "manual"
+    },
+    "Your photo": {
+      "extractionState": "manual"
+    },
+    "Your privacy settings": {
+      "extractionState": "manual"
+    },
+    "Your request": {
+      "extractionState": "manual"
+    },
+    "Yours": {
+      "extractionState": "manual"
+    },
+    "Zone placed": {
+      "extractionState": "manual"
+    },
+    "Zoom in to see drivers.": {
+      "extractionState": "manual"
+    },
+    "Zooms in": {
+      "extractionState": "manual"
+    },
+    "asphalt on chalk": {
+      "extractionState": "manual"
+    },
+    "asphalt on sodium": {
+      "extractionState": "manual"
+    },
+    "build entries": {
+      "extractionState": "manual"
+    },
+    "east": {
+      "extractionState": "manual"
+    },
+    "est. hp": {
+      "extractionState": "manual"
+    },
+    "lowercase, numbers, _": {
+      "extractionState": "manual"
+    },
+    "lowercase-with-hyphens": {
+      "extractionState": "manual"
+    },
+    "north": {
+      "extractionState": "manual"
+    },
+    "north east": {
+      "extractionState": "manual"
+    },
+    "north west": {
+      "extractionState": "manual"
+    },
+    "south": {
+      "extractionState": "manual"
+    },
+    "south east": {
+      "extractionState": "manual"
+    },
+    "south west": {
+      "extractionState": "manual"
+    },
+    "west": {
+      "extractionState": "manual"
+    },
+    "you@example.com": {
+      "extractionState": "manual"
+    },
+    "¼ MILE": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

@@ -312,7 +312,7 @@ struct MapScreen: View {
         if model.friendsOut.isEmpty {
             VStack(alignment: .leading, spacing: Space.s12) {
                 Text("No friends on the map yet.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
-                if let handle = model.profile?.handle, let url = URL(string: "https://waypoints.app/u/\(handle)") {
+                if let me = model.profile?.userID, let url = Route.profile(me).shareURL {
                     ShareLink(item: url) { Text("Invite a friend", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.sodium) }
                 }
             }

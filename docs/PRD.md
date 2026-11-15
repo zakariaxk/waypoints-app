@@ -252,7 +252,7 @@ Get from install to a car on the map with the least typing. Plan 10.2, 10.10.
 | ACC-4 | Onboarding embeds the vehicle picker so the first car is on the marker from minute one. It can be skipped. | P0 | Coded |
 | ACC-5 | A screen explains who sees you before the system location prompt, and asks the Nearby question once with Hidden preselected. | P0 | Coded |
 | ACC-6 | The terms gate (six rules) appears once after profile setup and again when terms change. No user content is shown before agreement. | P0 | Coded |
-| ACC-7 | Notification permission is asked only at its first reason: the first Going RSVP, the first friend request sent, or turning on meets-nearby alerts. | P0 | Partial: the first Going asks "Remind you before it starts?" and a yes requests permission, even for a meet too close to remind (W8-1A); friend request and meets-nearby not checked here. |
+| ACC-7 | Notification permission is asked only at its first reason: the first Going RSVP, the first friend request sent, or turning on meets-nearby alerts. | P0 | Coded: asked at the first Going RSVP with a yes to "Remind you before it starts?" (W8-1A), the first friend request sent (G2 "Add friend" and G11 "Add"), and turning on "Meets near me" in Settings; nowhere else except a service reminder the user switches on (GAR-16). |
 | ACC-8 | A new user finishes onboarding in under 60 seconds. | P0 | Coded |
 | ACC-9 | The session survives relaunch and refreshes its token without the user noticing. Sign out returns to sign-in and clears local state. | P0 | Coded |
 | ACC-10 | Delete account: explains what is deleted, requires typing the handle, deletes the auth user and every row immediately, signs out. | P0 | Coded |
@@ -638,7 +638,7 @@ Required by App Review for any app with user content, and by the kind of place t
 | SAFE-6 | Content reported by three different people within 7 days is hidden from everyone but its author until reviewed. | P0 | Coded |
 | SAFE-7 | A person can be suspended. A suspended account cannot connect to the gateway or write anything, and its content is hidden. Signing in shows "This account is suspended." with the contact address. | P0 | Coded: a gateway connection closed with reason "suspended" stops reconnecting; the shell signs out and sign-in shows "This account is suspended. Write to support@waypoints.app." (W8-1F). |
 | SAFE-8 | The reviewer works from the Supabase SQL editor with four documented functions: hide, restore, suspend, unsuspend. No admin app. | P0 | Coded |
-| SAFE-9 | Abuse limits, enforced on the server: 3 meets a day, 10 map reports in 10 minutes, 3 help requests a day, 10 posts a day, 30 comments an hour, 10 listings a day, 30 friend requests a day, 3 teams a day, 20 content reports a day, 5 messages in 5 seconds. Over a limit the client says "You're doing that a lot. Try again in a few minutes." | P1 | Partial: SafetyKit, Market, Roads, Spots, Feed (posts, comments), Garage (cars, timeline, profile, friend requests), Teams (find, join, start, edit team, roles), and Messaging (send) show the copy on `rateLimited`, other features still show their generic error. |
+| SAFE-9 | Abuse limits, enforced on the server: 3 meets a day, 10 map reports in 10 minutes, 3 help requests a day, 10 posts a day, 30 comments an hour, 10 listings a day, 30 friend requests a day, 3 teams a day, 20 content reports a day, 5 messages in 5 seconds. Over a limit the client says "You're doing that a lot. Try again in a few minutes." | P1 | Coded: every action the server limits shows the copy on `rateLimited`: meets, map reports, help requests, posts, comments, listings, friend requests (G2 and G11), teams, content reports, messages, and Share ETA. |
 | SAFE-10 | Minimum age 17, asked at sign-up. | P0 | Coded |
 | SAFE-11 | The contact address is shown in About and in the suspension message. | P0 | Coded |
 
@@ -650,7 +650,7 @@ Plan 10.9.
 |---|---|---|---|
 | SET-1 | Settings holds Privacy and location, Notifications, Blocked people, Account, and About (version, Terms, Privacy Policy, Contact, licences). Debug builds add the design gallery. | P0 | Coded |
 | SET-2 | Every change saves at once. A failed save reverts the control and says why. | P0 | Coded |
-| SET-3 | Distances, speeds, and weights follow the device's locale everywhere they appear. | P0 | Partial: navigation, the map, Market (distance filter), Roads (road length), and Garage (curb weight; odometer readings keep the unit entered, defaulting by locale) format by locale; Meets (meet distance, cruise road length); Showdown shows no distances or weights; Settings (notify radius, home zone radius), ModSim (weight entry, weight mods) by locale (W8-1F); Onboarding shows none; the Strip time slip stays in mph by drag convention. Other features not checked. |
+| SET-3 | Distances, speeds, and weights follow the device's locale everywhere they appear. | P0 | Coded: navigation, the map, Market (distance filter), Roads (road length), Garage (curb weight; odometer readings keep the unit entered, defaulting by locale), Meets (meet distance, cruise road length), Settings (notify radius, home zone radius), ModSim (weight entry, weight mods), and the Strip ladder (house car weight) format by locale. A source search of every feature finds no other unit; the Strip time slip stays in mph and the dyno in hp and lb-ft by convention. |
 
 ### 4.25 Links and sharing (LINK)
 
@@ -660,9 +660,9 @@ Growth here is one person sending a link to another. Plan 10.10 (X3).
 |---|---|---|---|
 | LINK-1 | `waypoints://` opens a profile, car, meet, team, listing, post, team invite, or convoy invite. | P0 | Coded |
 | LINK-2 | The same paths work as HTTPS universal links, so a shared link is tappable in Messages and opens the app. Without the app it opens a plain page saying what the link is and where to get Waypoints. | P0 | Partial: no host chosen yet (`LINK_HOST`, section 9.1 step 6) and `TEAMID` in the association file is a placeholder. |
-| LINK-3 | Everything shareable shares the HTTPS link once LINK-2 is configured. | P0 | Partial: `Route.shareURL` gives the https form for every shareable route (profile, car, meet, team, listing, post, help, thread, channel, team and convoy invites) and `Route(url:host:)` parses them all; Garage, Feed, Convoy, Meets, and Teams (team invite) share through `Route.shareURL`. |
+| LINK-3 | Everything shareable shares the HTTPS link once LINK-2 is configured. | P0 | Coded: every share sheet builds its link with `Route.shareURL` (profile and the two "Invite a friend" rows, car, meet, post, team and convoy invites), which gives the HTTPS form once `LINK_HOST` is set and `waypoints://` until then; `Route(url:host:)` parses them all. |
 | LINK-4 | A static site in `site/` holds the link landing page, the association file, the Terms, and the Privacy Policy. Plain HTML, no build step, free hosting (section 9.1). | P0 | Partial: not yet published to a host. |
-| LINK-5 | Share cards. A meet shares as an image (title, time, place, a map snapshot) alongside its link. Builds and time slips have theirs (GAR-15, STR-5). | P1 | Partial: the meet card is coded; builds and time slips belong to GAR-15, STR-5. |
+| LINK-5 | Share cards. A meet shares as an image (title, time, place, a map snapshot) alongside its link. Builds and time slips have theirs (GAR-15, STR-5). | P1 | Coded: the meet card, the build card (GAR-15), and the time slip image (STR-5). |
 
 ---
 
@@ -760,7 +760,7 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 |---|---|---|---|
 | OBS-1 | The gateway exposes connection, publish, delivery, drop, outbox, and flush metrics on a private port, with `pprof`. | P0 | Coded |
 | OBS-2 | The client collects MetricKit diagnostics and can show the last payload on a debug screen. No third-party SDK. | P1 | Coded |
-| L10N-1 | English only. Every string lives in a String Catalog in its module. | P1 | Partial: every module with copy has a String Catalog (703 keys, `tools/l10n/extract.py`), and plain `Text` and `String(localized:)` resolve from `.module`. Keys passed into DesignSystem components (`PrimaryButton("…")` and the like) still resolve from the main bundle; they need a `bundle:` parameter threaded through before a second language. |
+| L10N-1 | English only. Every string lives in a String Catalog in its module. | P1 | Partial: every module with copy has a String Catalog (`tools/l10n/extract.py`), plain `Text` and `String(localized:)` resolve from `.module`, and the script writes the union of the module catalogs to `ios/App/Localizable.xcstrings` so keys handed to DesignSystem components and SwiftUI modifiers resolve from the main bundle. Left: copy held in a `String` before it is shown (most error lines, for example `error = "Couldn't save the car…"`) is not in any catalog. |
 
 ---
 
