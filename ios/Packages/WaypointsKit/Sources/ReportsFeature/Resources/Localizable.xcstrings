@@ -58,6 +58,9 @@
     "Directions": {
       "extractionState": "manual"
     },
+    "E85 fuel": {
+      "extractionState": "manual"
+    },
     "Flat tire": {
       "extractionState": "manual"
     },

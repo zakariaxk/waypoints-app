@@ -157,13 +157,14 @@ struct MapScreen: View {
                     .padding(.horizontal, Space.s16)
                     .frame(minHeight: Size.hitTarget)
                     .overMapMaterial(in: RoundedRectangle(cornerRadius: Radius.r12))
+                    .contentShape(RoundedRectangle(cornerRadius: Radius.r12))
                 }
                 .accessibilityLabel(Text("Search", bundle: .module))
             }
             if model.aggregateCount > 0 && model.entities.isEmpty {
                 Text("Zoom in to see drivers.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.chalk)
                     .padding(.horizontal, Space.s12).padding(.vertical, Space.s4)
-                    .overMapMaterial(in: Capsule())
+                    .overMapMaterial(in: RoundedRectangle(cornerRadius: Radius.r6))
             }
             HStack {
                 Spacer()
@@ -179,7 +180,7 @@ struct MapScreen: View {
                 if moving && !passenger && !model.registry.mapActions.isEmpty {
                     QuietButton("I'm a passenger") { passenger = true }
                         .padding(.horizontal, Space.s12)
-                        .overMapMaterial(in: Capsule())
+                        .overMapMaterial(in: RoundedRectangle(cornerRadius: Radius.r12))
                 } else if !model.registry.mapActions.isEmpty {
                     Menu {
                         ForEach(model.registry.mapActions, id: \.id) { action in
@@ -198,7 +199,7 @@ struct MapScreen: View {
                     .accessibilityLabel(Text("Add", bundle: .module))
                 }
             }
-            .padding(.bottom, Size.row * 1.8)
+            .padding(.bottom, Size.row * 1.7 + Space.s12)
         }
         .padding(.horizontal, Space.margin)
         .padding(.top, Space.s8)
@@ -220,6 +221,8 @@ struct MapScreen: View {
                 .overlay(Circle().strokeBorder(sharing ? Color.go : Color.dust,
                                                style: StrokeStyle(lineWidth: Size.Marker.ring, dash: ghost ? [3, 3] : [])))
                 .mapShadow()
+                .frame(width: Size.hitTarget, height: Size.hitTarget)
+                .contentShape(Circle())
         }
         .contextMenu {
             if ghost {
@@ -340,7 +343,10 @@ struct MapScreen: View {
             VStack(alignment: .leading, spacing: Space.s12) {
                 Text("No friends on the map yet.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
                 if let me = model.profile?.userID, let url = Route.profile(me).shareURL {
-                    ShareLink(item: url) { Text("Invite a friend", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.sodium) }
+                    ShareLink(item: url) {
+                        Text("Invite a friend", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
+                            .frame(minHeight: Size.hitTarget).contentShape(Rectangle())
+                    }
                 }
             }
             .padding(.horizontal, Space.margin)

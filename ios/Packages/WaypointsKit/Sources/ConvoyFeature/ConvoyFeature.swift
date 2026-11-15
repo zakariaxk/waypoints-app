@@ -116,7 +116,8 @@ final class ConvoyStore {
         guard let s = state else { return [] }
         return s.memberUIDs.map { uid in
             let p = positions[uid]
-            return Member(uid: uid, name: uid == myUID ? "You" : (p?.2.isEmpty == false ? p!.2 : "Driver"),
+            return Member(uid: uid, name: uid == myUID ? String(localized: "You", bundle: .module)
+                              : (p?.2.isEmpty == false ? p!.2 : String(localized: "Driver", bundle: .module)),
                           coordinate: uid == myUID ? me : p?.0, fixAt: uid == myUID ? .now : p?.1)
         }
     }
@@ -269,8 +270,8 @@ struct ConvoySectionView: View {
         if let s = store.state {
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
-                    VStack(alignment: .leading) {
-                        Text(verbatim: store.name.isEmpty ? "Convoy" : store.name).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                    VStack(alignment: .leading, spacing: Space.s2) {
+                        Text(verbatim: store.name.isEmpty ? String(localized: "Convoy", bundle: .module) : store.name).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
                         Text("\(s.memberUIDs.count) drivers", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     }
                     Spacer()
@@ -297,7 +298,7 @@ struct ConvoySectionView: View {
                 }
                 if let r = s.regroup {
                     HStack {
-                        Text("Regroup at \(store.regroupPlace ?? "the pin")").typeStyle(.bodyStrong).foregroundStyle(Color.go)
+                        Text("Regroup at \(store.regroupPlace ?? "the pin")", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.go)
                         Spacer()
                         QuietButton("Directions") { store.env.router.open(.navigate(to: r.coordinate, name: store.regroupPlace)) }
                     }
@@ -306,9 +307,11 @@ struct ConvoySectionView: View {
                 SectionLabel("CONVOY")
                 ForEach(store.members.sorted { (store.gap($0) ?? 0) < (store.gap($1) ?? 0) }) { m in
                     Row(Text(verbatim: m.name), leading: {
-                        if m.uid == s.leaderUID {
-                            Image(systemName: "flag.fill").foregroundStyle(Color.sodium).accessibilityLabel(Text("Leader", bundle: .module))
-                        }
+                        // Every row keeps the slot so names line up; only the leader's shows.
+                        Image(systemName: "flag.fill").foregroundStyle(Color.sodium)
+                            .opacity(m.uid == s.leaderUID ? 1 : 0)
+                            .accessibilityLabel(Text("Leader", bundle: .module))
+                            .accessibilityHidden(m.uid != s.leaderUID)
                     }, trailing: {
                         if let fix = m.fixAt, Date.now.timeIntervalSince(fix) > 60 {
                             Text("Lost signal", bundle: .module).typeStyle(.foot)
@@ -349,15 +352,19 @@ struct ConvoySheet: View {
     @State private var error: String?
 
     var body: some View {
-        Sheet(Text(store.state != nil ? "Convoy" : (code.isEmpty ? "Start a convoy" : "Join convoy"))) {
+        Sheet(store.state != nil ? Text("Convoy", bundle: .module)
+              : code.isEmpty && !joining ? Text("Start a convoy", bundle: .module) : Text("Join convoy", bundle: .module)) {
             VStack(alignment: .leading, spacing: Space.s16) {
                 if store.state != nil, let c = store.code {
                     Text(verbatim: c).typeStyle(.readoutL).foregroundStyle(Color.chalk)
                     if let url = Route.joinConvoy(code: c).shareURL {
-                        ShareLink(item: url) { Text("Share invite", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.sodium) }
+                        ShareLink(item: url) {
+                            Text("Share invite", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
+                                .frame(minHeight: Size.hitTarget).contentShape(Rectangle())
+                        }
                     }
                     if !friends.isEmpty {
-                        SectionLabel("INVITE FRIENDS")
+                        SectionLabel("INVITE FRIENDS").padding(.horizontal, -Space.margin)
                         ScrollView {
                             ForEach(friends) { f in
                                 Button {
@@ -375,6 +382,7 @@ struct ConvoySheet: View {
                             }
                         }
                         .frame(maxHeight: Size.row * 3)
+                        .padding(.horizontal, -Space.margin)
                     }
                     PrimaryButton(invited.isEmpty ? "Done" : "Invite friends", isLoading: working) {
                         guard let id = store.state?.id, !invited.isEmpty else { dismiss(); return }
@@ -382,7 +390,7 @@ struct ConvoySheet: View {
                         run { try await store.env.gateway.inviteToConvoy(id, users: users); dismiss() }
                     }
                 } else if !code.isEmpty || joining {
-                    Field("Code", text: $code, prompt: "6 characters", limit: 6).textInputAutocapitalization(.characters)
+                    Field("Code", text: $code, prompt: "6 characters").textInputAutocapitalization(.characters)
                     Text("Everyone in the convoy sees your exact location until you leave.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
                     PrimaryButton("Join convoy", isLoading: working) {
                         run { try await store.join(code: code); dismiss() }

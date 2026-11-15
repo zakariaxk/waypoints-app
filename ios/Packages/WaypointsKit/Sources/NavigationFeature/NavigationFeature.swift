@@ -504,18 +504,22 @@ struct RoutePreview: View {
                 if let car = model.car {
                     Button { model.cycleCar() } label: {
                         CarBadge(car.shortLabel, paint: car.colorHex.flatMap { Color(paintHex: $0) } ?? .dust)
+                            .frame(minHeight: Size.hitTarget).contentShape(Rectangle())
                     }
+                    .accessibilityHint(Text("Switches to your next car", bundle: .module))
                 }
             }
             if model.loading {
                 SkeletonRow(); SkeletonRow()
             } else if model.error {
                 ErrorState(Text("Couldn't find a route there.", bundle: .module)) { model.calculate(from: nil) }
+                    .fixedSize(horizontal: false, vertical: true)
             } else {
                 let best = model.bestIndex()
                 ForEach(Array(model.routes.enumerated()), id: \.element.id) { i, r in
                     Button { model.selected = i } label: { row(r, best: i == best && model.clearance != .stock, selected: i == model.selected) }
                         .buttonStyle(RowButtonStyle())
+                        .accessibilityAddTraits(i == model.selected ? .isSelected : [])
                 }
                 if model.clearance != .stock, model.routes.allSatisfy({ !$0.clearanceHazards(for: model.clearance).isEmpty }) {
                     Text("No route avoids these. Apple Maps routing can't be steered around them.", bundle: .module)
@@ -535,16 +539,23 @@ struct RoutePreview: View {
             }
         }
         .padding(Space.margin)
-        .background(Color.tarmac, in: UnevenRoundedRectangle(topLeadingRadius: Radius.r28, topTrailingRadius: Radius.r28))
+        .background {
+            UnevenRoundedRectangle(topLeadingRadius: Radius.r28, topTrailingRadius: Radius.r28)
+                .fill(Color.tarmac).ignoresSafeArea(edges: .bottom)
+        }
     }
 
     private func row(_ r: ScoredRoute, best: Bool, selected: Bool) -> some View {
         let hazards = r.clearanceHazards(for: model.clearance)
         return VStack(alignment: .leading, spacing: Space.s2) {
-            HStack {
-                Text(verbatim: "\(Int(r.route.expectedTravelTime / 60)) min").typeStyle(.readoutL)
+            HStack(alignment: .firstTextBaseline, spacing: Space.s8) {
+                Text(verbatim: "\(Int(r.route.expectedTravelTime / 60))").font(TypeToken.readoutL.font)
                     .foregroundStyle(selected ? Color.sodium : Color.chalk)
+                    + Text(verbatim: thinSpace + String(localized: "min", bundle: .module)).font(TypeToken.readoutS.font)
+                    .foregroundStyle(Color.dust)
                 if best { Text("Best for your car", bundle: .module).typeStyle(.label).foregroundStyle(Color.go) }
+                Spacer(minLength: 0)
+                if selected { Image.symbol(Symbol.confirm).foregroundStyle(Color.sodium).accessibilityHidden(true) }
             }
             Text(verbatim: "\(NavigationModel.distance(r.route.distance)) · \(r.route.name)").typeStyle(.sub).foregroundStyle(Color.dust)
             if model.clearance != .stock {
@@ -578,12 +589,14 @@ struct GuidanceView: View {
             .mapStyle(.standard(elevation: .realistic, emphasis: .muted))
             .ignoresSafeArea()
             VStack(spacing: 0) {
-                banner
+                banner.padding(.top, Space.s8)
                 if let h = model.hazardAhead {
                     Text(verbatim: "\(NavigationModel.kindName(h.kind)) in \(NavigationModel.distance(model.hazardDistance))")
                         .typeStyle(.bodyStrong).foregroundStyle(Color.asphalt)
-                        .frame(maxWidth: .infinity).padding(Space.s8).background(Color.sodium)
+                        .frame(maxWidth: .infinity).padding(Space.s8)
+                        .background(Color.sodium, in: RoundedRectangle(cornerRadius: Radius.r12))
                         .padding(.horizontal, Space.margin)
+                        .padding(.top, Space.s8)
                 }
                 if let p = model.stillThere {
                     HStack(spacing: Space.s8) {
@@ -603,13 +616,16 @@ struct GuidanceView: View {
                     let readout = model.speedReadout
                     HStack(alignment: .firstTextBaseline, spacing: Space.s4) {
                         Text(verbatim: readout.value).typeStyle(.readoutXL).foregroundStyle(Color.chalk)
-                        Text(verbatim: readout.unit).typeStyle(.foot).foregroundStyle(Color.dust)
+                        Text(verbatim: readout.unit).typeStyle(.readoutS).foregroundStyle(Color.dust)
                     }
                     .padding(.horizontal, Space.s16)
                     .background(Color.tarmac, in: Capsule())
+                    .mapShadow()
+                    .accessibilityElement(children: .combine)
                     Spacer()
                 }
                 .padding(.horizontal, Space.margin)
+                .padding(.bottom, Space.s12)
                 bottomBar
             }
         }
@@ -649,19 +665,28 @@ struct GuidanceView: View {
     private var bottomBar: some View {
         HStack(spacing: Space.s16) {
             let eta = model.arrival
-            VStack(alignment: .leading) {
-                Text(verbatim: eta.formatted(date: .omitted, time: .shortened)).typeStyle(.readoutM).foregroundStyle(Color.chalk)
+            VStack(alignment: .leading, spacing: Space.s2) {
+                (Text(verbatim: eta.formatted(date: .omitted, time: .shortened) + " · \(max(0, Int(eta.timeIntervalSinceNow / 60)))")
+                    .font(TypeToken.readoutM.font).foregroundStyle(Color.chalk)
+                    + Text(verbatim: thinSpace + String(localized: "min", bundle: .module)).font(TypeToken.readoutS.font)
+                    .foregroundStyle(Color.dust))
+                    .contentTransition(.numericText())
                 Text(verbatim: NavigationModel.distance(model.remaining)).typeStyle(.foot).foregroundStyle(Color.dust)
             }
+            .accessibilityElement(children: .combine)
             Spacer()
             if model.etaSent == nil && !model.friends.isEmpty && !model.arrived && model.speed <= 8 / 3.6 {
                 IconButton(Symbol.share, label: "Share ETA") { sharingETA = true }
             }
             IconButton(model.muted ? "speaker.slash" : Symbol.speaker, label: model.muted ? "Unmute" : "Mute") { model.muted.toggle() }
-            Button("End", action: end)
-                .typeStyle(.bodyStrong).foregroundStyle(Color.brake)
-                .frame(width: Size.wideButton, height: Size.control)
-                .background(Color.concrete, in: RoundedRectangle(cornerRadius: Radius.r12))
+            Button(action: end) {
+                Text("End", bundle: .module)
+                    .typeStyle(.bodyStrong).foregroundStyle(Color.brake)
+                    .frame(width: Size.wideButton, height: Size.control)
+                    .background(Color.concrete, in: RoundedRectangle(cornerRadius: Radius.r12))
+                    .contentShape(RoundedRectangle(cornerRadius: Radius.r12))
+            }
+            .buttonStyle(.plain)
         }
         .padding(Space.margin)
         .background(Color.tarmac)
@@ -692,6 +717,7 @@ struct ShareETASheet: View {
             VStack(alignment: .leading, spacing: Space.s16) {
                 Text("They get one notice: \(model.destinationName), arriving \(model.arrival.formatted(date: .omitted, time: .shortened)). Not your location.", bundle: .module)
                     .typeStyle(.sub).foregroundStyle(Color.dust)
+                    .padding(.horizontal, Space.margin)
                 ScrollView {
                     ForEach(model.friends) { f in
                         Button {
@@ -717,6 +743,7 @@ struct ShareETASheet: View {
                         }
                     }
                     .typeStyle(.foot).foregroundStyle(Color.brake)
+                    .padding(.horizontal, Space.margin)
                 }
                 PrimaryButton("Send", isLoading: model.sendingETA) {
                     let users = Array(chosen)
@@ -726,6 +753,8 @@ struct ShareETASheet: View {
                     }
                 }
                 .disabled(chosen.isEmpty)
+                .padding(.horizontal, Space.margin)
+                .padding(.bottom, Space.s12)
             }
         }
     }

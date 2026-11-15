@@ -101,11 +101,13 @@ struct GoingSheet: View {
                         .accessibilityAddTraits(car == nil ? .isSelected : [])
                         .buttonStyle(RowButtonStyle())
                     }
+                    .padding(.horizontal, -Space.margin)
                 }
                 if askRemind {
                     Row(Text("Remind you before it starts?", bundle: .module), subtitle: Text("30 minutes before", bundle: .module), showsDivider: false, trailing: {
                         Toggle("", isOn: $remind).labelsHidden().tint(.sodium)
                     })
+                    .padding(.horizontal, -Space.margin)
                 }
                 PrimaryButton("I'm going") {
                     onGo(askCar ? car : cars.first?.id, askRemind ? remind : nil)

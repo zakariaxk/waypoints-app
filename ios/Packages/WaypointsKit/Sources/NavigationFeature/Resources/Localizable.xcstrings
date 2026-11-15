@@ -88,6 +88,9 @@
     "Still there?": {
       "extractionState": "manual"
     },
+    "Switches to your next car": {
+      "extractionState": "manual"
+    },
     "They get one notice: %@, arriving %@. Not your location.": {
       "extractionState": "manual"
     },
@@ -98,6 +101,9 @@
       "extractionState": "manual"
     },
     "You've arrived": {
+      "extractionState": "manual"
+    },
+    "min": {
       "extractionState": "manual"
     }
   },

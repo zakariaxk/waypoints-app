@@ -176,7 +176,7 @@ struct AskForHelp: View {
                 .padding(.bottom, Space.s24)
             }
         }
-        .presentationDetents([.large])
+        .presentationDetents([.height(Size.row * 9), .large])
         .haptic(.done, trigger: done)
         .haptic(.fail, trigger: failed)
         .task { await locate() }
@@ -239,7 +239,7 @@ private struct FlowChips: View {
     var body: some View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: Space.s8) { chips }
-            VStack(alignment: .leading, spacing: Space.s8) {
+            VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: Space.s8) { ForEach(kinds.prefix(3), id: \.self, content: chip) }
                 HStack(spacing: Space.s8) { ForEach(kinds.dropFirst(3), id: \.self, content: chip) }
             }
@@ -312,7 +312,7 @@ struct HelpDetail: View {
                     if let requester = r.requesterID {
                         Button("Report person") { env.router.open(.reportContent(.user(requester))) }
                     }
-                } label: { Image.symbol(Symbol.more).frame(width: Size.hitTarget, height: Size.hitTarget) }
+                } label: { Image.symbol(Symbol.more).foregroundStyle(Color.chalk).frame(width: Size.hitTarget, height: Size.hitTarget) }
                 .accessibilityLabel(Text("More", bundle: .module))
             }
         }

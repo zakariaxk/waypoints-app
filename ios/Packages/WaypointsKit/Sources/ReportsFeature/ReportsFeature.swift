@@ -47,7 +47,7 @@ enum ReportText {
         case .police: String(localized: "Police", bundle: .module)
         case .hazard: String(localized: "Hazard", bundle: .module)
         case .closure: String(localized: "Closure", bundle: .module)
-        case .fuelE85: "E85 fuel"
+        case .fuelE85: String(localized: "E85 fuel", bundle: .module)
         case .speedCamera: String(localized: "Speed camera", bundle: .module)
         case .redLightCamera: String(localized: "Red-light camera", bundle: .module)
         }
@@ -99,7 +99,7 @@ struct ReportsSectionView: View {
                         Row(Text(verbatim: ReportText.name(r.kind)),
                             subtitle: Text("Confirmed by \(r.confirmations)", bundle: .module),
                             leading: { ReportBadge(kind: r.kind.rawValue) },
-                            trailing: { Text(verbatim: r.createdAt.formatted(.relative(presentation: .numeric))).typeStyle(.readoutS) })
+                            trailing: { Text(verbatim: r.createdAt.formatted(.relative(presentation: .numeric, unitsStyle: .narrow))).typeStyle(.readoutS) })
                     }
                     .buttonStyle(RowButtonStyle())
                 }
@@ -166,7 +166,7 @@ struct PostReport: View {
                 }
             } else {
             VStack(spacing: Space.s16) {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: Space.s16) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), alignment: .top), count: 4), spacing: Space.s16) {
                     ForEach(ReportKind.allCases, id: \.self) { kind in
                         Button { post(kind) } label: {
                             VStack(spacing: Space.s4) {
@@ -174,7 +174,10 @@ struct PostReport: View {
                                 Text(verbatim: ReportText.name(kind)).typeStyle(.foot).foregroundStyle(Color.chalk)
                                     .multilineTextAlignment(.center)
                             }
+                            .frame(maxWidth: .infinity, minHeight: Size.hitTarget)
+                            .contentShape(Rectangle())
                         }
+                        .buttonStyle(.plain)
                     }
                 }
                 if showNote {
@@ -231,7 +234,7 @@ struct ReportDetail: View {
                     Spacer()
                     Menu {
                         Button("Report") { env.router.open(.reportContent(ContentRef(kind: .report, id: r.id.description))) }
-                    } label: { Image.symbol(Symbol.more).frame(width: Size.hitTarget, height: Size.hitTarget) }
+                    } label: { Image.symbol(Symbol.more).foregroundStyle(Color.chalk).frame(width: Size.hitTarget, height: Size.hitTarget) }
                     .accessibilityLabel(Text("More options", bundle: .module))
                 }
                 Text("Reported \(r.createdAt.formatted(.relative(presentation: .named))) · confirmed by \(r.confirmations)", bundle: .module)

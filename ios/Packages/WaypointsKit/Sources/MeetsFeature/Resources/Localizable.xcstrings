@@ -73,6 +73,9 @@
     "Edit meet": {
       "extractionState": "manual"
     },
+    "Ends": {
+      "extractionState": "manual"
+    },
     "Entrance": {
       "extractionState": "manual"
     },
@@ -214,6 +217,9 @@
     "Start meet": {
       "extractionState": "manual"
     },
+    "Starts": {
+      "extractionState": "manual"
+    },
     "Starts in 30 minutes at %@.": {
       "extractionState": "manual"
     },
@@ -230,6 +236,9 @@
       "extractionState": "manual"
     },
     "Today %@": {
+      "extractionState": "manual"
+    },
+    "Tomorrow %@": {
       "extractionState": "manual"
     },
     "Tonight %@": {

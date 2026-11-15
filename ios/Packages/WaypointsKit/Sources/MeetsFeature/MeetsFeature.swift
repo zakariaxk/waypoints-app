@@ -15,7 +15,7 @@ public enum MeetsFeature: FeatureModule {
         registry.registerMapAction(StartMeetAction())
         registry.registerRoute(.meet, presentation: .sheet) { route in
             guard case let .meet(id) = route else { return nil }
-            return AnyView(NavigationStack { ScrollView { MeetDetail(env: env, meetID: id) } .background(Color.tarmac) }
+            return AnyView(NavigationStack { ScrollView { MeetDetail(env: env, meetID: id).padding(.top, Space.s16) } .background(Color.tarmac) }
                 .presentationDetents([.medium, .large]).sheetChrome())
         }
         registry.registerRoute(.createMeet, presentation: .sheet) { route in
@@ -29,8 +29,9 @@ enum MeetFormat {
     static func when(_ m: Meet) -> String {
         let cal = Calendar.current
         let time = m.startsAt.formatted(date: .omitted, time: .shortened)
-        if cal.isDateInToday(m.startsAt) { return cal.component(.hour, from: m.startsAt) >= 17 ? "Tonight \(time)" : "Today \(time)" }
-        if cal.isDateInTomorrow(m.startsAt) { return "Tomorrow \(time)" }
+        if cal.isDateInToday(m.startsAt) { return cal.component(.hour, from: m.startsAt) >= 17
+            ? String(localized: "Tonight \(time)", bundle: .module) : String(localized: "Today \(time)", bundle: .module) }
+        if cal.isDateInTomorrow(m.startsAt) { return String(localized: "Tomorrow \(time)", bundle: .module) }
         return m.startsAt.formatted(.dateTime.weekday(.abbreviated).hour().minute())
     }
     static func kindTitle(_ k: MeetKind) -> LocalizedStringKey {
@@ -179,10 +180,12 @@ struct CreateMeet: View {
                         Chip("Pick a time", isSelected: when == 2) { when = 2 }
                     }
                     if when == 2 {
-                        DatePicker("Starts", selection: $startsAt, in: Date.now...).tint(.sodium).foregroundStyle(Color.chalk)
+                        DatePicker(selection: $startsAt, in: Date.now...) { Text("Starts", bundle: .module).typeStyle(.body) }
+                            .tint(.sodium).foregroundStyle(Color.chalk)
                             .onChange(of: startsAt) { endsAt = startsAt.addingTimeInterval(7200) }
                     }
-                    DatePicker("Ends", selection: $endsAt, in: startsAt...).tint(.sodium).foregroundStyle(Color.chalk)
+                    DatePicker(selection: $endsAt, in: startsAt...) { Text("Ends", bundle: .module).typeStyle(.body) }
+                        .tint(.sodium).foregroundStyle(Color.chalk)
                     Text("Repeats", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: Space.s8) {
@@ -191,6 +194,8 @@ struct CreateMeet: View {
                             }
                         }
                     }
+                    .contentMargins(.horizontal, Space.margin, for: .scrollContent)
+                    .padding(.horizontal, -Space.margin)
                     if kind == .cruise {
                         Field("Rolling out to", text: $destName, prompt: "Where does the cruise end?", limit: 80)
                         if !myRoads.isEmpty {
@@ -204,6 +209,8 @@ struct CreateMeet: View {
                                     }
                                 }
                             }
+                            .contentMargins(.horizontal, Space.margin, for: .scrollContent)
+                            .padding(.horizontal, -Space.margin)
                         }
                     }
                     Text("Who can see it", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
@@ -214,11 +221,20 @@ struct CreateMeet: View {
                     } else {
                         QuietButton("Add details") { showDetails = true }
                     }
+                }
+                .padding(Space.margin)
+            }
+            // The action stays in reach while the form scrolls under it.
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                VStack(alignment: .leading, spacing: Space.s8) {
                     if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                     PrimaryButton(editing == nil ? "Start meet" : "Save meet", isLoading: saving) { save() }
                         .disabled(title.isEmpty)
                 }
-                .padding(Space.margin)
+                .padding(.horizontal, Space.margin)
+                .padding(.vertical, Space.s12)
+                .background(Color.tarmac)
+                .overlay(alignment: .top) { Hairline() }
             }
         }
         .presentationDetents([.large])
@@ -338,16 +354,19 @@ struct MeetDetail: View {
                 header(m)
                 if m.cancelledAt == nil { rsvpControl }
                 if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
+                // One sodium fill: Roll out takes it when the host can roll, Directions otherwise.
                 if canRollOut(m) {
                     PrimaryButton("Roll out", isLoading: rolling) { rollOut(m) }
                     if let rollError { Text(verbatim: rollError).typeStyle(.foot).foregroundStyle(Color.brake) }
+                    SecondaryButton("Directions") { env.router.open(.navigate(to: m.coordinate, name: m.placeName)) }
+                } else {
+                    PrimaryButton("Directions") { env.router.open(.navigate(to: m.coordinate, name: m.placeName)) }
                 }
                 going
                 peoplesChoice(m)
                 MeetPostsStrip(env: env, meetID: meetID)
                 venue
                 if !m.details.isEmpty { Text(verbatim: m.details).typeStyle(.body).foregroundStyle(Color.chalk) }
-                PrimaryButton("Directions") { env.router.open(.navigate(to: m.coordinate, name: m.placeName)) }
             } else if failed {
                 ErrorState(Text("Couldn't load this meet. Check your connection and try again.", bundle: .module)) { Task { await load() } }
             } else {
@@ -407,9 +426,17 @@ struct MeetDetail: View {
 
     private func header(_ m: Meet) -> some View {
         VStack(alignment: .leading, spacing: Space.s4) {
-            HStack {
+            HStack(spacing: Space.s12) {
                 MeetPin(kind: m.kind.rawValue, live: m.isHappening())
-                Spacer()
+                VStack(alignment: .leading, spacing: Space.s2) {
+                    if m.cancelledAt != nil {
+                        Text("Cancelled", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.brake)
+                    } else if m.isHappening() {
+                        Text("Happening now", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.go)
+                    }
+                    Text(verbatim: m.title).typeStyle(.title).foregroundStyle(Color.chalk)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 Menu {
                     if let url = Route.meet(m.id).shareURL {
                         if let shareCard {
@@ -427,15 +454,9 @@ struct MeetDetail: View {
                     } else {
                         Button("Report") { env.router.open(.reportContent(ContentRef(kind: .meet, id: m.id.description))) }
                     }
-                } label: { Image.symbol(Symbol.more).frame(width: Size.hitTarget, height: Size.hitTarget) }
+                } label: { Image.symbol(Symbol.more).foregroundStyle(Color.chalk).frame(width: Size.hitTarget, height: Size.hitTarget) }
                 .accessibilityLabel(Text("More options", bundle: .module))
             }
-            if m.cancelledAt != nil {
-                Text("Cancelled", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.brake)
-            } else if m.isHappening() {
-                Text("Happening now", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.go)
-            }
-            Text(verbatim: m.title).typeStyle(.title).foregroundStyle(Color.chalk)
             Text(verbatim: MeetFormat.when(m)).typeStyle(.readoutM).foregroundStyle(Color.chalk)
             Text(verbatim: MeetFormat.place(m, from: here)).typeStyle(.sub).foregroundStyle(Color.dust)
             if let repeats = MeetFormat.repeats(m) {
@@ -445,7 +466,7 @@ struct MeetDetail: View {
                 Text("Rolling out to \(dest.name)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
             }
             if let road {
-                Text("Driving \(road.name) · \(MeetFormat.distance(Double(road.lengthMeters)))").typeStyle(.sub).foregroundStyle(Color.dust)
+                Text("Driving \(road.name) · \(MeetFormat.distance(Double(road.lengthMeters)))", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
             }
             if let host {
                 Button { env.router.open(.profile(host.userID)) } label: {
@@ -453,6 +474,7 @@ struct MeetDetail: View {
                         Avatar(name: host.displayName, size: .s28)
                         Text("Hosted by \(host.displayName)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.chalk)
                     }
+                    .frame(minHeight: Size.hitTarget).contentShape(Rectangle())
                 }
             }
         }
@@ -481,13 +503,19 @@ struct MeetDetail: View {
     @ViewBuilder private var going: some View {
         let count = rsvps.filter { $0.status == .going }.count
         if count > 0 {
-            Button { showGoing = true } label: {
-                Text("Who's going · \(count)", bundle: .module).typeStyle(.label).foregroundStyle(Color.dust)
-            }
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: Space.s12) {
-                    ForEach(goingCars) { car in
-                        Button { env.router.open(.car(car.id)) } label: { CarBadge(car.shortLabel, paint: car.colorHex.flatMap { Color(paintHex: $0) } ?? .dust) }
+            VStack(alignment: .leading, spacing: 0) {
+                Button { showGoing = true } label: {
+                    Text("Who's going · \(count)", bundle: .module).typeStyle(.label).foregroundStyle(Color.dust)
+                        .frame(minHeight: Size.hitTarget).contentShape(Rectangle())
+                }
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: Space.s12) {
+                        ForEach(goingCars) { car in
+                            Button { env.router.open(.car(car.id)) } label: {
+                                CarBadge(car.shortLabel, paint: car.colorHex.flatMap { Color(paintHex: $0) } ?? .dust)
+                                    .frame(minHeight: Size.hitTarget).contentShape(Rectangle())
+                            }
+                        }
                     }
                 }
             }
@@ -499,7 +527,7 @@ struct MeetDetail: View {
             VStack(alignment: .leading, spacing: Space.s2) {
                 Text("Entrance: \(n.entrance.rawValue)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.chalk)
                 Text("Lot: \(n.lotSize.rawValue)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.chalk)
-                Text(n.lit ? "Lit: yes" : "Lit: no").typeStyle(.sub).foregroundStyle(Color.chalk)
+                (n.lit ? Text("Lit: yes", bundle: .module) : Text("Lit: no", bundle: .module)).typeStyle(.sub).foregroundStyle(Color.chalk)
             }
         }
         QuietButton("Add what you know") { addNote = true }
@@ -626,7 +654,7 @@ struct MeetDetail: View {
             }
         } else if MeetFormat.hasChoice(m), m.isHappening(), checkedIn, !goingCars.isEmpty {
             VStack(alignment: .leading, spacing: Space.s8) {
-                SectionLabel("PEOPLE'S CHOICE")
+                SectionLabel("PEOPLE'S CHOICE").padding(.horizontal, -Space.margin)
                 Text("Pick one car here. The winner shows when it ends.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: Space.s8) {
@@ -673,6 +701,7 @@ struct VenueNoteSheet: View {
                 Text("Lot", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                 SegmentedSwitch(selection: $lot, options: [(.small, "Small"), (.medium, "Medium"), (.large, "Large")])
                 Row(Text("Lit at night", bundle: .module), showsDivider: false, trailing: { Toggle("", isOn: $lit).labelsHidden().tint(.sodium) })
+                    .padding(.horizontal, -Space.margin)
                 Field("Note", text: $note, prompt: "Optional", limit: 120)
                 if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                 PrimaryButton("Save") {

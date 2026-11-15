@@ -47,7 +47,7 @@ struct DriverPeek: View {
                         }
                     }
                     Button("Report") { model.env.router.open(.reportContent(.user(f.profile.userID))) }
-                } label: { Image.symbol(Symbol.more).frame(width: Size.hitTarget, height: Size.hitTarget) }
+                } label: { Image.symbol(Symbol.more).foregroundStyle(Color.chalk).frame(width: Size.hitTarget, height: Size.hitTarget) }
                     .accessibilityLabel(Text("More", bundle: .module))
             }
             Text(verbatim: "\(model.distanceLine(to: entity.coordinate)) · " + (entity.tier == .approximate
@@ -189,7 +189,7 @@ struct MarkerPicker: View {
                 }
                 SegmentedSwitch(selection: $tab, options: [(0, "Icon"), (1, "Trail")])
                 ScrollView {
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: Space.s16) {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), alignment: .top), count: 4), spacing: Space.s16) {
                         ForEach(tab == 0 ? MapGlyph.freeVehicles.map(\.name) + MapIconSet.earnedVehicles : MapIconSet.trails,
                                 id: \.self) { name in cell(name) }
                     }
@@ -368,11 +368,12 @@ struct SearchView: View {
             }
             .background(Color.asphalt.ignoresSafeArea())
             .safeAreaInset(edge: .top) {
-                HStack {
+                HStack(alignment: .bottom, spacing: Space.s12) {
                     Field("Search", text: $search.query, prompt: "Where to?").focused($focused)
-                    QuietButton("Cancel") { dismiss() }
+                    QuietButton("Cancel") { dismiss() }.frame(minHeight: Size.control)
                 }
                 .padding(.horizontal, Space.margin)
+                .padding(.bottom, Space.s8)
                 .background(Color.asphalt)
             }
         }
