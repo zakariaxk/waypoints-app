@@ -23,7 +23,7 @@ struct LiveTeams: TeamRepository {
         let ids: [UUID] = try await ctx.run {
             struct Row: Decodable { let teamId: UUID }
             let rows: [Row] = try await ctx.table("team_members").select("team_id").eq("user_id", value: me.key)
-                .order("joined_at").execute().value
+                .order("joined_at").limit(100).execute().value
             return rows.map(\.teamId)
         }
         return try await teams(ids: ids).sorted { a, b in (ids.firstIndex(of: a.id.raw) ?? 0) < (ids.firstIndex(of: b.id.raw) ?? 0) }
@@ -97,7 +97,7 @@ struct LiveTeams: TeamRepository {
     func members(of team: TeamID) async throws -> [TeamMember] {
         try await ctx.run {
             let rows: [TeamMemberRow] = try await ctx.table("team_members").select().eq("team_id", value: team.key)
-                .order("joined_at").execute().value
+                .order("joined_at").limit(200).execute().value
             return rows.map(\.model)
         }
     }
@@ -105,7 +105,7 @@ struct LiveTeams: TeamRepository {
     func roles(of team: TeamID) async throws -> [TeamRole] {
         try await ctx.run {
             let rows: [TeamRoleRow] = try await ctx.table("team_roles").select().eq("team_id", value: team.key)
-                .order("rank", ascending: false).execute().value
+                .order("rank", ascending: false).limit(50).execute().value
             return rows.map(\.model)
         }
     }
@@ -151,7 +151,7 @@ struct LiveTeams: TeamRepository {
     func channels(of team: TeamID) async throws -> [Channel] {
         try await ctx.run {
             let rows: [ChannelRow] = try await ctx.table("channels").select().eq("team_id", value: team.key).order("sort")
-                .execute().value
+                .limit(50).execute().value
             return rows.map(\.model)
         }
     }
@@ -263,9 +263,22 @@ struct LiveMessages: MessageRepository {
                 .limit(100).execute().value
         }
         let markers = try await readMarkers()
+        // One query for recent messages across all threads; the first per thread is its latest.
+        var latest: [UUID: Core.Message] = [:]
+        if !rows.isEmpty {
+            let threadIDs = rows.map { $0.id.uuidString.lowercased() }
+            let msgs: [MessageRow] = (try? await ctx.run {
+                try await ctx.table("messages").select().in("thread_id", values: threadIDs)
+                    .order("id", ascending: false).limit(1000).execute().value
+            }) ?? []
+            for row in msgs {
+                guard let m = row.model, let tid = row.threadId, latest[tid] == nil else { continue }
+                latest[tid] = m
+            }
+        }
         var out: [MessageThread] = []
         for r in rows {
-            let last = try? await messages(in: .thread(ThreadID(raw: r.id)), before: nil, limit: 1).first
+            let last = latest[r.id]
             let read = markers[.thread(ThreadID(raw: r.id))] ?? 0
             let unread = (last.map { $0.id.raw > read && $0.authorID != me } ?? false) ? 1 : 0
             out.append(r.model(lastMessage: last, unread: unread))
@@ -277,7 +290,7 @@ struct LiveMessages: MessageRepository {
         let me = try ctx.me()
         let rows: [ReadMarkerRow] = try await ctx.run {
             try await ctx.table("read_markers").select("channel_id,thread_id,last_read_message_id").eq("user_id", value: me.key)
-                .execute().value
+                .limit(500).execute().value
         }
         var out: [MessageTarget: Int64] = [:]
         for r in rows {
@@ -319,27 +332,29 @@ struct LiveMessages: MessageRepository {
     }
 
     func unreadCounts(in channels: [ChannelID]) async throws -> [ChannelID: Int] {
-        let me = try ctx.me()
-        let markers = try await readMarkers()
-        struct Row: Decodable { let id: Int64 }
-        var out: [ChannelID: Int] = [:]
-        for c in channels {
-            let read = String(markers[.channel(c)] ?? 0)
-            let rows: [Row] = try await ctx.run {
-                try await ctx.table("messages").select("id").eq("channel_id", value: c.key).gt("id", value: read)
-                    .neq("author_id", value: me.key).is("deleted_at", value: nil).limit(99).execute().value
-            }
-            if !rows.isEmpty { out[c] = rows.count }
+        guard !channels.isEmpty else { return [:] }
+        // channel_unread computes every channel I belong to in one query; keep the asked-for set.
+        struct Row: Decodable { let channelId: UUID; let unreadCount: Int }
+        let wanted = Set(channels.map { $0.key })
+        let rows: [Row] = try await ctx.run {
+            try await ctx.client.rpc("channel_unread").execute().value
         }
-        return out
+        return Dictionary(rows.compactMap { row -> (ChannelID, Int)? in
+            guard wanted.contains(row.channelId.uuidString.lowercased()) else { return nil }
+            return (ChannelID(raw: row.channelId), row.unreadCount)
+        }) { a, _ in a }
     }
 
     private func countUnread() async -> Int {
         let dms = ((try? await threads()) ?? []).reduce(0) { $0 + $1.unreadCount }
         let teams = LiveTeams(ctx: ctx)
+        let myTeams = (try? await teams.myTeams()) ?? []
         var text: [ChannelID] = []
-        for t in (try? await teams.myTeams()) ?? [] {
-            text += ((try? await teams.channels(of: t.id)) ?? []).filter { $0.kind == .text }.map(\.id)
+        if !myTeams.isEmpty {
+            let teamIDs = myTeams.map { $0.id.key }
+            let chans: [ChannelRow] = (try? await ctx.table("channels").select()
+                .in("team_id", values: teamIDs).limit(200).execute().value) ?? []
+            text = chans.filter { $0.kind == .text }.map { ChannelID(raw: $0.id) }
         }
         return dms + ((try? await unreadCounts(in: text)) ?? [:]).values.reduce(0, +)
     }
@@ -383,18 +398,16 @@ struct LivePosts: PostRepository {
     }
 
     func followingFeed(after cursor: PageCursor?, limit: Int) async throws -> Page<Post> {
-        let me = try ctx.me()
-        struct Row: Decodable { let followeeId: UUID }
-        let followees: [Row] = try await ctx.run {
-            try await ctx.table("follows").select("followee_id").eq("follower_id", value: me.key).limit(1000).execute().value
-        }
-        guard !followees.isEmpty else { return Page(items: [], next: nil) }
+        // following_feed pages the followee join server-side; an `in` list of followees
+        // could not fit in a request URL once someone follows a few hundred people.
+        // The RPC clamps lim to 50, so page against the same bound.
+        let lim = min(limit, 50)
+        struct Params: Encodable { let before: String?; let lim: Int }
         let rows: [PostRow] = try await ctx.run {
-            var q = ctx.table("posts").select(PostRow.columns).in("author_id", values: followees.map { $0.followeeId.uuidString.lowercased() })
-            if let cursor { q = q.lt("created_at", value: cursor.raw) }
-            return try await q.order("created_at", ascending: false).limit(limit).execute().value
+            try await ctx.client.rpc("following_feed", params: Params(before: cursor?.raw, lim: lim))
+                .select(PostRow.columns).execute().value
         }
-        let next = rows.count == limit ? rows.last.map { PageCursor(raw: PostgresDate.timestamp($0.createdAt)) } : nil
+        let next = rows.count == lim ? rows.last.map { PageCursor(raw: PostgresDate.timestamp($0.createdAt)) } : nil
         return Page(items: await models(rows), next: next)
     }
 
@@ -553,6 +566,36 @@ struct LiveShowdown: ShowdownRepository {
                                  photos: try await garage.photos(of: e.carID), entry: e)
     }
 
+    /// Cars, owners and photos for many entries in three queries (was three per entry).
+    private func contenders(_ entries: [ShowdownEntry]) async throws -> [ShowdownContender] {
+        guard !entries.isEmpty else { return [] }
+        let carKeys = entries.map { $0.carID.key }
+        let carRows: [CarRow] = try await ctx.run {
+            try await ctx.table("cars").select().in("id", values: carKeys).limit(500).execute().value
+        }
+        let carsByID = Dictionary(carRows.map { ($0.id, $0.car) }) { a, _ in a }
+        let ownerKeys = Array(Set(carRows.map { $0.car.ownerID.key }))
+        var profRows: [ProfileRow] = []
+        for start in stride(from: 0, to: ownerKeys.count, by: 100) {
+            let chunk = Array(ownerKeys[start..<min(start + 100, ownerKeys.count)])
+            profRows += try await ctx.run {
+                try await ctx.table("profiles").select().in("user_id", values: chunk).execute().value
+            }
+        }
+        let profByID = Dictionary(profRows.map { ($0.userId, $0.model) }) { a, _ in a }
+        let photoRows: [CarPhotoRow] = try await ctx.run {
+            try await ctx.table("car_photos").select().in("car_id", values: carKeys).order("sort").limit(2000).execute().value
+        }
+        var photosByCar: [UUID: [CarPhoto]] = [:]
+        for p in photoRows { photosByCar[p.carId, default: []].append(p.model) }
+        var out: [ShowdownContender] = []
+        for e in entries {
+            guard let car = carsByID[e.carID.raw], let owner = profByID[car.ownerID.raw] else { continue }
+            out.append(ShowdownContender(car: car, owner: owner, photos: photosByCar[e.carID.raw] ?? [], entry: e))
+        }
+        return out
+    }
+
     func nextPair(in showdownClass: ShowdownClass) async throws -> ShowdownPair? {
         let me = try ctx.me()
         let entries: [ShowdownEntry] = try await ctx.run {
@@ -563,7 +606,9 @@ struct LiveShowdown: ShowdownRepository {
         let mine = Set(try await garage.cars(of: me).map(\.id))
         struct Vote: Decodable { let winnerCarId: UUID; let loserCarId: UUID }
         let votes: [Vote] = try await ctx.run {
-            try await ctx.table("showdown_votes").select("winner_car_id,loser_car_id").eq("voter_id", value: me.key).execute().value
+            // Newest 1000 votes bound the judged set; a user votes far less in practice.
+            try await ctx.table("showdown_votes").select("winner_car_id,loser_car_id").eq("voter_id", value: me.key)
+                .order("created_at", ascending: false).limit(1000).execute().value
         }
         let judged = Set(votes.map { Set([$0.winnerCarId, $0.loserCarId]) })
         let pool = entries.filter { !mine.contains($0.carID) }.shuffled()
@@ -583,13 +628,14 @@ struct LiveShowdown: ShowdownRepository {
     }
 
     func rankings(in showdownClass: ShowdownClass, period: RankingPeriod, limit: Int) async throws -> [ShowdownContender] {
+        let lim = min(max(limit, 1), 100)
         var ordered: [ShowdownEntry]
         if period == .week {
             // Same definition as the weekly close (SHOW-7): votes won since Monday 00:00 UTC.
             struct Params: Encodable { let cls: ShowdownClass; let lim: Int }
             struct Top: Decodable { let carId: UUID }
             let top: [Top] = try await ctx.run {
-                try await ctx.client.rpc("showdown_week_top", params: Params(cls: showdownClass, lim: limit)).execute().value
+                try await ctx.client.rpc("showdown_week_top", params: Params(cls: showdownClass, lim: lim)).execute().value
             }
             guard !top.isEmpty else { return [] }
             let rows: [ShowdownRow] = try await ctx.run {
@@ -601,13 +647,11 @@ struct LiveShowdown: ShowdownRepository {
         } else {
             ordered = try await ctx.run {
                 let rows: [ShowdownRow] = try await ctx.table("showdown_entries").select().eq("class", value: showdownClass.rawValue)
-                    .order("rating", ascending: false).limit(limit).execute().value
+                    .order("rating", ascending: false).limit(lim).execute().value
                 return rows.map(\.model)
             }
         }
-        var out: [ShowdownContender] = []
-        for e in ordered.prefix(limit) { if let c = try? await contender(e) { out.append(c) } }
-        return out
+        return try await contenders(Array(ordered.prefix(lim)))
     }
 }
 
@@ -619,7 +663,8 @@ struct LiveMarket: MarketRepository {
     private func saved() async -> Set<UUID> {
         guard let me = try? ctx.me() else { return [] }
         struct Row: Decodable { let listingId: UUID }
-        let rows: [Row] = (try? await ctx.table("listing_saves").select("listing_id").eq("user_id", value: me.key).execute().value) ?? []
+        let rows: [Row] = (try? await ctx.table("listing_saves").select("listing_id").eq("user_id", value: me.key)
+            .limit(500).execute().value) ?? []
         return Set(rows.map(\.listingId))
     }
 
@@ -661,7 +706,7 @@ struct LiveMarket: MarketRepository {
     func listings(by seller: UserID) async throws -> [Listing] {
         let rows: [ListingRow] = try await ctx.run {
             try await ctx.table("listings").select(listingColumns).eq("seller_id", value: seller.key).neq("status", value: "removed")
-                .order("created_at", ascending: false).execute().value
+                .order("created_at", ascending: false).limit(200).execute().value
         }
         let s = await saved()
         return rows.map { $0.model(saved: s.contains($0.id)) }
@@ -724,10 +769,12 @@ struct LiveMarket: MarketRepository {
     }
 
     func savedListings() async throws -> [Listing] {
-        let ids = await saved()
-        guard !ids.isEmpty else { return [] }
+        // saved_listings pages the save join server-side; an `in` list of every saved id
+        // could not fit in a request URL once someone saves a few hundred listings.
+        struct Params: Encodable { let lim: Int }
         let rows: [ListingRow] = try await ctx.run {
-            try await ctx.table("listings").select(listingColumns).in("id", values: ids.map { $0.uuidString.lowercased() }).execute().value
+            try await ctx.client.rpc("saved_listings", params: Params(lim: 200))
+                .select(listingColumns).execute().value
         }
         return rows.map { $0.model(saved: true) }
     }
@@ -748,7 +795,8 @@ struct LiveProgress: ProgressRepository {
 
     func achievements(of user: UserID) async throws -> [Achievement] {
         try await ctx.run {
-            let rows: [AchievementRow] = try await ctx.table("achievements").select().eq("user_id", value: user.key).execute().value
+            let rows: [AchievementRow] = try await ctx.table("achievements").select().eq("user_id", value: user.key)
+                .limit(100).execute().value
             return rows.map(\.model)
         }
     }
@@ -764,17 +812,20 @@ struct LiveProgress: ProgressRepository {
         let me = try ctx.me()
         let earned = Dictionary(uniqueKeysWithValues: try await achievements(of: me).map { ($0.key, $0.earnedAt) })
         struct Conf: Decodable { let confirmations: Int }
-        let reports: [Conf] = (try? await ctx.table("reports").select("confirmations").eq("author_id", value: me.key).execute().value) ?? []
+        // Targets top out at 100, so 1000-row caps never change a progress value.
+        let reports: [Conf] = (try? await ctx.table("reports").select("confirmations").eq("author_id", value: me.key).limit(1000).execute().value) ?? []
         let confirmed = reports.filter { $0.confirmations > 1 }.count
         struct Spot: Decodable { let catalogModelId: Int64? }
-        let spots: [Spot] = (try? await ctx.table("spots").select("catalog_model_id").eq("spotter_id", value: me.key).execute().value) ?? []
+        let spots: [Spot] = (try? await ctx.table("spots").select("catalog_model_id").eq("spotter_id", value: me.key).limit(1000).execute().value) ?? []
         let roads = await count("road_ratings", "user_id", me)
         let posts = await count("posts", "author_id", me)
         let listings = await count("listings", "seller_id", me)
         let venue = await count("venue_notes", "author_id", me)
         let teams = await count("team_members", "user_id", me)
         struct Race: Decodable { let etMs: Int }
-        let races: [Race] = (try? await ctx.table("race_results").select("et_ms").eq("user_id", value: me.key).execute().value) ?? []
+        // et_ms ascending keeps the true best inside the cap; count only needs >= 1.
+        let races: [Race] = (try? await ctx.table("race_results").select("et_ms").eq("user_id", value: me.key)
+            .order("et_ms").limit(1000).execute().value) ?? []
         let best = races.map(\.etMs).min() ?? Int.max
         let current: [String: Int] = [
             "reports_1": confirmed, "reports_10": confirmed, "reports_50": confirmed,

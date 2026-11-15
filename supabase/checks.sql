@@ -18,6 +18,10 @@
 
 begin;
 
+-- Newer storage-api images guard storage.objects with protect_delete(); the checks
+-- exercise RLS on that table directly, so allow it for this transaction only.
+set local storage.allow_delete_query = 'true';
+
 create temp table _checks (seq serial primary key, name text not null, ok boolean not null, detail text);
 
 -- Switch to an actor: a user uuid, 'anon', or 'service'.
@@ -49,7 +53,10 @@ begin
   begin
     perform pg_temp.become(actor);
     if stmt ~* '^\s*(select|with)\s' then
-      execute format('select count(*) from (%s) _q', stmt) into n;
+      -- EXECUTE evaluates the whole query, target list included; wrapping it in
+      -- count(*) would let the planner skip unused function calls entirely.
+      execute stmt;
+      get diagnostics n = row_count;
     else
       execute stmt;
       get diagnostics n = row_count;
@@ -498,9 +505,11 @@ begin
 
   ---------------------------------------------------------------- feed
   perform pg_temp.allow('posts: owner posts a clip', a,
-    format($s$insert into posts (id, author_id, car_id, video_path, caption, duration_ms, like_count)
-      values (%L, %L, %L, %L, 'Golden hour on 206', 18000, 500)$s$, post_a, a, car_a, a || '/clip.mp4'), true);
-  perform pg_temp.truth('posts: users cannot seed like_count',
+    format($s$insert into posts (id, author_id, car_id, video_path, caption, duration_ms)
+      values (%L, %L, %L, %L, 'Golden hour on 206', 18000)$s$, post_a, a, car_a, a || '/clip.mp4'), true);
+  perform pg_temp.deny('posts: users cannot seed like_count', a,
+    format($s$insert into posts (author_id, video_path, like_count) values (%L, 'x.mp4', 500)$s$, a));
+  perform pg_temp.truth('posts: like_count stays server-owned',
     (select like_count = 0 from posts where id = post_a::uuid));
   perform pg_temp.deny('posts: cannot post as someone else', b,
     format($s$insert into posts (author_id, video_path) values (%L, 'x.mp4')$s$, a));
@@ -1146,6 +1155,240 @@ begin
     $s$select 1 from meet_promotions$s$);
   perform pg_temp.deny('meet_promotions: not readable by anon', 'anon',
     $s$select 1 from meet_promotions$s$);
+
+  ---------------------------------------------------------------- car of the week (STR-11)
+  perform pg_temp.truth('car_of_week: a pick exists for this week',
+    exists (select 1 from public.car_of_week_current()));
+  perform pg_temp.truth('car_of_week: the pick comes from the pool',
+    exists (select 1 from public.car_of_week_current() c
+            join public.car_of_week_pool p on p.variant_id = c.variant_id));
+  perform pg_temp.deny('car_of_week_picks: not readable by users', a,
+    $s$select 1 from car_of_week_picks$s$);
+  perform pg_temp.deny('car_of_week_pool: not readable by users', a,
+    $s$select 1 from car_of_week_pool$s$);
+  perform pg_temp.deny('car_of_week_runs: not readable directly', a,
+    $s$select 1 from car_of_week_runs$s$);
+  perform pg_temp.deny('car_of_week_runs: not writable directly', a,
+    format($s$insert into car_of_week_runs (user_id, week_start, variant_id, et_ms)
+      values (%L, (select week_start from public.car_of_week_current()), 1, 12000)$s$, a));
+  perform pg_temp.allow('car_of_week_save: user saves a run', a,
+    $s$select public.car_of_week_save(12400, 1180, 420, 2)$s$, true);
+  perform pg_temp.deny('car_of_week_save: implausible time refused', a,
+    $s$select public.car_of_week_save(500, null, null, 2)$s$, '22023,23514');
+  perform pg_temp.allow('car_of_week_save: friend saves a run', b,
+    $s$select public.car_of_week_save(12050, 1150, 380, 2)$s$, true);
+  perform pg_temp.allow('car_of_week_save: teammate saves a run', c,
+    $s$select public.car_of_week_save(12500, 1210, 500, 2)$s$, true);
+  perform pg_temp.truth('car_of_week_save: the week and pick are stamped server-side',
+    exists (select 1 from public.car_of_week_runs r
+            join public.car_of_week_current() c on c.week_start = r.week_start
+            where r.user_id = a::uuid and r.variant_id = c.variant_id));
+  -- C shares no team or friendship with A or B yet: only their own run lists.
+  perform pg_temp.allow('car_of_week_board: own run listed', c,
+    $s$select 1 from public.car_of_week_board() where user_id = 'cccccccc-0000-4000-8000-00000000000c'$s$);
+  perform pg_temp.deny('car_of_week_board: unrelated users hidden', c,
+    $s$select 1 from public.car_of_week_board() where user_id in
+      ('cccccccc-0000-4000-8000-00000000000a', 'cccccccc-0000-4000-8000-00000000000b')$s$);
+  -- C joins the public team A owns: now a teammate of A, still hidden from A (A blocked C)
+  -- but visible to B, who shares the team and blocked nobody.
+  perform pg_temp.allow('car_of_week setup: C joins the public team', c,
+    format($s$insert into team_members (team_id, user_id) values (%L, %L)$s$, team_o, c), true);
+  perform pg_temp.allow('car_of_week_board: own run listed', a,
+    $s$select 1 from public.car_of_week_board() where user_id = 'cccccccc-0000-4000-8000-00000000000a'$s$);
+  perform pg_temp.allow('car_of_week_board: friend and teammate run listed', a,
+    $s$select 1 from public.car_of_week_board() where user_id = 'cccccccc-0000-4000-8000-00000000000b'$s$);
+  perform pg_temp.deny('car_of_week_board: blocked teammate hidden', a,
+    $s$select 1 from public.car_of_week_board() where user_id = 'cccccccc-0000-4000-8000-00000000000c'$s$);
+  perform pg_temp.allow('car_of_week_board: blocked user sees teammates', c,
+    $s$select 1 from public.car_of_week_board() where user_id = 'cccccccc-0000-4000-8000-00000000000b'$s$);
+  perform pg_temp.deny('car_of_week_board: block hides the blocker too', c,
+    $s$select 1 from public.car_of_week_board() where user_id = 'cccccccc-0000-4000-8000-00000000000a'$s$);
+  perform pg_temp.allow('car_of_week_board: friend sees the teammate', b,
+    $s$select 1 from public.car_of_week_board() where user_id = 'cccccccc-0000-4000-8000-00000000000c'$s$);
+  perform pg_temp.deny('car_of_week_board: not callable by anon', 'anon',
+    $s$select * from public.car_of_week_board()$s$);
+  perform moderation_suspend(b);
+  perform pg_temp.deny('car_of_week_board: suspended runs drop out', a,
+    $s$select 1 from public.car_of_week_board() where user_id = 'cccccccc-0000-4000-8000-00000000000b'$s$);
+  perform moderation_unsuspend(b);
+
+  ---------------------------------------------------------------- w11-h hardening
+  -- verb coverage and column grants
+  insert into spots (id, spotter_id, make, model) values
+    ('cccccccc-0000-4000-8010-0000000000a1', a::uuid, 'Honda', 'Fit'),
+    ('cccccccc-0000-4000-8010-0000000000a2', b::uuid, 'Honda', 'Fit');
+  perform pg_temp.allow('w11h spots: owner deletes own spot', a,
+    $s$delete from spots where id = 'cccccccc-0000-4000-8010-0000000000a1'$s$);
+  perform pg_temp.deny('w11h spots: non-owner cannot delete', a,
+    $s$delete from spots where id = 'cccccccc-0000-4000-8010-0000000000a2'$s$);
+  perform pg_temp.deny('w11h post_photos: update revoked', a,
+    $s$update post_photos set sort = 9$s$);
+  perform pg_temp.deny('w11h post_photos: delete revoked', a,
+    $s$delete from post_photos$s$);
+  perform pg_temp.deny('w11h follows: update revoked', a,
+    $s$update follows set created_at = now()$s$);
+  perform pg_temp.deny('w11h listing_saves: update revoked', b,
+    $s$update listing_saves set created_at = now()$s$);
+  perform pg_temp.deny('w11h meet_rsvps: on_the_way_until not insertable', c,
+    format($s$insert into meet_rsvps (meet_id, user_id, status, car_id, on_the_way_until)
+      values (%L, %L, 'going', null, now())$s$, meet_pub, c), '42501');
+  perform pg_temp.deny('w11h meet_rsvps: on_the_way_until not updatable', b,
+    format($s$update meet_rsvps set on_the_way_until = now() where meet_id = %L$s$, meet_pub), '42501');
+  perform pg_temp.deny('w11h posts: created_at not insertable', a,
+    format($s$insert into posts (author_id, video_path, created_at) values (%L, 'x.mp4', now())$s$, a), '42501');
+  perform pg_temp.deny('w11h content_reports: resolved_at not insertable', b,
+    format($s$insert into content_reports (reporter_id, target_kind, target_id, reason, resolved_at)
+      values (%L, 'post', 'x', 'spam', now())$s$, b), '42501');
+  perform pg_temp.deny('w11h messages: created_at not insertable', a,
+    format($s$insert into messages (thread_id, author_id, body, created_at)
+      values (%L, %L, 'hi', now())$s$, thr_ab, a), '42501');
+  perform pg_temp.deny('w11h threads: created_at not insertable', a,
+    format($s$insert into threads (kind, a_id, b_id, created_at) values ('dm', %L, %L, now())$s$, a, c), '42501');
+
+  -- storage: SQL-side size and MIME limits on every bucket
+  perform pg_temp.truth('w11h storage: size and MIME limits on every bucket',
+    (select count(*) = 7 from storage.buckets
+      where id in ('avatars', 'cars', 'posts', 'listings', 'spots', 'teams', 'messages')
+        and file_size_limit = 15728640 and cardinality(allowed_mime_types) > 0)
+    and (select file_size_limit = 52428800 and cardinality(allowed_mime_types) > 0
+         from storage.buckets where id = 'catalog'));
+
+  -- indexes for foreign keys and the client/gateway query patterns
+  perform pg_temp.truth('w11h indexes: FK and query indexes exist',
+    (select count(*) = 32 from pg_indexes where schemaname = 'public' and indexname in (
+      'profiles_primary_car_idx', 'reports_author_idx', 'meets_host_idx', 'meets_team_idx',
+      'meets_road_idx', 'meets_winner_idx', 'meet_rsvps_car_idx', 'meet_rsvps_waitlist_idx',
+      'meet_checkins_user_idx', 'meet_votes_voter_idx', 'meet_votes_car_fk_idx',
+      'meet_promotions_user_idx', 'venue_notes_author_idx', 'roads_author_idx',
+      'road_ratings_user_idx', 'listings_car_idx', 'threads_listing_idx', 'posts_car_idx',
+      'read_markers_channel_idx', 'read_markers_thread_idx', 'race_results_car_idx',
+      'help_responses_user_idx', 'showdown_votes_winner_idx', 'showdown_votes_loser_idx',
+      'notifications_actor_idx', 'content_reports_reporter_idx', 'post_comments_author_idx',
+      'teams_owner_idx', 'messages_author_idx', 'report_votes_user_idx',
+      'help_requests_requester_idx', 'device_tokens_apns_idx')));
+  perform pg_temp.truth('w11h indexes: late-table FK indexes exist',
+    (select count(*) = 2 from pg_indexes where schemaname = 'public' and indexname in (
+      'car_of_week_runs_user_idx', 'message_reactions_user_idx')));
+
+  -- bounded set-returning RPCs: authenticated only, anon refused
+  perform pg_temp.deny('w11h following_feed: not callable by anon', 'anon',
+    $s$select * from following_feed()$s$);
+  perform pg_temp.deny('w11h saved_listings: not callable by anon', 'anon',
+    $s$select * from saved_listings()$s$);
+  perform pg_temp.deny('w11h channel_unread: not callable by anon', 'anon',
+    $s$select * from channel_unread()$s$);
+  perform pg_temp.truth('w11h rpcs: execute granted to authenticated, not anon',
+    has_function_privilege('authenticated', 'public.following_feed(timestamp with time zone, integer)', 'execute')
+    and has_function_privilege('authenticated', 'public.saved_listings(integer)', 'execute')
+    and has_function_privilege('authenticated', 'public.channel_unread()', 'execute')
+    and has_function_privilege('authenticated', 'public.build_costs(uuid)', 'execute')
+    and not has_function_privilege('anon', 'public.following_feed(timestamp with time zone, integer)', 'execute')
+    and not has_function_privilege('anon', 'public.saved_listings(integer)', 'execute')
+    and not has_function_privilege('anon', 'public.channel_unread()', 'execute')
+    and not has_function_privilege('anon', 'public.build_costs(uuid)', 'execute'));
+  perform pg_temp.allow('w11h saved_listings: caller sees own saves', b,
+    $s$select * from saved_listings()$s$);
+
+  -- input checks: every new constraint exists, plus behavioural spot checks
+  perform pg_temp.truth('w11h constraints: all length/range/size checks exist',
+    (select count(*) = 28 from pg_constraint where conname in (
+      'profiles_avatar_path_len', 'car_photos_path_len', 'build_entries_photo_path_len',
+      'build_entries_mod_id_len', 'build_entries_cost_max', 'build_entries_happened_on_range',
+      'posts_video_path_len', 'posts_poster_path_len', 'listing_photos_path_len',
+      'spots_photo_path_len', 'spots_catalog_model_id_pos', 'messages_attachment_path_len',
+      'teams_icon_path_len', 'cars_spec_overrides_size', 'cars_mods_size',
+      'race_results_mods_size', 'race_results_reaction_ms_range', 'race_results_trap_max',
+      'race_results_sixty_max', 'race_results_model_version_max',
+      'showdown_entries_rating_range', 'listings_price_max', 'convoys_id_len',
+      'convoys_join_code_fmt', 'convoys_state_size', 'car_of_week_runs_trap_max',
+      'car_of_week_runs_reaction_max', 'car_of_week_runs_model_max')));
+  perform pg_temp.deny('w11h constraints: oversized JSONB refused', a,
+    format($s$update cars set spec_overrides = jsonb_build_object('pad', repeat('x', 5000))
+      where id = %L$s$, car_a), '23514');
+  perform pg_temp.deny('w11h constraints: listing price cap', a,
+    format($s$update listings set price_cents = 100000001 where id = %L$s$, lst_a), '23514');
+  perform pg_temp.deny('w11h constraints: race reaction cap', a,
+    format($s$insert into race_results (user_id, car_id, et_ms, reaction_ms)
+      values (%L, %L, 15000, 60001)$s$, a, car_a), '23514');
+  perform pg_temp.deny('w11h constraints: message attachment path cap', a,
+    format($s$insert into messages (thread_id, author_id, attachment_path)
+      values (%L, %L, repeat('x', 301))$s$, thr_ab, a), '23514');
+  perform pg_temp.deny('w11h constraints: convoy join code format', 'service',
+    $s$insert into convoys (id, join_code, state) values ('chk-convoy-bad', 'bad code!', '{}')$s$, '23514');
+
+  -- default privileges: a table created now grants anon nothing
+  execute 'create table public.w11h_probe (id int)';
+  perform pg_temp.truth('w11h defaults: anon has no privileges on new public tables',
+    not has_table_privilege('anon', 'public.w11h_probe', 'select')
+    and not has_table_privilege('anon', 'public.w11h_probe', 'insert'));
+  execute 'drop table public.w11h_probe';
+
+  ---------------------------------------------------------------- reactions and mute (MSG-11, SAFE-12)
+  perform pg_temp.allow('messages setup: A posts in the team channel', a,
+    format($s$insert into messages (channel_id, author_id, body) values (%L, %L, 'react to me')$s$, general_p, a), true);
+  select id into msg_b from messages where body = 'react to me';
+  perform pg_temp.allow('message_reactions: member reacts', b,
+    format($s$insert into message_reactions (message_id, user_id, reaction) values (%s, %L, 'fire')$s$, msg_b, b), true);
+  perform pg_temp.deny('message_reactions: only the six fixed reactions', b,
+    format($s$insert into message_reactions (message_id, user_id, reaction) values (%s, %L, 'party')$s$, msg_b, b), '23514');
+  perform pg_temp.deny('message_reactions: cannot react as someone else', b,
+    format($s$insert into message_reactions (message_id, user_id, reaction) values (%s, %L, 'heart')$s$, msg_b, a));
+  perform pg_temp.allow('message_reactions: reader sees counts', a,
+    format($s$select 1 from message_reactions where message_id = %s$s$, msg_b));
+  perform pg_temp.deny('message_reactions: outsiders cannot read', c,
+    format($s$select 1 from message_reactions where message_id = %s$s$, msg_b));
+  perform pg_temp.deny('message_reactions: anon cannot read', 'anon',
+    $s$select 1 from message_reactions$s$);
+  perform pg_temp.allow('message_reaction_counts: page query returns rows', a,
+    format($s$select * from message_reaction_counts(array[%s]::bigint[])$s$, msg_b));
+  perform pg_temp.deny('message_reaction_counts: not callable by anon', 'anon',
+    format($s$select * from message_reaction_counts(array[%s]::bigint[])$s$, msg_b));
+  perform pg_temp.allow('message_reactions: author removes own', b,
+    format($s$delete from message_reactions where message_id = %s and user_id = %L$s$, msg_b, b));
+  perform pg_temp.deny('message_reactions: cannot remove someone else''s', b,
+    format($s$delete from message_reactions where message_id = %s and user_id = %L$s$, msg_b, a));
+  perform moderation_suspend(b);
+  perform pg_temp.deny('message_reactions: suspended cannot react', b,
+    format($s$insert into message_reactions (message_id, user_id, reaction) values (%s, %L, 'wrench')$s$, msg_b, b), '42501,PT423');
+  perform moderation_unsuspend(b);
+
+  perform pg_temp.allow('mutes: owner mutes a person', a,
+    format($s$insert into mutes (owner_id, target_kind, target_id) values (%L, 'user', %L)$s$, a, b), true);
+  perform pg_temp.allow('mutes: owner reads own mutes', a, $s$select 1 from mutes$s$);
+  perform pg_temp.deny('mutes: others cannot read', b, $s$select 1 from mutes$s$);
+  perform pg_temp.deny('mutes: anon cannot read', 'anon', $s$select 1 from mutes$s$);
+  perform pg_temp.deny('mutes: cannot mute for someone else', b,
+    format($s$insert into mutes (owner_id, target_kind, target_id) values (%L, 'user', %L)$s$, a, c));
+  perform pg_temp.deny('mutes: unknown target kind refused', a,
+    format($s$insert into mutes (owner_id, target_kind, target_id) values (%L, 'car', %L)$s$, a, c), '23514');
+  perform pg_temp.truth('mutes: muted actor writes no activity row',
+    not public.record_notification(a::uuid, 'like', b::uuid, 'waypoints://post/x', 't', 'b', null));
+  perform pg_temp.truth('mutes: is_muted matches a muted person',
+    public.is_muted(a::uuid, b::uuid, null));
+  perform pg_temp.allow('mutes: owner also mutes the channel', a,
+    format($s$insert into mutes (owner_id, target_kind, target_id) values (%L, 'channel', %L)$s$, a, general_p), true);
+  perform pg_temp.truth('mutes: is_muted matches a muted channel',
+    public.is_muted(a::uuid, c::uuid, 'waypoints://channel/' || general_p));
+  perform pg_temp.truth('mutes: unrelated urls are not muted',
+    not public.is_muted(a::uuid, c::uuid, 'waypoints://channel/cccccccc-0000-4000-8000-0000000000ff'));
+  perform pg_temp.allow('mutes: owner also mutes the team', a,
+    format($s$insert into mutes (owner_id, target_kind, target_id) values (%L, 'team', %L)$s$, a, team_p), true);
+  perform pg_temp.allow('mutes: lift the channel mute', a,
+    format($s$delete from mutes where owner_id = %L and target_kind = 'channel'$s$, a), true);
+  perform pg_temp.truth('mutes: is_muted matches a muted team channel and meet',
+    public.is_muted(a::uuid, c::uuid, 'waypoints://channel/' || general_p)
+    and public.is_muted(a::uuid, c::uuid, 'waypoints://meet/cccccccc-0000-4000-8003-000000000003'));
+  perform pg_temp.allow('mutes: an expired mute does not apply', b,
+    format($s$insert into mutes (owner_id, target_kind, target_id, until) values (%L, 'user', %L, now() - interval '1 hour')$s$, b, a), true);
+  perform pg_temp.truth('mutes: expired mute is ignored',
+    not public.is_muted(b::uuid, a::uuid, null));
+  perform pg_temp.truth('mutes: unmuted actor still writes activity rows',
+    public.record_notification(b::uuid, 'like', a::uuid, 'waypoints://post/y', 't', 'b', null));
+  perform pg_temp.deny('is_muted: not callable by users', a,
+    $s$select public.is_muted('cccccccc-0000-4000-8000-00000000000a'::uuid,
+      'cccccccc-0000-4000-8000-00000000000b'::uuid, 'x')$s$);
+  perform pg_temp.allow('mutes: owner unmutes', a,
+    format($s$delete from mutes where owner_id = %L and target_kind = 'user' and target_id = %L$s$, a, b));
 
   ---------------------------------------------------------------- cascade
   delete from storage.objects where name like a || '/%';

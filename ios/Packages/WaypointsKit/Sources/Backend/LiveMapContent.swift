@@ -31,8 +31,9 @@ struct LiveMeets: MeetRepository {
     func upcomingMeets(for user: UserID) async throws -> [Meet] {
         try await ctx.run {
             struct Row: Decodable { let meetId: UUID }
+            // Newest 100 RSVPs keep the `in` filter inside a URL; a user attends far fewer.
             let rsvps: [Row] = try await ctx.table("meet_rsvps").select("meet_id").eq("user_id", value: user.key)
-                .execute().value
+                .order("created_at", ascending: false).limit(100).execute().value
             var filter = "host_id.eq.\(user.key)"
             if !rsvps.isEmpty {
                 filter += ",id.in.(\(rsvps.map { $0.meetId.uuidString.lowercased() }.joined(separator: ",")))"
@@ -47,7 +48,7 @@ struct LiveMeets: MeetRepository {
     func rsvps(for meet: MeetID) async throws -> [MeetRSVP] {
         try await ctx.run {
             let rows: [RSVPRow] = try await ctx.table("meet_rsvps").select().eq("meet_id", value: meet.key)
-                .order("created_at").execute().value
+                .order("created_at").limit(1000).execute().value
             return rows.map(\.model)
         }
     }
@@ -187,8 +188,9 @@ struct LiveRoads: RoadRepository {
     }
 
     private func summary(_ road: UUID) async throws -> RoadRatingSummary {
+        // 10k cap keeps the average honest while bounding a very popular road's read.
         let ratings: [RoadRatingRow] = try await ctx.table("road_ratings").select("surface, scenery, traffic")
-            .eq("road_id", value: road).execute().value
+            .eq("road_id", value: road).limit(10000).execute().value
         guard !ratings.isEmpty else { return RoadRatingSummary() }
         let n = Double(ratings.count)
         func avg(_ k: KeyPath<RoadRatingRow, Int>) -> Double {
@@ -208,11 +210,30 @@ struct LiveRoads: RoadRepository {
     func roads(by author: UserID) async throws -> [Road] {
         try await ctx.run {
             let rows: [RoadRow] = try await ctx.table("roads").select().eq("author_id", value: author.key)
-                .order("created_at", ascending: false).execute().value
-            var out: [Road] = []
-            for row in rows { out.append(row.model(ratings: try await summary(row.id))) }
-            return out
+                .order("created_at", ascending: false).limit(100).execute().value
+            let sums = try await summaries(rows.map(\.id))
+            return rows.map { $0.model(ratings: sums[$0.id] ?? RoadRatingSummary()) }
         }
+    }
+
+    /// Ratings for many roads in one query (was one `road_ratings` read per road).
+    private func summaries(_ roads: [UUID]) async throws -> [UUID: RoadRatingSummary] {
+        guard !roads.isEmpty else { return [:] }
+        struct Rated: Decodable { let roadId: UUID; let surface: Int; let scenery: Int; let traffic: Int }
+        let rows: [Rated] = try await ctx.table("road_ratings").select("road_id, surface, scenery, traffic")
+            .in("road_id", values: roads.map { $0.uuidString.lowercased() }).limit(5000).execute().value
+        var grouped: [UUID: [(Int, Int, Int)]] = [:]
+        for r in rows { grouped[r.roadId, default: []].append((r.surface, r.scenery, r.traffic)) }
+        var out: [UUID: RoadRatingSummary] = [:]
+        for (id, rs) in grouped {
+            let n = Double(rs.count)
+            out[id] = RoadRatingSummary(
+                surface: (Double(rs.reduce(0) { $0 + $1.0 }) / n * 10).rounded() / 10,
+                scenery: (Double(rs.reduce(0) { $0 + $1.1 }) / n * 10).rounded() / 10,
+                traffic: (Double(rs.reduce(0) { $0 + $1.2 }) / n * 10).rounded() / 10,
+                count: rs.count)
+        }
+        return out
     }
 
     func createRoad(name: String, path: [Coordinate]) async throws -> Road {
@@ -258,7 +279,7 @@ struct LiveSpots: SpotRepository {
     func spots(by spotter: UserID) async throws -> [Spot] {
         try await ctx.run {
             let rows: [SpotRow] = try await ctx.table("spots").select().eq("spotter_id", value: spotter.key)
-                .order("created_at", ascending: false).execute().value
+                .order("created_at", ascending: false).limit(200).execute().value
             return rows.map(\.spot)
         }
     }
@@ -279,8 +300,7 @@ struct LiveSpots: SpotRepository {
         }
     }
 
-    /// The schema revokes delete on `spots` (section 5.3: "Insert: owner"), so this throws
-    /// `forbidden` until a migration grants it.
+    /// `spots_delete_own` (W11-H) grants the owner delete; insert stays owner-only.
     func deleteSpot(_ id: SpotID) async throws {
         try await ctx.run {
             _ = try await ctx.table("spots").delete(returning: .minimal).eq("id", value: id.key).execute()

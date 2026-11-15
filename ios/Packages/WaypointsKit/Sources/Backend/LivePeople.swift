@@ -29,11 +29,16 @@ struct LiveProfiles: ProfileRepository {
 
     func profiles(_ ids: [UserID]) async throws -> [Profile] {
         guard !ids.isEmpty else { return [] }
-        return try await ctx.run {
-            let rows: [ProfileRow] = try await ctx.table("profiles").select()
-                .in("user_id", values: ids.map(\.key)).execute().value
-            return rows.map(\.model)
+        // Chunk the `in` list so the request URL stays small for large id sets.
+        var out: [Profile] = []
+        for start in stride(from: 0, to: ids.count, by: 100) {
+            let chunk = Array(ids[start..<min(start + 100, ids.count)])
+            let rows: [ProfileRow] = try await ctx.run {
+                try await ctx.table("profiles").select().in("user_id", values: chunk.map(\.key)).execute().value
+            }
+            out += rows.map(\.model)
         }
+        return out
     }
 
     func profile(uid: RealtimeUID) async throws -> Profile? {
@@ -158,7 +163,26 @@ struct LiveFriends: FriendRepository {
 
     private func rows(_ me: UserID) async throws -> [FriendshipRow] {
         try await ctx.table("friendships").select()
-            .or("requester_id.eq.\(me.key),addressee_id.eq.\(me.key)").execute().value
+            .or("requester_id.eq.\(me.key),addressee_id.eq.\(me.key)").limit(1000).execute().value
+    }
+
+    /// Chunked `in` lookups so large id sets keep the request URL small.
+    private func profileRows(_ keys: [String]) async throws -> [ProfileRow] {
+        var out: [ProfileRow] = []
+        for start in stride(from: 0, to: keys.count, by: 100) {
+            let chunk = Array(keys[start..<min(start + 100, keys.count)])
+            out += try await ctx.table("profiles").select().in("user_id", values: chunk).execute().value
+        }
+        return out
+    }
+
+    private func carRows(_ ids: [UUID]) async throws -> [CarRow] {
+        var out: [CarRow] = []
+        for start in stride(from: 0, to: ids.count, by: 100) {
+            let chunk = Array(ids[start..<min(start + 100, ids.count)])
+            out += try await ctx.table("cars").select().in("id", values: chunk.map { $0.uuidString.lowercased() }).execute().value
+        }
+        return out
     }
 
     func friends() async throws -> [Friend] {
@@ -167,11 +191,9 @@ struct LiveFriends: FriendRepository {
             let accepted = try await rows(me).filter { $0.status == .accepted }.map(\.model)
             let ids = accepted.map { $0.other(than: me) }
             guard !ids.isEmpty else { return [] }
-            let profiles: [ProfileRow] = try await ctx.table("profiles").select()
-                .in("user_id", values: ids.map(\.key)).execute().value
+            let profiles = try await profileRows(ids.map(\.key))
             let carIDs = profiles.compactMap(\.primaryCarId)
-            let cars: [CarRow] = carIDs.isEmpty ? [] : try await ctx.table("cars").select()
-                .in("id", values: carIDs.map(\.uuidString)).execute().value
+            let cars = carIDs.isEmpty ? [] : try await carRows(carIDs)
             let carsByID = Dictionary(cars.map { ($0.id, $0.car) }) { a, _ in a }
             let since = Dictionary(accepted.map { ($0.other(than: me).raw, $0.createdAt) }) { a, _ in a }
             return profiles.map { row in
@@ -188,11 +210,10 @@ struct LiveFriends: FriendRepository {
             let column = incoming ? "addressee_id" : "requester_id"
             let pending: [FriendshipRow] = try await ctx.table("friendships").select()
                 .eq(column, value: me.key).eq("status", value: "pending")
-                .order("created_at", ascending: false).execute().value
-            let ids = pending.map { incoming ? $0.requesterId : $0.addresseeId }
+                .order("created_at", ascending: false).limit(200).execute().value
+            let ids = pending.map { incoming ? $0.requesterId.uuidString.lowercased() : $0.addresseeId.uuidString.lowercased() }
             guard !ids.isEmpty else { return [] }
-            let profiles: [ProfileRow] = try await ctx.table("profiles").select()
-                .in("user_id", values: ids.map(\.uuidString)).execute().value
+            let profiles = try await profileRows(ids)
             let byID = Dictionary(profiles.map { ($0.userId, $0.model) }) { a, _ in a }
             return pending.compactMap { row in
                 byID[incoming ? row.requesterId : row.addresseeId].map { FriendRequest(profile: $0, sentAt: row.createdAt) }

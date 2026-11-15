@@ -11,7 +11,7 @@ struct LiveGarage: GarageRepository {
     func cars(of owner: UserID) async throws -> [Car] {
         try await ctx.run {
             let rows: [CarRow] = try await ctx.table("cars").select().eq("owner_id", value: owner.key)
-                .order("sort").order("created_at").execute().value
+                .order("sort").order("created_at").limit(100).execute().value
             return rows.map(\.car)
         }
     }
@@ -69,7 +69,7 @@ struct LiveGarage: GarageRepository {
     func photos(of car: CarID) async throws -> [CarPhoto] {
         try await ctx.run {
             let rows: [CarPhotoRow] = try await ctx.table("car_photos").select().eq("car_id", value: car.key)
-                .order("sort").order("created_at").execute().value
+                .order("sort").order("created_at").limit(200).execute().value
             return rows.map(\.model)
         }
     }
@@ -105,7 +105,7 @@ struct LiveGarage: GarageRepository {
     func buildEntries(of car: CarID) async throws -> [BuildEntry] {
         try await ctx.run {
             let rows: [BuildEntryRow] = try await ctx.table("build_entries").select(Self.buildEntryColumns).eq("car_id", value: car.key)
-                .order("happened_on", ascending: false).order("created_at", ascending: false).execute().value
+                .order("happened_on", ascending: false).order("created_at", ascending: false).limit(500).execute().value
             return rows.map(\.model)
         }
     }
