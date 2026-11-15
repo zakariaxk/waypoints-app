@@ -25,6 +25,9 @@
     "Couldn't add the car. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't check that handle. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't save. Check your connection and try again.": {
       "extractionState": "manual"
     },
@@ -46,9 +49,6 @@
     "Not now": {
       "extractionState": "manual"
     },
-    "Precise": {
-      "extractionState": "manual"
-    },
     "See who's out. Find the meet. Show the build.": {
       "extractionState": "manual"
     },
@@ -67,10 +67,16 @@
     "That code didn't match. Check the email and try again.": {
       "extractionState": "manual"
     },
+    "That handle or name can't be used. Try another.": {
+      "extractionState": "manual"
+    },
     "Too many tries. Wait a minute and try again.": {
       "extractionState": "manual"
     },
     "Turn on location": {
+      "extractionState": "manual"
+    },
+    "Use a different email": {
       "extractionState": "manual"
     },
     "Waypoints": {

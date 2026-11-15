@@ -34,7 +34,7 @@ final class OnboardingModel {
         }
     }
 
-    func finish() async { try? await env.auth.completeOnboarding() }
+    func finish() async throws { try await env.auth.completeOnboarding() }
 }
 
 struct OnboardingRoot: View {
@@ -49,7 +49,7 @@ struct OnboardingRoot: View {
                 case .you: YouView(env: model.env) { model.step = .terms }
                 case .terms: TermsGate(safety: model.env.safety) { model.step = .car }
                 case .car: CarStepView(env: model.env) { model.step = .location }
-                case .location: LocationStepView(env: model.env) { Task { await model.finish() } }
+                case .location: LocationStepView(env: model.env) { try await model.finish() }
                 }
             }
             .transition(.opacity)
@@ -72,6 +72,7 @@ struct SignInView: View {
     @State private var showEmail = false
     @State private var nonce = ""
     @State private var failed = 0
+    @FocusState private var codeFocused: Bool
 
     var body: some View {
         GeometryReader { proxy in
@@ -107,11 +108,17 @@ struct SignInView: View {
                 request.requestedScopes = [.email]
                 request.nonce = Self.sha256(nonce)
             } onCompletion: { result in
-                guard case let .success(auth) = result,
-                      let cred = auth.credential as? ASAuthorizationAppleIDCredential,
-                      let data = cred.identityToken, let token = String(data: data, encoding: .utf8) else { return }
-                Task {
-                    do { _ = try await env.auth.signInWithApple(idToken: token, nonce: nonce) } catch { show(error) }
+                switch result {
+                case let .success(auth):
+                    guard let cred = auth.credential as? ASAuthorizationAppleIDCredential,
+                          let data = cred.identityToken, let token = String(data: data, encoding: .utf8) else {
+                        return show(ASAuthorizationError(.invalidResponse))
+                    }
+                    Task {
+                        do { _ = try await env.auth.signInWithApple(idToken: token, nonce: nonce) } catch { show(error) }
+                    }
+                case let .failure(failure):
+                    if (failure as? ASAuthorizationError)?.code != .canceled { show(failure) }
                 }
             }
             .signInWithAppleButtonStyle(.white)
@@ -127,11 +134,18 @@ struct SignInView: View {
                 Field("Code", text: $code, prompt: "6 digits")
                     .keyboardType(.numberPad)
                     .textContentType(.oneTimeCode)
+                    .focused($codeFocused)
+                    .onAppear { codeFocused = true }
                     .onChange(of: code) {
                         code = String(code.filter(\.isNumber).prefix(6))
                         if code.count == 6 { verify() }
                     }
                 if canResend { QuietButton("Send it again") { send() } }
+                QuietButton("Use a different email") {
+                    codeSent = false
+                    code = ""
+                    error = nil
+                }
             } else {
                 Field("Email", text: $email, prompt: "you@example.com")
                     .keyboardType(.emailAddress).textContentType(.emailAddress).textInputAutocapitalization(.never)
@@ -141,8 +155,10 @@ struct SignInView: View {
     }
 
     private func send() {
+        guard !sending else { return }
         sending = true
         error = nil
+        email = email.trimmingCharacters(in: .whitespacesAndNewlines)
         Task {
             do {
                 try await env.auth.sendEmailCode(to: email)
@@ -236,13 +252,27 @@ struct YouView: View {
             guard Profile.isValidHandle(handle) else { return }
             try? await Task.sleep(for: .milliseconds(400))
             guard !Task.isCancelled else { return }
-            available = try? await env.profiles.isHandleAvailable(handle)
+            do {
+                let free = try await env.profiles.isHandleAvailable(handle)
+                guard !Task.isCancelled else { return }
+                available = free
+                error = nil
+            } catch {
+                guard !Task.isCancelled else { return }
+                self.error = String(localized: "Couldn't check that handle. Check your connection and try again.", bundle: .module)
+            }
         }
     }
 
     private func save() {
         saving = true
+        error = nil
         Task {
+            if case .blocked = await env.safety.check(handle + " " + name) {
+                error = String(localized: "That handle or name can't be used. Try another.", bundle: .module)
+                saving = false
+                return
+            }
             do {
                 try await env.profiles.updateMyProfile(ProfileUpdate(handle: handle, displayName: name, birthYear: birthYear))
                 next()
@@ -290,9 +320,10 @@ struct CarStepView: View {
 
 struct LocationStepView: View {
     let env: AppEnvironment
-    let done: () -> Void
+    let done: () async throws -> Void
     @State private var showNearby = false
     @State private var working = false
+    @State private var error: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.s16) {
@@ -302,8 +333,8 @@ struct LocationStepView: View {
                     span: MKCoordinateSpan(latitudeDelta: 0.08, longitudeDelta: 0.08))), interactionModes: [])
                     .mapStyle(.standard(emphasis: .muted, pointsOfInterest: .excludingAll))
                 HStack(spacing: Space.s32) {
-                    sample(VehicleMarker(icon: "pony", paint: Color(rgb: 0x2B6CD1), role: .friend(name: "Precise")), "Friends")
-                    sample(VehicleMarker(icon: "pony", paint: Color(rgb: 0x2B6CD1), role: .approximate), "Approximate")
+                    sample(VehicleMarker(icon: "pony", paint: .sodium, role: .friend(name: "")), "Precise")
+                    sample(VehicleMarker(icon: "pony", paint: .sodium, role: .approximate), "Approximate")
                     sample(Color.clear.frame(width: Size.Marker.friend, height: Size.Marker.friend), "Nothing")
                 }
             }
@@ -317,6 +348,7 @@ struct LocationStepView: View {
                 radio("Hide me from drivers nearby", selected: !showNearby) { showNearby = false }
                 radio("Show drivers nearby roughly where I am (within half a mile)", selected: showNearby) { showNearby = true }
             }
+            if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
             PrimaryButton("Turn on location", isLoading: working) { finish(requestLocation: true) }
             QuietButton("Not now") { finish(requestLocation: false) }.frame(maxWidth: .infinity)
         }
@@ -345,17 +377,23 @@ struct LocationStepView: View {
     }
 
     private func finish(requestLocation: Bool) {
+        guard !working else { return }
         working = true
+        error = nil
         Task {
-            var settings = (try? await env.profiles.myPrivacySettings()) ?? .defaults
-            settings.nearbyLevel = showNearby ? .approx : .hidden
-            try? await env.gateway.updatePrivacy(settings)
-            if requestLocation {
-                await env.location.requestWhenInUse()
-                await env.location.setSharing(true)
+            do {
+                var settings = (try? await env.profiles.myPrivacySettings()) ?? .defaults
+                settings.nearbyLevel = showNearby ? .approx : .hidden
+                if showNearby { try await env.gateway.updatePrivacy(settings) } else { try? await env.gateway.updatePrivacy(settings) }
+                if requestLocation {
+                    await env.location.requestWhenInUse()
+                    await env.location.setSharing(true)
+                }
+                try await done()
+            } catch {
+                self.error = String(localized: "Couldn't save. Check your connection and try again.", bundle: .module)
             }
             working = false
-            done()
         }
     }
 }

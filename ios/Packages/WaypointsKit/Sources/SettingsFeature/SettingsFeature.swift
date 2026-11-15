@@ -15,7 +15,21 @@ public enum SettingsFeature: FeatureModule {
         registry.registerRoute(.reportContent, presentation: .sheet) { route in
             guard case let .reportContent(ref) = route else { return nil }
             let user = ref.kind == .user ? UserID(string: ref.id) : nil
-            return AnyView(ReportSheet(target: ref, thing: ref.kind.rawValue, blockUser: user, safety: env.safety))
+            let thing = switch ref.kind {
+            case .user: String(localized: "person", bundle: .module)
+            case .car: String(localized: "car", bundle: .module)
+            case .post: String(localized: "post", bundle: .module)
+            case .comment: String(localized: "comment", bundle: .module)
+            case .message: String(localized: "message", bundle: .module)
+            case .listing: String(localized: "listing", bundle: .module)
+            case .meet: String(localized: "meet", bundle: .module)
+            case .report: String(localized: "map report", bundle: .module)
+            case .team: String(localized: "team", bundle: .module)
+            case .spot: String(localized: "spot", bundle: .module)
+            case .road: String(localized: "road", bundle: .module)
+            case .help: String(localized: "help request", bundle: .module)
+            }
+            return AnyView(ReportSheet(target: ref, thing: thing, blockUser: user, safety: env.safety))
         }
     }
 }
@@ -83,17 +97,28 @@ final class PrivacyModel {
     var zones: [HomeZone] = []
     var error: String?
     var background = false
+    var loaded = false
 
     init(env: AppEnvironment) { self.env = env }
 
     func load() async {
-        settings = (try? await env.profiles.myPrivacySettings()) ?? .defaults
+        if let s = try? await env.profiles.myPrivacySettings() {
+            settings = s
+            loaded = true
+        } else {
+            error = String(localized: "Couldn't load your settings. Check your connection and try again.", bundle: .module)
+        }
         for await z in await env.location.homeZones() { zones = z }
     }
 
     func save(_ new: PrivacySettings) {
+        guard loaded else {
+            error = String(localized: "Couldn't save. Try again.", bundle: .module)
+            return
+        }
         let old = settings
         settings = new
+        error = nil
         Task {
             do { try await env.gateway.updatePrivacy(new) } catch {
                 settings = old
@@ -104,7 +129,9 @@ final class PrivacyModel {
 
     func saveZones(_ new: [HomeZone]) {
         Task {
-            do { try await env.location.setHomeZones(new) } catch { self.error = "Couldn't save. Try again." }
+            do { try await env.location.setHomeZones(new) } catch {
+                self.error = String(localized: "Couldn't save. Try again.", bundle: .module)
+            }
         }
     }
 }
@@ -161,6 +188,9 @@ struct PrivacyView: View {
             }
         }
         .task { await model.load() }
+        .task {
+            for await status in await model.env.location.authorization() { model.background = status == .always }
+        }
         .confirmationDialog("Go ghost", isPresented: $askGhost) {
             Button("For 1 hour") { ghost(until: .now.addingTimeInterval(3600)) }
             Button("Until tomorrow") { ghost(until: Self.tomorrowSix) }
@@ -264,6 +294,8 @@ struct NotificationsView: View {
     @State private var prefs = NotificationPrefs()
     @State private var privacy = PrivacySettings.defaults
     @State private var systemOff = false
+    @State private var loaded = false
+    @State private var error: String?
     @Environment(\.openURL) private var openURL
 
     var body: some View {
@@ -276,17 +308,17 @@ struct NotificationsView: View {
                 .padding(Space.margin)
             }
             toggle("Meets near me", Binding(get: { privacy.notifyMeetsNearby }, set: { v in
-                privacy.notifyMeetsNearby = v
                 if v { askForNotifications() }
-                let p = privacy
-                Task { try? await env.gateway.updatePrivacy(p) }
+                var p = privacy
+                p.notifyMeetsNearby = v
+                savePrivacy(p)
             }))
             if privacy.notifyMeetsNearby {
                 Row(Text("Radius", bundle: .module), trailing: {
                     Stepper(value: Binding(get: { privacy.notifyRadiusKm }, set: { v in
-                        privacy.notifyRadiusKm = v
-                        let p = privacy
-                        Task { try? await env.gateway.updatePrivacy(p) }
+                        var p = privacy
+                        p.notifyRadiusKm = v
+                        savePrivacy(p)
                     }), in: 5...50, step: 5) {
                         Text(verbatim: SettingsUnits.radius(km: privacy.notifyRadiusKm)).typeStyle(.readoutS)
                     }
@@ -297,19 +329,54 @@ struct NotificationsView: View {
             toggle("Mentions", pref(\.mentions))
             toggle("Convoy invites", pref(\.convoyInvites))
             toggle("Meet reminders", pref(\.meetReminders))
+            if let error {
+                Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake).padding(Space.margin)
+            }
         }
         .task {
-            prefs = (try? await env.profiles.notificationPrefs()) ?? NotificationPrefs()
-            privacy = (try? await env.profiles.myPrivacySettings()) ?? .defaults
             systemOff = await notificationStatus() == .denied
+            do {
+                prefs = try await env.profiles.notificationPrefs()
+                privacy = try await env.profiles.myPrivacySettings()
+                loaded = true
+            } catch {
+                self.error = String(localized: "Couldn't load your settings. Check your connection and try again.", bundle: .module)
+            }
+        }
+    }
+
+    private func savePrivacy(_ new: PrivacySettings) {
+        guard loaded else {
+            error = String(localized: "Couldn't save. Try again.", bundle: .module)
+            return
+        }
+        let old = privacy
+        privacy = new
+        error = nil
+        Task {
+            do { try await env.gateway.updatePrivacy(new) } catch {
+                privacy = old
+                self.error = String(localized: "Couldn't save. Try again.", bundle: .module)
+            }
         }
     }
 
     private func pref(_ key: WritableKeyPath<NotificationPrefs, Bool>) -> Binding<Bool> {
         Binding(get: { prefs[keyPath: key] }, set: { v in
+            guard loaded else {
+                error = String(localized: "Couldn't save. Try again.", bundle: .module)
+                return
+            }
+            let old = prefs
             prefs[keyPath: key] = v
+            error = nil
             let p = prefs
-            Task { try? await env.profiles.setNotificationPrefs(p) }
+            Task {
+                do { try await env.profiles.setNotificationPrefs(p) } catch {
+                    prefs = old
+                    self.error = String(localized: "Couldn't save. Try again.", bundle: .module)
+                }
+            }
         })
     }
 
@@ -323,10 +390,16 @@ struct NotificationsView: View {
 struct BlockedView: View {
     let env: AppEnvironment
     @State private var people: [Profile]?
+    @State private var failed = false
+    @State private var error: String?
 
     var body: some View {
         SettingsList(title: "Blocked people") {
-            if let people {
+            if failed {
+                ErrorState(Text("Couldn't load blocked people. Check your connection and try again.", bundle: .module)) {
+                    Task { await load() }
+                }
+            } else if let people {
                 if people.isEmpty {
                     Text("You haven't blocked anyone.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust).padding(Space.margin)
                 }
@@ -336,17 +409,34 @@ struct BlockedView: View {
                     }, trailing: {
                         QuietButton("Unblock") {
                             Task {
-                                try? await env.safety.unblock(p.userID)
-                                self.people = try? await env.safety.blockedUsers()
+                                do {
+                                    try await env.safety.unblock(p.userID)
+                                    self.people?.removeAll { $0.userID == p.userID }
+                                    error = nil
+                                } catch {
+                                    self.error = String(localized: "Couldn't unblock. Check your connection and try again.", bundle: .module)
+                                }
                             }
                         }
                     })
+                }
+                if let error {
+                    Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake).padding(Space.margin)
                 }
             } else {
                 SkeletonRow(); SkeletonRow()
             }
         }
-        .task { people = (try? await env.safety.blockedUsers()) ?? [] }
+        .task { await load() }
+    }
+
+    private func load() async {
+        do {
+            people = try await env.safety.blockedUsers()
+            failed = false
+        } catch {
+            failed = true
+        }
     }
 }
 
@@ -358,12 +448,21 @@ struct AccountView: View {
     @State private var handle = ""
     @State private var typed = ""
     @State private var confirming = false
+    @State private var deleting = false
     @State private var error: String?
 
     var body: some View {
         SettingsList(title: "Account") {
-            Row(Text("Email", bundle: .module), trailing: { Text(verbatim: email ?? "Apple ID").typeStyle(.sub) })
-            Button { Task { try? await env.auth.signOut() } } label: { Row(Text("Sign out", bundle: .module)) }
+            Row(Text("Email", bundle: .module), trailing: {
+                (email.map { Text(verbatim: $0) } ?? Text("Apple ID", bundle: .module)).typeStyle(.sub)
+            })
+            Button {
+                Task {
+                    do { try await env.auth.signOut() } catch {
+                        self.error = String(localized: "Couldn't sign out. Check your connection and try again.", bundle: .module)
+                    }
+                }
+            } label: { Row(Text("Sign out", bundle: .module)) }
                 .buttonStyle(RowButtonStyle())
             VStack(alignment: .leading, spacing: Space.s12) {
                 if confirming {
@@ -371,11 +470,14 @@ struct AccountView: View {
                         .typeStyle(.sub).foregroundStyle(Color.dust)
                     Field("Handle", text: $typed, prompt: "\(handle)").textInputAutocapitalization(.never)
                     DestructiveButton("Delete account", confirmTitle: "Delete account",
-                                      consequence: "Everything you own in Waypoints is deleted now.") {
+                                      consequence: "Everything you own in Waypoints is deleted now.", isLoading: deleting) {
+                        deleting = true
+                        error = nil
                         Task {
                             do { try await env.auth.deleteAccount() } catch {
                                 self.error = String(localized: "Couldn't delete the account. Check your connection and try again.", bundle: .module)
                             }
+                            deleting = false
                         }
                     }
                     .disabled(typed.lowercased() != handle.lowercased() || handle.isEmpty)

@@ -37,6 +37,7 @@ actor LiveSafetyService: SafetyService {
     private let session = URLSession(configuration: .ephemeral)
     private var blocked: Set<UserID> = []
     private var loaded = false
+    private var owner: UserID?
     private var continuations: [UUID: AsyncStream<Set<UserID>>.Continuation] = [:]
 
     init(config: AppConfig, auth: any AuthService, profiles: any ProfileRepository) {
@@ -44,6 +45,20 @@ actor LiveSafetyService: SafetyService {
         anonKey = config.supabaseAnonKey
         self.auth = auth
         self.profiles = profiles
+        Task { [weak self] in
+            for await session in await auth.sessions() { await self?.reload(for: session?.userID) }
+        }
+    }
+
+    private func reload(for user: UserID?) async {
+        guard user != owner else { return }
+        if owner != nil {
+            loaded = false
+            blocked = []
+        }
+        owner = user
+        try? await load()
+        publish()
     }
 
     private func request(_ method: String, _ path: String, query: [URLQueryItem] = [], body: Data? = nil) async throws -> Data {
@@ -114,6 +129,7 @@ actor LiveSafetyService: SafetyService {
 
     func unblock(_ user: UserID) async throws {
         let me = try await me()
+        try await load()
         _ = try await request("DELETE", "blocks", query: [
             .init(name: "blocker_id", value: "eq.\(me)"), .init(name: "blocked_id", value: "eq.\(user)"),
         ])

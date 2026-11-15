@@ -44,6 +44,7 @@ public final class AppRouter: Router {
             sheet = nil
             fullScreen = nil
             debugScreen = nil
+            if let first = registry?.availableTabs.first { selectedTab = first }
         } else if let route = pending {
             pending = nil
             open(route)
@@ -66,7 +67,7 @@ public final class AppRouter: Router {
             sheet = nil
             fullScreen = nil
             selectedTab = target
-            paths[target, default: []].append(route)
+            if paths[target]?.last != route { paths[target, default: []].append(route) }
         case .sheet:
             sheet = PresentedRoute(route: route)
         case .fullScreen:

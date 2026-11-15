@@ -55,8 +55,8 @@ public struct ReportSheet: View {
                         }
                         Field("Note", text: $note, prompt: "Optional", limit: 300)
                             .padding(.horizontal, Space.margin).padding(.top, Space.s16)
-                        if let handle, blockUser != nil {
-                            Row(Text("Also block @\(handle)", bundle: .module), showsDivider: false, trailing: {
+                        if blockUser != nil {
+                            Row(handle.map { Text("Also block @\($0)", bundle: .module) } ?? Text("Also block this person", bundle: .module), showsDivider: false, trailing: {
                                 Toggle("", isOn: $alsoBlock).labelsHidden().tint(.sodium)
                             })
                         }
@@ -130,6 +130,7 @@ public struct TermsGate: View {
             if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
             PrimaryButton("Agree", isLoading: sending) {
                 sending = true
+                error = nil
                 Task {
                     do {
                         try await safety.acceptTerms()

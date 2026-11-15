@@ -1,6 +1,9 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "#%@ in %@": {
+      "extractionState": "manual"
+    },
     "%@": {
       "extractionState": "manual"
     },
@@ -8,6 +11,12 @@
       "extractionState": "manual"
     },
     "%@ %@ of the month": {
+      "extractionState": "manual"
+    },
+    "%@ %@ · %@ spotted": {
+      "extractionState": "manual"
+    },
+    "%@ You're at %@.": {
       "extractionState": "manual"
     },
     "%@ characters left": {
@@ -19,13 +28,22 @@
     "%@ drivers": {
       "extractionState": "manual"
     },
+    "%@ friends out": {
+      "extractionState": "manual"
+    },
     "%@ icon, earned": {
+      "extractionState": "manual"
+    },
+    "%@ in %@": {
       "extractionState": "manual"
     },
     "%@ in voice": {
       "extractionState": "manual"
     },
     "%@ members": {
+      "extractionState": "manual"
+    },
+    "%@ needs a tune": {
       "extractionState": "manual"
     },
     "%@ of %@ stretches of road here. Counted on this phone only.": {
@@ -35,6 +53,9 @@
       "extractionState": "manual"
     },
     "%@ on the way": {
+      "extractionState": "manual"
+    },
+    "%@ reported": {
       "extractionState": "manual"
     },
     "%@ rpm": {
@@ -65,6 +86,9 @@
       "extractionState": "manual"
     },
     "%@, speaking": {
+      "extractionState": "manual"
+    },
+    "1 friend out": {
       "extractionState": "manual"
     },
     "17 characters": {
@@ -109,6 +133,9 @@
     "Account": {
       "extractionState": "manual"
     },
+    "Active": {
+      "extractionState": "manual"
+    },
     "Activity": {
       "extractionState": "manual"
     },
@@ -116,6 +143,9 @@
       "extractionState": "manual"
     },
     "Add": {
+      "extractionState": "manual"
+    },
+    "Add %@ too": {
       "extractionState": "manual"
     },
     "Add Stage 1 tune too": {
@@ -163,6 +193,9 @@
     "Add someone from their code": {
       "extractionState": "manual"
     },
+    "Add them too": {
+      "extractionState": "manual"
+    },
     "Add to Calendar": {
       "extractionState": "manual"
     },
@@ -203,6 +236,9 @@
       "extractionState": "manual"
     },
     "Also block @%@": {
+      "extractionState": "manual"
+    },
+    "Also block this person": {
       "extractionState": "manual"
     },
     "Also show drivers nearby": {
@@ -322,6 +358,9 @@
     "CONVOY": {
       "extractionState": "manual"
     },
+    "Calendar access is off for Waypoints. Turn it on in Settings.": {
+      "extractionState": "manual"
+    },
     "Cancel": {
       "extractionState": "manual"
     },
@@ -433,25 +472,70 @@
     "Copy": {
       "extractionState": "manual"
     },
+    "Couldn't add it to your calendar.": {
+      "extractionState": "manual"
+    },
     "Couldn't add it. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't add the car. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't add the photo. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't ask for a hand. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't block them. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't block. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't blur the photo. Try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't cancel the meet. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't change ghost mode. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't change it. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't change your marker. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't change your marker. Try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't check that handle. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't clear it. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't count that. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't delete it. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't delete that comment. Try again.": {
       "extractionState": "manual"
     },
     "Couldn't delete the account. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't delete the message. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't do that. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't end the convoy. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't extend it. Check your connection and try again.": {
@@ -463,13 +547,79 @@
     "Couldn't find that place. Try a fuller name or address.": {
       "extractionState": "manual"
     },
+    "Couldn't find that place. Try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't list it. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't load activity. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't load blocked people. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load comments. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load messages. Check your connection.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load that photo. Try another one.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load that video. Try another one.": {
+      "extractionState": "manual"
+    },
     "Couldn't load the feed.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load the market.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load the next pair.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load the rankings. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this car. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this listing.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this meet. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this post.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this profile. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this request. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this road.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this team. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load those photos. Try others.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load your listings. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load your settings. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load your teams. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't open the conversation. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't play this.": {
@@ -481,6 +631,9 @@
     "Couldn't post the report. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't post.": {
+      "extractionState": "manual"
+    },
     "Couldn't post. Check your connection and try again.": {
       "extractionState": "manual"
     },
@@ -490,16 +643,28 @@
     "Couldn't reach the convoy. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't remove the friend. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't save it. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't save the car. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't save the meet. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't save the rating. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't save the road. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save to the car. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save your RSVP. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't save. Check your connection and try again.": {
@@ -514,7 +679,16 @@
     "Couldn't send that. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't send the invite. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't send the photo. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't send the report. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't set the regroup point. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't share the destination. Try again.": {
@@ -523,10 +697,22 @@
     "Couldn't sign in. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't sign out. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't start the convoy. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't start the meet. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't unblock. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't undo the report. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't upload. Try again.": {
       "extractionState": "manual"
     },
     "Cover": {
@@ -599,6 +785,9 @@
       "extractionState": "manual"
     },
     "Directions": {
+      "extractionState": "manual"
+    },
+    "Discard": {
       "extractionState": "manual"
     },
     "Dismiss": {
@@ -757,6 +946,9 @@
     "Fits": {
       "extractionState": "manual"
     },
+    "Fits: %@": {
+      "extractionState": "manual"
+    },
     "Fits: any car": {
       "extractionState": "manual"
     },
@@ -886,6 +1078,9 @@
     "House car %@ is open.": {
       "extractionState": "manual"
     },
+    "I have one.": {
+      "extractionState": "manual"
+    },
     "I'm a passenger": {
       "extractionState": "manual"
     },
@@ -905,6 +1100,9 @@
       "extractionState": "manual"
     },
     "Idle": {
+      "extractionState": "manual"
+    },
+    "In %@, %@": {
       "extractionState": "manual"
     },
     "In Showdown · %@": {
@@ -932,6 +1130,9 @@
       "extractionState": "manual"
     },
     "Invite people": {
+      "extractionState": "manual"
+    },
+    "Invite sent.": {
       "extractionState": "manual"
     },
     "Invite to convoy": {
@@ -1087,6 +1288,9 @@
     "Make cover": {
       "extractionState": "manual"
     },
+    "Make primary car": {
+      "extractionState": "manual"
+    },
     "Map": {
       "extractionState": "manual"
     },
@@ -1231,6 +1435,9 @@
     "No car": {
       "extractionState": "manual"
     },
+    "No cars are ranked here yet.": {
+      "extractionState": "manual"
+    },
     "No comments yet.": {
       "extractionState": "manual"
     },
@@ -1369,6 +1576,9 @@
     "On the way": {
       "extractionState": "manual"
     },
+    "Only the first 30 seconds are posted.": {
+      "extractionState": "manual"
+    },
     "Open Settings": {
       "extractionState": "manual"
     },
@@ -1406,6 +1616,9 @@
       "extractionState": "manual"
     },
     "Paused": {
+      "extractionState": "manual"
+    },
+    "Pending": {
       "extractionState": "manual"
     },
     "People": {
@@ -1490,6 +1703,9 @@
       "extractionState": "manual"
     },
     "Price": {
+      "extractionState": "manual"
+    },
+    "Primary car set": {
       "extractionState": "manual"
     },
     "Privacy and location": {
@@ -1589,6 +1805,9 @@
       "extractionState": "manual"
     },
     "Remove friend": {
+      "extractionState": "manual"
+    },
+    "Removed": {
       "extractionState": "manual"
     },
     "Removes the blur": {
@@ -1706,6 +1925,9 @@
       "extractionState": "manual"
     },
     "Saved roads": {
+      "extractionState": "manual"
+    },
+    "Saved to car": {
       "extractionState": "manual"
     },
     "Scan": {
@@ -1885,6 +2107,9 @@
     "Still there": {
       "extractionState": "manual"
     },
+    "Still there?": {
+      "extractionState": "manual"
+    },
     "Stop ghost mode": {
       "extractionState": "manual"
     },
@@ -1948,6 +2173,9 @@
     "That VIN didn't decode. Check the 17 characters.": {
       "extractionState": "manual"
     },
+    "That VIN isn't in the catalog. Pick the car by hand.": {
+      "extractionState": "manual"
+    },
     "That code didn't match. Check the email and try again.": {
       "extractionState": "manual"
     },
@@ -1957,7 +2185,13 @@
     "That comment can't be posted.": {
       "extractionState": "manual"
     },
+    "That didn't go through. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "That handle is taken.": {
+      "extractionState": "manual"
+    },
+    "That handle or name can't be used. Try another.": {
       "extractionState": "manual"
     },
     "That listing can't be posted.": {
@@ -2030,6 +2264,9 @@
       "extractionState": "manual"
     },
     "This profile isn't available.": {
+      "extractionState": "manual"
+    },
+    "This report isn't available. It may have been removed.": {
       "extractionState": "manual"
     },
     "This request has ended.": {
@@ -2125,6 +2362,9 @@
     "Use VIN": {
       "extractionState": "manual"
     },
+    "Use a different email": {
+      "extractionState": "manual"
+    },
     "Use it": {
       "extractionState": "manual"
     },
@@ -2135,6 +2375,9 @@
       "extractionState": "manual"
     },
     "VIN": {
+      "extractionState": "manual"
+    },
+    "VIN lookup needs a connection.": {
       "extractionState": "manual"
     },
     "VIRTUAL RUN · WAYPOINTS": {
@@ -2159,6 +2402,9 @@
       "extractionState": "manual"
     },
     "Voice disconnected.": {
+      "extractionState": "manual"
+    },
+    "Voice is unavailable right now. Try again later.": {
       "extractionState": "manual"
     },
     "WHO SEES YOU": {
@@ -2260,6 +2506,9 @@
     "You already have a request out. Clear it before asking again.": {
       "extractionState": "manual"
     },
+    "You blocked the person who added this road.": {
+      "extractionState": "manual"
+    },
     "You haven't blocked anyone.": {
       "extractionState": "manual"
     },
@@ -2332,7 +2581,16 @@
     "Zooms in": {
       "extractionState": "manual"
     },
+    "approximate": {
+      "extractionState": "manual"
+    },
     "build entries": {
+      "extractionState": "manual"
+    },
+    "car": {
+      "extractionState": "manual"
+    },
+    "comment": {
       "extractionState": "manual"
     },
     "east": {
@@ -2341,10 +2599,28 @@
     "est. hp": {
       "extractionState": "manual"
     },
+    "help request": {
+      "extractionState": "manual"
+    },
+    "listing": {
+      "extractionState": "manual"
+    },
     "lowercase, numbers, _": {
       "extractionState": "manual"
     },
     "lowercase-with-hyphens": {
+      "extractionState": "manual"
+    },
+    "map report": {
+      "extractionState": "manual"
+    },
+    "meet": {
+      "extractionState": "manual"
+    },
+    "message": {
+      "extractionState": "manual"
+    },
+    "moving": {
       "extractionState": "manual"
     },
     "north": {
@@ -2356,6 +2632,18 @@
     "north west": {
       "extractionState": "manual"
     },
+    "parked": {
+      "extractionState": "manual"
+    },
+    "person": {
+      "extractionState": "manual"
+    },
+    "post": {
+      "extractionState": "manual"
+    },
+    "road": {
+      "extractionState": "manual"
+    },
     "south": {
       "extractionState": "manual"
     },
@@ -2365,10 +2653,25 @@
     "south west": {
       "extractionState": "manual"
     },
+    "spot": {
+      "extractionState": "manual"
+    },
+    "team": {
+      "extractionState": "manual"
+    },
+    "updated %@ min ago": {
+      "extractionState": "manual"
+    },
+    "updated now": {
+      "extractionState": "manual"
+    },
     "west": {
       "extractionState": "manual"
     },
     "you@example.com": {
+      "extractionState": "manual"
+    },
+    "▲ %@ in %@": {
       "extractionState": "manual"
     }
   },

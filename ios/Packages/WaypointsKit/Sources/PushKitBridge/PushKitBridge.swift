@@ -53,9 +53,12 @@ public enum PushKitBridge: FeatureModule {
         func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async
             -> UNNotificationPresentationOptions { [.banner, .sound] }
 
-        func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-            guard let raw = response.notification.request.content.userInfo["url"] as? String, let url = URL(string: raw) else { return }
-            await MainActor.run { UIApplication.shared.open(url) }
+        func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
+                                    withCompletionHandler completionHandler: @escaping () -> Void) {
+            let raw = response.notification.request.content.userInfo["url"] as? String
+            completionHandler()
+            guard let raw, let url = URL(string: raw), let route = ActivityLink.route(from: url) else { return }
+            Task { @MainActor in PushKitBridge.env?.router.open(route) }
         }
     }
 }

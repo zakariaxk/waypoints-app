@@ -31,7 +31,19 @@
     "Couldn't delete the account. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't load blocked people. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load your settings. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't save. Try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't sign out. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't unblock. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Delete account": {
@@ -185,6 +197,42 @@
       "extractionState": "manual"
     },
     "Zone placed": {
+      "extractionState": "manual"
+    },
+    "car": {
+      "extractionState": "manual"
+    },
+    "comment": {
+      "extractionState": "manual"
+    },
+    "help request": {
+      "extractionState": "manual"
+    },
+    "listing": {
+      "extractionState": "manual"
+    },
+    "map report": {
+      "extractionState": "manual"
+    },
+    "meet": {
+      "extractionState": "manual"
+    },
+    "message": {
+      "extractionState": "manual"
+    },
+    "person": {
+      "extractionState": "manual"
+    },
+    "post": {
+      "extractionState": "manual"
+    },
+    "road": {
+      "extractionState": "manual"
+    },
+    "spot": {
+      "extractionState": "manual"
+    },
+    "team": {
       "extractionState": "manual"
     }
   },

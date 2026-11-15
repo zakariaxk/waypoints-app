@@ -7,6 +7,9 @@
     "Also block @%@": {
       "extractionState": "manual"
     },
+    "Also block this person": {
+      "extractionState": "manual"
+    },
     "Authorization": {
       "extractionState": "manual"
     },
