@@ -1,6 +1,8 @@
+import AuthenticationServices
 import Core
 import Foundation
 import Supabase
+import UIKit
 
 /// Supabase Auth: Sign in with Apple (ID token + nonce), email one-time code, automatic
 /// refresh (the SDK refreshes before expiry and `accessToken()` refreshes on demand),
@@ -171,6 +173,12 @@ actor LiveAuth: AuthService {
 
     func deleteAccount() async throws {
         let me = try ctx.me()
+        // App Review 5.1.1(v): apps offering Sign in with Apple must revoke the user's
+        // Apple token on deletion. Best effort and before the RPC: a fresh Apple
+        // authorization code goes to the gateway, which exchanges it and revokes the
+        // refresh token. Any failure is logged nowhere and ignored — deletion proceeds,
+        // and Apple allows the same flow to be retried.
+        await revokeAppleGrant()
         // Media first: storage objects have no cascade from auth.users, and the buckets are
         // public, so an orphaned file would stay readable with no owner able to delete it.
         // A failure here aborts the deletion; the user can retry.
@@ -191,6 +199,33 @@ actor LiveAuth: AuthService {
         onboarded.remove(me.raw)
         try? await ctx.client.auth.signOut(scope: .local)
         await publish(nil)
+    }
+
+    /// `true` when the account has a Sign in with Apple identity. Email-code accounts
+    /// have none, so they never see the extra Apple prompt at delete time.
+    private static func signedInWithApple(_ user: User) -> Bool {
+        if let identities = user.identities, !identities.isEmpty {
+            return identities.contains { $0.provider == "apple" }
+        }
+        if let providers = user.appMetadata["providers"]?.arrayValue {
+            return providers.contains { $0.stringValue == "apple" }
+        }
+        return user.appMetadata["provider"]?.stringValue == "apple"
+    }
+
+    /// Posts a fresh Apple authorization code to `POST /v1/apple/revoke`. Silent on
+    /// every failure: revocation is best effort and must never block deletion.
+    private func revokeAppleGrant() async {
+        guard let user = ctx.client.auth.currentSession?.user, Self.signedInWithApple(user),
+              let code = await AppleCredentialRequest().authorizationCode(),
+              let token = try? await accessToken() else { return }
+        var request = URLRequest(url: ctx.config.gatewayURL.appending(path: "v1/apple/revoke"))
+        request.httpMethod = "POST"
+        request.timeoutInterval = 15
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONEncoder().encode(["authorization_code": code])
+        _ = try? await URLSession.shared.data(for: request)
     }
 
     /// Best effort: drop this phone's APNs token while the session can still delete it, so a
@@ -240,4 +275,62 @@ enum DeviceTokenStore {
     static func remember(_ token: String) { UserDefaults.standard.set(token, forKey: key) }
 
     static func clear() { UserDefaults.standard.removeObject(forKey: key) }
+}
+
+/// Runs one `ASAuthorizationAppleIDProvider` request at account-deletion time to obtain a
+/// fresh authorization code for Apple token revocation (App Review 5.1.1(v)). Only the
+/// code is needed — no scopes, no nonce. `nil` on cancel, failure, or no window; the
+/// caller treats every outcome as best effort.
+///
+/// Main actor only: the controller presents in a window and its delegate is weak, so the
+/// request object itself is what keeps the flow alive until it completes.
+@MainActor
+private final class AppleCredentialRequest: NSObject, ASAuthorizationControllerDelegate,
+    ASAuthorizationControllerPresentationContextProviding {
+    private var controller: ASAuthorizationController?
+    private var continuation: CheckedContinuation<String?, Never>?
+
+    func authorizationCode() async -> String? {
+        guard Self.keyWindow != nil else { return nil }
+        let apple = ASAuthorizationAppleIDProvider()
+        let request = apple.createRequest()
+        let controller = ASAuthorizationController(authorizationRequests: [request])
+        controller.delegate = self
+        controller.presentationContextProvider = self
+        self.controller = controller
+        return await withCheckedContinuation { continuation in
+            self.continuation = continuation
+            controller.performRequests()
+        }
+    }
+
+    private static var keyWindow: UIWindow? {
+        let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        return scenes.flatMap(\.windows).first { $0.isKeyWindow }
+            ?? scenes.first?.windows.first { $0.windowScene?.activationState == .foregroundActive }
+    }
+
+    nonisolated func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        // Called on the main thread by the controller.
+        MainActor.assumeIsolated { Self.keyWindow ?? UIWindow() }
+    }
+
+    nonisolated func authorizationController(controller: ASAuthorizationController,
+                                             didCompleteWithAuthorization authorization: ASAuthorization) {
+        let code = (authorization.credential as? ASAuthorizationAppleIDCredential)
+            .flatMap(\.authorizationCode)
+            .flatMap { String(data: $0, encoding: .utf8) }
+        MainActor.assumeIsolated { self.finish(code) }
+    }
+
+    nonisolated func authorizationController(controller: ASAuthorizationController,
+                                             didCompleteWithError error: any Error) {
+        MainActor.assumeIsolated { self.finish(nil) }
+    }
+
+    private func finish(_ code: String?) {
+        continuation?.resume(returning: code)
+        continuation = nil
+        self.controller = nil
+    }
 }

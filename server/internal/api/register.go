@@ -31,6 +31,7 @@ type Service struct {
 	auth  *auth.Verifier
 	ws    *ws.Server
 	push  *push.Service
+	apple *appleRevoker // nil until WAYPOINTS_APPLE_* is configured
 }
 
 // Register mounts the report and meet endpoints.
@@ -41,6 +42,8 @@ func Register(a *app.App) {
 		ws:    app.MustLookup[*ws.Server](a),
 	}
 	s.push, _ = app.Lookup[*push.Service](a)
+	s.apple = loadAppleRevoker(a)
+	s.registerApple(a)
 	a.Mux.HandleFunc("POST /v1/reports", Authed(s.auth, s.postReport))
 	a.Mux.HandleFunc("POST /v1/reports/{id}/vote", Authed(s.auth, s.voteReport))
 	a.Mux.HandleFunc("DELETE /v1/reports/{id}", Authed(s.auth, s.undoReport))

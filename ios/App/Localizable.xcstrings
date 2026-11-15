@@ -2410,6 +2410,9 @@
         }
       }
     },
+    "Couldn't load the photo. Tap to retry.": {
+      "extractionState": "manual"
+    },
     "Couldn't load the rankings. Check your connection and try again.": {
       "extractionState": "manual",
       "localizations": {
@@ -3458,13 +3461,13 @@
         }
       }
     },
-    "Drive it takes you to the start of the first road. Send to convoy starts a convoy with the whole loop as its route.": {
+    "Drive it follows the whole loop. Send to convoy starts a convoy with the whole loop as its route.": {
       "extractionState": "manual",
       "localizations": {
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Conducirla te lleva al inicio de la primera carretera. Enviar a la caravana inicia una caravana con toda la vuelta como ruta."
+            "value": "Conducirla recorre toda la vuelta. Enviar a la caravana inicia una caravana con toda la vuelta como ruta."
           }
         }
       }
@@ -7891,6 +7894,9 @@
         }
       }
     },
+    "Report team": {
+      "extractionState": "manual"
+    },
     "Reported. We review reports within 24 hours.": {
       "extractionState": "manual",
       "localizations": {
@@ -9519,6 +9525,9 @@
         }
       }
     },
+    "That role can't be saved.": {
+      "extractionState": "manual"
+    },
     "That tag is taken.": {
       "extractionState": "manual",
       "localizations": {
@@ -9529,6 +9538,12 @@
           }
         }
       }
+    },
+    "That team can't be created.": {
+      "extractionState": "manual"
+    },
+    "That team can't be saved.": {
+      "extractionState": "manual"
     },
     "That was the top of the ladder.": {
       "extractionState": "manual",

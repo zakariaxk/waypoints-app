@@ -89,7 +89,7 @@ Paste into App Review Information, Notes.
 
 **Marketplace.** No payments, checkout, shipping, or fees. Every listing says "Meet in a public place. Waypoints doesn't handle payment."
 
-**Account deletion.** Settings, Account, Delete account. It removes the sign-in account, every row it owns, and every photo and video it uploaded, then signs out.
+**Account deletion.** Settings, Account, Delete account. It removes the sign-in account, every row it owns, and every photo and video it uploaded, then signs out. For accounts made with Sign in with Apple, deletion first asks Apple for a fresh credential and the gateway revokes the app's Apple grant, as Apple requires (guideline 5.1.1(v)). If that step fails, deletion still completes.
 
 **Background modes.** `location` (the opt-in sharing above and turn-by-turn navigation), `audio` (voice channels and navigation prompts continue in the background), `remote-notification` (meet changes and messages).
 
@@ -180,3 +180,5 @@ No system boot time, disk space, or active keyboard APIs are called by app code.
 ## Release build
 
 `make archive` writes a Release archive to `.build/Waypoints.xcarchive` with `App/Waypoints.Release.entitlements` (`aps-environment` production, Sign in with Apple, associated domains). `ios/App/Config.xcconfig` must point at the hosted Supabase project and gateway (PRD 9.1) and set `LINK_HOST` before archiving. Upload with Xcode Organizer, or `xcodebuild -exportArchive` with an App Store Connect export options plist.
+
+**Gateway env for Apple revocation.** `POST /v1/apple/revoke` needs four variables on the gateway, all owner tasks in PRD 9.1: `WAYPOINTS_APPLE_CLIENT_ID` (`app.waypoints.ios`), `WAYPOINTS_APPLE_TEAM_ID`, `WAYPOINTS_APPLE_KEY_ID`, and `WAYPOINTS_APPLE_PRIVATE_KEY` — the Sign in with Apple `.p8` key created in the Apple Developer portal (Certificates, Identifiers & Profiles → Keys, with "Sign in with Apple" enabled for the app id). The value is the `.p8` PEM contents or a path to the file. Until they are set the endpoint answers 503 and account deletion still completes, but the Apple grant is not revoked.

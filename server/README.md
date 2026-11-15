@@ -37,6 +37,7 @@ Read from the environment. If `server/.env` exists (or the file named by `WAYPOI
 | `APNS_ENV` | `sandbox` | `sandbox` or `production`. |
 | `WAYPOINTS_INTERNAL_SECRET` | | Shared secret header for `POST /internal/notify` (pg_net trigger). |
 | `WAYPOINTS_BENCH_SECRET` | | HS256 key accepted for tokens only under `-bench`. |
+| `WAYPOINTS_APPLE_CLIENT_ID`, `WAYPOINTS_APPLE_TEAM_ID`, `WAYPOINTS_APPLE_KEY_ID`, `WAYPOINTS_APPLE_PRIVATE_KEY` | | Sign in with Apple token revocation for `POST /v1/apple/revoke`: bundle id, team id, .p8 key id, and the .p8 PEM (contents, or a path to the file). All four or the endpoint answers 503 and account deletion proceeds without revoking. |
 
 Command-line flags are declared by the package that uses them (for example `-tick` and `-bench` in `internal/ws`); `go run ./cmd/gateway -h` lists them.
 
