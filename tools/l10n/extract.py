@@ -34,6 +34,20 @@ PATTERNS = [
     re.compile(r'LocalizedStringKey\(\s*%s' % LIT),
     re.compile(r'\b(?:label|prompt|actionTitle|confirmTitle|consequence|title|subtitle|placeholder|noneTitle):\s*%s' % LIT),
     re.compile(r'\.(?:navigationTitle|accessibilityLabel|accessibilityHint|alert|confirmationDialog)\(\s*%s' % LIT),
+    # Copy chosen by a condition or held in a String before it is shown: both arms of a ternary,
+    # switch arms, and assignments. Sentence-case literals only, so identifiers stay out.
+    re.compile(r'[?:]\s+%s' % LIT.replace('"(', '"((?=[A-Z][a-z\'])', 1)),
+    re.compile(r'\b\w+\s+=\s+%s' % LIT.replace('"(', '"((?=[A-Z][a-z\'])', 1)),
+]
+SKIP = ("Core/Preview", "DesignSystem/Gallery", "AppShell/DebugLinks", "Backend", "GatewayAPI", "WireProtocol")
+
+# String contexts, where a bare literal would be shown as written and never looked up.
+SENTENCE = LIT.replace('"(', '"((?=[A-Z][a-z\'])', 1)
+STRING_CONTEXTS = [
+    re.compile(r'(\b(?:self\.)?(?:\w*[eE]rror|\w*[mM]essage|notice)\s+=\s+)%s(?=\s*$)' % SENTENCE, re.M),
+    re.compile(r'(\bfallback:\s+)%s' % SENTENCE),
+    re.compile(r'(^\s*static let \w+\s+=\s+)%s(?=\s*$)' % SENTENCE, re.M),
+    re.compile(r'(^\s*case [^"\n]*:\s+)%s(?=\s*$)' % SENTENCE, re.M),
 ]
 INTERP = re.compile(r'\\\((?:[^"()\n]|\([^"()\n]*\))*\)')
 
@@ -58,6 +72,8 @@ def keys_in(text: str) -> set[str]:
 
 
 def apply_bundle(text: str) -> str:
+    for p in STRING_CONTEXTS:
+        text = p.sub(lambda m: '%sString(localized: "%s", bundle: .module)' % (m.group(1), m.group(2)), text)
     text = re.sub(r'\bText\(\s*%s\s*\)' % LIT, lambda m: 'Text("%s", bundle: .module)' % m.group(1), text)
     text = re.sub(r'String\(localized:\s*%s\s*\)' % LIT,
                   lambda m: 'String(localized: "%s", bundle: .module)' % m.group(1), text)
@@ -77,6 +93,8 @@ def main() -> None:
                 if not fn.endswith(".swift"):
                     continue
                 path = os.path.join(dp, fn)
+                if any(skip in path.replace(os.sep, "/") for skip in SKIP):
+                    continue
                 text = open(path, encoding="utf-8").read()
                 keys |= keys_in(text)
                 if apply:

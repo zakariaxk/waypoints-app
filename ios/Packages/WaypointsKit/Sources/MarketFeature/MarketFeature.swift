@@ -567,7 +567,7 @@ struct ListSomething: View {
         saving = true
         Task {
             if case .blocked = await env.safety.check(title + " " + description) {
-                error = "That listing can't be posted."
+                error = String(localized: "That listing can't be posted.", bundle: .module)
                 saving = false
                 return
             }
@@ -581,7 +581,7 @@ struct ListSomething: View {
                     _ = try await env.market.updateListing(l)
                     dismiss()
                 } catch {
-                    self.error = message(for: error, fallback: "Couldn't save it. Check your connection and try again.")
+                    self.error = message(for: error, fallback: String(localized: "Couldn't save it. Check your connection and try again.", bundle: .module))
                 }
                 saving = false
                 return
@@ -596,7 +596,7 @@ struct ListSomething: View {
                                                                    photoPaths: paths, category: cat, near: Coarse.here()))
                 dismiss()
             } catch {
-                self.error = message(for: error, fallback: "Couldn't list it. Check your connection and try again.")
+                self.error = message(for: error, fallback: String(localized: "Couldn't list it. Check your connection and try again.", bundle: .module))
             }
             saving = false
         }
@@ -679,7 +679,7 @@ struct Yours: View {
                 try await op()
                 error = nil
             } catch {
-                self.error = message(for: error, fallback: "Couldn't change it. Check your connection and try again.")
+                self.error = message(for: error, fallback: String(localized: "Couldn't change it. Check your connection and try again.", bundle: .module))
             }
             await load()
         }

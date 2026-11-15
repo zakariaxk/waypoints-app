@@ -386,13 +386,13 @@ struct FindOrStart: View {
         error = nil
         Task {
             do { try await body() } catch WaypointsError.rateLimited {
-                error = "You're doing that a lot. Try again in a few minutes."
+                error = String(localized: "You're doing that a lot. Try again in a few minutes.", bundle: .module)
             } catch WaypointsError.conflict {
-                error = "That tag is taken."
+                error = String(localized: "That tag is taken.", bundle: .module)
             } catch WaypointsError.notFound {
-                error = "No team with that invite."
+                error = String(localized: "No team with that invite.", bundle: .module)
             } catch {
-                self.error = "Couldn't do that. Check your connection and try again."
+                self.error = String(localized: "Couldn't do that. Check your connection and try again.", bundle: .module)
             }
             working = false
         }
@@ -592,14 +592,17 @@ struct IconPicker: View {
     @Binding var photo: PhotosPickerItem?
     @Binding var iconPath: String?
     @State private var uploading = false
+    @State private var picking = false
 
     var body: some View {
-        let label = HStack(spacing: Space.s12) {
-            TeamIcon(team: team, env: model.env, size: Size.row)
-            Text(uploading ? "Uploading" : (iconPath == nil ? "Add icon" : "Change icon"))
-                .typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
+        Button { picking = true } label: {
+            HStack(spacing: Space.s12) {
+                TeamIcon(team: team, env: model.env, size: Size.row)
+                Text(uploading ? "Uploading" : (iconPath == nil ? "Add icon" : "Change icon"))
+                    .typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
+            }
         }
-        PhotosPicker(selection: $photo, matching: .images) { label }
+        .photosPicker(isPresented: $picking, selection: $photo, matching: .images)
         .disabled(uploading)
         .onChange(of: photo) {
             guard let photo else { return }
@@ -668,9 +671,9 @@ struct EditTeam: View {
                                 onSave(saved)
                                 dismiss()
                             } catch WaypointsError.rateLimited {
-                                self.error = "You're doing that a lot. Try again in a few minutes."
+                                self.error = String(localized: "You're doing that a lot. Try again in a few minutes.", bundle: .module)
                             } catch {
-                                self.error = "Couldn't save. Check your connection and try again."
+                                self.error = String(localized: "Couldn't save. Check your connection and try again.", bundle: .module)
                             }
                             working = false
                         }
@@ -772,9 +775,9 @@ struct RoleEditor: View {
                 try await body()
                 dismiss()
             } catch WaypointsError.rateLimited {
-                self.error = "You're doing that a lot. Try again in a few minutes."
+                self.error = String(localized: "You're doing that a lot. Try again in a few minutes.", bundle: .module)
             } catch {
-                self.error = "Couldn't save. Check your connection and try again."
+                self.error = String(localized: "Couldn't save. Check your connection and try again.", bundle: .module)
             }
             working = false
         }

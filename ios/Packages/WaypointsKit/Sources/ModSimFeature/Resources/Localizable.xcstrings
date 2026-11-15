@@ -10,6 +10,9 @@
     "Adjust to read power at an rpm": {
       "extractionState": "manual"
     },
+    "Debug: model beside published tests": {
+      "extractionState": "manual"
+    },
     "Dyno curve": {
       "extractionState": "manual"
     },
@@ -26,6 +29,12 @@
       "extractionState": "manual"
     },
     "Idle": {
+      "extractionState": "manual"
+    },
+    "Mod simulator": {
+      "extractionState": "manual"
+    },
+    "Needs a tune · %@": {
       "extractionState": "manual"
     },
     "Not now": {
@@ -59,6 +68,12 @@
       "extractionState": "manual"
     },
     "We don't have specs for this car. Enter power and weight to simulate it.": {
+      "extractionState": "manual"
+    },
+    "Weight (kg)": {
+      "extractionState": "manual"
+    },
+    "Weight (lb)": {
       "extractionState": "manual"
     }
   },

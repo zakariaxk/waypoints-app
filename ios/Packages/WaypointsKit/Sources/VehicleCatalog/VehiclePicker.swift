@@ -487,7 +487,7 @@ public struct VehiclePicker: View {
                         } catch WaypointsError.offline {
                             vinError = "VIN lookup needs a connection."
                         } catch {
-                            vinError = "That VIN didn't decode. Check the 17 characters."
+                            vinError = String(localized: "That VIN didn't decode. Check the 17 characters.", bundle: .module)
                         }
                     }
                 }

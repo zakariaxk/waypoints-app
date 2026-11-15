@@ -34,6 +34,9 @@
     "Couldn't play this.": {
       "extractionState": "manual"
     },
+    "Couldn't post that comment. Try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't post. Check your connection and try again.": {
       "extractionState": "manual"
     },
@@ -109,10 +112,19 @@
     "Tag a meet": {
       "extractionState": "manual"
     },
+    "That comment can't be posted.": {
+      "extractionState": "manual"
+    },
     "Try again": {
       "extractionState": "manual"
     },
+    "Unlike": {
+      "extractionState": "manual"
+    },
     "Video": {
+      "extractionState": "manual"
+    },
+    "You're doing that a lot. Try again in a few minutes.": {
       "extractionState": "manual"
     }
   },

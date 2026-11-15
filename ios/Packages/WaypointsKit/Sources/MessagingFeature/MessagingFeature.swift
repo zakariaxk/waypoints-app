@@ -127,7 +127,7 @@ final class ChatModel {
     func send(_ text: String, attachment: String? = nil) async -> Bool {
         guard let me else { return false }
         if case .blocked = await env.safety.check(text) {
-            error = "That message can't be sent."
+            error = String(localized: "That message can't be sent.", bundle: .module)
             return false
         }
         error = nil

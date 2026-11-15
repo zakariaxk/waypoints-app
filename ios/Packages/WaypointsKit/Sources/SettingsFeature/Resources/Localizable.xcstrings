@@ -13,6 +13,12 @@
     "Add a zone": {
       "extractionState": "manual"
     },
+    "Apple ID": {
+      "extractionState": "manual"
+    },
+    "Approximate": {
+      "extractionState": "manual"
+    },
     "BACKGROUND": {
       "extractionState": "manual"
     },
@@ -20,6 +26,12 @@
       "extractionState": "manual"
     },
     "Cancel": {
+      "extractionState": "manual"
+    },
+    "Couldn't delete the account. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save. Try again.": {
       "extractionState": "manual"
     },
     "Delete account": {
@@ -55,6 +67,12 @@
     "Handle": {
       "extractionState": "manual"
     },
+    "Hidden": {
+      "extractionState": "manual"
+    },
+    "Home": {
+      "extractionState": "manual"
+    },
     "Inside a zone, nobody gets your exact position. Zones are stored on this phone.": {
       "extractionState": "manual"
     },
@@ -82,7 +100,13 @@
     "No zone placed": {
       "extractionState": "manual"
     },
+    "None received yet. MetricKit delivers at most once a day.": {
+      "extractionState": "manual"
+    },
     "Nothing": {
+      "extractionState": "manual"
+    },
+    "Nothing. You look offline.": {
       "extractionState": "manual"
     },
     "Notifications": {
@@ -98,6 +122,9 @@
       "extractionState": "manual"
     },
     "Place the zone at the map's centre": {
+      "extractionState": "manual"
+    },
+    "Precise": {
       "extractionState": "manual"
     },
     "Privacy and location": {
@@ -152,6 +179,9 @@
       "extractionState": "manual"
     },
     "You haven't blocked anyone.": {
+      "extractionState": "manual"
+    },
+    "Your exact position, live.": {
       "extractionState": "manual"
     },
     "Zone placed": {

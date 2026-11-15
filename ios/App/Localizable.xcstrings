@@ -34,9 +34,6 @@
     "%@ of 3 lit": {
       "extractionState": "manual"
     },
-    "%@ on %@": {
-      "extractionState": "manual"
-    },
     "%@ on the way": {
       "extractionState": "manual"
     },
@@ -73,9 +70,6 @@
     "17 characters": {
       "extractionState": "manual"
     },
-    "1995 Mazda MX-5 Miata, 98k miles": {
-      "extractionState": "manual"
-    },
     "2–5 letters": {
       "extractionState": "manual"
     },
@@ -104,6 +98,9 @@
       "extractionState": "manual"
     },
     "About": {
+      "extractionState": "manual"
+    },
+    "About a listing": {
       "extractionState": "manual"
     },
     "Accept": {
@@ -148,7 +145,13 @@
     "Add details": {
       "extractionState": "manual"
     },
+    "Add friend": {
+      "extractionState": "manual"
+    },
     "Add here": {
+      "extractionState": "manual"
+    },
+    "Add icon": {
       "extractionState": "manual"
     },
     "Add photos": {
@@ -166,6 +169,9 @@
     "Add to collection": {
       "extractionState": "manual"
     },
+    "Add to garage": {
+      "extractionState": "manual"
+    },
     "Add to timeline": {
       "extractionState": "manual"
     },
@@ -181,6 +187,9 @@
     "Agree": {
       "extractionState": "manual"
     },
+    "All": {
+      "extractionState": "manual"
+    },
     "All makes": {
       "extractionState": "manual"
     },
@@ -190,19 +199,37 @@
     "All ten house cars are open.": {
       "extractionState": "manual"
     },
+    "All three ambers at once, green 0.4 s later.": {
+      "extractionState": "manual"
+    },
     "Also block @%@": {
       "extractionState": "manual"
     },
     "Also show drivers nearby": {
       "extractionState": "manual"
     },
+    "Ambers one at a time, half a second apart, then green.": {
+      "extractionState": "manual"
+    },
     "Any": {
+      "extractionState": "manual"
+    },
+    "Any car": {
       "extractionState": "manual"
     },
     "Any year": {
       "extractionState": "manual"
     },
     "Anyone can find and join": {
+      "extractionState": "manual"
+    },
+    "Apparel": {
+      "extractionState": "manual"
+    },
+    "Apple ID": {
+      "extractionState": "manual"
+    },
+    "Approximate": {
       "extractionState": "manual"
     },
     "Approximate location": {
@@ -217,10 +244,10 @@
     "At %@": {
       "extractionState": "manual"
     },
-    "Available": {
+    "Authorization": {
       "extractionState": "manual"
     },
-    "B16 out for rebuild": {
+    "Available": {
       "extractionState": "manual"
     },
     "BACKGROUND": {
@@ -230,6 +257,12 @@
       "extractionState": "manual"
     },
     "Back": {
+      "extractionState": "manual"
+    },
+    "Base": {
+      "extractionState": "manual"
+    },
+    "Beat house car %@ to open house car %@.": {
       "extractionState": "manual"
     },
     "Bench race": {
@@ -254,6 +287,12 @@
       "extractionState": "manual"
     },
     "Blurred area": {
+      "extractionState": "manual"
+    },
+    "Boxer-4": {
+      "extractionState": "manual"
+    },
+    "Brakes": {
       "extractionState": "manual"
     },
     "Budget": {
@@ -298,7 +337,7 @@
     "Caption": {
       "extractionState": "manual"
     },
-    "Cars and coffee": {
+    "Cars and Coffee, Cherry Hill": {
       "extractionState": "manual"
     },
     "Category": {
@@ -308,6 +347,9 @@
       "extractionState": "manual"
     },
     "Change clearance": {
+      "extractionState": "manual"
+    },
+    "Change icon": {
       "extractionState": "manual"
     },
     "Change opponent": {
@@ -337,6 +379,9 @@
     "Choose photos": {
       "extractionState": "manual"
     },
+    "Classic": {
+      "extractionState": "manual"
+    },
     "Clear": {
       "extractionState": "manual"
     },
@@ -346,16 +391,10 @@
     "Close": {
       "extractionState": "manual"
     },
-    "Cobb Accessport V3, Subaru": {
+    "Closure": {
       "extractionState": "manual"
     },
     "Code": {
-      "extractionState": "manual"
-    },
-    "Coilovers": {
-      "extractionState": "manual"
-    },
-    "Cold air intake": {
       "extractionState": "manual"
     },
     "Collapsed": {
@@ -376,6 +415,9 @@
     "Connecting": {
       "extractionState": "manual"
     },
+    "Content-Type": {
+      "extractionState": "manual"
+    },
     "Continue": {
       "extractionState": "manual"
     },
@@ -388,25 +430,40 @@
     "Convoy ended.": {
       "extractionState": "manual"
     },
-    "Cooper River classics": {
-      "extractionState": "manual"
-    },
     "Copy": {
       "extractionState": "manual"
     },
     "Couldn't add it. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't add the car. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't ask for a hand. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't change it. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't clear it. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't delete the account. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't do that. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't extend it. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't find a route there.": {
+      "extractionState": "manual"
+    },
+    "Couldn't find that place. Try a fuller name or address.": {
+      "extractionState": "manual"
+    },
+    "Couldn't list it. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't load activity. Check your connection and try again.": {
@@ -418,10 +475,37 @@
     "Couldn't play this.": {
       "extractionState": "manual"
     },
+    "Couldn't post that comment. Try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't post the report. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't post. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't post. Saved as a draft.": {
+      "extractionState": "manual"
+    },
+    "Couldn't reach the convoy. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save it. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save the car. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save the rating. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save the road. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save. Try again.": {
       "extractionState": "manual"
     },
     "Couldn't send it. Try again.": {
@@ -430,7 +514,19 @@
     "Couldn't send that. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't send the report. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't share the destination. Try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't sign in. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't start the convoy. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't start the meet. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Cover": {
@@ -442,10 +538,16 @@
     "Cover photo": {
       "extractionState": "manual"
     },
+    "Cross-plane V8": {
+      "extractionState": "manual"
+    },
     "Cruise": {
       "extractionState": "manual"
     },
     "DRIVEN MAP": {
+      "extractionState": "manual"
+    },
+    "Debug: model beside published tests": {
       "extractionState": "manual"
     },
     "Decline": {
@@ -487,6 +589,12 @@
     "Details": {
       "extractionState": "manual"
     },
+    "Dev Patel": {
+      "extractionState": "manual"
+    },
+    "Devon": {
+      "extractionState": "manual"
+    },
     "Direct messages": {
       "extractionState": "manual"
     },
@@ -497,6 +605,12 @@
       "extractionState": "manual"
     },
     "Distance": {
+      "extractionState": "manual"
+    },
+    "Distance is approximate.": {
+      "extractionState": "manual"
+    },
+    "Doesn't repeat": {
       "extractionState": "manual"
     },
     "Done": {
@@ -514,13 +628,16 @@
     "Driven": {
       "extractionState": "manual"
     },
+    "Driver": {
+      "extractionState": "manual"
+    },
     "Drivers who aren't your friends choose whether to show up at all, and when they do, only a half-mile area is shared. Your own setting works the same way.": {
       "extractionState": "manual"
     },
-    "Dyno curve": {
+    "Drivetrain": {
       "extractionState": "manual"
     },
-    "EST. HP": {
+    "Dyno curve": {
       "extractionState": "manual"
     },
     "EST. ¼ MILE": {
@@ -529,13 +646,25 @@
     "Edit": {
       "extractionState": "manual"
     },
+    "Edit car": {
+      "extractionState": "manual"
+    },
+    "Edit listing": {
+      "extractionState": "manual"
+    },
     "Edit meet": {
       "extractionState": "manual"
     },
     "Edit profile": {
       "extractionState": "manual"
     },
+    "Edit role": {
+      "extractionState": "manual"
+    },
     "Edit team": {
+      "extractionState": "manual"
+    },
+    "Electronics and tuning": {
       "extractionState": "manual"
     },
     "Email": {
@@ -559,6 +688,9 @@
     "Enter specs": {
       "extractionState": "manual"
     },
+    "Enter the full address, like name@example.com.": {
+      "extractionState": "manual"
+    },
     "Entrance": {
       "extractionState": "manual"
     },
@@ -577,6 +709,9 @@
     "Every other %@": {
       "extractionState": "manual"
     },
+    "Every two weeks": {
+      "extractionState": "manual"
+    },
     "Everyone in the convoy sees your exact location until you leave.": {
       "extractionState": "manual"
     },
@@ -586,10 +721,19 @@
     "Exact color": {
       "extractionState": "manual"
     },
+    "Exhaust": {
+      "extractionState": "manual"
+    },
     "Expired": {
       "extractionState": "manual"
     },
+    "Exterior and aero": {
+      "extractionState": "manual"
+    },
     "FRIENDS": {
+      "extractionState": "manual"
+    },
+    "Feed": {
       "extractionState": "manual"
     },
     "Filter": {
@@ -613,10 +757,22 @@
     "Fits": {
       "extractionState": "manual"
     },
+    "Fits: any car": {
+      "extractionState": "manual"
+    },
     "Flat tire": {
       "extractionState": "manual"
     },
+    "Flat-plane V8": {
+      "extractionState": "manual"
+    },
     "Follow": {
+      "extractionState": "manual"
+    },
+    "Following": {
+      "extractionState": "manual"
+    },
+    "Fonts": {
       "extractionState": "manual"
     },
     "For 1 hour": {
@@ -625,16 +781,13 @@
     "For parts": {
       "extractionState": "manual"
     },
+    "Forced induction": {
+      "extractionState": "manual"
+    },
     "Found": {
       "extractionState": "manual"
     },
     "Fourth": {
-      "extractionState": "manual"
-    },
-    "Friend request": {
-      "extractionState": "manual"
-    },
-    "Friend request accepted": {
       "extractionState": "manual"
     },
     "Friend requests": {
@@ -646,7 +799,13 @@
     "Friends see where you are. Everyone else sees nothing unless you say so. You can go ghost any time.": {
       "extractionState": "manual"
     },
+    "From": {
+      "extractionState": "manual"
+    },
     "Full height": {
+      "extractionState": "manual"
+    },
+    "Garage": {
       "extractionState": "manual"
     },
     "Gear %@": {
@@ -700,10 +859,19 @@
     "Have them scan it in Friends to add you.": {
       "extractionState": "manual"
     },
+    "Hazard": {
+      "extractionState": "manual"
+    },
     "Heading to %@": {
       "extractionState": "manual"
     },
+    "Hidden": {
+      "extractionState": "manual"
+    },
     "Hold to rev": {
+      "extractionState": "manual"
+    },
+    "Home": {
       "extractionState": "manual"
     },
     "Home region": {
@@ -713,6 +881,9 @@
       "extractionState": "manual"
     },
     "Hosted by %@": {
+      "extractionState": "manual"
+    },
+    "House car %@ is open.": {
       "extractionState": "manual"
     },
     "I'm a passenger": {
@@ -739,10 +910,25 @@
     "In Showdown · %@": {
       "extractionState": "manual"
     },
+    "Inline-4": {
+      "extractionState": "manual"
+    },
+    "Inline-6": {
+      "extractionState": "manual"
+    },
     "Inside a zone, nobody gets your exact position. Zones are stored on this phone.": {
       "extractionState": "manual"
     },
+    "Intake and fuel": {
+      "extractionState": "manual"
+    },
+    "Interior": {
+      "extractionState": "manual"
+    },
     "Invite a friend": {
+      "extractionState": "manual"
+    },
+    "Invite friends": {
       "extractionState": "manual"
     },
     "Invite people": {
@@ -751,10 +937,10 @@
     "Invite to convoy": {
       "extractionState": "manual"
     },
-    "Its photos and timeline are deleted too.": {
+    "Is this still available?": {
       "extractionState": "manual"
     },
-    "Jae Park is going": {
+    "Its photos and timeline are deleted too.": {
       "extractionState": "manual"
     },
     "Join": {
@@ -811,6 +997,9 @@
     "Licences": {
       "extractionState": "manual"
     },
+    "Lighting": {
+      "extractionState": "manual"
+    },
     "Like": {
       "extractionState": "manual"
     },
@@ -856,6 +1045,12 @@
     "Lit at night": {
       "extractionState": "manual"
     },
+    "Lit: no": {
+      "extractionState": "manual"
+    },
+    "Lit: yes": {
+      "extractionState": "manual"
+    },
     "Loading": {
       "extractionState": "manual"
     },
@@ -863,9 +1058,6 @@
       "extractionState": "manual"
     },
     "Look up": {
-      "extractionState": "manual"
-    },
-    "Looking for a B18C1 head, any condition": {
       "extractionState": "manual"
     },
     "Lost signal": {
@@ -901,7 +1093,22 @@
     "Map sheet": {
       "extractionState": "manual"
     },
+    "Mark as found": {
+      "extractionState": "manual"
+    },
+    "Mark as sold": {
+      "extractionState": "manual"
+    },
     "Market": {
+      "extractionState": "manual"
+    },
+    "Max budget": {
+      "extractionState": "manual"
+    },
+    "Max price": {
+      "extractionState": "manual"
+    },
+    "Maya Okafor": {
       "extractionState": "manual"
     },
     "Meet": {
@@ -934,16 +1141,34 @@
     "Message deleted": {
       "extractionState": "manual"
     },
+    "Message seller": {
+      "extractionState": "manual"
+    },
+    "MetricKit": {
+      "extractionState": "manual"
+    },
     "MetricKit payload": {
       "extractionState": "manual"
     },
     "Microphone is off for Waypoints.": {
       "extractionState": "manual"
     },
+    "Min budget": {
+      "extractionState": "manual"
+    },
+    "Min price": {
+      "extractionState": "manual"
+    },
     "Mine isn't listed": {
       "extractionState": "manual"
     },
+    "Mod simulator": {
+      "extractionState": "manual"
+    },
     "Model": {
+      "extractionState": "manual"
+    },
+    "Monthly": {
       "extractionState": "manual"
     },
     "More": {
@@ -964,6 +1189,9 @@
     "Move up": {
       "extractionState": "manual"
     },
+    "Mute": {
+      "extractionState": "manual"
+    },
     "My code": {
       "extractionState": "manual"
     },
@@ -974,6 +1202,9 @@
       "extractionState": "manual"
     },
     "Nearby": {
+      "extractionState": "manual"
+    },
+    "Needs a tune · %@": {
       "extractionState": "manual"
     },
     "Needs at least one photo.": {
@@ -988,7 +1219,7 @@
     "New icon": {
       "extractionState": "manual"
     },
-    "New marker earned": {
+    "New role": {
       "extractionState": "manual"
     },
     "New trail": {
@@ -1001,6 +1232,9 @@
       "extractionState": "manual"
     },
     "No comments yet.": {
+      "extractionState": "manual"
+    },
+    "No convoy with that code.": {
       "extractionState": "manual"
     },
     "No entries yet. Log the first thing you did to it.": {
@@ -1018,7 +1252,13 @@
     "No messages yet.": {
       "extractionState": "manual"
     },
+    "No permissions": {
+      "extractionState": "manual"
+    },
     "No posts near you yet. Post the first one.": {
+      "extractionState": "manual"
+    },
+    "No ratings": {
       "extractionState": "manual"
     },
     "No requests.": {
@@ -1028,6 +1268,9 @@
       "extractionState": "manual"
     },
     "No route avoids these. Apple Maps routing can't be steered around them.": {
+      "extractionState": "manual"
+    },
+    "No team with that invite.": {
       "extractionState": "manual"
     },
     "No zone placed": {
@@ -1046,6 +1289,9 @@
       "extractionState": "manual"
     },
     "None": {
+      "extractionState": "manual"
+    },
+    "None received yet. MetricKit delivers at most once a day.": {
       "extractionState": "manual"
     },
     "Not interested": {
@@ -1075,7 +1321,13 @@
     "Nothing listed for a %@ yet.": {
       "extractionState": "manual"
     },
+    "Nothing saved yet.": {
+      "extractionState": "manual"
+    },
     "Nothing yet. Friend requests, likes, comments, and RSVPs to your meets show up here.": {
+      "extractionState": "manual"
+    },
+    "Nothing. You look offline.": {
       "extractionState": "manual"
     },
     "Notifications": {
@@ -1085,9 +1337,6 @@
       "extractionState": "manual"
     },
     "Now": {
-      "extractionState": "manual"
-    },
-    "OEM 19 inch wheels, S550 Mustang GT": {
       "extractionState": "manual"
     },
     "OF RATED ROADS IN VIEW": {
@@ -1135,6 +1384,9 @@
     "Optional: where you're headed": {
       "extractionState": "manual"
     },
+    "Other": {
+      "extractionState": "manual"
+    },
     "Out of fuel": {
       "extractionState": "manual"
     },
@@ -1168,7 +1420,7 @@
     "Photo %@": {
       "extractionState": "manual"
     },
-    "Photos and timeline go too.": {
+    "Photo added": {
       "extractionState": "manual"
     },
     "Pick %@": {
@@ -1180,13 +1432,10 @@
     "Pick another car": {
       "extractionState": "manual"
     },
+    "Pick any car": {
+      "extractionState": "manual"
+    },
     "Pick one car here. The winner shows when it ends.": {
-      "extractionState": "manual"
-    },
-    "Picked it up": {
-      "extractionState": "manual"
-    },
-    "Pine Barrens cruise": {
       "extractionState": "manual"
     },
     "Place": {
@@ -1201,10 +1450,19 @@
     "Playing": {
       "extractionState": "manual"
     },
+    "Point the camera at a friend's code.": {
+      "extractionState": "manual"
+    },
+    "Police": {
+      "extractionState": "manual"
+    },
     "Popular": {
       "extractionState": "manual"
     },
     "Post": {
+      "extractionState": "manual"
+    },
+    "Post it": {
       "extractionState": "manual"
     },
     "Post report": {
@@ -1219,7 +1477,19 @@
     "Posts": {
       "extractionState": "manual"
     },
+    "Pothole": {
+      "extractionState": "manual"
+    },
     "Power": {
+      "extractionState": "manual"
+    },
+    "Precise": {
+      "extractionState": "manual"
+    },
+    "Prefer": {
+      "extractionState": "manual"
+    },
+    "Price": {
       "extractionState": "manual"
     },
     "Privacy and location": {
@@ -1249,13 +1519,16 @@
     "RWD, FWD, AWD, or 4WD": {
       "extractionState": "manual"
     },
+    "Race it stock": {
+      "extractionState": "manual"
+    },
+    "Race it with these mods": {
+      "extractionState": "manual"
+    },
     "Race this car": {
       "extractionState": "manual"
     },
     "Radius": {
-      "extractionState": "manual"
-    },
-    "Rally wheels, 15x7, set of four": {
       "extractionState": "manual"
     },
     "Rankings": {
@@ -1280,6 +1553,9 @@
       "extractionState": "manual"
     },
     "Red light": {
+      "extractionState": "manual"
+    },
+    "Red-light camera": {
       "extractionState": "manual"
     },
     "Redline": {
@@ -1342,7 +1618,13 @@
     "Report person": {
       "extractionState": "manual"
     },
+    "Report posted": {
+      "extractionState": "manual"
+    },
     "Reported. We review reports within 24 hours.": {
+      "extractionState": "manual"
+    },
+    "Requested": {
       "extractionState": "manual"
     },
     "Rerouting": {
@@ -1369,6 +1651,12 @@
     "Rolling out to %@": {
       "extractionState": "manual"
     },
+    "Rotary": {
+      "extractionState": "manual"
+    },
+    "Rough road": {
+      "extractionState": "manual"
+    },
     "Route": {
       "extractionState": "manual"
     },
@@ -1381,13 +1669,28 @@
     "SPOTTED": {
       "extractionState": "manual"
     },
+    "Saturday 8:00": {
+      "extractionState": "manual"
+    },
     "Save": {
       "extractionState": "manual"
     },
     "Save a road": {
       "extractionState": "manual"
     },
+    "Save a stretch": {
+      "extractionState": "manual"
+    },
     "Save and add to timeline": {
+      "extractionState": "manual"
+    },
+    "Save car": {
+      "extractionState": "manual"
+    },
+    "Save changes": {
+      "extractionState": "manual"
+    },
+    "Save meet": {
       "extractionState": "manual"
     },
     "Save road": {
@@ -1406,6 +1709,9 @@
       "extractionState": "manual"
     },
     "Scan": {
+      "extractionState": "manual"
+    },
+    "Scan it in Friends to add each other.": {
       "extractionState": "manual"
     },
     "Scan to join, or share the link.": {
@@ -1486,6 +1792,9 @@
     "Share link": {
       "extractionState": "manual"
     },
+    "Share location": {
+      "extractionState": "manual"
+    },
     "Share with convoy": {
       "extractionState": "manual"
     },
@@ -1520,6 +1829,12 @@
       "extractionState": "manual"
     },
     "Something else": {
+      "extractionState": "manual"
+    },
+    "Speed bump": {
+      "extractionState": "manual"
+    },
+    "Speed camera": {
       "extractionState": "manual"
     },
     "Sportsman": {
@@ -1564,6 +1879,9 @@
     "Starts in 30 minutes.": {
       "extractionState": "manual"
     },
+    "Steep entrance": {
+      "extractionState": "manual"
+    },
     "Still there": {
       "extractionState": "manual"
     },
@@ -1574,6 +1892,12 @@
       "extractionState": "manual"
     },
     "Stuck": {
+      "extractionState": "manual"
+    },
+    "Sunday cruise to Lake Nockamixon, leaving at 9": {
+      "extractionState": "manual"
+    },
+    "Suspension": {
       "extractionState": "manual"
     },
     "Synthesized sound": {
@@ -1618,13 +1942,37 @@
     "Teams are where your people talk. Join one or start your own.": {
       "extractionState": "manual"
     },
-    "Tein Flex Z coilovers, EK Civic": {
-      "extractionState": "manual"
-    },
     "Thanks. Counted.": {
       "extractionState": "manual"
     },
+    "That VIN didn't decode. Check the 17 characters.": {
+      "extractionState": "manual"
+    },
+    "That code didn't match. Check the email and try again.": {
+      "extractionState": "manual"
+    },
     "That code isn't a Waypoints profile.": {
+      "extractionState": "manual"
+    },
+    "That comment can't be posted.": {
+      "extractionState": "manual"
+    },
+    "That handle is taken.": {
+      "extractionState": "manual"
+    },
+    "That listing can't be posted.": {
+      "extractionState": "manual"
+    },
+    "That message can't be sent.": {
+      "extractionState": "manual"
+    },
+    "That tag is taken.": {
+      "extractionState": "manual"
+    },
+    "That was the top of the ladder.": {
+      "extractionState": "manual"
+    },
+    "That's a lot of reports. Try again in a few minutes.": {
       "extractionState": "manual"
     },
     "That's a lot of requests. Try again later.": {
@@ -1660,6 +2008,9 @@
     "Third": {
       "extractionState": "manual"
     },
+    "This account is suspended. Write to support@waypoints.app.": {
+      "extractionState": "manual"
+    },
     "This and every one after": {
       "extractionState": "manual"
     },
@@ -1667,6 +2018,12 @@
       "extractionState": "manual"
     },
     "This deletes your profile, cars, posts, messages you sent, and listings. Type your handle to confirm.": {
+      "extractionState": "manual"
+    },
+    "This is the start of %@.": {
+      "extractionState": "manual"
+    },
+    "This is the start of your conversation.": {
       "extractionState": "manual"
     },
     "This meet": {
@@ -1684,19 +2041,25 @@
     "Throttle": {
       "extractionState": "manual"
     },
-    "Thunderbolt open lapping": {
-      "extractionState": "manual"
-    },
-    "Thursday night hangout": {
-      "extractionState": "manual"
-    },
     "Title": {
       "extractionState": "manual"
     },
     "To": {
       "extractionState": "manual"
     },
+    "Today %@": {
+      "extractionState": "manual"
+    },
+    "Tonight %@": {
+      "extractionState": "manual"
+    },
     "Tonight 8 PM": {
+      "extractionState": "manual"
+    },
+    "Too many tries. Wait a minute and try again.": {
+      "extractionState": "manual"
+    },
+    "Tools": {
       "extractionState": "manual"
     },
     "Torque (lb-ft)": {
@@ -1723,6 +2086,9 @@
     "Turn on location": {
       "extractionState": "manual"
     },
+    "Turn on location to filter by distance.": {
+      "extractionState": "manual"
+    },
     "Type the team name to delete it": {
       "extractionState": "manual"
     },
@@ -1735,10 +2101,22 @@
     "Undo": {
       "extractionState": "manual"
     },
+    "Unlike": {
+      "extractionState": "manual"
+    },
+    "Unmute": {
+      "extractionState": "manual"
+    },
+    "Unsave": {
+      "extractionState": "manual"
+    },
     "Until I turn it off": {
       "extractionState": "manual"
     },
     "Until tomorrow": {
+      "extractionState": "manual"
+    },
+    "Uploading": {
       "extractionState": "manual"
     },
     "Uploading photo": {
@@ -1786,9 +2164,6 @@
     "WHO SEES YOU": {
       "extractionState": "manual"
     },
-    "Waterfront night meet": {
-      "extractionState": "manual"
-    },
     "Wawa and chill": {
       "extractionState": "manual"
     },
@@ -1799,6 +2174,15 @@
       "extractionState": "manual"
     },
     "We don't have specs for this car. Enter power and weight to simulate it.": {
+      "extractionState": "manual"
+    },
+    "Weekly": {
+      "extractionState": "manual"
+    },
+    "Weight (kg)": {
+      "extractionState": "manual"
+    },
+    "Weight (lb)": {
       "extractionState": "manual"
     },
     "What did you do?": {
@@ -1813,7 +2197,13 @@
     "What is it?": {
       "extractionState": "manual"
     },
+    "What you're looking for": {
+      "extractionState": "manual"
+    },
     "What's here?": {
+      "extractionState": "manual"
+    },
+    "Wheels and tires": {
       "extractionState": "manual"
     },
     "When": {
@@ -1873,7 +2263,16 @@
     "You haven't blocked anyone.": {
       "extractionState": "manual"
     },
+    "You haven't listed anything.": {
+      "extractionState": "manual"
+    },
     "You'll need an invite to come back to a private team.": {
+      "extractionState": "manual"
+    },
+    "You'll stop hearing the channel.": {
+      "extractionState": "manual"
+    },
+    "You'll stop hearing the convoy.": {
       "extractionState": "manual"
     },
     "You're doing that a lot. Try again in a few minutes.": {
@@ -1888,10 +2287,22 @@
     "You're not in this team.": {
       "extractionState": "manual"
     },
+    "You're offline. Connect to sign in.": {
+      "extractionState": "manual"
+    },
     "You've arrived": {
       "extractionState": "manual"
     },
     "You've judged every pair in %@. Try another class.": {
+      "extractionState": "manual"
+    },
+    "You've started 3 meets today. That's the limit.": {
+      "extractionState": "manual"
+    },
+    "Your best run": {
+      "extractionState": "manual"
+    },
+    "Your exact position, live.": {
       "extractionState": "manual"
     },
     "Your garage is empty.": {
@@ -1919,12 +2330,6 @@
       "extractionState": "manual"
     },
     "Zooms in": {
-      "extractionState": "manual"
-    },
-    "asphalt on chalk": {
-      "extractionState": "manual"
-    },
-    "asphalt on sodium": {
       "extractionState": "manual"
     },
     "build entries": {
@@ -1964,9 +2369,6 @@
       "extractionState": "manual"
     },
     "you@example.com": {
-      "extractionState": "manual"
-    },
-    "¼ MILE": {
       "extractionState": "manual"
     }
   },

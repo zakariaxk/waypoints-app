@@ -84,13 +84,13 @@ public struct ReportSheet: View {
                 if alsoBlock, let blockUser { try await safety.block(blockUser) }
                 done = true
             } catch WaypointsError.rateLimited {
-                self.error = "You're doing that a lot. Try again in a few minutes."
+                self.error = String(localized: "You're doing that a lot. Try again in a few minutes.", bundle: .module)
                 failed += 1
             } catch WaypointsError.suspended {
-                self.error = "This account is suspended. Write to support@waypoints.app."
+                self.error = String(localized: "This account is suspended. Write to support@waypoints.app.", bundle: .module)
                 failed += 1
             } catch {
-                self.error = "Couldn't send the report. Check your connection and try again."
+                self.error = String(localized: "Couldn't send the report. Check your connection and try again.", bundle: .module)
                 failed += 1
             }
             sending = false
@@ -135,7 +135,7 @@ public struct TermsGate: View {
                         try await safety.acceptTerms()
                         onAgree()
                     } catch {
-                        self.error = "Couldn't save. Check your connection and try again."
+                        self.error = String(localized: "Couldn't save. Check your connection and try again.", bundle: .module)
                     }
                     sending = false
                 }

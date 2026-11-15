@@ -16,10 +16,16 @@
     "About": {
       "extractionState": "manual"
     },
+    "About a listing": {
+      "extractionState": "manual"
+    },
     "Accept": {
       "extractionState": "manual"
     },
     "Add": {
+      "extractionState": "manual"
+    },
+    "Add icon": {
       "extractionState": "manual"
     },
     "Add role": {
@@ -40,10 +46,19 @@
     "Cancel": {
       "extractionState": "manual"
     },
+    "Change icon": {
+      "extractionState": "manual"
+    },
     "Change role": {
       "extractionState": "manual"
     },
     "Channels, roles, and messages are deleted.": {
+      "extractionState": "manual"
+    },
+    "Couldn't do that. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Delete": {
@@ -56,6 +71,12 @@
       "extractionState": "manual"
     },
     "Direct messages": {
+      "extractionState": "manual"
+    },
+    "Driver": {
+      "extractionState": "manual"
+    },
+    "Edit role": {
       "extractionState": "manual"
     },
     "Edit team": {
@@ -109,10 +130,19 @@
     "New channel": {
       "extractionState": "manual"
     },
+    "New role": {
+      "extractionState": "manual"
+    },
     "No meets planned for this team.": {
       "extractionState": "manual"
     },
     "No messages yet.": {
+      "extractionState": "manual"
+    },
+    "No permissions": {
+      "extractionState": "manual"
+    },
+    "No team with that invite.": {
       "extractionState": "manual"
     },
     "PERMISSIONS": {
@@ -166,6 +196,9 @@
     "Teams are where your people talk. Join one or start your own.": {
       "extractionState": "manual"
     },
+    "That tag is taken.": {
+      "extractionState": "manual"
+    },
     "They'll need an invite to come back to a private team.": {
       "extractionState": "manual"
     },
@@ -175,10 +208,16 @@
     "UPCOMING": {
       "extractionState": "manual"
     },
+    "Uploading": {
+      "extractionState": "manual"
+    },
     "VOICE": {
       "extractionState": "manual"
     },
     "You'll need an invite to come back to a private team.": {
+      "extractionState": "manual"
+    },
+    "You're doing that a lot. Try again in a few minutes.": {
       "extractionState": "manual"
     },
     "lowercase-with-hyphens": {

@@ -404,9 +404,9 @@ struct ConvoySheet: View {
         error = nil
         Task {
             do { try await body() } catch WaypointsError.notFound {
-                error = "No convoy with that code."
+                error = String(localized: "No convoy with that code.", bundle: .module)
             } catch {
-                self.error = "Couldn't reach the convoy. Check your connection and try again."
+                self.error = String(localized: "Couldn't reach the convoy. Check your connection and try again.", bundle: .module)
             }
             working = false
         }

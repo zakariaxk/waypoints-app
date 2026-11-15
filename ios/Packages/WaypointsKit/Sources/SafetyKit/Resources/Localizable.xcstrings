@@ -7,6 +7,18 @@
     "Also block @%@": {
       "extractionState": "manual"
     },
+    "Authorization": {
+      "extractionState": "manual"
+    },
+    "Content-Type": {
+      "extractionState": "manual"
+    },
+    "Couldn't save. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't send the report. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Done": {
       "extractionState": "manual"
     },
@@ -14,6 +26,9 @@
       "extractionState": "manual"
     },
     "Optional": {
+      "extractionState": "manual"
+    },
+    "Prefer": {
       "extractionState": "manual"
     },
     "Read the full Terms": {
@@ -29,6 +44,12 @@
       "extractionState": "manual"
     },
     "The rules": {
+      "extractionState": "manual"
+    },
+    "This account is suspended. Write to support@waypoints.app.": {
+      "extractionState": "manual"
+    },
+    "You're doing that a lot. Try again in a few minutes.": {
       "extractionState": "manual"
     }
   },

@@ -39,7 +39,7 @@ enum Opponent: Hashable {
 
     var title: String {
         switch self {
-        case .ghost: "Your best run"
+        case .ghost: String(localized: "Your best run", bundle: .module)
         case let .friend(name, r, _): "\(name)'s run · \(String(format: "%.2f", Double(r.etMs) / 1000)) s"
         case let .house(h): h.title
         case let .bench(b): b.title

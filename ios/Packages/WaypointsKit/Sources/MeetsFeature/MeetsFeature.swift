@@ -271,7 +271,7 @@ struct CreateMeet: View {
         error = nil
         Task {
             guard let dest = await destination() else {
-                error = "Couldn't find that place. Try a fuller name or address."
+                error = String(localized: "Couldn't find that place. Try a fuller name or address.", bundle: .module)
                 failed += 1
                 saving = false
                 return
@@ -286,10 +286,10 @@ struct CreateMeet: View {
                 dismiss()
                 if editing == nil { env.router.open(.meet(meet.id)) }
             } catch WaypointsError.rateLimited {
-                error = "You've started 3 meets today. That's the limit."
+                error = String(localized: "You've started 3 meets today. That's the limit.", bundle: .module)
                 failed += 1
             } catch {
-                self.error = "Couldn't start the meet. Check your connection and try again."
+                self.error = String(localized: "Couldn't start the meet. Check your connection and try again.", bundle: .module)
                 failed += 1
             }
             saving = false
@@ -546,7 +546,7 @@ struct MeetDetail: View {
                 done += 1
                 env.router.open(.joinConvoy(code: invite.joinCode))
             } catch {
-                rollError = "Couldn't start the convoy. Check your connection and try again."
+                rollError = String(localized: "Couldn't start the convoy. Check your connection and try again.", bundle: .module)
             }
             rolling = false
         }

@@ -96,7 +96,7 @@ final class PrivacyModel {
         Task {
             do { try await env.gateway.updatePrivacy(new) } catch {
                 settings = old
-                self.error = "Couldn't save. Try again."
+                self.error = String(localized: "Couldn't save. Try again.", bundle: .module)
             }
         }
     }
@@ -375,7 +375,7 @@ struct AccountView: View {
                                       consequence: "Everything you own in Waypoints is deleted now.") {
                         Task {
                             do { try await env.auth.deleteAccount() } catch {
-                                self.error = "Couldn't delete the account. Check your connection and try again."
+                                self.error = String(localized: "Couldn't delete the account. Check your connection and try again.", bundle: .module)
                             }
                         }
                     }

@@ -25,7 +25,13 @@
     "Add an entry": {
       "extractionState": "manual"
     },
+    "Add friend": {
+      "extractionState": "manual"
+    },
     "Add someone from their code": {
+      "extractionState": "manual"
+    },
+    "Add to garage": {
       "extractionState": "manual"
     },
     "Add to timeline": {
@@ -49,6 +55,12 @@
     "Change clearance": {
       "extractionState": "manual"
     },
+    "Couldn't save the car. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Decline": {
       "extractionState": "manual"
     },
@@ -61,6 +73,9 @@
     "Details": {
       "extractionState": "manual"
     },
+    "Edit car": {
+      "extractionState": "manual"
+    },
     "Edit profile": {
       "extractionState": "manual"
     },
@@ -71,6 +86,12 @@
       "extractionState": "manual"
     },
     "Find people": {
+      "extractionState": "manual"
+    },
+    "Follow": {
+      "extractionState": "manual"
+    },
+    "Following": {
       "extractionState": "manual"
     },
     "Friend requests": {
@@ -142,6 +163,12 @@
     "POSTS": {
       "extractionState": "manual"
     },
+    "Photo added": {
+      "extractionState": "manual"
+    },
+    "Point the camera at a friend's code.": {
+      "extractionState": "manual"
+    },
     "Remind me": {
       "extractionState": "manual"
     },
@@ -154,6 +181,9 @@
     "Report": {
       "extractionState": "manual"
     },
+    "Requested": {
+      "extractionState": "manual"
+    },
     "SPECS": {
       "extractionState": "manual"
     },
@@ -161,6 +191,9 @@
       "extractionState": "manual"
     },
     "Save": {
+      "extractionState": "manual"
+    },
+    "Save car": {
       "extractionState": "manual"
     },
     "Scan": {
@@ -193,13 +226,22 @@
     "That code isn't a Waypoints profile.": {
       "extractionState": "manual"
     },
+    "That handle is taken.": {
+      "extractionState": "manual"
+    },
     "This profile isn't available.": {
       "extractionState": "manual"
     },
     "Uploading photo": {
       "extractionState": "manual"
     },
+    "Waypoints": {
+      "extractionState": "manual"
+    },
     "What did you do?": {
+      "extractionState": "manual"
+    },
+    "You're doing that a lot. Try again in a few minutes.": {
       "extractionState": "manual"
     },
     "Your garage is empty.": {

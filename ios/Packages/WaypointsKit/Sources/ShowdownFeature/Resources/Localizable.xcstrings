@@ -4,6 +4,12 @@
     "ALL": {
       "extractionState": "manual"
     },
+    "Built": {
+      "extractionState": "manual"
+    },
+    "Classic": {
+      "extractionState": "manual"
+    },
     "Next class": {
       "extractionState": "manual"
     },
@@ -16,10 +22,16 @@
     "Rankings": {
       "extractionState": "manual"
     },
+    "Show": {
+      "extractionState": "manual"
+    },
     "Showdown": {
       "extractionState": "manual"
     },
     "Skip": {
+      "extractionState": "manual"
+    },
+    "Street": {
       "extractionState": "manual"
     },
     "YOURS": {

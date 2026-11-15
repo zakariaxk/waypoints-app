@@ -67,8 +67,8 @@ enum TreeKind: String, CaseIterable {
 
     var detail: String {
         switch self {
-        case .sportsman: "Ambers one at a time, half a second apart, then green."
-        case .pro: "All three ambers at once, green 0.4 s later."
+        case .sportsman: String(localized: "Ambers one at a time, half a second apart, then green.", bundle: .module)
+        case .pro: String(localized: "All three ambers at once, green 0.4 s later.", bundle: .module)
         }
     }
 }

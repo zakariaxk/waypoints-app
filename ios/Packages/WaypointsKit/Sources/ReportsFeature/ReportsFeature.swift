@@ -40,16 +40,16 @@ public enum ReportsFeature: FeatureModule {
 enum ReportText {
     static func name(_ k: ReportKind) -> String {
         switch k {
-        case .speedBump: "Speed bump"
-        case .steepEntrance: "Steep entrance"
-        case .pothole: "Pothole"
-        case .roughRoad: "Rough road"
-        case .police: "Police"
-        case .hazard: "Hazard"
-        case .closure: "Closure"
+        case .speedBump: String(localized: "Speed bump", bundle: .module)
+        case .steepEntrance: String(localized: "Steep entrance", bundle: .module)
+        case .pothole: String(localized: "Pothole", bundle: .module)
+        case .roughRoad: String(localized: "Rough road", bundle: .module)
+        case .police: String(localized: "Police", bundle: .module)
+        case .hazard: String(localized: "Hazard", bundle: .module)
+        case .closure: String(localized: "Closure", bundle: .module)
         case .fuelE85: "E85 fuel"
-        case .speedCamera: "Speed camera"
-        case .redLightCamera: "Red-light camera"
+        case .speedCamera: String(localized: "Speed camera", bundle: .module)
+        case .redLightCamera: String(localized: "Red-light camera", bundle: .module)
         }
     }
 }
@@ -178,10 +178,10 @@ struct PostReport: View {
                 posted = try await env.gateway.postReport(kind: kind, at: at, note: note.isEmpty ? nil : note)
                 done += 1
             } catch WaypointsError.rateLimited {
-                error = "That's a lot of reports. Try again in a few minutes."
+                error = String(localized: "That's a lot of reports. Try again in a few minutes.", bundle: .module)
                 failed += 1
             } catch {
-                self.error = "Couldn't post the report. Check your connection and try again."
+                self.error = String(localized: "Couldn't post the report. Check your connection and try again.", bundle: .module)
                 failed += 1
             }
         }

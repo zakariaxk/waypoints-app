@@ -30,6 +30,18 @@
     },
     "Send": {
       "extractionState": "manual"
+    },
+    "That message can't be sent.": {
+      "extractionState": "manual"
+    },
+    "This is the start of %@.": {
+      "extractionState": "manual"
+    },
+    "This is the start of your conversation.": {
+      "extractionState": "manual"
+    },
+    "You're doing that a lot. Try again in a few minutes.": {
+      "extractionState": "manual"
     }
   },
   "version": "1.0"

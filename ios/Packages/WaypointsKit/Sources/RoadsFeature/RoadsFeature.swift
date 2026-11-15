@@ -238,7 +238,7 @@ struct RoadDetail: View {
                                 ratingOpen = false
                                 road = try? await env.roads.road(roadID)
                             } catch {
-                                self.error = message(for: error, fallback: "Couldn't save the rating. Check your connection and try again.")
+                                self.error = message(for: error, fallback: String(localized: "Couldn't save the rating. Check your connection and try again.", bundle: .module))
                             }
                         }
                     }
@@ -315,7 +315,7 @@ struct DrivesView: View {
                 ForEach(drives.prefix(5)) { d in
                     Button { open = d } label: {
                         Row(Text(verbatim: d.startedAt.formatted(date: .abbreviated, time: .shortened)),
-                            trailing: { Text(verbatim: "Save a stretch").typeStyle(.foot).foregroundStyle(Color.sodium) })
+                            trailing: { Text("Save a stretch", bundle: .module).typeStyle(.foot).foregroundStyle(Color.sodium) })
                     }
                     .buttonStyle(RowButtonStyle())
                 }
@@ -385,7 +385,7 @@ struct SaveStretch: View {
                                 try await env.roads.rate(road.id, rating)
                                 dismiss()
                             } catch {
-                                self.error = message(for: error, fallback: "Couldn't save the road. Check your connection and try again.")
+                                self.error = message(for: error, fallback: String(localized: "Couldn't save the road. Check your connection and try again.", bundle: .module))
                             }
                             saving = false
                         }

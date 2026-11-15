@@ -383,7 +383,7 @@ struct PickerSheet: View {
         } catch WaypointsError.rateLimited {
             error = GarageCopy.rateLimited
         } catch {
-            self.error = "Couldn't save the car. Check your connection and try again."
+            self.error = String(localized: "Couldn't save the car. Check your connection and try again.", bundle: .module)
         }
     }
 }

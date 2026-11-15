@@ -7,6 +7,12 @@
     "A road can't start or end in one of your home zones. Move the handles.": {
       "extractionState": "manual"
     },
+    "Couldn't save the rating. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save the road. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "DRIVEN MAP": {
       "extractionState": "manual"
     },
@@ -34,6 +40,9 @@
     "Name": {
       "extractionState": "manual"
     },
+    "No ratings": {
+      "extractionState": "manual"
+    },
     "OF RATED ROADS IN VIEW": {
       "extractionState": "manual"
     },
@@ -44,6 +53,9 @@
       "extractionState": "manual"
     },
     "Save a road": {
+      "extractionState": "manual"
+    },
+    "Save a stretch": {
       "extractionState": "manual"
     },
     "Save road": {

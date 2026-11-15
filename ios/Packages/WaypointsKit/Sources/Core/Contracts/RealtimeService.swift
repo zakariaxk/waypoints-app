@@ -26,7 +26,7 @@ public extension RealtimeService {
 
 /// SAFE-7: the sign-in screen shows this after the shell signs a suspended account out.
 public enum AccountSuspension {
-    public static let message = "This account is suspended. Write to support@waypoints.app."
+    public static let message = String(localized: "This account is suspended. Write to support@waypoints.app.", bundle: .module)
     /// Set by the shell when the gateway reports a suspension; read and cleared by sign-in.
     public static let defaultsKey = "account.suspended"
 }

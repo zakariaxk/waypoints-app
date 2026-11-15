@@ -7,7 +7,7 @@ import UserNotifications
 
 enum GarageCopy {
     /// SAFE-9: shown when the server refuses with `rateLimited`.
-    static let rateLimited = "You're doing that a lot. Try again in a few minutes."
+    static let rateLimited = String(localized: "You're doing that a lot. Try again in a few minutes.", bundle: .module)
 }
 
 /// SET-3: weights and distances in the device's units.

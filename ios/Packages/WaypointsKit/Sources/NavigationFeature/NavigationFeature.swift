@@ -380,10 +380,10 @@ final class NavigationModel {
 
     static func kindName(_ k: ReportKind) -> String {
         switch k {
-        case .speedBump: "Speed bump"
-        case .steepEntrance: "Steep entrance"
-        case .pothole: "Pothole"
-        case .roughRoad: "Rough road"
+        case .speedBump: String(localized: "Speed bump", bundle: .module)
+        case .steepEntrance: String(localized: "Steep entrance", bundle: .module)
+        case .pothole: String(localized: "Pothole", bundle: .module)
+        case .roughRoad: String(localized: "Rough road", bundle: .module)
         default: "Hazard"
         }
     }

@@ -7,9 +7,6 @@
     "%@ drivers": {
       "extractionState": "manual"
     },
-    "%@ on %@": {
-      "extractionState": "manual"
-    },
     "%@%@": {
       "extractionState": "manual"
     },
@@ -28,19 +25,16 @@
     "A driver needs a hand": {
       "extractionState": "manual"
     },
-    "Add": {
+    "All": {
       "extractionState": "manual"
     },
     "Approximate location%@": {
       "extractionState": "manual"
     },
-    "Built": {
+    "Cars and Coffee, Cherry Hill": {
       "extractionState": "manual"
     },
     "Close": {
-      "extractionState": "manual"
-    },
-    "Continue with email": {
       "extractionState": "manual"
     },
     "Cruise": {
@@ -49,13 +43,19 @@
     "Delete car": {
       "extractionState": "manual"
     },
-    "Design gallery": {
+    "Dev Patel": {
       "extractionState": "manual"
     },
-    "EST. HP": {
+    "Devon": {
       "extractionState": "manual"
     },
     "Email": {
+      "extractionState": "manual"
+    },
+    "Enter the full address, like name@example.com.": {
+      "extractionState": "manual"
+    },
+    "Fonts": {
       "extractionState": "manual"
     },
     "Handle": {
@@ -73,10 +73,16 @@
     "Loading": {
       "extractionState": "manual"
     },
+    "Maya Okafor": {
+      "extractionState": "manual"
+    },
     "Meet": {
       "extractionState": "manual"
     },
     "Meet title": {
+      "extractionState": "manual"
+    },
+    "My code": {
       "extractionState": "manual"
     },
     "Nearby": {
@@ -89,9 +95,6 @@
       "extractionState": "manual"
     },
     "Offline. Showing what was saved.": {
-      "extractionState": "manual"
-    },
-    "Photos and timeline go too.": {
       "extractionState": "manual"
     },
     "Post report": {
@@ -109,19 +112,28 @@
     "Reconnecting": {
       "extractionState": "manual"
     },
+    "Report posted": {
+      "extractionState": "manual"
+    },
+    "Saturday 8:00": {
+      "extractionState": "manual"
+    },
+    "Scan it in Friends to add each other.": {
+      "extractionState": "manual"
+    },
     "Share link": {
+      "extractionState": "manual"
+    },
+    "Share location": {
       "extractionState": "manual"
     },
     "Show": {
       "extractionState": "manual"
     },
-    "Skip for now": {
-      "extractionState": "manual"
-    },
     "Start meet": {
       "extractionState": "manual"
     },
-    "Street": {
+    "Sunday cruise to Lake Nockamixon, leaving at 9": {
       "extractionState": "manual"
     },
     "The build timeline and photos for this car are deleted.": {
@@ -140,15 +152,6 @@
       "extractionState": "manual"
     },
     "Zooms in": {
-      "extractionState": "manual"
-    },
-    "asphalt on chalk": {
-      "extractionState": "manual"
-    },
-    "asphalt on sodium": {
-      "extractionState": "manual"
-    },
-    "¼ MILE": {
       "extractionState": "manual"
     }
   },

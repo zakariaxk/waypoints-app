@@ -43,13 +43,13 @@ public enum FiringLayout: String, Sendable, Hashable, CaseIterable {
 
     public var title: String {
         switch self {
-        case .inline4: "Inline-4"
-        case .inline6: "Inline-6"
-        case .crossPlaneV8: "Cross-plane V8"
-        case .flatPlaneV8: "Flat-plane V8"
-        case .boxer4: "Boxer-4"
+        case .inline4: String(localized: "Inline-4", bundle: .module)
+        case .inline6: String(localized: "Inline-6", bundle: .module)
+        case .crossPlaneV8: String(localized: "Cross-plane V8", bundle: .module)
+        case .flatPlaneV8: String(localized: "Flat-plane V8", bundle: .module)
+        case .boxer4: String(localized: "Boxer-4", bundle: .module)
         case .v6: "V6"
-        case .rotary: "Rotary"
+        case .rotary: String(localized: "Rotary", bundle: .module)
         }
     }
 

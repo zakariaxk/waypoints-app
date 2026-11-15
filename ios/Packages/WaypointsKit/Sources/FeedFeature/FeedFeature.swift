@@ -99,7 +99,7 @@ struct PlayerLayerView: UIViewRepresentable {
 
 enum FeedCopy {
     /// SAFE-9: shown when the server refuses with `rateLimited`.
-    static let rateLimited = "You're doing that a lot. Try again in a few minutes."
+    static let rateLimited = String(localized: "You're doing that a lot. Try again in a few minutes.", bundle: .module)
 }
 
 // MARK: F1
@@ -577,7 +577,7 @@ struct Comments: View {
                             } catch WaypointsError.rateLimited {
                                 error = FeedCopy.rateLimited
                             } catch {
-                                self.error = "Couldn't post that comment. Try again."
+                                self.error = String(localized: "Couldn't post that comment. Try again.", bundle: .module)
                             }
                             await load()
                         }

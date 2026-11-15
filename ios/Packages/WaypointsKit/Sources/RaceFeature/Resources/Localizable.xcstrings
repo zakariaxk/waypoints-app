@@ -13,7 +13,16 @@
     "All ten house cars are open.": {
       "extractionState": "manual"
     },
+    "All three ambers at once, green 0.4 s later.": {
+      "extractionState": "manual"
+    },
+    "Ambers one at a time, half a second apart, then green.": {
+      "extractionState": "manual"
+    },
     "BENCH RACE": {
+      "extractionState": "manual"
+    },
+    "Beat house car %@ to open house car %@.": {
       "extractionState": "manual"
     },
     "Bench race": {
@@ -32,6 +41,9 @@
       "extractionState": "manual"
     },
     "Green": {
+      "extractionState": "manual"
+    },
+    "House car %@ is open.": {
       "extractionState": "manual"
     },
     "LADDER": {
@@ -58,10 +70,19 @@
     "Pick another car": {
       "extractionState": "manual"
     },
+    "Pick any car": {
+      "extractionState": "manual"
+    },
     "Pro": {
       "extractionState": "manual"
     },
     "Quit": {
+      "extractionState": "manual"
+    },
+    "Race it stock": {
+      "extractionState": "manual"
+    },
+    "Race it with these mods": {
       "extractionState": "manual"
     },
     "Race this car": {
@@ -97,6 +118,9 @@
     "TREE": {
       "extractionState": "manual"
     },
+    "That was the top of the ladder.": {
+      "extractionState": "manual"
+    },
     "The Strip": {
       "extractionState": "manual"
     },
@@ -116,6 +140,9 @@
       "extractionState": "manual"
     },
     "Virtual drag strip. A game, not a challenge. Keep it off the street.": {
+      "extractionState": "manual"
+    },
+    "Your best run": {
       "extractionState": "manual"
     }
   },

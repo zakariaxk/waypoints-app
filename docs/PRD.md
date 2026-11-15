@@ -760,7 +760,7 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 |---|---|---|---|
 | OBS-1 | The gateway exposes connection, publish, delivery, drop, outbox, and flush metrics on a private port, with `pprof`. | P0 | Coded |
 | OBS-2 | The client collects MetricKit diagnostics and can show the last payload on a debug screen. No third-party SDK. | P1 | Coded |
-| L10N-1 | English only. Every string lives in a String Catalog in its module. | P1 | Partial: every module with copy has a String Catalog (`tools/l10n/extract.py`), plain `Text` and `String(localized:)` resolve from `.module`, and the script writes the union of the module catalogs to `ios/App/Localizable.xcstrings` so keys handed to DesignSystem components and SwiftUI modifiers resolve from the main bundle. Left: copy held in a `String` before it is shown (most error lines, for example `error = "Couldn't save the car…"`) is not in any catalog. |
+| L10N-1 | English only. Every string lives in a String Catalog in its module. | P1 | Coded: every module with copy has a String Catalog (`tools/l10n/extract.py`, 790 keys in all). Plain `Text` and `String(localized:)` resolve from `.module`; copy held in a `String` before it is shown (error lines, switch arms, fallbacks) is wrapped in `String(localized:bundle:)`; and the script writes the union of the module catalogs to `ios/App/Localizable.xcstrings` so keys handed to DesignSystem components and SwiftUI modifiers resolve from the main bundle. Not checked with a second language. |
 
 ---
 

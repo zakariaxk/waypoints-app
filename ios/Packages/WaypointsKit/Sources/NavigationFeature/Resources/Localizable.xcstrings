@@ -28,13 +28,25 @@
     "Go": {
       "extractionState": "manual"
     },
+    "Hazard": {
+      "extractionState": "manual"
+    },
+    "Mute": {
+      "extractionState": "manual"
+    },
     "No route avoids these. Apple Maps routing can't be steered around them.": {
       "extractionState": "manual"
     },
     "Offline. Follow the route line.": {
       "extractionState": "manual"
     },
+    "Pothole": {
+      "extractionState": "manual"
+    },
     "Rerouting": {
+      "extractionState": "manual"
+    },
+    "Rough road": {
       "extractionState": "manual"
     },
     "Send": {
@@ -49,7 +61,16 @@
     "Shared with your convoy.": {
       "extractionState": "manual"
     },
+    "Speed bump": {
+      "extractionState": "manual"
+    },
+    "Steep entrance": {
+      "extractionState": "manual"
+    },
     "They get one notice: %@, arriving %@. Not your location.": {
+      "extractionState": "manual"
+    },
+    "Unmute": {
       "extractionState": "manual"
     },
     "You're doing that a lot. Try again in a few minutes.": {

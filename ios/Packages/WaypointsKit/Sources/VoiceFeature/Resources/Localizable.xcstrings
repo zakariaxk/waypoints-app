@@ -10,6 +10,9 @@
     "Convoy": {
       "extractionState": "manual"
     },
+    "Driver": {
+      "extractionState": "manual"
+    },
     "Leave": {
       "extractionState": "manual"
     },
@@ -19,10 +22,16 @@
     "Microphone is off for Waypoints.": {
       "extractionState": "manual"
     },
+    "Mute": {
+      "extractionState": "manual"
+    },
     "Open Settings": {
       "extractionState": "manual"
     },
     "Reconnecting": {
+      "extractionState": "manual"
+    },
+    "Unmute": {
       "extractionState": "manual"
     },
     "Voice": {
@@ -32,6 +41,12 @@
       "extractionState": "manual"
     },
     "You": {
+      "extractionState": "manual"
+    },
+    "You'll stop hearing the channel.": {
+      "extractionState": "manual"
+    },
+    "You'll stop hearing the convoy.": {
       "extractionState": "manual"
     },
     "You're muted. Tap to talk.": {

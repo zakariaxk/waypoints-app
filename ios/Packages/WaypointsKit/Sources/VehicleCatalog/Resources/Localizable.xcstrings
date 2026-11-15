@@ -4,10 +4,16 @@
     "17 characters": {
       "extractionState": "manual"
     },
+    "Add to garage": {
+      "extractionState": "manual"
+    },
     "All makes": {
       "extractionState": "manual"
     },
     "Any year": {
+      "extractionState": "manual"
+    },
+    "Base": {
       "extractionState": "manual"
     },
     "Changes this choice": {
@@ -23,6 +29,9 @@
       "extractionState": "manual"
     },
     "Exact color": {
+      "extractionState": "manual"
+    },
+    "From": {
       "extractionState": "manual"
     },
     "Like '1999'": {
@@ -80,6 +89,9 @@
       "extractionState": "manual"
     },
     "Search, like '2019 mustang gt'": {
+      "extractionState": "manual"
+    },
+    "That VIN didn't decode. Check the 17 characters.": {
       "extractionState": "manual"
     },
     "To": {

@@ -6,11 +6,11 @@ public enum AppTab: Int, Hashable, Sendable, CaseIterable, Comparable {
 
     public var title: String {
         switch self {
-        case .map: "Map"
-        case .feed: "Feed"
-        case .market: "Market"
-        case .teams: "Teams"
-        case .garage: "Garage"
+        case .map: String(localized: "Map", bundle: .module)
+        case .feed: String(localized: "Feed", bundle: .module)
+        case .market: String(localized: "Market", bundle: .module)
+        case .teams: String(localized: "Teams", bundle: .module)
+        case .garage: String(localized: "Garage", bundle: .module)
         }
     }
 

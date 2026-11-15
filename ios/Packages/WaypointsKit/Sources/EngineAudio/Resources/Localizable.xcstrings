@@ -1,0 +1,24 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Boxer-4": {
+      "extractionState": "manual"
+    },
+    "Cross-plane V8": {
+      "extractionState": "manual"
+    },
+    "Flat-plane V8": {
+      "extractionState": "manual"
+    },
+    "Inline-4": {
+      "extractionState": "manual"
+    },
+    "Inline-6": {
+      "extractionState": "manual"
+    },
+    "Rotary": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
+}

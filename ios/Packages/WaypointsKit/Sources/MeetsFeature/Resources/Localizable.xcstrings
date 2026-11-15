@@ -25,10 +25,25 @@
     "Cancelled": {
       "extractionState": "manual"
     },
+    "Couldn't find that place. Try a fuller name or address.": {
+      "extractionState": "manual"
+    },
+    "Couldn't start the convoy. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't start the meet. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Cruise": {
+      "extractionState": "manual"
+    },
     "Details": {
       "extractionState": "manual"
     },
     "Directions": {
+      "extractionState": "manual"
+    },
+    "Doesn't repeat": {
       "extractionState": "manual"
     },
     "Edit": {
@@ -49,6 +64,9 @@
     "Every other %@": {
       "extractionState": "manual"
     },
+    "Every two weeks": {
+      "extractionState": "manual"
+    },
     "First": {
       "extractionState": "manual"
     },
@@ -56,6 +74,9 @@
       "extractionState": "manual"
     },
     "Going": {
+      "extractionState": "manual"
+    },
+    "Hangout": {
       "extractionState": "manual"
     },
     "Happening now": {
@@ -73,6 +94,12 @@
     "Lit at night": {
       "extractionState": "manual"
     },
+    "Lit: no": {
+      "extractionState": "manual"
+    },
+    "Lit: yes": {
+      "extractionState": "manual"
+    },
     "Lot": {
       "extractionState": "manual"
     },
@@ -80,6 +107,12 @@
       "extractionState": "manual"
     },
     "MEETS": {
+      "extractionState": "manual"
+    },
+    "Meet": {
+      "extractionState": "manual"
+    },
+    "Monthly": {
       "extractionState": "manual"
     },
     "More options": {
@@ -145,10 +178,19 @@
     "Save": {
       "extractionState": "manual"
     },
+    "Save meet": {
+      "extractionState": "manual"
+    },
     "Second": {
       "extractionState": "manual"
     },
+    "Show": {
+      "extractionState": "manual"
+    },
     "Start a meet": {
+      "extractionState": "manual"
+    },
+    "Start meet": {
       "extractionState": "manual"
     },
     "Starts in 30 minutes at %@.": {
@@ -166,13 +208,25 @@
     "This meet": {
       "extractionState": "manual"
     },
+    "Today %@": {
+      "extractionState": "manual"
+    },
+    "Tonight %@": {
+      "extractionState": "manual"
+    },
     "Tonight 8 PM": {
+      "extractionState": "manual"
+    },
+    "Track day": {
       "extractionState": "manual"
     },
     "Wawa and chill": {
       "extractionState": "manual"
     },
     "Waypoints": {
+      "extractionState": "manual"
+    },
+    "Weekly": {
       "extractionState": "manual"
     },
     "What is it?": {
@@ -197,6 +251,9 @@
       "extractionState": "manual"
     },
     "Who's going · %@": {
+      "extractionState": "manual"
+    },
+    "You've started 3 meets today. That's the limit.": {
       "extractionState": "manual"
     }
   },

@@ -13,13 +13,25 @@
     "Code": {
       "extractionState": "manual"
     },
+    "Convoy": {
+      "extractionState": "manual"
+    },
     "Convoy ended.": {
+      "extractionState": "manual"
+    },
+    "Couldn't reach the convoy. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Destination": {
       "extractionState": "manual"
     },
     "Directions": {
+      "extractionState": "manual"
+    },
+    "Done": {
+      "extractionState": "manual"
+    },
+    "Driver": {
       "extractionState": "manual"
     },
     "End convoy": {
@@ -35,6 +47,9 @@
       "extractionState": "manual"
     },
     "INVITE FRIENDS": {
+      "extractionState": "manual"
+    },
+    "Invite friends": {
       "extractionState": "manual"
     },
     "Join convoy": {
@@ -53,6 +68,9 @@
       "extractionState": "manual"
     },
     "Name": {
+      "extractionState": "manual"
+    },
+    "No convoy with that code.": {
       "extractionState": "manual"
     },
     "Optional: where you're headed": {
@@ -77,6 +95,9 @@
       "extractionState": "manual"
     },
     "The group has split. Set a regroup point?": {
+      "extractionState": "manual"
+    },
+    "You": {
       "extractionState": "manual"
     }
   },

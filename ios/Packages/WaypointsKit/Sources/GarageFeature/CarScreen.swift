@@ -410,7 +410,7 @@ struct TimelineEntrySheet: View {
             } catch WaypointsError.rateLimited {
                 error = GarageCopy.rateLimited
             } catch {
-                self.error = "Couldn't save. Check your connection and try again."
+                self.error = String(localized: "Couldn't save. Check your connection and try again.", bundle: .module)
             }
             saving = false
         }
@@ -483,11 +483,11 @@ struct EditProfile: View {
                 onSave()
                 dismiss()
             } catch WaypointsError.conflict {
-                error = "That handle is taken."
+                error = String(localized: "That handle is taken.", bundle: .module)
             } catch WaypointsError.rateLimited {
                 error = GarageCopy.rateLimited
             } catch {
-                self.error = "Couldn't save. Check your connection and try again."
+                self.error = String(localized: "Couldn't save. Check your connection and try again.", bundle: .module)
             }
             saving = false
         }

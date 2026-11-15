@@ -166,11 +166,11 @@ struct SignInView: View {
     private func show(_ e: any Error) {
         failed += 1
         switch e as? WaypointsError {
-        case .offline: error = "You're offline. Connect to sign in."
-        case .invalid("code"): error = "That code didn't match. Check the email and try again."
-        case .rateLimited: error = "Too many tries. Wait a minute and try again."
+        case .offline: error = String(localized: "You're offline. Connect to sign in.", bundle: .module)
+        case .invalid("code"): error = String(localized: "That code didn't match. Check the email and try again.", bundle: .module)
+        case .rateLimited: error = String(localized: "Too many tries. Wait a minute and try again.", bundle: .module)
         case .suspended: error = AccountSuspension.message
-        default: error = "Couldn't sign in. Check your connection and try again."
+        default: error = String(localized: "Couldn't sign in. Check your connection and try again.", bundle: .module)
         }
     }
 
@@ -249,7 +249,7 @@ struct YouView: View {
             } catch WaypointsError.conflict {
                 available = false
             } catch {
-                self.error = "Couldn't save. Check your connection and try again."
+                self.error = String(localized: "Couldn't save. Check your connection and try again.", bundle: .module)
             }
             saving = false
         }
@@ -276,7 +276,7 @@ struct CarStepView: View {
                         try await env.profiles.updateMyProfile(ProfileUpdate(primaryCarID: car.id))
                         next()
                     } catch {
-                        self.error = "Couldn't add the car. Check your connection and try again."
+                        self.error = String(localized: "Couldn't add the car. Check your connection and try again.", bundle: .module)
                     }
                 }
             }
