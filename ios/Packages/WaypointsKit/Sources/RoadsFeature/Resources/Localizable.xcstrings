@@ -12,6 +12,94 @@
         }
       }
     },
+    "%@ of %f stretches of road here. Counted on this phone only.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+          }
+        }
+      }
+    },
+    "%@ of %lld stretches of road here. Counted on this phone only.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+          }
+        }
+      }
+    },
+    "%f of %@ stretches of road here. Counted on this phone only.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+          }
+        }
+      }
+    },
+    "%f of %f stretches of road here. Counted on this phone only.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+          }
+        }
+      }
+    },
+    "%f of %lld stretches of road here. Counted on this phone only.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+          }
+        }
+      }
+    },
+    "%lld of %@ stretches of road here. Counted on this phone only.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+          }
+        }
+      }
+    },
+    "%lld of %f stretches of road here. Counted on this phone only.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+          }
+        }
+      }
+    },
+    "%lld of %lld stretches of road here. Counted on this phone only.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+          }
+        }
+      }
+    },
     "A road can't start or end in one of your home zones. Move the handles.": {
       "extractionState": "manual",
       "localizations": {
@@ -441,6 +529,17 @@
         }
       }
     },
+    "Record my drives on this phone": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grabar mis trayectos en este teléfono"
+          }
+        }
+      }
+    },
     "Remove from loop": {
       "extractionState": "manual",
       "localizations": {
@@ -518,6 +617,17 @@
         }
       }
     },
+    "Scenery": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paisaje"
+          }
+        }
+      }
+    },
     "Send to convoy": {
       "extractionState": "manual",
       "localizations": {
@@ -547,6 +657,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Empezar"
+          }
+        }
+      }
+    },
+    "Surface": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Superficie"
           }
         }
       }
@@ -591,6 +712,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "La traza se elimina de este teléfono."
+          }
+        }
+      }
+    },
+    "Traffic": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tráfico"
           }
         }
       }

@@ -12,6 +12,17 @@
         }
       }
     },
+    "Signed out": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sesión cerrada"
+          }
+        }
+      }
+    },
     "Waypoints": {
       "extractionState": "manual",
       "localizations": {

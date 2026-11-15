@@ -12,7 +12,183 @@
         }
       }
     },
+    "%@ in %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ en %@"
+          }
+        }
+      }
+    },
+    "%@ in %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ en %@"
+          }
+        }
+      }
+    },
     "%@ to %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ a %@"
+          }
+        }
+      }
+    },
+    "%@ to %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ a %@"
+          }
+        }
+      }
+    },
+    "%@ to %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ a %@"
+          }
+        }
+      }
+    },
+    "%f in %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ en %@"
+          }
+        }
+      }
+    },
+    "%f in %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ en %@"
+          }
+        }
+      }
+    },
+    "%f in %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ en %@"
+          }
+        }
+      }
+    },
+    "%f to %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ a %@"
+          }
+        }
+      }
+    },
+    "%f to %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ a %@"
+          }
+        }
+      }
+    },
+    "%f to %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ a %@"
+          }
+        }
+      }
+    },
+    "%lld in %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ en %@"
+          }
+        }
+      }
+    },
+    "%lld in %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ en %@"
+          }
+        }
+      }
+    },
+    "%lld in %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ en %@"
+          }
+        }
+      }
+    },
+    "%lld to %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ a %@"
+          }
+        }
+      }
+    },
+    "%lld to %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ a %@"
+          }
+        }
+      }
+    },
+    "%lld to %lld": {
       "extractionState": "manual",
       "localizations": {
         "es": {
@@ -243,6 +419,94 @@
         }
       }
     },
+    "In %@, %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@, %@"
+          }
+        }
+      }
+    },
+    "In %@, %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@, %@"
+          }
+        }
+      }
+    },
+    "In %f, %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@, %@"
+          }
+        }
+      }
+    },
+    "In %f, %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@, %@"
+          }
+        }
+      }
+    },
+    "In %f, %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@, %@"
+          }
+        }
+      }
+    },
+    "In %lld, %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@, %@"
+          }
+        }
+      }
+    },
+    "In %lld, %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@, %@"
+          }
+        }
+      }
+    },
+    "In %lld, %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@, %@"
+          }
+        }
+      }
+    },
     "Mute": {
       "extractionState": "manual",
       "localizations": {
@@ -463,6 +727,94 @@
         }
       }
     },
+    "They get one notice: %@, arriving %f. Not your location.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+          }
+        }
+      }
+    },
+    "They get one notice: %@, arriving %lld. Not your location.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+          }
+        }
+      }
+    },
+    "They get one notice: %f, arriving %@. Not your location.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+          }
+        }
+      }
+    },
+    "They get one notice: %f, arriving %f. Not your location.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+          }
+        }
+      }
+    },
+    "They get one notice: %f, arriving %lld. Not your location.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+          }
+        }
+      }
+    },
+    "They get one notice: %lld, arriving %@. Not your location.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+          }
+        }
+      }
+    },
+    "They get one notice: %lld, arriving %f. Not your location.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+          }
+        }
+      }
+    },
+    "They get one notice: %lld, arriving %lld. Not your location.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+          }
+        }
+      }
+    },
     "Unmute": {
       "extractionState": "manual",
       "localizations": {
@@ -475,6 +827,28 @@
       }
     },
     "Via %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vía %@"
+          }
+        }
+      }
+    },
+    "Via %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vía %@"
+          }
+        }
+      }
+    },
+    "Via %lld": {
       "extractionState": "manual",
       "localizations": {
         "es": {

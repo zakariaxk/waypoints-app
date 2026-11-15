@@ -34,6 +34,72 @@
         }
       }
     },
+    "%f coming": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ vienen"
+          }
+        }
+      }
+    },
+    "%f on the way": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ en camino"
+          }
+        }
+      }
+    },
+    "%f reported": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ reportados"
+          }
+        }
+      }
+    },
+    "%lld coming": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ vienen"
+          }
+        }
+      }
+    },
+    "%lld on the way": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ en camino"
+          }
+        }
+      }
+    },
+    "%lld reported": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ reportados"
+          }
+        }
+      }
+    },
     "A driver needs a hand": {
       "extractionState": "manual",
       "localizations": {
@@ -101,6 +167,28 @@
       }
     },
     "Confirmed by %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmado por %@"
+          }
+        }
+      }
+    },
+    "Confirmed by %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmado por %@"
+          }
+        }
+      }
+    },
+    "Confirmed by %lld": {
       "extractionState": "manual",
       "localizations": {
         "es": {

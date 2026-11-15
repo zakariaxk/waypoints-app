@@ -254,6 +254,28 @@
         }
       }
     },
+    "Nothing found for '%f'.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontró nada para '%@'."
+          }
+        }
+      }
+    },
+    "Nothing found for '%lld'.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontró nada para '%@'."
+          }
+        }
+      }
+    },
     "Older models": {
       "extractionState": "manual",
       "localizations": {

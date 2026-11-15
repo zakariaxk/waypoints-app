@@ -23,7 +23,337 @@
         }
       }
     },
+    "%@ rpm, %@ horsepower, %f pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%@ rpm, %@ horsepower, %lld pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%@ rpm, %f horsepower, %@ pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%@ rpm, %f horsepower, %f pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%@ rpm, %f horsepower, %lld pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%@ rpm, %lld horsepower, %@ pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%@ rpm, %lld horsepower, %f pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%@ rpm, %lld horsepower, %lld pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%f needs a tune": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ necesita puesta a punto"
+          }
+        }
+      }
+    },
+    "%f rpm, %@ horsepower, %@ pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%f rpm, %@ horsepower, %f pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%f rpm, %@ horsepower, %lld pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%f rpm, %f horsepower, %@ pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%f rpm, %f horsepower, %f pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%f rpm, %f horsepower, %lld pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%f rpm, %lld horsepower, %@ pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%f rpm, %lld horsepower, %f pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%f rpm, %lld horsepower, %lld pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%lld needs a tune": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ necesita puesta a punto"
+          }
+        }
+      }
+    },
+    "%lld rpm, %@ horsepower, %@ pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%lld rpm, %@ horsepower, %f pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%lld rpm, %@ horsepower, %lld pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%lld rpm, %f horsepower, %@ pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%lld rpm, %f horsepower, %f pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%lld rpm, %f horsepower, %lld pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%lld rpm, %lld horsepower, %@ pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%lld rpm, %lld horsepower, %f pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
+    "%lld rpm, %lld horsepower, %lld pound-feet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+          }
+        }
+      }
+    },
     "Add %@ too": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir también %@"
+          }
+        }
+      }
+    },
+    "Add %f too": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir también %@"
+          }
+        }
+      }
+    },
+    "Add %lld too": {
       "extractionState": "manual",
       "localizations": {
         "es": {
@@ -74,6 +404,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Montaje eliminado"
+          }
+        }
+      }
+    },
+    "Build name": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre del montaje"
           }
         }
       }
@@ -265,6 +606,28 @@
         }
       }
     },
+    "Loaded %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargado %@"
+          }
+        }
+      }
+    },
+    "Loaded %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargado %@"
+          }
+        }
+      }
+    },
     "Mod simulator": {
       "extractionState": "manual",
       "localizations": {
@@ -288,6 +651,28 @@
       }
     },
     "Needs a tune · %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Necesita puesta a punto · %@"
+          }
+        }
+      }
+    },
+    "Needs a tune · %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Necesita puesta a punto · %@"
+          }
+        }
+      }
+    },
+    "Needs a tune · %lld": {
       "extractionState": "manual",
       "localizations": {
         "es": {

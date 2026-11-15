@@ -12,6 +12,28 @@
         }
       }
     },
+    "%f drivers": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ conductores"
+          }
+        }
+      }
+    },
+    "%lld drivers": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ conductores"
+          }
+        }
+      }
+    },
     "6 characters": {
       "extractionState": "manual",
       "localizations": {
@@ -199,6 +221,28 @@
         }
       }
     },
+    "End the convoy for all %f drivers?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Terminar la caravana para los %@ conductores?"
+          }
+        }
+      }
+    },
+    "End the convoy for all %lld drivers?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Terminar la caravana para los %@ conductores?"
+          }
+        }
+      }
+    },
     "Everyone in the convoy sees your exact location until you leave.": {
       "extractionState": "manual",
       "localizations": {
@@ -211,6 +255,28 @@
       }
     },
     "Heading to %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camino a %@"
+          }
+        }
+      }
+    },
+    "Heading to %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camino a %@"
+          }
+        }
+      }
+    },
+    "Heading to %lld": {
       "extractionState": "manual",
       "localizations": {
         "es": {

@@ -56,6 +56,28 @@
         }
       }
     },
+    "%@%@, last seen %f minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%@%@, last seen %lld minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
     "%@%@, moving": {
       "extractionState": "manual",
       "localizations": {
@@ -67,7 +89,601 @@
         }
       }
     },
+    "%@%f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@"
+          }
+        }
+      }
+    },
+    "%@%f, happening now": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, ahora mismo"
+          }
+        }
+      }
+    },
+    "%@%f, last seen %@ minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%@%f, last seen %f minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%@%f, last seen %lld minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%@%f, moving": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, en movimiento"
+          }
+        }
+      }
+    },
+    "%@%lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@"
+          }
+        }
+      }
+    },
+    "%@%lld, happening now": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, ahora mismo"
+          }
+        }
+      }
+    },
+    "%@%lld, last seen %@ minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%@%lld, last seen %f minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%@%lld, last seen %lld minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%@%lld, moving": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, en movimiento"
+          }
+        }
+      }
+    },
+    "%f characters left": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quedan %@ caracteres"
+          }
+        }
+      }
+    },
+    "%f drivers": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ conductores"
+          }
+        }
+      }
+    },
+    "%f%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@"
+          }
+        }
+      }
+    },
+    "%f%@, happening now": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, ahora mismo"
+          }
+        }
+      }
+    },
+    "%f%@, last seen %@ minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%f%@, last seen %f minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%f%@, last seen %lld minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%f%@, moving": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, en movimiento"
+          }
+        }
+      }
+    },
+    "%f%f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@"
+          }
+        }
+      }
+    },
+    "%f%f, happening now": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, ahora mismo"
+          }
+        }
+      }
+    },
+    "%f%f, last seen %@ minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%f%f, last seen %f minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%f%f, last seen %lld minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%f%f, moving": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, en movimiento"
+          }
+        }
+      }
+    },
+    "%f%lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@"
+          }
+        }
+      }
+    },
+    "%f%lld, happening now": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, ahora mismo"
+          }
+        }
+      }
+    },
+    "%f%lld, last seen %@ minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%f%lld, last seen %f minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%f%lld, last seen %lld minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%f%lld, moving": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, en movimiento"
+          }
+        }
+      }
+    },
+    "%lld characters left": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quedan %@ caracteres"
+          }
+        }
+      }
+    },
+    "%lld drivers": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ conductores"
+          }
+        }
+      }
+    },
+    "%lld%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@"
+          }
+        }
+      }
+    },
+    "%lld%@, happening now": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, ahora mismo"
+          }
+        }
+      }
+    },
+    "%lld%@, last seen %@ minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%lld%@, last seen %f minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%lld%@, last seen %lld minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%lld%@, moving": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, en movimiento"
+          }
+        }
+      }
+    },
+    "%lld%f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@"
+          }
+        }
+      }
+    },
+    "%lld%f, happening now": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, ahora mismo"
+          }
+        }
+      }
+    },
+    "%lld%f, last seen %@ minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%lld%f, last seen %f minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%lld%f, last seen %lld minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%lld%f, moving": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, en movimiento"
+          }
+        }
+      }
+    },
+    "%lld%lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@"
+          }
+        }
+      }
+    },
+    "%lld%lld, happening now": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, ahora mismo"
+          }
+        }
+      }
+    },
+    "%lld%lld, last seen %@ minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%lld%lld, last seen %f minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%lld%lld, last seen %lld minutes ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, visto por última vez hace %@ minutos"
+          }
+        }
+      }
+    },
+    "%lld%lld, moving": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@%@, en movimiento"
+          }
+        }
+      }
+    },
     "A driver nearby%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un conductor cerca%@"
+          }
+        }
+      }
+    },
+    "A driver nearby%f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un conductor cerca%@"
+          }
+        }
+      }
+    },
+    "A driver nearby%lld": {
       "extractionState": "manual",
       "localizations": {
         "es": {
@@ -107,6 +723,50 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ubicación aproximada%@"
+          }
+        }
+      }
+    },
+    "Approximate location%f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ubicación aproximada%@"
+          }
+        }
+      }
+    },
+    "Approximate location%lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ubicación aproximada%@"
+          }
+        }
+      }
+    },
+    "Avatar, Readout, Media": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avatar, lectura, multimedia"
+          }
+        }
+      }
+    },
+    "Buttons": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Botones"
           }
         }
       }
@@ -188,6 +848,17 @@
         }
       }
     },
+    "End": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fin"
+          }
+        }
+      }
+    },
     "Enter the full address, like name@example.com.": {
       "extractionState": "manual",
       "localizations": {
@@ -199,6 +870,28 @@
         }
       }
     },
+    "Feedback": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retroalimentación"
+          }
+        }
+      }
+    },
+    "Following": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siguiendo"
+          }
+        }
+      }
+    },
     "Fonts": {
       "extractionState": "manual",
       "localizations": {
@@ -206,6 +899,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fuentes"
+          }
+        }
+      }
+    },
+    "Friends": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amigos"
           }
         }
       }
@@ -228,6 +932,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Punto de encuentro"
+          }
+        }
+      }
+    },
+    "Inputs": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entradas"
           }
         }
       }
@@ -261,6 +976,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cargando"
+          }
+        }
+      }
+    },
+    "Markers": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marcadores"
           }
         }
       }
@@ -386,6 +1112,9 @@
         }
       }
     },
+    "Readout takes a readout token": {
+      "extractionState": "manual"
+    },
     "Recenter": {
       "extractionState": "manual",
       "localizations": {
@@ -419,6 +1148,17 @@
         }
       }
     },
+    "Rows": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filas"
+          }
+        }
+      }
+    },
     "Saturday 8:00": {
       "extractionState": "manual",
       "localizations": {
@@ -440,6 +1180,9 @@
           }
         }
       }
+    },
+    "SegmentedSwitch holds at most three options (plan 9.9)": {
+      "extractionState": "manual"
     },
     "Share link": {
       "extractionState": "manual",
@@ -474,6 +1217,17 @@
         }
       }
     },
+    "Showdown": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Showdown"
+          }
+        }
+      }
+    },
     "Start meet": {
       "extractionState": "manual",
       "localizations": {
@@ -492,6 +1246,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Crucero dominical al lago Nockamixon, salida a las 9"
+          }
+        }
+      }
+    },
+    "Team": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Equipo"
           }
         }
       }

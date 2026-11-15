@@ -34,6 +34,72 @@
         }
       }
     },
+    "%f of 3 lit": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de 3 encendidos"
+          }
+        }
+      }
+    },
+    "%f rpm": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm"
+          }
+        }
+      }
+    },
+    "%f rpm, shift now": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, cambia ya"
+          }
+        }
+      }
+    },
+    "%lld of 3 lit": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de 3 encendidos"
+          }
+        }
+      }
+    },
+    "%lld rpm": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm"
+          }
+        }
+      }
+    },
+    "%lld rpm, shift now": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ rpm, cambia ya"
+          }
+        }
+      }
+    },
     "All ten house cars are open.": {
       "extractionState": "manual",
       "localizations": {
@@ -68,6 +134,94 @@
       }
     },
     "Beat house car %@ to open house car %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+          }
+        }
+      }
+    },
+    "Beat house car %@ to open house car %f.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+          }
+        }
+      }
+    },
+    "Beat house car %@ to open house car %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+          }
+        }
+      }
+    },
+    "Beat house car %f to open house car %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+          }
+        }
+      }
+    },
+    "Beat house car %f to open house car %f.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+          }
+        }
+      }
+    },
+    "Beat house car %f to open house car %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+          }
+        }
+      }
+    },
+    "Beat house car %lld to open house car %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+          }
+        }
+      }
+    },
+    "Beat house car %lld to open house car %f.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+          }
+        }
+      }
+    },
+    "Beat house car %lld to open house car %lld.": {
       "extractionState": "manual",
       "localizations": {
         "es": {
@@ -221,6 +375,28 @@
         }
       }
     },
+    "Gear %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marcha %@"
+          }
+        }
+      }
+    },
+    "Gear %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marcha %@"
+          }
+        }
+      }
+    },
     "Green": {
       "extractionState": "manual",
       "localizations": {
@@ -233,6 +409,28 @@
       }
     },
     "House car %@ is open.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El coche de la casa %@ está abierto."
+          }
+        }
+      }
+    },
+    "House car %f is open.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El coche de la casa %@ está abierto."
+          }
+        }
+      }
+    },
+    "House car %lld is open.": {
       "extractionState": "manual",
       "localizations": {
         "es": {
@@ -679,6 +877,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Pista de arranque virtual. Un juego, no un reto. No lo uses en la calle."
+          }
+        }
+      }
+    },
+    "Virtual run · Waypoints": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera virtual · Waypoints"
           }
         }
       }

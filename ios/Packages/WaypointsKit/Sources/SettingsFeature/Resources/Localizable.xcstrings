@@ -12,6 +12,28 @@
         }
       }
     },
+    "%f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@"
+          }
+        }
+      }
+    },
+    "%lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@"
+          }
+        }
+      }
+    },
     "APP LANGUAGE": {
       "extractionState": "manual",
       "localizations": {
@@ -133,6 +155,28 @@
         }
       }
     },
+    "Contact": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contacto"
+          }
+        }
+      }
+    },
+    "Convoy invites": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invitaciones a caravanas"
+          }
+        }
+      }
+    },
     "Couldn't delete the account. Check your connection and try again.": {
       "extractionState": "manual",
       "localizations": {
@@ -243,6 +287,28 @@
         }
       }
     },
+    "Drivers nearby": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conductores cerca"
+          }
+        }
+      }
+    },
+    "Drivers nearby see": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los conductores cerca ven"
+          }
+        }
+      }
+    },
     "Email": {
       "extractionState": "manual",
       "localizations": {
@@ -298,6 +364,39 @@
         }
       }
     },
+    "Friend requests": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solicitudes de amistad"
+          }
+        }
+      }
+    },
+    "Friends": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amigos"
+          }
+        }
+      }
+    },
+    "Friends see": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los amigos ven"
+          }
+        }
+      }
+    },
     "Ghost mode": {
       "extractionState": "manual",
       "localizations": {
@@ -310,6 +409,28 @@
       }
     },
     "Ghost until %@. Nobody sees you.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modo fantasma hasta %@. Nadie te ve."
+          }
+        }
+      }
+    },
+    "Ghost until %f. Nobody sees you.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modo fantasma hasta %@. Nadie te ve."
+          }
+        }
+      }
+    },
+    "Ghost until %lld. Nobody sees you.": {
       "extractionState": "manual",
       "localizations": {
         "es": {
@@ -463,6 +584,50 @@
         }
       }
     },
+    "Meet reminders": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recordatorios de encuentros"
+          }
+        }
+      }
+    },
+    "Meets near me": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encuentros cerca de mí"
+          }
+        }
+      }
+    },
+    "Mentions": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menciones"
+          }
+        }
+      }
+    },
+    "Messages": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mensajes"
+          }
+        }
+      }
+    },
     "MetricKit payload": {
       "extractionState": "manual",
       "localizations": {
@@ -595,6 +760,17 @@
         }
       }
     },
+    "Privacy Policy": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Política de privacidad"
+          }
+        }
+      }
+    },
     "Privacy and location": {
       "extractionState": "manual",
       "localizations": {
@@ -701,6 +877,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "Toca el mapa para colocar la zona."
+          }
+        }
+      }
+    },
+    "Teams": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Equipos"
+          }
+        }
+      }
+    },
+    "Teams see": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los equipos ven"
+          }
+        }
+      }
+    },
+    "Terms": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Términos"
           }
         }
       }

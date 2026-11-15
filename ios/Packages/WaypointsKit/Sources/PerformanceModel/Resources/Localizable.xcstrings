@@ -1,0 +1,578 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "Axle-back exhaust": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escape axial"
+          }
+        }
+      }
+    },
+    "Big throttle body": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuerpo de mariposa grande"
+          }
+        }
+      }
+    },
+    "Bucket seats": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asientos bucket"
+          }
+        }
+      }
+    },
+    "Camaro": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camaro"
+          }
+        }
+      }
+    },
+    "Carbon hood": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Capó de carbono"
+          }
+        }
+      }
+    },
+    "Cat-back exhaust": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escape cat-back"
+          }
+        }
+      }
+    },
+    "Centrifugal supercharger kit": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kit de compresor centrífugo"
+          }
+        }
+      }
+    },
+    "Challenger": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Challenger"
+          }
+        }
+      }
+    },
+    "Charge pipe": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tubo de admisión"
+          }
+        }
+      }
+    },
+    "Charger": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Charger"
+          }
+        }
+      }
+    },
+    "Chevrolet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chevrolet"
+          }
+        }
+      }
+    },
+    "Cold air intake": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Admisión de aire frío"
+          }
+        }
+      }
+    },
+    "Custom dyno tune": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puesta a punto en dinamómetro"
+          }
+        }
+      }
+    },
+    "Dodge": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dodge"
+          }
+        }
+      }
+    },
+    "Downpipe": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downpipe"
+          }
+        }
+      }
+    },
+    "Ford": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ford"
+          }
+        }
+      }
+    },
+    "Ford Performance / Whipple": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ford Performance / Whipple"
+          }
+        }
+      }
+    },
+    "Ford Performance supercharger (Whipple Gen 6)": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compresor Ford Performance (Whipple Gen 6)"
+          }
+        }
+      }
+    },
+    "Front-mount intercooler": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Intercooler frontal"
+          }
+        }
+      }
+    },
+    "Fuel pump upgrade": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bomba de combustible mejorada"
+          }
+        }
+      }
+    },
+    "High-flow cats": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Catalizadores de alto caudal"
+          }
+        }
+      }
+    },
+    "Intake manifold": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colector de admisión"
+          }
+        }
+      }
+    },
+    "Larger injectors": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inyectores más grandes"
+          }
+        }
+      }
+    },
+    "Lightweight battery": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Batería ligera"
+          }
+        }
+      }
+    },
+    "Lightweight wheels": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Llantas ligeras"
+          }
+        }
+      }
+    },
+    "Long-tube headers": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colectores long-tube"
+          }
+        }
+      }
+    },
+    "Magnuson": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magnuson"
+          }
+        }
+      }
+    },
+    "Magnuson TVS2650R Magnum": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Magnuson TVS2650R Magnum"
+          }
+        }
+      }
+    },
+    "McLaren": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "McLaren"
+          }
+        }
+      }
+    },
+    "Muffler delete": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminación de silenciador"
+          }
+        }
+      }
+    },
+    "Mustang": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mustang"
+          }
+        }
+      }
+    },
+    "Pops and burble map": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mapa de pops y burble"
+          }
+        }
+      }
+    },
+    "Rear seat delete": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminación de asientos traseros"
+          }
+        }
+      }
+    },
+    "Resonator delete": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminación de resonador"
+          }
+        }
+      }
+    },
+    "Roots supercharger kit": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kit de compresor Roots"
+          }
+        }
+      }
+    },
+    "Roush": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Roush"
+          }
+        }
+      }
+    },
+    "Roush Phase 1 (TVS R2300)": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Roush Phase 1 (TVS R2300)"
+          }
+        }
+      }
+    },
+    "Roush Phase 1 (TVS R2300, 575 hp calibration)": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Roush Phase 1 (TVS R2300, calibración de 575 cv)"
+          }
+        }
+      }
+    },
+    "Roush Phase 2 (TVS R2300)": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Roush Phase 2 (TVS R2300)"
+          }
+        }
+      }
+    },
+    "Roush Phase 2 (TVS R2650)": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Roush Phase 2 (TVS R2650)"
+          }
+        }
+      }
+    },
+    "Shorty headers": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colectores shorty"
+          }
+        }
+      }
+    },
+    "Stage 1 tune": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puesta a punto Stage 1"
+          }
+        }
+      }
+    },
+    "Stage 2 tune (bolt-ons)": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puesta a punto Stage 2 (bolt-ons)"
+          }
+        }
+      }
+    },
+    "Straight pipe": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escape directo"
+          }
+        }
+      }
+    },
+    "Titanium exhaust": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escape de titanio"
+          }
+        }
+      }
+    },
+    "Turbo inlet": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entrada de turbo"
+          }
+        }
+      }
+    },
+    "Turbo kit": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kit de turbo"
+          }
+        }
+      }
+    },
+    "Upgraded turbo": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turbo mejorado"
+          }
+        }
+      }
+    },
+    "Whipple": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whipple"
+          }
+        }
+      }
+    },
+    "Whipple Gen 6 3.0 L": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whipple Gen 6 3.0 L"
+          }
+        }
+      }
+    },
+    "Whipple Gen 6 3.0 L Stage 1": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whipple Gen 6 3.0 L Stage 1"
+          }
+        }
+      }
+    },
+    "Whipple Gen 6 3.0 L Stage 2": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whipple Gen 6 3.0 L Stage 2"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

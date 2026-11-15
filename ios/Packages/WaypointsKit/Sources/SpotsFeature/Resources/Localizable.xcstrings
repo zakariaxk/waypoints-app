@@ -12,6 +12,292 @@
         }
       }
     },
+    "%@ %@ · %f spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%@ %@ · %lld spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%@ %f · %@ spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%@ %f · %f spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%@ %f · %lld spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%@ %lld · %@ spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%@ %lld · %f spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%@ %lld · %lld spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%f %@ · %@ spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%f %@ · %f spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%f %@ · %lld spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%f %f · %@ spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%f %f · %f spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%f %f · %lld spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%f %lld · %@ spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%f %lld · %f spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%f %lld · %lld spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%lld %@ · %@ spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%lld %@ · %f spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%lld %@ · %lld spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%lld %f · %@ spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%lld %f · %f spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%lld %f · %lld spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%lld %lld · %@ spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%lld %lld · %f spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
+    "%lld %lld · %lld spotted": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %@ · %@ avistado"
+          }
+        }
+      }
+    },
     "Add to collection": {
       "extractionState": "manual",
       "localizations": {

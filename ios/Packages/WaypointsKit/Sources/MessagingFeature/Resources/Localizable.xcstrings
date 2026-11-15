@@ -46,7 +46,15 @@
       }
     },
     "Couldn't load the photo. Tap to retry.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cargar la foto. Toca para reintentar."
+          }
+        }
+      }
     },
     "Couldn't send the photo. Check your connection and try again.": {
       "extractionState": "manual",
@@ -258,6 +266,28 @@
       }
     },
     "This is the start of %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este es el inicio de %@."
+          }
+        }
+      }
+    },
+    "This is the start of %f.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Este es el inicio de %@."
+          }
+        }
+      }
+    },
+    "This is the start of %lld.": {
       "extractionState": "manual",
       "localizations": {
         "es": {

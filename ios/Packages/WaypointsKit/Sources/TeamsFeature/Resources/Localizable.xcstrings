@@ -34,6 +34,72 @@
         }
       }
     },
+    "%f in voice": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ en voz"
+          }
+        }
+      }
+    },
+    "%f members": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ miembros"
+          }
+        }
+      }
+    },
+    "%f unread": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sin leer"
+          }
+        }
+      }
+    },
+    "%lld in voice": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ en voz"
+          }
+        }
+      }
+    },
+    "%lld members": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ miembros"
+          }
+        }
+      }
+    },
+    "%lld unread": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sin leer"
+          }
+        }
+      }
+    },
     "2–5 letters": {
       "extractionState": "manual",
       "localizations": {
@@ -107,6 +173,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Añadir rol"
+          }
+        }
+      }
+    },
+    "Add, rename, reorder, and delete channels.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade, renombra, reordena y elimina canales."
           }
         }
       }
@@ -298,6 +375,28 @@
         }
       }
     },
+    "Delete anyone's messages in the team.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina los mensajes de cualquiera en el equipo."
+          }
+        }
+      }
+    },
+    "Delete messages": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar mensajes"
+          }
+        }
+      }
+    },
     "Delete role": {
       "extractionState": "manual",
       "localizations": {
@@ -353,6 +452,17 @@
         }
       }
     },
+    "Edit roles and change members' roles.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edita roles y cambia los roles de los miembros."
+          }
+        }
+      }
+    },
     "Edit team": {
       "extractionState": "manual",
       "localizations": {
@@ -360,6 +470,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Editar equipo"
+          }
+        }
+      }
+    },
+    "Edit the team's icon, name, and about.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edita el ícono, el nombre y la descripción del equipo."
+          }
+        }
+      }
+    },
+    "Find": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar"
           }
         }
       }
@@ -382,6 +514,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Buscar o crear un equipo"
+          }
+        }
+      }
+    },
+    "Host meets": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Organizar encuentros"
           }
         }
       }
@@ -459,6 +602,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "MENSAJES"
+          }
+        }
+      }
+    },
+    "Manage channels": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gestionar canales"
+          }
+        }
+      }
+    },
+    "Manage roles": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gestionar roles"
+          }
+        }
+      }
+    },
+    "Manage team": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gestionar equipo"
           }
         }
       }
@@ -694,6 +870,28 @@
         }
       }
     },
+    "Rank %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puesto %@"
+          }
+        }
+      }
+    },
+    "Rank %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Puesto %@"
+          }
+        }
+      }
+    },
     "Remove": {
       "extractionState": "manual",
       "localizations": {
@@ -701,6 +899,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Quitar"
+          }
+        }
+      }
+    },
+    "Remove members": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar miembros"
+          }
+        }
+      }
+    },
+    "Remove members from the team.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina miembros del equipo."
           }
         }
       }
@@ -728,10 +948,26 @@
       }
     },
     "Report": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciar"
+          }
+        }
+      }
     },
     "Report team": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciar equipo"
+          }
+        }
+      }
     },
     "Save": {
       "extractionState": "manual",
@@ -821,6 +1057,17 @@
         }
       }
     },
+    "Start": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crear"
+          }
+        }
+      }
+    },
     "Start a team": {
       "extractionState": "manual",
       "localizations": {
@@ -828,6 +1075,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Crear un equipo"
+          }
+        }
+      }
+    },
+    "Start meets for the team.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crea encuentros para el equipo."
           }
         }
       }
@@ -888,7 +1146,15 @@
       }
     },
     "That role can't be saved.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese rol no se puede guardar."
+          }
+        }
+      }
     },
     "That tag is taken.": {
       "extractionState": "manual",
@@ -902,10 +1168,26 @@
       }
     },
     "That team can't be created.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese equipo no se puede crear."
+          }
+        }
+      }
     },
     "That team can't be saved.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese equipo no se puede guardar."
+          }
+        }
+      }
     },
     "They'll need an invite to come back to a private team.": {
       "extractionState": "manual",

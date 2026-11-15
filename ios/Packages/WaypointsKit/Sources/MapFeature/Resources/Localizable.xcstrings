@@ -12,6 +12,28 @@
         }
       }
     },
+    "%@ You're at %f.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Estás en %@."
+          }
+        }
+      }
+    },
+    "%@ You're at %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Estás en %@."
+          }
+        }
+      }
+    },
     "%@ friends out": {
       "extractionState": "manual",
       "localizations": {
@@ -24,6 +46,116 @@
       }
     },
     "%@, locked": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, bloqueado"
+          }
+        }
+      }
+    },
+    "%f You're at %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Estás en %@."
+          }
+        }
+      }
+    },
+    "%f You're at %f.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Estás en %@."
+          }
+        }
+      }
+    },
+    "%f You're at %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Estás en %@."
+          }
+        }
+      }
+    },
+    "%f friends out": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ amigos circulando"
+          }
+        }
+      }
+    },
+    "%f, locked": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, bloqueado"
+          }
+        }
+      }
+    },
+    "%lld You're at %@.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Estás en %@."
+          }
+        }
+      }
+    },
+    "%lld You're at %f.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Estás en %@."
+          }
+        }
+      }
+    },
+    "%lld You're at %lld.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Estás en %@."
+          }
+        }
+      }
+    },
+    "%lld friends out": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ amigos circulando"
+          }
+        }
+      }
+    },
+    "%lld, locked": {
       "extractionState": "manual",
       "localizations": {
         "es": {
@@ -63,6 +195,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Añadir"
+          }
+        }
+      }
+    },
+    "Add 5 friends.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agrega a 5 amigos."
+          }
+        }
+      }
+    },
+    "Add 5 venue notes.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agrega 5 notas de lugares."
           }
         }
       }
@@ -221,6 +375,39 @@
         }
       }
     },
+    "Drive in 3 convoys.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maneja en 3 caravanas."
+          }
+        }
+      }
+    },
+    "Drive in a convoy.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maneja en una caravana."
+          }
+        }
+      }
+    },
+    "Drivers nearby": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conductores cerca"
+          }
+        }
+      }
+    },
     "Drivers who aren't your friends choose whether to show up at all, and when they do, only a half-mile area is shared. Your own setting works the same way.": {
       "extractionState": "manual",
       "localizations": {
@@ -243,6 +430,28 @@
         }
       }
     },
+    "First meet: RSVP Going and show up.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Primer encuentro: marca que vas y preséntate."
+          }
+        }
+      }
+    },
+    "Friends": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amigos"
+          }
+        }
+      }
+    },
     "Full height": {
       "extractionState": "manual",
       "localizations": {
@@ -250,6 +459,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Altura completa"
+          }
+        }
+      }
+    },
+    "Get 50 reports confirmed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consigue 50 denuncias confirmadas."
+          }
+        }
+      }
+    },
+    "Get a car into the weekly top 10 of its class.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lleva un coche al top 10 semanal de su clase."
           }
         }
       }
@@ -276,6 +507,28 @@
         }
       }
     },
+    "Go to 5 meets.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ve a 5 encuentros."
+          }
+        }
+      }
+    },
+    "Go to a meet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ve a un encuentro."
+          }
+        }
+      }
+    },
     "Half height": {
       "extractionState": "manual",
       "localizations": {
@@ -287,6 +540,17 @@
         }
       }
     },
+    "Host 3 meets with at least 5 people checked in.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Organiza 3 encuentros con al menos 5 personas registradas."
+          }
+        }
+      }
+    },
     "I'm a passenger": {
       "extractionState": "manual",
       "localizations": {
@@ -294,6 +558,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Voy de pasajero"
+          }
+        }
+      }
+    },
+    "Icon": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ícono"
           }
         }
       }
@@ -342,6 +617,28 @@
         }
       }
     },
+    "Join a team.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Únete a un equipo."
+          }
+        }
+      }
+    },
+    "Judge 50 Showdown pairs.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Juzga 50 pares de Showdown."
+          }
+        }
+      }
+    },
     "Layers": {
       "extractionState": "manual",
       "localizations": {
@@ -353,6 +650,28 @@
         }
       }
     },
+    "Lead a convoy of 5 or more to its destination.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lidera una caravana de 5 o más hasta el destino."
+          }
+        }
+      }
+    },
+    "List something in the market.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Publica algo en el mercado."
+          }
+        }
+      }
+    },
     "Location is off. You're not on the map.": {
       "extractionState": "manual",
       "localizations": {
@@ -360,6 +679,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "La ubicación está desactivada. No apareces en el mapa."
+          }
+        }
+      }
+    },
+    "Log 10 timeline entries on one car.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registra 10 entradas de cronología en un coche."
+          }
+        }
+      }
+    },
+    "Log 25 timeline entries.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registra 25 entradas de cronología."
           }
         }
       }
@@ -441,6 +782,28 @@
         }
       }
     },
+    "Nothing found for '%f'.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontró nada para '%@'."
+          }
+        }
+      }
+    },
+    "Nothing found for '%lld'.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se encontró nada para '%@'."
+          }
+        }
+      }
+    },
     "People": {
       "extractionState": "manual",
       "localizations": {
@@ -452,6 +815,28 @@
         }
       }
     },
+    "Post 5 videos.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Publica 5 videos."
+          }
+        }
+      }
+    },
+    "Post your first report.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Publica tu primera denuncia."
+          }
+        }
+      }
+    },
     "Privacy settings": {
       "extractionState": "manual",
       "localizations": {
@@ -459,6 +844,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ajustes de privacidad"
+          }
+        }
+      }
+    },
+    "Rally: get 10 reports confirmed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rally: consigue 10 denuncias confirmadas."
+          }
+        }
+      }
+    },
+    "Rate 5 roads.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Califica 5 carreteras."
+          }
+        }
+      }
+    },
+    "Rate a road.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Califica una carretera."
           }
         }
       }
@@ -496,6 +914,28 @@
         }
       }
     },
+    "Remove %f as a friend?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Quitar a %@ como amigo?"
+          }
+        }
+      }
+    },
+    "Remove %lld as a friend?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Quitar a %@ como amigo?"
+          }
+        }
+      }
+    },
     "Remove friend": {
       "extractionState": "manual",
       "localizations": {
@@ -514,6 +954,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "Denunciar"
+          }
+        }
+      }
+    },
+    "Run a virtual quarter mile under 10 seconds.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corre una cuartos de milla virtual en menos de 10 segundos."
+          }
+        }
+      }
+    },
+    "Run a virtual quarter mile under 12 seconds.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corre una cuartos de milla virtual en menos de 12 segundos."
+          }
+        }
+      }
+    },
+    "Run the strip once.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corre El Strip una vez."
           }
         }
       }
@@ -551,6 +1024,39 @@
         }
       }
     },
+    "Spot 100 different models.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avista 100 modelos diferentes."
+          }
+        }
+      }
+    },
+    "Spot 25 different models.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avista 25 modelos diferentes."
+          }
+        }
+      }
+    },
+    "Spot 5 models.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avista 5 modelos."
+          }
+        }
+      }
+    },
     "Stop ghost mode": {
       "extractionState": "manual",
       "localizations": {
@@ -558,6 +1064,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Desactivar modo fantasma"
+          }
+        }
+      }
+    },
+    "Traffic": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tráfico"
+          }
+        }
+      }
+    },
+    "Trail": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trail"
           }
         }
       }
@@ -783,6 +1311,28 @@
       }
     },
     "updated %@ min ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "actualizado hace %@ min"
+          }
+        }
+      }
+    },
+    "updated %f min ago": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "actualizado hace %@ min"
+          }
+        }
+      }
+    },
+    "updated %lld min ago": {
       "extractionState": "manual",
       "localizations": {
         "es": {

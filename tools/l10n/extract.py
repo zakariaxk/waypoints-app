@@ -14,6 +14,7 @@ app target. Copy handed to a DesignSystem component or a SwiftUI modifier as a
 bundle, not the module's, so the union is what makes those resolve. Translate in the module
 catalogs; the union is generated and a key translated differently in two modules is reported.
 """
+import itertools
 import json
 import os
 import re
@@ -38,6 +39,8 @@ PATTERNS = [
     # switch arms, and assignments. Sentence-case literals only, so identifiers stay out.
     re.compile(r'[?:]\s+%s' % LIT.replace('"(', '"((?=[A-Z][a-z\'])', 1)),
     re.compile(r'\b\w+\s+=\s+%s' % LIT.replace('"(', '"((?=[A-Z][a-z\'])', 1)),
+    # Option tuples like (0, "Going") in SegmentedSwitch and similar pickers.
+    re.compile(r'[(,]\s*%s' % LIT.replace('"(', '"((?=[A-Z][a-z\'])', 1)),
 ]
 SKIP = ("Core/Preview", "DesignSystem/Gallery", "AppShell/DebugLinks", "Backend", "GatewayAPI", "WireProtocol")
 
@@ -51,23 +54,47 @@ STRING_CONTEXTS = [
 ]
 INTERP = re.compile(r'\\\((?:[^"()\n]|\([^"()\n]*\))*\)')
 
+# SwiftUI's LocalizedStringKey picks the format specifier from the interpolation's
+# type: %@ for objects/strings, %lld for integers, %f for floating point. The
+# extractor cannot see types, so an interpolated literal yields every specifier
+# combination (bounded) and each variant is a catalog key. Values keep %@
+# placeholders, which format any argument type.
+SPECIFIERS = ("%@", "%lld", "%f")
+MAX_VARIANTS = 32
+
 
 def key_of(literal: str) -> str | None:
     if not re.search(r'[A-Za-z]', literal) or literal.startswith(("http", "waypoints:", "mailto:")):
         return None
     if re.fullmatch(r'[a-z0-9_.]+', literal) and "." in literal:      # symbol names, keys
         return None
-    k = INTERP.sub("%@", literal)
-    return k.replace('\\"', '"').replace("\\n", "\n")
+    return literal
+
+
+def key_variants(literal: str) -> set[str]:
+    """All catalog keys a literal can produce: %@ base plus specifier variants."""
+    matches = list(INTERP.finditer(literal))
+    n = len(matches)
+    if n == 0 or n > 3 or 3 ** n > MAX_VARIANTS:
+        base = INTERP.sub("%@", literal)
+        return {base.replace('\\"', '"').replace("\\n", "\n")}
+    parts = INTERP.split(literal)
+    out = set()
+    for combo in itertools.product(SPECIFIERS, repeat=n):
+        s = parts[0]
+        for i, spec in enumerate(combo):
+            s += spec + parts[i + 1]
+        out.add(s.replace('\\"', '"').replace("\\n", "\n"))
+    return out
 
 
 def keys_in(text: str) -> set[str]:
     out = set()
     for p in PATTERNS:
         for m in p.finditer(text):
-            k = key_of(m.group(1))
-            if k:
-                out.add(k)
+            lit = key_of(m.group(1))
+            if lit is not None:
+                out |= key_variants(lit)
     return out
 
 

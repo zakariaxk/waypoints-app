@@ -23,6 +23,28 @@
         }
       }
     },
+    "At %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@"
+          }
+        }
+      }
+    },
+    "At %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@"
+          }
+        }
+      }
+    },
     "Block": {
       "extractionState": "manual",
       "localizations": {
@@ -283,6 +305,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Seguir"
+          }
+        }
+      }
+    },
+    "Following": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siguiendo"
+          }
+        }
+      }
+    },
+    "For you": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para ti"
           }
         }
       }

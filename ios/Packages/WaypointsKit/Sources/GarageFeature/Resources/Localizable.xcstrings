@@ -12,6 +12,28 @@
         }
       }
     },
+    "%f icon, earned": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icono de %@, conseguido"
+          }
+        }
+      }
+    },
+    "%lld icon, earned": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icono de %@, conseguido"
+          }
+        }
+      }
+    },
     "Accept": {
       "extractionState": "manual",
       "localizations": {
@@ -156,6 +178,28 @@
       }
     },
     "At %@ rpm.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A %@ rpm."
+          }
+        }
+      }
+    },
+    "At %f rpm.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A %@ rpm."
+          }
+        }
+      }
+    },
+    "At %lld rpm.": {
       "extractionState": "manual",
       "localizations": {
         "es": {
@@ -349,6 +393,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "NEUMÁTICO O RELACIÓN FINAL DISTINTOS"
+          }
+        }
+      }
+    },
+    "Date": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fecha"
           }
         }
       }
@@ -595,6 +650,28 @@
         }
       }
     },
+    "Gear %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marcha %@"
+          }
+        }
+      }
+    },
+    "Gear %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marcha %@"
+          }
+        }
+      }
+    },
     "Gearing and tires": {
       "extractionState": "manual",
       "localizations": {
@@ -651,6 +728,28 @@
       }
     },
     "In Showdown · %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Showdown · %@"
+          }
+        }
+      }
+    },
+    "In Showdown · %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En Showdown · %@"
+          }
+        }
+      }
+    },
+    "In Showdown · %lld": {
       "extractionState": "manual",
       "localizations": {
         "es": {
@@ -749,6 +848,17 @@
         }
       }
     },
+    "Mod simulator": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Simulador de mods"
+          }
+        }
+      }
+    },
     "More options": {
       "extractionState": "manual",
       "localizations": {
@@ -833,6 +943,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cuentakilómetros"
+          }
+        }
+      }
+    },
+    "On": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activado"
           }
         }
       }
@@ -991,6 +1112,28 @@
         }
       }
     },
+    "Reminder %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recordatorio %@"
+          }
+        }
+      }
+    },
+    "Reminder %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recordatorio %@"
+          }
+        }
+      }
+    },
     "Remove": {
       "extractionState": "manual",
       "localizations": {
@@ -1024,6 +1167,17 @@
         }
       }
     },
+    "Requests": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solicitudes"
+          }
+        }
+      }
+    },
     "Rim": {
       "extractionState": "manual",
       "localizations": {
@@ -1031,6 +1185,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Llanta"
+          }
+        }
+      }
+    },
+    "Run the strip": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corre El Strip"
           }
         }
       }
@@ -1167,7 +1332,51 @@
         }
       }
     },
+    "Service reminder: %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recordatorio de servicio: %@"
+          }
+        }
+      }
+    },
+    "Service reminder: %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recordatorio de servicio: %@"
+          }
+        }
+      }
+    },
     "Service · %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servicio · %@"
+          }
+        }
+      }
+    },
+    "Service · %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servicio · %@"
+          }
+        }
+      }
+    },
+    "Service · %lld": {
       "extractionState": "manual",
       "localizations": {
         "es": {
@@ -1196,6 +1405,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Compartir montaje"
+          }
+        }
+      }
+    },
+    "Share profile": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir perfil"
           }
         }
       }
@@ -1355,6 +1575,94 @@
       }
     },
     "True speed when it shows %@ %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Velocidad real cuando marca %@ %@"
+          }
+        }
+      }
+    },
+    "True speed when it shows %@ %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Velocidad real cuando marca %@ %@"
+          }
+        }
+      }
+    },
+    "True speed when it shows %@ %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Velocidad real cuando marca %@ %@"
+          }
+        }
+      }
+    },
+    "True speed when it shows %f %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Velocidad real cuando marca %@ %@"
+          }
+        }
+      }
+    },
+    "True speed when it shows %f %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Velocidad real cuando marca %@ %@"
+          }
+        }
+      }
+    },
+    "True speed when it shows %f %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Velocidad real cuando marca %@ %@"
+          }
+        }
+      }
+    },
+    "True speed when it shows %lld %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Velocidad real cuando marca %@ %@"
+          }
+        }
+      }
+    },
+    "True speed when it shows %lld %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Velocidad real cuando marca %@ %@"
+          }
+        }
+      }
+    },
+    "True speed when it shows %lld %lld": {
       "extractionState": "manual",
       "localizations": {
         "es": {

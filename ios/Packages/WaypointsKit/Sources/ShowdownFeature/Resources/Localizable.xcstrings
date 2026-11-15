@@ -12,6 +12,94 @@
         }
       }
     },
+    "#%@ in %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@ en %@"
+          }
+        }
+      }
+    },
+    "#%@ in %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@ en %@"
+          }
+        }
+      }
+    },
+    "#%f in %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@ en %@"
+          }
+        }
+      }
+    },
+    "#%f in %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@ en %@"
+          }
+        }
+      }
+    },
+    "#%f in %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@ en %@"
+          }
+        }
+      }
+    },
+    "#%lld in %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@ en %@"
+          }
+        }
+      }
+    },
+    "#%lld in %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@ en %@"
+          }
+        }
+      }
+    },
+    "#%lld in %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "#%@ en %@"
+          }
+        }
+      }
+    },
     "ALL": {
       "extractionState": "manual",
       "localizations": {
@@ -19,6 +107,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "TODOS"
+          }
+        }
+      }
+    },
+    "All time": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Siempre"
           }
         }
       }
@@ -68,7 +167,15 @@
       }
     },
     "Couldn't save your pick. Try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo guardar tu elección. Inténtalo de nuevo."
+          }
+        }
+      }
     },
     "Next class": {
       "extractionState": "manual",
@@ -104,6 +211,28 @@
       }
     },
     "Pick %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige %@"
+          }
+        }
+      }
+    },
+    "Pick %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige %@"
+          }
+        }
+      }
+    },
+    "Pick %lld": {
       "extractionState": "manual",
       "localizations": {
         "es": {
@@ -169,6 +298,17 @@
         }
       }
     },
+    "This week": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta semana"
+          }
+        }
+      }
+    },
     "YOURS": {
       "extractionState": "manual",
       "localizations": {
@@ -181,6 +321,28 @@
       }
     },
     "You've judged every pair in %@. Try another class.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ya has juzgado todas las parejas de %@. Prueba otra categoría."
+          }
+        }
+      }
+    },
+    "You've judged every pair in %f. Try another class.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ya has juzgado todas las parejas de %@. Prueba otra categoría."
+          }
+        }
+      }
+    },
+    "You've judged every pair in %lld. Try another class.": {
       "extractionState": "manual",
       "localizations": {
         "es": {
@@ -214,6 +376,94 @@
       }
     },
     "▲ %@ in %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "▲ %@ en %@"
+          }
+        }
+      }
+    },
+    "▲ %@ in %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "▲ %@ en %@"
+          }
+        }
+      }
+    },
+    "▲ %@ in %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "▲ %@ en %@"
+          }
+        }
+      }
+    },
+    "▲ %f in %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "▲ %@ en %@"
+          }
+        }
+      }
+    },
+    "▲ %f in %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "▲ %@ en %@"
+          }
+        }
+      }
+    },
+    "▲ %f in %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "▲ %@ en %@"
+          }
+        }
+      }
+    },
+    "▲ %lld in %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "▲ %@ en %@"
+          }
+        }
+      }
+    },
+    "▲ %lld in %f": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "▲ %@ en %@"
+          }
+        }
+      }
+    },
+    "▲ %lld in %lld": {
       "extractionState": "manual",
       "localizations": {
         "es": {

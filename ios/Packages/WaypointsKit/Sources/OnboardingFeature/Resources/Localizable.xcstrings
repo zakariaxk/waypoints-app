@@ -12,6 +12,17 @@
         }
       }
     },
+    "Approximate": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aproximada"
+          }
+        }
+      }
+    },
     "Available": {
       "extractionState": "manual",
       "localizations": {
@@ -155,6 +166,17 @@
         }
       }
     },
+    "Hide me from drivers nearby": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ocúltame de los conductores cerca"
+          }
+        }
+      }
+    },
     "Name": {
       "extractionState": "manual",
       "localizations": {
@@ -173,6 +195,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ahora no"
+          }
+        }
+      }
+    },
+    "Nothing": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada"
+          }
+        }
+      }
+    },
+    "Precise": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exacta"
           }
         }
       }
@@ -206,6 +250,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Enviarlo otra vez"
+          }
+        }
+      }
+    },
+    "Show drivers nearby roughly where I am (within half a mile)": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muestra a los conductores cerca aproximadamente dónde estoy (en un radio de media milla)"
           }
         }
       }

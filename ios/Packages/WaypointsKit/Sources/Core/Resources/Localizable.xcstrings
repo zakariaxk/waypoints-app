@@ -56,6 +56,27 @@
         }
       }
     },
+    "Onboarding registered twice": {
+      "extractionState": "manual"
+    },
+    "Route %@ registered twice": {
+      "extractionState": "manual"
+    },
+    "Route %f registered twice": {
+      "extractionState": "manual"
+    },
+    "Route %lld registered twice": {
+      "extractionState": "manual"
+    },
+    "Tab %@ registered twice": {
+      "extractionState": "manual"
+    },
+    "Tab %f registered twice": {
+      "extractionState": "manual"
+    },
+    "Tab %lld registered twice": {
+      "extractionState": "manual"
+    },
     "Teams": {
       "extractionState": "manual",
       "localizations": {
