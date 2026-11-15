@@ -41,13 +41,32 @@ struct MapScreen: View {
             }
         }
         .onChange(of: moving) { if !moving { passenger = false } }
-        .onChange(of: model.selection) { if model.selection != nil { detent = .medium } }
+        .onChange(of: model.selection) {
+            guard let selection = model.selection else { return }
+            detent = .medium
+            switch selection {
+            case let .entity(uid):
+                if let c = model.entities.first(where: { $0.uid == uid })?.coordinate { focus(c, zoom: 1) }
+            case let .item(provider, id):
+                if let c = model.items[provider]?.first(where: { $0.id == id })?.coordinate { focus(c, zoom: 1) }
+            }
+        }
+        .toast($model.toast)
+    }
+
+    private func focus(_ c: Coordinate, zoom: Double) {
+        model.follow = .none
+        withAnimation(reduceMotion ? Motion.crossfade : .easeInOut(duration: Timing.camera)) {
+            position = .region(MKCoordinateRegion(center: c.cl, span: MKCoordinateSpan(
+                latitudeDelta: model.region.latitudeDelta / zoom, longitudeDelta: model.region.longitudeDelta / zoom)))
+        }
     }
 
     // MARK: Map
 
     private var map: some View {
-        MapReader { proxy in
+        let groups = model.groups
+        return MapReader { proxy in
             Map(position: $position) {
                 if model.authorization.allowsUse, let me = model.me {
                     Annotation("", coordinate: me.coordinate.cl, anchor: .center) {
@@ -56,9 +75,16 @@ struct MapScreen: View {
                     }
                     .annotationTitles(.hidden)
                 }
-                ForEach(model.visibleEntities) { e in
+                ForEach(groups.compactMap { $0.members.count == 1 ? $0.members[0] : nil }) { e in
                     Annotation("", coordinate: e.coordinate.cl, anchor: .center) {
                         Button { model.selection = .entity(e.uid) } label: { marker(for: e) }
+                            .buttonStyle(.plain)
+                    }
+                    .annotationTitles(.hidden)
+                }
+                ForEach(groups.filter { $0.members.count > 1 }) { g in
+                    Annotation("", coordinate: g.center.cl, anchor: .center) {
+                        Button { focus(g.center, zoom: 2) } label: { ClusterMarker(count: g.members.count) }
                             .buttonStyle(.plain)
                     }
                     .annotationTitles(.hidden)
@@ -84,6 +110,7 @@ struct MapScreen: View {
             .environment(\.colorScheme, .dark)
             .onMapCameraChange(frequency: .onEnd) { ctx in
                 let r = ctx.region
+                if position.positionedByUser, model.follow != .none { model.follow = .none }
                 model.cameraSettled(MapRegion(center: Coordinate(latitude: r.center.latitude, longitude: r.center.longitude),
                                               latitudeDelta: r.span.latitudeDelta, longitudeDelta: r.span.longitudeDelta))
             }
@@ -142,7 +169,7 @@ struct MapScreen: View {
                 Spacer()
                 VStack(spacing: Space.s8) {
                     IconButton("square.3.layers.3d", label: "Layers", style: .overMap) { showLayers = true }
-                    IconButton(model.follow == .heading ? "location.north.line.fill" : "location.fill",
+                    IconButton(model.follow == .heading ? "location.north.line.fill" : model.follow == .follow ? "location.fill" : "location",
                                label: "Recenter", style: .overMap) { model.recenter() }
                 }
             }
@@ -285,7 +312,7 @@ struct MapScreen: View {
                     Spacer()
                     QuietButton("Turn on") {
                         if model.authorization == .denied {
-                            openURL(URL(string: UIApplication.openSettingsURLString)!)
+                            if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
                         } else {
                             Task { await model.env.location.requestWhenInUse(); await model.env.location.setSharing(true) }
                         }
@@ -293,7 +320,7 @@ struct MapScreen: View {
                 }
             } else {
                 let n = model.friendsOut.count
-                Text(n == 1 ? "1 friend out" : "\(n) friends out").typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                (n == 1 ? Text("1 friend out", bundle: .module) : Text("\(n) friends out", bundle: .module)).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
             }
         }
         .padding(.horizontal, Space.margin)
@@ -326,7 +353,7 @@ struct MapScreen: View {
                         Avatar(name: f.profile.displayName, size: .s40)
                     }, trailing: {
                         if let e {
-                            Text(verbatim: "\(model.distanceText(to: e.coordinate)) · \(e.moving ? "moving" : "parked")")
+                            Text(verbatim: "\(model.distanceText(to: e.coordinate)) · \(e.moving ? String(localized: "moving", bundle: .module) : String(localized: "parked", bundle: .module))")
                                 .typeStyle(.readoutS)
                         }
                     })

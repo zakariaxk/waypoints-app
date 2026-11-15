@@ -59,6 +59,7 @@ final class NavigationModel {
     var hazardAhead: Report?
     /// Metres along the route from here to `hazardAhead`.
     var hazardDistance: Double = 0
+    var stillThere: Report?
     var me: CLLocationCoordinate2D?
     var heading: Double = 0
     /// Network reachability (NAV-12). Offline, guidance keeps the loaded route and does not reroute.
@@ -78,6 +79,8 @@ final class NavigationModel {
     @ObservationIgnored private var monitor = NWPathMonitor()
     @ObservationIgnored private var convoyTask: Task<Void, Never>?
     @ObservationIgnored private var watching = false
+    @ObservationIgnored private var loaded = false
+    @ObservationIgnored private var asked: Set<ReportID> = []
     @ObservationIgnored private var hazardAlong: [ReportID: Double] = [:]
     @ObservationIgnored private var points: [CLLocationCoordinate2D] = []
     @ObservationIgnored private var cumulative: [Double] = []
@@ -87,9 +90,11 @@ final class NavigationModel {
     @ObservationIgnored private var lastReroute = Date.distantPast
     @ObservationIgnored private var task: Task<Void, Never>?
     @ObservationIgnored private let voice = AVSpeechSynthesizer()
-    var muted: Bool {
-        get { UserDefaults.standard.bool(forKey: "nav.muted") }
-        set { UserDefaults.standard.set(newValue, forKey: "nav.muted") }
+    var muted = UserDefaults.standard.bool(forKey: "nav.muted") {
+        didSet {
+            UserDefaults.standard.set(muted, forKey: "nav.muted")
+            if muted { voice.stopSpeaking(at: .immediate) }
+        }
     }
 
     init(env: AppEnvironment, destination: Coordinate, name: String?) {
@@ -102,6 +107,8 @@ final class NavigationModel {
 
     func load() async {
         watch()
+        guard !loaded else { return }
+        loaded = true
         if let me = await env.auth.currentSession()?.userID {
             cars = (try? await env.garage.cars(of: me)) ?? []
             meet = await goingMeet(me)
@@ -214,8 +221,11 @@ final class NavigationModel {
     }
 
     private func score(_ paths: [[Coordinate]]) async {
-        for (i, path) in paths.enumerated() where routes.indices.contains(i) {
-            routes[i].hazards = (try? await env.reports.hazards(along: path, bufferMeters: 25)) ?? []
+        let ids = routes.map(\.id)
+        for (i, path) in paths.enumerated() {
+            let found = (try? await env.reports.hazards(along: path, bufferMeters: 25)) ?? []
+            guard routes.map(\.id) == ids else { return }
+            routes[i].hazards = found
         }
         if guiding { indexHazards() } else { selected = bestIndex() }
     }
@@ -226,14 +236,24 @@ final class NavigationModel {
         hazardAlong = [:]
         guard let r = current, !points.isEmpty else { return }
         for h in r.clearanceHazards(for: clearance) {
-            let loc = CLLocation(latitude: h.coordinate.latitude, longitude: h.coordinate.longitude)
-            var best = (dist: Double.greatestFiniteMagnitude, along: 0.0)
-            for i in points.indices {
-                let d = loc.distance(from: CLLocation(latitude: points[i].latitude, longitude: points[i].longitude))
-                if d < best.dist { best = (d, cumulative[i]) }
-            }
+            let best = snap(h.coordinate.cl)
             if best.dist <= 40 { hazardAlong[h.id] = best.along }
         }
+    }
+
+    private func snap(_ c: CLLocationCoordinate2D) -> (dist: Double, along: Double) {
+        guard let first = points.first, cumulative.count == points.count else { return (.greatestFiniteMagnitude, 0) }
+        let kx = 111_320 * cos(c.latitude * .pi / 180), ky = 110_540.0
+        var best = (dist: hypot((first.longitude - c.longitude) * kx, (first.latitude - c.latitude) * ky), along: 0.0)
+        for i in points.indices.dropLast() {
+            let ax = (points[i].longitude - c.longitude) * kx, ay = (points[i].latitude - c.latitude) * ky
+            let dx = (points[i + 1].longitude - points[i].longitude) * kx, dy = (points[i + 1].latitude - points[i].latitude) * ky
+            let len2 = dx * dx + dy * dy
+            let t = len2 > 0 ? max(0, min(1, -(ax * dx + ay * dy) / len2)) : 0
+            let d = hypot(ax + t * dx, ay + t * dy)
+            if d < best.dist { best = (d, cumulative[i] + t * (cumulative[i + 1] - cumulative[i])) }
+        }
+        return best
     }
 
     /// Fewest clearance hazards among routes within 20% of the fastest.
@@ -300,12 +320,7 @@ final class NavigationModel {
         if let h = s.heading { heading = h }
         guard let r = current, !points.isEmpty else { return }
         // Snap to the polyline.
-        var best = (dist: Double.greatestFiniteMagnitude, along: 0.0)
-        let loc = CLLocation(latitude: here.latitude, longitude: here.longitude)
-        for i in points.indices {
-            let d = loc.distance(from: CLLocation(latitude: points[i].latitude, longitude: points[i].longitude))
-            if d < best.dist { best = (d, cumulative[i]) }
-        }
+        let best = snap(here)
         let total = cumulative.last ?? 0
         remaining = max(0, total - best.along)
         stepIndex = stepEnds.firstIndex { $0 > best.along + 5 } ?? max(0, r.route.steps.count - 1)
@@ -315,7 +330,7 @@ final class NavigationModel {
         if best.dist > 40 {
             offRoute = true
             offSince = offSince ?? .now
-            if online, let since = offSince, Date.now.timeIntervalSince(since) > 5, Date.now.timeIntervalSince(lastReroute) > 8 {
+            if online, !rerouting, !arrived, let since = offSince, Date.now.timeIntervalSince(since) > 5, Date.now.timeIntervalSince(lastReroute) > 8 {
                 lastReroute = .now
                 rerouting = true
                 calculate(from: here)
@@ -327,22 +342,20 @@ final class NavigationModel {
 
         if remaining < 30 && !arrived {
             arrived = true
-            say("You've arrived", key: "arrive")
-            Task { try? await Task.sleep(for: .seconds(10)); stop() }
+            say(String(localized: "You've arrived", bundle: .module), key: "arrive")
         }
 
         // Voice at 800 m, 200 m, and the maneuver.
         let steps = r.route.steps
-        if steps.indices.contains(stepIndex + 1) || steps.indices.contains(stepIndex) {
-            let next = steps.indices.contains(stepIndex + 1) ? steps[stepIndex + 1] : steps[stepIndex]
-            let text = next.instructions
-            if !text.isEmpty {
-                for mark in [800.0, 200.0, 25.0] where toManeuver <= mark {
-                    let key = "\(stepIndex)-\(Int(mark))"
-                    if !spoken.contains(key) {
-                        spoken.insert(key)
-                        if mark == 25 { say(text, key: key) } else { say("In \(Self.distance(mark, spoken: true)), \(text.prefix(1).lowercased() + text.dropFirst())", key: key) }
-                        break
+        if !arrived, steps.indices.contains(stepIndex + 1) {
+            let text = steps[stepIndex + 1].instructions
+            if !text.isEmpty, let mark = [25.0, 200.0, 800.0].first(where: { toManeuver <= $0 }) {
+                let key = "\(stepIndex)-\(Int(mark))"
+                if !spoken.contains(key) {
+                    for m in [800.0, 200.0, 25.0] where m >= mark { spoken.insert("\(stepIndex)-\(Int(m))") }
+                    if mark == 25 { say(text, key: key) } else {
+                        let phrase: String = text.prefix(1).lowercased() + text.dropFirst()
+                        say(String(localized: "In \(Self.distance(toManeuver, spoken: true)), \(phrase)", bundle: .module), key: key)
                     }
                 }
             }
@@ -364,13 +377,28 @@ final class NavigationModel {
                     let key = "h-\(ahead.report.id)"
                     if !spoken.contains(key) {
                         spoken.insert(key)
-                        say("\(Self.kindName(ahead.report.kind)) in \(Self.distance(ahead.meters, spoken: true))", key: key)
+                        say(String(localized: "\(Self.kindName(ahead.report.kind)) in \(Self.distance(ahead.meters, spoken: true))", bundle: .module), key: key)
                     }
                 }
             } else {
                 hazardAhead = nil
             }
         }
+
+        if stillThere == nil, !arrived,
+           let p = r.hazards.first(where: { [ReportKind.police, .hazard, .closure].contains($0.kind) && !asked.contains($0.id)
+               && $0.coordinate.distance(to: s.coordinate) <= 40 }) {
+            asked.insert(p.id)
+            stillThere = p
+            Task { try? await Task.sleep(for: .seconds(8)); if stillThere?.id == p.id { stillThere = nil } }
+        }
+    }
+
+    func answerStillThere(_ yes: Bool) {
+        guard let p = stillThere else { return }
+        stillThere = nil
+        let gateway = env.gateway
+        Task { try? await gateway.voteReport(p.id, stillThere: yes) }
     }
 
     private func say(_ text: String, key: String) {
@@ -384,7 +412,9 @@ final class NavigationModel {
         case .steepEntrance: String(localized: "Steep entrance", bundle: .module)
         case .pothole: String(localized: "Pothole", bundle: .module)
         case .roughRoad: String(localized: "Rough road", bundle: .module)
-        default: "Hazard"
+        case .police: String(localized: "Police", bundle: .module)
+        case .closure: String(localized: "Closure", bundle: .module)
+        default: String(localized: "Hazard", bundle: .module)
         }
     }
 
@@ -469,7 +499,7 @@ struct RoutePreview: View {
     private var sheet: some View {
         VStack(alignment: .leading, spacing: Space.s12) {
             HStack {
-                Text(verbatim: model.name ?? "Destination").typeStyle(.title).foregroundStyle(Color.chalk)
+                Text(verbatim: model.destinationName).typeStyle(.title).foregroundStyle(Color.chalk)
                 Spacer()
                 if let car = model.car {
                     Button { model.cycleCar() } label: {
@@ -555,6 +585,19 @@ struct GuidanceView: View {
                         .frame(maxWidth: .infinity).padding(Space.s8).background(Color.sodium)
                         .padding(.horizontal, Space.margin)
                 }
+                if let p = model.stillThere {
+                    HStack(spacing: Space.s8) {
+                        Text(verbatim: NavigationModel.kindName(p.kind)).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                        Text("Still there?", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
+                        Spacer()
+                        QuietButton("Still there") { model.answerStillThere(true) }
+                        QuietButton("Gone") { model.answerStillThere(false) }
+                    }
+                    .padding(.horizontal, Space.s16)
+                    .background(Color.tarmac, in: RoundedRectangle(cornerRadius: Radius.r12))
+                    .padding(.horizontal, Space.margin)
+                    .padding(.top, Space.s8)
+                }
                 Spacer()
                 HStack {
                     let readout = model.speedReadout
@@ -571,6 +614,11 @@ struct GuidanceView: View {
             }
         }
         .haptic(.warn, trigger: model.hazardAhead?.id) { _, new in new != nil }
+        .task(id: model.arrived) {
+            guard model.arrived else { return }
+            try? await Task.sleep(for: .seconds(10))
+            if !Task.isCancelled { end() }
+        }
         .sheet(isPresented: $sharingETA) { ShareETASheet(model: model).presentationDetents([.medium, .large]) }
     }
 
@@ -606,7 +654,7 @@ struct GuidanceView: View {
                 Text(verbatim: NavigationModel.distance(model.remaining)).typeStyle(.foot).foregroundStyle(Color.dust)
             }
             Spacer()
-            if model.etaSent == nil && !model.friends.isEmpty && !model.arrived {
+            if model.etaSent == nil && !model.friends.isEmpty && !model.arrived && model.speed <= 8 / 3.6 {
                 IconButton(Symbol.share, label: "Share ETA") { sharingETA = true }
             }
             IconButton(model.muted ? "speaker.slash" : Symbol.speaker, label: model.muted ? "Unmute" : "Mute") { model.muted.toggle() }

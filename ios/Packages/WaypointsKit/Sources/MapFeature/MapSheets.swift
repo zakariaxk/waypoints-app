@@ -36,14 +36,24 @@ struct DriverPeek: View {
                     Button("View profile") { model.env.router.open(.profile(f.profile.userID)) }
                     Button("Invite to convoy") { model.inviteToConvoy(f.profile.userID) }
                     Button("Remove friend", role: .destructive) { confirmRemove = true }
-                    Button("Block", role: .destructive) { Task { try? await model.env.safety.block(f.profile.userID) } }
+                    Button("Block", role: .destructive) {
+                        Task {
+                            do {
+                                try await model.env.safety.block(f.profile.userID)
+                                model.selection = nil
+                            } catch {
+                                model.toast = ToastMessage(Text("Couldn't block. Check your connection and try again.", bundle: .module))
+                            }
+                        }
+                    }
                     Button("Report") { model.env.router.open(.reportContent(.user(f.profile.userID))) }
                 } label: { Image.symbol(Symbol.more).frame(width: Size.hitTarget, height: Size.hitTarget) }
                     .accessibilityLabel(Text("More", bundle: .module))
             }
-            Text(verbatim: entity.tier == .approximate
-                 ? "\(model.distanceLine(to: entity.coordinate)) · approximate"
-                 : "\(model.distanceLine(to: entity.coordinate)) · updated \(entity.staleness < 30 ? "now" : "\(Int(entity.staleness / 60)) min ago")")
+            Text(verbatim: "\(model.distanceLine(to: entity.coordinate)) · " + (entity.tier == .approximate
+                 ? String(localized: "approximate", bundle: .module)
+                 : entity.staleness < 60 ? String(localized: "updated now", bundle: .module)
+                 : String(localized: "updated \(Int(entity.staleness / 60)) min ago", bundle: .module)))
                 .typeStyle(.readoutS).foregroundStyle(Color.dust)
             HStack(spacing: Space.s12) {
                 PrimaryButton("Directions") {
@@ -51,8 +61,11 @@ struct DriverPeek: View {
                 }
                 SecondaryButton("Message") {
                     Task {
-                        if let thread = try? await model.env.messages.openThread(with: f.profile.userID, listing: nil) {
+                        do {
+                            let thread = try await model.env.messages.openThread(with: f.profile.userID, listing: nil)
                             model.env.router.open(.thread(thread.id))
+                        } catch {
+                            model.toast = ToastMessage(Text("Couldn't open the conversation. Check your connection and try again.", bundle: .module))
                         }
                     }
                 }
@@ -60,7 +73,16 @@ struct DriverPeek: View {
         }
         .padding(.horizontal, Space.margin)
         .confirmationDialog("Remove \(f.profile.displayName) as a friend?", isPresented: $confirmRemove) {
-            Button("Remove friend", role: .destructive) { Task { try? await model.env.friends.remove(f.profile.userID) } }
+            Button("Remove friend", role: .destructive) {
+                Task {
+                    do {
+                        try await model.env.friends.remove(f.profile.userID)
+                        model.selection = nil
+                    } catch {
+                        model.toast = ToastMessage(Text("Couldn't remove the friend. Check your connection and try again.", bundle: .module))
+                    }
+                }
+            }
         }
     }
 
@@ -192,10 +214,16 @@ struct MarkerPicker: View {
                 tick += 1
                 requirement = nil
                 let update = tab == 0 ? ProfileUpdate(markerIcon: name) : ProfileUpdate(markerTrail: name)
-                Task { _ = try? await model.env.profiles.updateMyProfile(update) }
+                Task {
+                    do {
+                        try await model.env.profiles.updateMyProfile(update)
+                    } catch {
+                        requirement = String(localized: "Couldn't change your marker. Check your connection and try again.", bundle: .module)
+                    }
+                }
             } else if let u = Self.unlocks[name] {
                 let p = progress.first { $0.key == u.key }
-                requirement = p.map { "\(u.text) You're at \($0.current) of \($0.target)." } ?? u.text
+                requirement = p.map { String(localized: "\(u.text) You're at \($0.current).", bundle: .module) } ?? u.text
             }
         } label: {
             VStack(spacing: Space.s4) {
@@ -234,6 +262,7 @@ final class SearchModel: NSObject, MKLocalSearchCompleterDelegate {
     var meets: [Meet] = []
     /// Search needs the network; offline it shows recents only (NAV-1).
     var online = true
+    var lookupFailed = false
     @ObservationIgnored private let completer = MKLocalSearchCompleter()
     @ObservationIgnored private var monitor: NWPathMonitor?
 
@@ -303,6 +332,9 @@ struct SearchView: View {
                     } else if !search.online {
                         offlineLine
                     } else {
+                        if search.lookupFailed {
+                            Text("Couldn't find that place. Try again.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.brake).padding(Space.margin)
+                        }
                         ForEach(search.results, id: \.self) { r in
                             Button { pick(r) } label: {
                                 Row(Text(verbatim: r.title), subtitle: Text(verbatim: r.subtitle))
@@ -354,7 +386,10 @@ struct SearchView: View {
         .task(id: search.query) {
             guard search.query.count >= 2 else { search.people = []; return }
             try? await Task.sleep(for: .milliseconds(250))
-            search.people = (try? await model.env.profiles.search(search.query, limit: 5)) ?? []
+            guard !Task.isCancelled else { return }
+            let found = (try? await model.env.profiles.search(search.query, limit: 5)) ?? []
+            guard !Task.isCancelled else { return }
+            search.people = found
         }
     }
 
@@ -399,8 +434,13 @@ struct SearchView: View {
         recentsRaw = ([completion.title] + recents.filter { $0 != completion.title }).prefix(5).joined(separator: "\n")
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = "\(completion.title) \(completion.subtitle)"
+        let search = self.search
+        search.lookupFailed = false
         MKLocalSearch(request: request).start { response, _ in
-            guard let item = response?.mapItems.first else { return }
+            guard let item = response?.mapItems.first else {
+                MainActor.assumeIsolated { search.lookupFailed = true }
+                return
+            }
             let c = item.placemark.coordinate
             let name = item.name
             MainActor.assumeIsolated {

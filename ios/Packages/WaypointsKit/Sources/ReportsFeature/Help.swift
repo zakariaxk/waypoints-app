@@ -101,7 +101,7 @@ struct HelpSectionView: View {
             }
         }
         .task(id: "\(region.hashValue)-\(reload)") {
-            requests = (try? await env.gateway.helpRequests(in: region)) ?? []
+            if let list = try? await env.gateway.helpRequests(in: region) { requests = list }
         }
         .task {
             for await event in await env.realtime.events() {
@@ -278,6 +278,8 @@ struct HelpDetail: View {
                 content(r)
             } else if gone {
                 Text("This request has ended.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
+            } else if let error {
+                Text(verbatim: error).typeStyle(.body).foregroundStyle(Color.dust)
             } else {
                 SkeletonRow()
             }
@@ -322,14 +324,14 @@ struct HelpDetail: View {
         } else {
             Text(verbatim: HelpText.anonymous).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
         }
-        Text("Asked \(r.createdAt.formatted(.relative(presentation: .named))) · ends \(r.expiresAt.formatted(.relative(presentation: .named)))")
+        Text("Asked \(r.createdAt.formatted(.relative(presentation: .named))) · ends \(r.expiresAt.formatted(.relative(presentation: .named)))", bundle: .module)
             .typeStyle(.foot).foregroundStyle(Color.dust)
         if let note = r.note { Text(verbatim: note).typeStyle(.body).foregroundStyle(Color.chalk) }
         if r.isMine {
             if r.responders.isEmpty {
                 Text("Nobody is on the way yet.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
             } else {
-                Text("On the way: \(r.responders.map(\.displayName).formatted(.list(type: .and)))")
+                Text("On the way: \(r.responders.map(\.displayName).formatted(.list(type: .and)))", bundle: .module)
                     .typeStyle(.sub).foregroundStyle(Color.go)
             }
             HStack(spacing: Space.s12) {
@@ -356,10 +358,15 @@ struct HelpDetail: View {
     private func load() async {
         do {
             request = try await env.gateway.helpRequest(requestID)
+            error = nil
         } catch WaypointsError.notFound {
             request = nil
             gone = true
-        } catch {}
+        } catch {
+            if request == nil {
+                self.error = String(localized: "Couldn't load this request. Check your connection and try again.", bundle: .module)
+            }
+        }
     }
 
     private func directions(_ r: HelpRequest) {

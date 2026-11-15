@@ -1,7 +1,16 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ You're at %@.": {
+      "extractionState": "manual"
+    },
+    "%@ friends out": {
+      "extractionState": "manual"
+    },
     "%@, locked": {
+      "extractionState": "manual"
+    },
+    "1 friend out": {
       "extractionState": "manual"
     },
     "A driver nearby": {
@@ -26,6 +35,27 @@
       "extractionState": "manual"
     },
     "Collapsed": {
+      "extractionState": "manual"
+    },
+    "Couldn't block. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't change ghost mode. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't change your marker. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't find that place. Try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't open the conversation. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't remove the friend. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't send the invite. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Directions": {
@@ -56,6 +86,9 @@
       "extractionState": "manual"
     },
     "Invite a friend": {
+      "extractionState": "manual"
+    },
+    "Invite sent.": {
       "extractionState": "manual"
     },
     "Invite to convoy": {
@@ -151,7 +184,13 @@
     "Zoom in to see drivers.": {
       "extractionState": "manual"
     },
+    "approximate": {
+      "extractionState": "manual"
+    },
     "east": {
+      "extractionState": "manual"
+    },
+    "moving": {
       "extractionState": "manual"
     },
     "north": {
@@ -163,6 +202,9 @@
     "north west": {
       "extractionState": "manual"
     },
+    "parked": {
+      "extractionState": "manual"
+    },
     "south": {
       "extractionState": "manual"
     },
@@ -170,6 +212,12 @@
       "extractionState": "manual"
     },
     "south west": {
+      "extractionState": "manual"
+    },
+    "updated %@ min ago": {
+      "extractionState": "manual"
+    },
+    "updated now": {
       "extractionState": "manual"
     },
     "west": {

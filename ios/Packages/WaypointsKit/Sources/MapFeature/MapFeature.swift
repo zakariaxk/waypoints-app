@@ -71,6 +71,16 @@ actor LiveEntityStore {
     }
 }
 
+struct EntityGroup: Identifiable {
+    var id: RealtimeUID
+    var members: [Entity]
+    var center: Coordinate {
+        let n = Double(max(members.count, 1))
+        return Coordinate(latitude: members.map(\.coordinate.latitude).reduce(0, +) / n,
+                          longitude: members.map(\.coordinate.longitude).reduce(0, +) / n)
+    }
+}
+
 enum Selection: Hashable {
     case entity(RealtimeUID)
     case item(provider: String, id: String)
@@ -104,6 +114,7 @@ final class MapModel {
     var recenterTick = 0
     var hasLiveBatch = false
     var showBanner = false
+    var toast: ToastMessage?
 
     var layers: [String: Bool] {
         didSet { UserDefaults.standard.set(layers, forKey: "map.layers") }
@@ -134,6 +145,9 @@ final class MapModel {
                     self?.entities = snap.entities
                     self?.aggregateCount = snap.aggregateCount
                     self?.hasLiveBatch = true
+                    if let self, case let .entity(uid) = self.selection, !snap.entities.contains(where: { $0.uid == uid }) {
+                        self.selection = nil
+                    }
                 }
             }
         })
@@ -204,6 +218,9 @@ final class MapModel {
             layerTasks[provider.id] = Task { [weak self] in
                 for await list in provider.items(in: r) {
                     self?.items[provider.id] = list
+                    if let self, case let .item(p, id) = self.selection, p == provider.id, !list.contains(where: { $0.id == id }) {
+                        self.selection = nil
+                    }
                 }
             }
         }
@@ -227,11 +244,29 @@ final class MapModel {
         return friends.filter { uids.contains($0.profile.uid) && !blocked.contains($0.profile.userID) }
     }
 
+    var groups: [EntityGroup] {
+        let cell = max(region.longitudeDelta, 0.0008) / 8
+        return Dictionary(grouping: visibleEntities) { e -> String in
+            selection == .entity(e.uid) ? "selected"
+                : "\((e.coordinate.latitude / cell).rounded(.down)):\((e.coordinate.longitude / cell).rounded(.down))"
+        }.values.compactMap { members in
+            members.map(\.uid).min().map { EntityGroup(id: $0, members: members) }
+        }
+    }
+
     func setGhost(until: Date?) {
+        let old = privacy
         var s = privacy
         s.ghostUntil = until
         privacy = s
-        Task { try? await env.gateway.updatePrivacy(s) }
+        Task {
+            do {
+                try await env.gateway.updatePrivacy(s)
+            } catch {
+                self.privacy = old
+                self.toast = ToastMessage(Text("Couldn't change ghost mode. Check your connection and try again.", bundle: .module))
+            }
+        }
     }
 
     /// "2.1 mi north east", in the locale's road unit (SET-3).
@@ -262,7 +297,12 @@ final class MapModel {
         let env = self.env
         Task {
             if let id = await env.realtime.currentConvoy()?.id {
-                try? await env.gateway.inviteToConvoy(id, users: [user])
+                do {
+                    try await env.gateway.inviteToConvoy(id, users: [user])
+                    self.toast = ToastMessage(Text("Invite sent.", bundle: .module))
+                } catch {
+                    self.toast = ToastMessage(Text("Couldn't send the invite. Check your connection and try again.", bundle: .module))
+                }
             } else {
                 env.router.open(.joinConvoy(code: ""))
             }

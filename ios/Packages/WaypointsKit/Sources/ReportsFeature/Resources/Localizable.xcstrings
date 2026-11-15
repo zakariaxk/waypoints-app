@@ -7,6 +7,9 @@
     "%@ on the way": {
       "extractionState": "manual"
     },
+    "%@ reported": {
+      "extractionState": "manual"
+    },
     "A driver needs a hand": {
       "extractionState": "manual"
     },
@@ -34,13 +37,22 @@
     "Couldn't clear it. Check your connection and try again.": {
       "extractionState": "manual"
     },
+    "Couldn't count that. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't extend it. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this request. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't post the report. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Couldn't send that. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't undo the report. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Directions": {
@@ -137,6 +149,9 @@
       "extractionState": "manual"
     },
     "They know you're on the way.": {
+      "extractionState": "manual"
+    },
+    "This report isn't available. It may have been removed.": {
       "extractionState": "manual"
     },
     "This request has ended.": {

@@ -40,6 +40,7 @@ struct UnlockView: View {
     @AppStorage("progress.seen") private var seenRaw = ""
     @State private var fresh: (key: String, name: String, trail: Bool)?
     @State private var shown = false
+    @State private var failed = false
 
     var body: some View {
         Group {
@@ -54,12 +55,21 @@ struct UnlockView: View {
                     VStack(alignment: .leading, spacing: Space.s2) {
                         (f.trail ? Text("New trail", bundle: .module) : Text("New icon", bundle: .module)).typeStyle(.label).foregroundStyle(Color.sodium)
                         Text(verbatim: MapIconSet.title(f.name)).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                        if failed {
+                            Text("Couldn't change your marker. Try again.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.brake)
+                        }
                     }
                     Spacer()
                     QuietButton("Use it") {
                         let update = f.trail ? ProfileUpdate(markerTrail: f.name) : ProfileUpdate(markerIcon: f.name)
-                        Task { _ = try? await env.profiles.updateMyProfile(update) }
-                        dismiss(f.key)
+                        Task {
+                            do {
+                                try await env.profiles.updateMyProfile(update)
+                                dismiss(f.key)
+                            } catch {
+                                failed = true
+                            }
+                        }
                     }
                     IconButton(Symbol.close, label: "Dismiss") { dismiss(f.key) }
                 }
@@ -70,9 +80,10 @@ struct UnlockView: View {
         }
         .task {
             let seen = Set(seenRaw.split(separator: ",").map(String.init))
-            let earned = ((try? await env.progress.myProgress()) ?? []).filter { $0.earnedAt != nil }.map(\.key)
+            guard let progress = try? await env.progress.myProgress() else { return }
+            let earned = progress.filter { $0.earnedAt != nil }.map(\.key)
             if seenRaw.isEmpty {
-                seenRaw = earned.joined(separator: ",")       // first launch: nothing is "new"
+                seenRaw = (["-"] + earned).joined(separator: ",")       // first launch: nothing is "new"
                 return
             }
             if let key = earned.first(where: { !seen.contains($0) }), let u = ProgressFeature.unlocks[key] {

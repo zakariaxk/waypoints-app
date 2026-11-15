@@ -1,6 +1,9 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Couldn't change your marker. Try again.": {
+      "extractionState": "manual"
+    },
     "Dismiss": {
       "extractionState": "manual"
     },

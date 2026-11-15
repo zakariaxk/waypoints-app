@@ -88,6 +88,7 @@ struct ReportsSectionView: View {
     let env: AppEnvironment
     let region: MapRegion
     @State private var reports: [Report] = []
+    @State private var reload = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -104,7 +105,14 @@ struct ReportsSectionView: View {
                 }
             }
         }
-        .task(id: region) { reports = (try? await env.reports.reports(in: region)) ?? [] }
+        .task(id: "\(region.hashValue)-\(reload)") {
+            if let list = try? await env.reports.reports(in: region) { reports = list }
+        }
+        .task {
+            for await event in await env.realtime.events() {
+                if case let .mapEvent(e) = event, e.kind == .report { reload += 1 }
+            }
+        }
     }
 }
 
@@ -128,21 +136,33 @@ struct PostReport: View {
     @State private var done = 0
     @State private var failed = 0
     @State private var posted: Report?
+    @State private var posting = false
 
     var body: some View {
         Sheet(Text("What's here?", bundle: .module)) {
             if let posted {
-                HStack {
-                    Text(verbatim: "\(ReportText.name(posted.kind)) reported").typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
-                    Spacer()
-                    QuietButton("Undo") {
-                        Task { try? await env.gateway.undoReport(posted.id); dismiss() }
+                VStack(alignment: .leading, spacing: Space.s8) {
+                    HStack {
+                        Text("\(ReportText.name(posted.kind)) reported", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                        Spacer()
+                        QuietButton("Undo") {
+                            Task {
+                                do {
+                                    try await env.gateway.undoReport(posted.id)
+                                    dismiss()
+                                } catch {
+                                    self.error = String(localized: "Couldn't undo the report. Check your connection and try again.", bundle: .module)
+                                    failed += 1
+                                }
+                            }
+                        }
                     }
+                    if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                 }
                 .padding(.horizontal, Space.margin)
                 .task {
                     try? await Task.sleep(for: .seconds(5))
-                    dismiss()
+                    if !Task.isCancelled, error == nil { dismiss() }
                 }
             } else {
             VStack(spacing: Space.s16) {
@@ -173,7 +193,11 @@ struct PostReport: View {
     }
 
     private func post(_ kind: ReportKind) {
+        guard !posting else { return }
+        posting = true
+        error = nil
         Task {
+            defer { posting = false }
             do {
                 posted = try await env.gateway.postReport(kind: kind, at: at, note: note.isEmpty ? nil : note)
                 done += 1
@@ -195,6 +219,8 @@ struct ReportDetail: View {
     let reportID: ReportID
     @State private var report: Report?
     @State private var voted = false
+    @State private var missing = false
+    @State private var error: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.s12) {
@@ -208,7 +234,7 @@ struct ReportDetail: View {
                     } label: { Image.symbol(Symbol.more).frame(width: Size.hitTarget, height: Size.hitTarget) }
                     .accessibilityLabel(Text("More options", bundle: .module))
                 }
-                Text("Reported \(r.createdAt.formatted(.relative(presentation: .named))) · confirmed by \(r.confirmations)")
+                Text("Reported \(r.createdAt.formatted(.relative(presentation: .named))) · confirmed by \(r.confirmations)", bundle: .module)
                     .typeStyle(.foot).foregroundStyle(Color.dust)
                 if let note = r.note { Text(verbatim: note).typeStyle(.body).foregroundStyle(Color.chalk) }
                 if voted {
@@ -219,19 +245,30 @@ struct ReportDetail: View {
                         SecondaryButton("Gone") { vote(false) }
                     }
                 }
+                if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
+            } else if missing {
+                Text("This report isn't available. It may have been removed.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
             } else {
                 SkeletonRow()
             }
         }
         .padding(.horizontal, Space.margin)
         .task {
-            report = try? await env.reports.report(reportID)
+            do { report = try await env.reports.report(reportID) } catch { missing = true }
             voted = (try? await env.reports.myVote(on: reportID)) != nil
         }
     }
 
     private func vote(_ stillThere: Bool) {
         voted = true
-        Task { try? await env.gateway.voteReport(reportID, stillThere: stillThere) }
+        error = nil
+        Task {
+            do {
+                try await env.gateway.voteReport(reportID, stillThere: stillThere)
+            } catch {
+                voted = false
+                self.error = String(localized: "Couldn't count that. Check your connection and try again.", bundle: .module)
+            }
+        }
     }
 }
