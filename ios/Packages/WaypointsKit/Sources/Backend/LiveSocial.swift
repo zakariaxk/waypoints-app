@@ -234,7 +234,7 @@ struct LiveMessages: MessageRepository {
     func live(_ target: MessageTarget) async -> AsyncStream<Core.Message> {
         let (col, value) = column(target)
         let channel = ctx.client.channel("messages:\(value)")
-        let changes = channel.postgresChange(AnyAction.self, schema: "public", table: "messages", filter: "\(col)=eq.\(value)")
+        let changes = channel.postgresChange(AnyAction.self, schema: "public", table: "messages", filter: .eq(col, value: value))
         let decoder = Coders.decoder()
         return AsyncStream { continuation in
             let task = Task {

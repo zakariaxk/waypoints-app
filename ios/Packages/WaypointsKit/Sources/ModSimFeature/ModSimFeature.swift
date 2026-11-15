@@ -310,7 +310,7 @@ struct ModSimView: View {
     }
 
     private var scrubValue: Text {
-        guard let rpm = model.scrubRpm, let p = modCurve.min(by: { abs($0.rpm - rpm) < abs($1.rpm - rpm) }) else {
+        guard let rpm = model.scrubRpm, let p = (model.modEstimate?.curve ?? []).min(by: { abs($0.rpm - rpm) < abs($1.rpm - rpm) }) else {
             return Text("Adjust to read power at an rpm", bundle: .module)
         }
         return Text("\(Int(rpm)) rpm, \(Int(p.hp)) horsepower, \(Int(p.torque)) pound-feet", bundle: .module)

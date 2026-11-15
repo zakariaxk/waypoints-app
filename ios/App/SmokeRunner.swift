@@ -149,8 +149,7 @@ enum SmokeRunner {
 
         // Posts
         var posts: [Post] = []
-        await s.check("posts.feed") { posts = try await env.posts.feed(after: nil, limit: 10).items }
-        await s.check("posts.forYou") { _ = try await env.posts.forYou(after: nil, limit: 10) }
+        await s.check("posts.forYou") { posts = try await env.posts.forYou(after: nil, limit: 10).items }
         await s.check("posts.followingFeed") { _ = try await env.posts.followingFeed(after: nil, limit: 10) }
         await s.check("posts.posts(by)") { _ = try await env.posts.posts(by: me) }
         await s.check("posts.post") { _ = try await env.posts.post(try need(posts.first).id) }

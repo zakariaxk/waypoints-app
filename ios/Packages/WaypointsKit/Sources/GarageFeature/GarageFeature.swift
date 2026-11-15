@@ -376,7 +376,7 @@ struct PickerSheet: View {
             } else {
                 let car = try await ctx.env.garage.createCar(new)
                 if (try? await ctx.env.profiles.myProfile().primaryCarID) == nil {
-                    try? await ctx.env.profiles.updateMyProfile(ProfileUpdate(primaryCarID: car.id))
+                    _ = try? await ctx.env.profiles.updateMyProfile(ProfileUpdate(primaryCarID: car.id))
                 }
             }
             dismiss()

@@ -138,7 +138,7 @@ enum DebugLinks {
     }
 
     private static func firstPost(_ env: AppEnvironment) async -> PostID? {
-        (try? await env.posts.feed(after: nil, limit: 1))?.items.first?.id
+        (try? await env.posts.forYou(after: nil, limit: 1))?.items.first?.id
     }
 
     private static func firstListing(_ env: AppEnvironment) async -> ListingID? {

@@ -594,13 +594,12 @@ struct IconPicker: View {
     @State private var uploading = false
 
     var body: some View {
-        PhotosPicker(selection: $photo, matching: .images) {
-            HStack(spacing: Space.s12) {
-                TeamIcon(team: team, env: model.env, size: Size.row)
-                Text(uploading ? "Uploading" : (iconPath == nil ? "Add icon" : "Change icon"))
-                    .typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
-            }
+        let label = HStack(spacing: Space.s12) {
+            TeamIcon(team: team, env: model.env, size: Size.row)
+            Text(uploading ? "Uploading" : (iconPath == nil ? "Add icon" : "Change icon"))
+                .typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
         }
+        PhotosPicker(selection: $photo, matching: .images) { label }
         .disabled(uploading)
         .onChange(of: photo) {
             guard let photo else { return }

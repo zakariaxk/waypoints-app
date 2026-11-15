@@ -470,7 +470,7 @@ struct ListSomething: View {
                                                 .clipShape(RoundedRectangle(cornerRadius: Radius.r6))
                                         }
                                         .dropDestination(for: String.self) { dropped, _ in
-                                            guard let from = dropped.first.flatMap { Int($0) }, images.indices.contains(from), from != i else { return false }
+                                            guard let from = dropped.first.flatMap(Int.init), images.indices.contains(from), from != i else { return false }
                                             images.move(fromOffsets: IndexSet(integer: from), toOffset: from < i ? i + 1 : i)
                                             return true
                                         }
