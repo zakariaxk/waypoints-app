@@ -29,9 +29,9 @@ public actor PreviewRealtimeService: RealtimeService {
         }
         let s = PreviewSeed.self
         drivers = [
-            Driver(uid: 2, center: s.at(39.9300, -75.0200), radius: 0.012, period: 240, tier: .precise, info: info(.friend, s.devon)),
-            Driver(uid: 3, center: s.at(39.9000, -75.0350), radius: 0.008, period: 180, tier: .precise, info: info(.friend, s.jae)),
-            Driver(uid: 4, center: s.at(39.9100, -74.9300), radius: 0.020, period: 400, tier: .precise, info: info(.friend, s.rosa)),
+            Driver(uid: 2, center: s.at(39.9399, -75.0246), radius: 0.0002, period: 240, tier: .precise, info: info(.friend, s.devon)),
+            Driver(uid: 3, center: s.at(39.9412, -75.0219), radius: 0.0002, period: 180, tier: .precise, info: info(.friend, s.jae)),
+            Driver(uid: 4, center: s.at(39.9374, -75.0243), radius: 0.00015, period: 400, tier: .precise, info: info(.friend, s.rosa)),
             Driver(uid: 6, center: s.at(39.8700, -75.0000), radius: 0.010, period: 300, tier: .approximate, info: info(.friend, s.nina)),
             Driver(uid: 8, center: s.at(39.9700, -74.9500), radius: 0.015, period: 320, tier: .approximate, info: info(.teammate, s.lena)),
             Driver(uid: 101, center: s.at(39.9450, -75.0500), radius: 0.006, period: 200, tier: .approximate,

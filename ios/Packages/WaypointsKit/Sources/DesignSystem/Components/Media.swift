@@ -150,7 +150,9 @@ public struct MediaView: View {
                     CachedImage(url: url) { image in
                         image.resizable().scaledToFill()
                     } placeholder: {
-                        Color.concrete
+                        if url == nil {
+                            Image.symbol(Symbol.photo).imageScale(.large).foregroundStyle(Color.gravel)
+                        }
                     }
                 }
                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
@@ -178,7 +180,7 @@ private struct FullScreenMedia: View {
             CachedImage(url: url) { image in
                 image.resizable().scaledToFit()
             } placeholder: {
-                Color.concrete
+                Color.clear
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityLabel(label)

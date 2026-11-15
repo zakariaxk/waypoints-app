@@ -285,19 +285,18 @@ public enum PreviewSeed {
     // MARK: Feed and Showdown
 
     public static let posts: [Post] = [
-        Post(authorID: jae, carID: car(4), videoPath: "\(jae)/posts/b16-first-start.mp4",
-             posterPath: "\(jae)/posts/b16-first-start.jpg", caption: "Rebuilt B16, first start",
-             durationMs: 14_000, likeCount: 48, commentCount: 9, createdAt: hours(-1)),
-        Post(authorID: nina, carID: car(7), videoPath: "\(nina)/posts/thunderbolt-lap.mp4",
-             posterPath: "\(nina)/posts/thunderbolt-lap.jpg", caption: "Thunderbolt, clean lap in the rain",
-             durationMs: 28_000, likeCount: 112, commentCount: 17, createdAt: hours(-20)),
-        Post(authorID: theo, carID: car(6), videoPath: "\(theo)/posts/396-cold-start.mp4",
-             posterPath: "\(theo)/posts/396-cold-start.jpg", caption: "396 cold start, December",
-             durationMs: 21_000, likeCount: 230, commentCount: 41, createdAt: hours(-50)),
-        Post(authorID: maya, carID: car(1), videoPath: "\(maya)/posts/coilovers-before-after.mp4",
-             posterPath: "\(maya)/posts/coilovers-before-after.jpg", caption: "Coilovers, before and after",
-             durationMs: 11_000, likeCount: 64, commentCount: 12, createdAt: hours(-24 * 4)),
+        photoPost(jae, car(4), ["b16-back-in", "b16-bay"], "Rebuilt B16 is back in", 48, 9, -1),
+        photoPost(nina, car(7), ["thunderbolt-paddock"], "Thunderbolt paddock, rain day", 112, 17, -20),
+        photoPost(theo, car(6), ["396-december", "396-lot"], "396 out for a December run", 230, 41, -50),
+        photoPost(maya, car(1), ["coilovers-on"], "Coilovers on, 1.5 inches down", 64, 12, -24 * 4),
     ]
+
+    static func photoPost(_ author: UserID, _ car: CarID, _ names: [String], _ caption: String,
+                          _ likes: Int, _ comments: Int, _ hoursAgo: Double) -> Post {
+        let paths = names.map { "\(author)/posts/\($0).jpg" }
+        return Post(authorID: author, carID: car, videoPath: nil, photoPaths: paths, posterPath: paths[0],
+                    caption: caption, durationMs: 0, likeCount: likes, commentCount: comments, createdAt: hours(hoursAgo))
+    }
 
     public static let showdownEntries: [ShowdownEntry] = [
         ShowdownEntry(carID: car(1), rating: 1264, wins: 31, losses: 22, showdownClass: .built),
@@ -337,7 +336,23 @@ public enum PreviewSeed {
         Listing(id: ListingID(raw: uuid(6, 11)), sellerID: jae, kind: .wanted, title: "Looking for a B18C1 head, any condition",
                 priceCents: 40_000, condition: .used, description: "Cash ready. Can pick up within an hour of Haddonfield.",
                 fits: Fitment(make: "Acura", model: "Integra", yearFrom: 1994, yearTo: 2001), region: "Haddonfield",
-                category: .engine),
+                photos: [ListingPhoto(path: "\(jae)/listings/b18-bay-1.jpg")], category: .engine),
+        Listing(id: ListingID(raw: uuid(7, 11)), sellerID: devon, kind: .part, title: "Cat-back exhaust, S550 Mustang GT",
+                priceCents: 65_000, condition: .used, description: "Came off at 8k miles. Active valves, all hardware included.",
+                fits: Fitment(make: "Ford", model: "Mustang", yearFrom: 2018, yearTo: 2023), region: "Cherry Hill",
+                photos: [ListingPhoto(path: "\(devon)/listings/catback-1.jpg")], category: .exhaust),
+        Listing(id: ListingID(raw: uuid(8, 11)), sellerID: chris, kind: .part, title: "Brembo front calipers, S550 Performance Pack",
+                priceCents: 48_000, condition: .used, description: "Six-piston pair with pads at about half. No seized pistons.",
+                fits: Fitment(make: "Ford", model: "Mustang", yearFrom: 2015, yearTo: 2023), region: "Deptford",
+                photos: [ListingPhoto(path: "\(chris)/listings/brembo-1.jpg")], category: .brakes),
+        Listing(id: ListingID(raw: uuid(9, 11)), sellerID: chris, kind: .car, title: "2005 Nissan 350Z Track, 121k miles",
+                priceCents: 1_150_000, condition: .used,
+                description: "Daytona Blue, six-speed, stock apart from pads and fluid. Clutch done at 100k.",
+                carID: car(11), region: "Deptford", photos: [ListingPhoto(path: "\(chris)/listings/350z-1.jpg")]),
+        Listing(id: ListingID(raw: uuid(10, 11)), sellerID: nina, kind: .wanted, title: "Looking for a second set of GR86 wheels, 17x8",
+                priceCents: 70_000, condition: .used, description: "For track tires. 5x100, any finish, straight and round.",
+                fits: Fitment(make: "Toyota", model: "GR86", yearFrom: 2022, yearTo: 2026), region: "Voorhees",
+                photos: [ListingPhoto(path: "\(nina)/listings/gr86-wheels-1.jpg")], category: .wheelsTires),
     ]
 
     // MARK: Progress

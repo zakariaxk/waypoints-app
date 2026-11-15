@@ -88,11 +88,13 @@ extension PreviewStore: MediaStore {
             progress(Double(step) / 4)
         }
         let ext = contentType.split(separator: "/").last.map(String.init) ?? "bin"
-        return StoredMedia(bucket: bucket, path: "\(me)/\(UUID().uuidString.lowercased()).\(ext)")
+        let path = "\(me)/\(UUID().uuidString.lowercased()).\(ext)"
+        PreviewMedia.store(data, bucket: bucket, path: path)
+        return StoredMedia(bucket: bucket, path: path)
     }
     public func delete(_ media: StoredMedia) async throws {}
     public nonisolated func publicURL(bucket: MediaBucket, path: String) -> URL {
-        URL(string: "https://preview.waypoints.invalid/storage/v1/object/public/\(bucket.rawValue)/\(path)")!
+        PreviewMedia.url(bucket: bucket, path: path)
     }
 }
 
