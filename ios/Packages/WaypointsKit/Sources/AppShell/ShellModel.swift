@@ -90,6 +90,7 @@ enum TabBarStyle {
             layout.selected.iconColor = UIColor(Color.sodium)
             layout.selected.titleTextAttributes = [.foregroundColor: UIColor(Color.sodium)]
             layout.normal.badgeBackgroundColor = UIColor(Color.brake)
+            layout.selected.badgeBackgroundColor = UIColor(Color.brake)
         }
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance

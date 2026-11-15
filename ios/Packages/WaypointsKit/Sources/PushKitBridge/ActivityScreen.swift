@@ -69,7 +69,7 @@ struct ActivityScreen: View {
             }
         }
         .background(Color.asphalt.ignoresSafeArea())
-        .navigationTitle("Activity")
+        .navigationTitle(Text("Activity", bundle: .module))
         .navigationBarTitleDisplayMode(.inline)
         .task { await model.load() }
         .refreshable { await model.load() }
@@ -87,7 +87,7 @@ private struct ActivityRow: View {
                 .background(Color.concrete, in: Circle())
         }, trailing: {
             VStack(alignment: .trailing, spacing: Space.s4) {
-                Text(verbatim: item.createdAt.formatted(.relative(presentation: .numeric))).typeStyle(.readoutS)
+                Text(verbatim: item.createdAt.formatted(.relative(presentation: .numeric, unitsStyle: .abbreviated))).typeStyle(.foot)
                 if item.isUnread {
                     Text("New", bundle: .module).typeStyle(.label).foregroundStyle(Color.sodium)
                 }

@@ -1,5 +1,6 @@
 import Core
 import DesignSystem
+import MapKit
 import SafetyKit
 import SwiftUI
 import UserNotifications
@@ -31,6 +32,13 @@ public enum SettingsFeature: FeatureModule {
             }
             return AnyView(ReportSheet(target: ref, thing: thing, blockUser: user, safety: env.safety))
         }
+        #if DEBUG
+        // S3–S6 have no route of their own; these let `waypoints://debug/settings-<name>` open them.
+        registry.registerDebugScreen("settings-notifications") { AnyView(NavigationStack { NotificationsView(env: env) }) }
+        registry.registerDebugScreen("settings-blocked") { AnyView(NavigationStack { BlockedView(env: env) }) }
+        registry.registerDebugScreen("settings-account") { AnyView(NavigationStack { AccountView(env: env) }) }
+        registry.registerDebugScreen("settings-about") { AnyView(NavigationStack { AboutView() }) }
+        #endif
     }
 }
 
@@ -51,9 +59,9 @@ struct SettingsList<Content: View>: View {
     let title: LocalizedStringKey
     @ViewBuilder let content: Content
     var body: some View {
-        ScrollView { VStack(alignment: .leading, spacing: 0) { content } }
+        ScrollView { VStack(alignment: .leading, spacing: 0) { content }.padding(.bottom, Space.s32) }
             .background(Color.asphalt.ignoresSafeArea())
-            .navigationTitle(title)
+            .navigationTitle(Text(title, bundle: .module))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(Color.tarmac, for: .navigationBar)
     }
@@ -63,7 +71,7 @@ struct NavRow: View {
     let title: LocalizedStringKey
     let destination: () -> AnyView
     var body: some View {
-        NavigationLink { destination() } label: { Row(Text(title), trailing: { Disclosure() }) }
+        NavigationLink { destination() } label: { Row(Text(title, bundle: .module), trailing: { Disclosure() }) }
             .buttonStyle(RowButtonStyle())
     }
 }
@@ -237,13 +245,13 @@ struct PrivacyView: View {
                     s[keyPath: key] = level
                     model.save(s)
                 } label: {
-                    Text(Self.name(level))
-                    Text(Self.blurb(level))
+                    Text(Self.name(level), bundle: .module)
+                    Text(Self.blurb(level), bundle: .module)
                 }
             }
         } label: {
-            Row(Text(title), trailing: {
-                Text(Self.name(model.settings[keyPath: key])).typeStyle(.sub)
+            Row(Text(title, bundle: .module), trailing: {
+                Text(Self.name(model.settings[keyPath: key]), bundle: .module).typeStyle(.sub)
             })
         }
     }
@@ -262,28 +270,45 @@ struct PrivacyView: View {
     private var previews: some View {
         let s = model.settings
         let ghost = s.isGhost()
-        return HStack(spacing: Space.s12) {
-            preview("Friends see", ghost ? .hidden : s.friendsLevel)
-            preview("Teams see", ghost ? .hidden : s.teamLevel)
-            preview("Drivers nearby see", ghost ? .hidden : s.nearbyLevel)
+        let levels: [(LocalizedStringKey, PrivacyLevel)] = [
+            ("Friends see", ghost ? .hidden : s.friendsLevel),
+            ("Teams see", ghost ? .hidden : s.teamLevel),
+            ("Drivers nearby see", ghost ? .hidden : s.nearbyLevel),
+        ]
+        // One map strip, three audiences side by side (S2), with the captions in the same columns.
+        return VStack(spacing: Space.s8) {
+            HStack(spacing: 0) {
+                ForEach(0..<levels.count, id: \.self) { preview(levels[$0].1) }
+            }
+            .frame(minHeight: Size.Marker.approximateRing + Space.s48)
+            .background {
+                Map(initialPosition: .userLocation(fallback: .automatic), interactionModes: [])
+                    .mapStyle(.standard(emphasis: .muted, pointsOfInterest: .excludingAll))
+                    .allowsHitTesting(false)
+                    .accessibilityHidden(true)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: Radius.r12))
+            .environment(\.colorScheme, .dark)
+            HStack(alignment: .top, spacing: 0) {
+                ForEach(0..<levels.count, id: \.self) {
+                    Text(levels[$0].0, bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
+                        .multilineTextAlignment(.center).frame(maxWidth: .infinity)
+                }
+            }
         }
         .padding(Space.margin)
         .motion(.standard, value: s)
     }
 
-    private func preview(_ title: LocalizedStringKey, _ level: PrivacyLevel) -> some View {
-        VStack(spacing: Space.s8) {
-            ZStack {
-                switch level {
-                case .precise: VehicleMarker(icon: "coupe", paint: .sodium, role: .friend(name: ""))
-                case .approx: VehicleMarker(icon: "coupe", paint: .sodium, role: .approximate)
-                case .hidden: Text("Nothing", bundle: .module).typeStyle(.foot).foregroundStyle(Color.gravel)
-                }
+    private func preview(_ level: PrivacyLevel) -> some View {
+        ZStack {
+            switch level {
+            case .precise: VehicleMarker(icon: "coupe", paint: .sodium, role: .friend(name: ""))
+            case .approx: VehicleMarker(icon: "coupe", paint: .sodium, role: .approximate)
+            case .hidden: Text("Nothing", bundle: .module).typeStyle(.foot).foregroundStyle(Color.chalk)
             }
-            .frame(maxWidth: .infinity, minHeight: Size.Marker.approximateRing + Space.s16)
-            .background(Color.tarmac, in: RoundedRectangle(cornerRadius: Radius.r12))
-            Text(title).typeStyle(.foot).foregroundStyle(Color.dust).multilineTextAlignment(.center)
         }
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -381,7 +406,7 @@ struct NotificationsView: View {
     }
 
     private func toggle(_ title: LocalizedStringKey, _ value: Binding<Bool>) -> some View {
-        Row(Text(title), trailing: { Toggle("", isOn: value).labelsHidden().tint(.sodium) })
+        Row(Text(title, bundle: .module), trailing: { Toggle("", isOn: value).labelsHidden().tint(.sodium) })
     }
 }
 
@@ -511,10 +536,10 @@ struct AboutView: View {
             link("Contact", "mailto:support@waypoints.app")
             NavigationLink {
                 ScrollView {
-                    Text(Self.licences).typeStyle(.foot).foregroundStyle(Color.dust).padding(Space.margin)
+                    Text(Self.licences, bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust).padding(Space.margin)
                 }
                 .background(Color.asphalt.ignoresSafeArea())
-                .navigationTitle("Licences")
+                .navigationTitle(Text("Licences", bundle: .module))
             } label: { Row(Text("Open-source licences", bundle: .module), showsDivider: false, trailing: { Disclosure() }) }
                 .buttonStyle(RowButtonStyle())
         }
@@ -528,7 +553,8 @@ struct AboutView: View {
     }
 
     private func link(_ title: LocalizedStringKey, _ url: String) -> some View {
-        Link(destination: URL(string: url)!) { Row(Text(title), trailing: { Disclosure() }) }
+        Link(destination: URL(string: url)!) { Row(Text(title, bundle: .module), trailing: { Disclosure() }) }
+            .buttonStyle(RowButtonStyle())
     }
 
     static let licences: LocalizedStringKey = """

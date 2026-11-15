@@ -44,7 +44,7 @@ public struct ReportSheet: View {
                                 reason = value
                                 if value == .harassment, blockUser != nil { alsoBlock = true }
                             } label: {
-                                Row(Text(title), trailing: {
+                                Row(Text(title, bundle: .module), trailing: {
                                     Image(systemName: reason == value ? "largecircle.fill.circle" : "circle")
                                         .foregroundStyle(reason == value ? Color.sodium : Color.gravel)
                                         .accessibilityHidden(true)
@@ -60,13 +60,22 @@ public struct ReportSheet: View {
                                 Toggle("", isOn: $alsoBlock).labelsHidden().tint(.sodium)
                             })
                         }
-                        VStack(spacing: Space.s8) {
-                            PrimaryButton("Send report", isLoading: sending) { send() }
-                                .disabled(reason == nil)
-                            if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
-                        }
-                        .padding(Space.margin)
                     }
+                }
+                .padding(.bottom, Space.s16)
+            }
+            // Pinned, so "Send report" is on screen at the medium detent without scrolling.
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if !done {
+                    VStack(spacing: Space.s8) {
+                        PrimaryButton("Send report", isLoading: sending) { send() }
+                            .disabled(reason == nil)
+                        if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
+                    }
+                    .padding(.horizontal, Space.margin)
+                    .padding(.vertical, Space.s12)
+                    .background(Color.tarmac)
+                    .overlay(alignment: .top) { Hairline() }
                 }
             }
         }
@@ -122,10 +131,12 @@ public struct TermsGate: View {
         VStack(alignment: .leading, spacing: Space.s16) {
             Text("The rules", bundle: .module).typeStyle(.display).foregroundStyle(Color.chalk).padding(.top, Space.s48)
             ForEach(Array(Self.rules.enumerated()), id: \.offset) { _, rule in
-                Text(rule).typeStyle(.body).foregroundStyle(Color.chalk)
+                Text(rule, bundle: .module).typeStyle(.body).foregroundStyle(Color.chalk)
             }
-            Link("Read the full Terms", destination: URL(string: "https://waypoints.app/terms")!)
-                .typeStyle(.sub).foregroundStyle(Color.sodium)
+            Link(destination: URL(string: "https://waypoints.app/terms")!) {
+                Text("Read the full Terms", bundle: .module).typeStyle(.sub).foregroundStyle(Color.xenon)
+                    .frame(minHeight: Size.hitTarget).contentShape(Rectangle())
+            }
             Spacer()
             if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
             PrimaryButton("Agree", isLoading: sending) {

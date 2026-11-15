@@ -84,7 +84,7 @@ struct SignInView: View {
                 if showEmail { emailForm } else { buttons }
                 if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                 Text("By continuing you agree to the [Terms](https://waypoints.app/terms) and [Privacy Policy](https://waypoints.app/privacy).", bundle: .module)
-                    .typeStyle(.foot).foregroundStyle(Color.gravel).tint(.sodium)
+                    .typeStyle(.foot).foregroundStyle(Color.gravel).tint(.xenon)
                     .padding(.top, Space.s8)
             }
             .padding(.horizontal, Space.margin)
@@ -224,7 +224,8 @@ struct YouView: View {
                         .onChange(of: handle) { handle = handle.lowercased(); available = nil }
                     if let available {
                         if available {
-                            Label("Available", systemImage: Symbol.confirm).typeStyle(.foot).foregroundStyle(Color.go)
+                            Label { Text("Available", bundle: .module) } icon: { Image.symbol(Symbol.confirm) }
+                                .typeStyle(.foot).foregroundStyle(Color.go)
                         } else {
                             Text("Taken", bundle: .module).typeStyle(.foot).foregroundStyle(Color.brake)
                         }
@@ -246,6 +247,7 @@ struct YouView: View {
                 PrimaryButton("Continue", isLoading: saving) { save() }.disabled(!valid)
             }
             .padding(.horizontal, Space.margin)
+            .padding(.bottom, Space.s16)
         }
         .background(Color.asphalt.ignoresSafeArea())
         .task(id: handle) {
@@ -296,7 +298,7 @@ struct CarStepView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("What do you drive?", bundle: .module).typeStyle(.title).foregroundStyle(Color.chalk)
-                .padding(.horizontal, Space.margin)
+                .padding(.horizontal, Space.margin).padding(.vertical, Space.s8)
             if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake).padding(.horizontal, Space.margin) }
             VehiclePicker(catalog: env.catalog) { picked in
                 guard case let .car(newCar) = picked else { return }
@@ -348,6 +350,8 @@ struct LocationStepView: View {
                 radio("Hide me from drivers nearby", selected: !showNearby) { showNearby = false }
                 radio("Show drivers nearby roughly where I am (within half a mile)", selected: showNearby) { showNearby = true }
             }
+            // Rows carry their own side margin; let them run full width (plan 9.4).
+            .padding(.horizontal, -Space.margin)
             if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
             PrimaryButton("Turn on location", isLoading: working) { finish(requestLocation: true) }
             QuietButton("Not now") { finish(requestLocation: false) }.frame(maxWidth: .infinity)
@@ -360,13 +364,13 @@ struct LocationStepView: View {
     private func sample(_ marker: some View, _ label: LocalizedStringKey) -> some View {
         VStack(spacing: Space.s4) {
             marker
-            Text(label).typeStyle(.foot).foregroundStyle(Color.chalk)
+            Text(label, bundle: .module).typeStyle(.foot).foregroundStyle(Color.chalk)
         }
     }
 
     private func radio(_ title: LocalizedStringKey, selected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Row(Text(title), leading: {
+            Row(Text(title, bundle: .module), leading: {
                 Image(systemName: selected ? "largecircle.fill.circle" : "circle")
                     .foregroundStyle(selected ? Color.sodium : Color.gravel)
                     .accessibilityHidden(true)

@@ -115,8 +115,7 @@ enum DebugLinks {
         case "modsim", "mod-simulator": return await myCar(env).map { .route(.modSim($0)) }
         case "strip", "race", "run", "slip": return await myCar(env).map { .route(.race($0)) }
 
-        case "settings", "settings-notifications", "settings-blocked", "settings-account", "settings-about":
-            return .route(.settings)
+        case "settings": return .route(.settings)
         case "settings-privacy", "privacy": return .route(.settingsPrivacy)
         default: return nil
         }
