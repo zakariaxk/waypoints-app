@@ -289,9 +289,6 @@
     "BACKGROUND": {
       "extractionState": "manual"
     },
-    "BENCH RACE": {
-      "extractionState": "manual"
-    },
     "Back": {
       "extractionState": "manual"
     },
@@ -302,6 +299,9 @@
       "extractionState": "manual"
     },
     "Bench race": {
+      "extractionState": "manual"
+    },
+    "Bench race any car in the catalog, stock or with mods.": {
       "extractionState": "manual"
     },
     "Best for your car": {
@@ -425,6 +425,9 @@
       "extractionState": "manual"
     },
     "Clear for a lowered car": {
+      "extractionState": "manual"
+    },
+    "Clearance": {
       "extractionState": "manual"
     },
     "Close": {
@@ -829,6 +832,9 @@
     "Dyno curve": {
       "extractionState": "manual"
     },
+    "E85 fuel": {
+      "extractionState": "manual"
+    },
     "EST. ¼ MILE": {
       "extractionState": "manual"
     },
@@ -866,6 +872,9 @@
       "extractionState": "manual"
     },
     "End the convoy for all %@ drivers?": {
+      "extractionState": "manual"
+    },
+    "Ends": {
       "extractionState": "manual"
     },
     "Engine": {
@@ -1549,6 +1558,9 @@
     "OF RATED ROADS IN VIEW": {
       "extractionState": "manual"
     },
+    "OPP": {
+      "extractionState": "manual"
+    },
     "OPPONENT": {
       "extractionState": "manual"
     },
@@ -1696,6 +1708,9 @@
     "Power": {
       "extractionState": "manual"
     },
+    "Power, hp": {
+      "extractionState": "manual"
+    },
     "Precise": {
       "extractionState": "manual"
     },
@@ -1721,6 +1736,12 @@
       "extractionState": "manual"
     },
     "Quit": {
+      "extractionState": "manual"
+    },
+    "RED": {
+      "extractionState": "manual"
+    },
+    "RED LIGHT": {
       "extractionState": "manual"
     },
     "REPORTS NEARBY": {
@@ -1993,6 +2014,9 @@
     "Service reminder: %@": {
       "extractionState": "manual"
     },
+    "Service · %@": {
+      "extractionState": "manual"
+    },
     "Set regroup point": {
       "extractionState": "manual"
     },
@@ -2053,6 +2077,9 @@
     "Something else": {
       "extractionState": "manual"
     },
+    "Speaking": {
+      "extractionState": "manual"
+    },
     "Speed bump": {
       "extractionState": "manual"
     },
@@ -2095,6 +2122,9 @@
     "Start team": {
       "extractionState": "manual"
     },
+    "Starts": {
+      "extractionState": "manual"
+    },
     "Starts in 30 minutes at %@.": {
       "extractionState": "manual"
     },
@@ -2110,6 +2140,9 @@
     "Still there?": {
       "extractionState": "manual"
     },
+    "Stock": {
+      "extractionState": "manual"
+    },
     "Stop ghost mode": {
       "extractionState": "manual"
     },
@@ -2123,6 +2156,9 @@
       "extractionState": "manual"
     },
     "Suspension": {
+      "extractionState": "manual"
+    },
+    "Switches to your next car": {
       "extractionState": "manual"
     },
     "Synthesized sound": {
@@ -2287,6 +2323,9 @@
     "Today %@": {
       "extractionState": "manual"
     },
+    "Tomorrow %@": {
+      "extractionState": "manual"
+    },
     "Tonight %@": {
       "extractionState": "manual"
     },
@@ -2302,7 +2341,13 @@
     "Torque (lb-ft)": {
       "extractionState": "manual"
     },
+    "Torque, lb-ft": {
+      "extractionState": "manual"
+    },
     "Track day": {
+      "extractionState": "manual"
+    },
+    "Transmission": {
       "extractionState": "manual"
     },
     "Tree": {
@@ -2410,6 +2455,12 @@
     "WHO SEES YOU": {
       "extractionState": "manual"
     },
+    "WIN · OPPONENT": {
+      "extractionState": "manual"
+    },
+    "WIN · YOU": {
+      "extractionState": "manual"
+    },
     "Wawa and chill": {
       "extractionState": "manual"
     },
@@ -2423,6 +2474,9 @@
       "extractionState": "manual"
     },
     "Weekly": {
+      "extractionState": "manual"
+    },
+    "Weight": {
       "extractionState": "manual"
     },
     "Weight (kg)": {
@@ -2482,7 +2536,13 @@
     "Why can't I see more?": {
       "extractionState": "manual"
     },
+    "With mods": {
+      "extractionState": "manual"
+    },
     "Without your name, as \"A driver needs a hand\"": {
+      "extractionState": "manual"
+    },
+    "YOU": {
       "extractionState": "manual"
     },
     "YOUR DRIVES": {
@@ -2596,6 +2656,9 @@
     "east": {
       "extractionState": "manual"
     },
+    "edited": {
+      "extractionState": "manual"
+    },
     "est. hp": {
       "extractionState": "manual"
     },
@@ -2618,6 +2681,9 @@
       "extractionState": "manual"
     },
     "message": {
+      "extractionState": "manual"
+    },
+    "min": {
       "extractionState": "manual"
     },
     "moving": {
@@ -2644,6 +2710,9 @@
     "road": {
       "extractionState": "manual"
     },
+    "rpm": {
+      "extractionState": "manual"
+    },
     "south": {
       "extractionState": "manual"
     },
@@ -2654,6 +2723,9 @@
       "extractionState": "manual"
     },
     "spot": {
+      "extractionState": "manual"
+    },
+    "stock": {
       "extractionState": "manual"
     },
     "team": {

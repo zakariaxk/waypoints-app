@@ -313,7 +313,7 @@ The gamified icon set. Earned by taking part, never bought, never for speed or d
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| ICN-1 | 16 free vehicle silhouettes. Each is told from the others at 28 pt by proportion alone, and is filled with the owner's paint colour. | P0 | Coded |
+| ICN-1 | 16 free vehicle silhouettes. Each is told from the others at 28 pt by proportion alone, and is filled with the owner's paint colour. | P0 | Coded: silhouettes redrawn with tapered noses and tails, per-type mirror positions, exposed wheels on the rods (W9-F); bikes are still an ellipse and a bar. Not yet judged from the gallery at 28, 40, and 44 pt. |
 | ICN-2 | 20 earned silhouettes and 7 earned trails. | P0 | Coded |
 | ICN-3 | Every unlock has one requirement, stated in plain words, that rewards taking part: meets attended and hosted, reports confirmed, cars spotted, roads rated, timeline entries, votes cast, convoys led, virtual runs. The key table is plan 9.8 plus `ProgressFeature.unlocks`. | P0 | Coded |
 | ICN-4 | The marker picker shows a live preview, the icon and trail palettes, and for each locked item its requirement and exact progress ("Rally: get 10 reports confirmed. You're at 6."). There is no purchase path and no "coming soon". | P0 | Coded |
@@ -665,7 +665,7 @@ Plan 10.9.
 |---|---|---|---|
 | SET-1 | Settings holds Privacy and location, Notifications, Blocked people, Account, and About (version, Terms, Privacy Policy, Contact, licences). Debug builds add the design gallery. | P0 | Coded |
 | SET-2 | Every change saves at once. A failed save reverts the control and says why. | P0 | Coded |
-| SET-3 | Distances, speeds, and weights follow the device's locale everywhere they appear. | P0 | Coded: navigation, the map, Market (distance filter), Roads (road length), Garage (curb weight; odometer readings keep the unit entered, defaulting by locale), Meets (meet distance, cruise road length), Settings (notify radius, home zone radius), ModSim (weight entry, weight mods), and the Strip ladder (house car weight) format by locale. A source search of every feature finds no other unit; the Strip time slip stays in mph and the dyno in hp and lb-ft by convention. |
+| SET-3 | Distances, speeds, and weights follow the device's locale everywhere they appear. | P0 | Coded: navigation, the map, Market (distance filter), Roads (road length), Garage (curb weight; odometer readings keep the unit entered, defaulting by locale), Meets (meet distance, cruise road length), Settings (notify radius, home zone radius), ModSim (weight entry, weight mods), and the Strip ladder (house car weight) format by locale. Weights are pounds or kilograms, never tons (a `.general` measurement format printed "1 tn"; fixed W9-F, seen in the strip shot). |
 
 ### 4.25 Links and sharing (LINK)
 
@@ -695,7 +695,7 @@ Plan section 9 is the law. These make it checkable.
 | DES-4 | Every screen in plan section 10 has its loading, empty, error, and offline states, with the plan's copy. | P0 | Coded |
 | DES-5 | Every control on every screen does something. A screen-by-screen walk finds no dead button, placeholder, or "coming soon". | P0 | Coded |
 | DES-6 | Motion starts from what was touched. Haptics fire only on the user's own actions, as plan 9.6 lists. | P0 | Coded |
-| DES-7 | Every screen has been captured and read against its plan entry and 9.11 by an agent, and the findings fixed (section 7.3). | P0 | Missing |
+| DES-7 | Every screen has been captured and read against its plan entry and 9.11 by an agent, and the findings fixed (section 7.3). | P0 | Partial: first walk done 2026-11-14 (W9-F). 39 debug screens captured in preview mode and read against the plan by six agents, fixes in the W9-F commits; 14 reshot afterwards (map, feed, market, listing, garage, car, modsim, strip, meet, channel, teams, showdown, route, privacy). Not yet reshot or never reached: guidance, search, time slip, run scene, comments, rankings, onboarding O1 to O4, settings S3 to S6, voice, thread. Known and left: `Readout` shows a monospace gap after the decimal point ("12. 5"); report glyphs and meet pins are SF Symbols, not the custom drawings of plan 9.8; back buttons are sodium on every pushed screen. |
 | DES-8 | Dark only. One accent, used once per screen as a filled control. | P0 | Coded |
 
 ### 5.2 Accessibility (A11Y)
@@ -767,7 +767,7 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 | CMP-4 | Review notes explain location use, the absence of speed display, and that racing is virtual. `docs/APP_STORE.md` holds them with the listing copy and the privacy-label answers. | P0 | Coded: final listing, review notes (help requests, moderation functions, demo account), age rating and privacy label answers. Left: the owner fills `<LINK_HOST>` and the demo mailbox login (9.1 step 10). |
 | CMP-5 | Terms of Service and a Privacy Policy at public URLs (LINK-4). | P0 | Partial: pages in `site/`, not yet published; S6 rows appear once `LINK_HOST` is set. |
 | CMP-6 | An app icon, drawn by a script in the repository from the design tokens. | P0 | Coded |
-| CMP-7 | App Store screenshots produced by the harness in section 7, from seed data with real model names. | P1 | Partial: `make screenshots` ran 2026-11-14 and wrote all eight captures at 6.9" and 6.5" into `.build/screenshots/` from the preview seed. Read at 6.9": route preview, mod simulator, team channel are usable. Left before they can be uploaded: the map shot frames no friend marker ("4 friends out" with none in view); the preview seed has no photos or playable video, so the garage car, market, and feed are empty frames; `debug/showdown` lands on For you ("Couldn't play this.") instead of the Showdown mode, whose label wraps to "Show-down"; the meet sheet's "Directions" button sits under the home indicator; car and mod simulator opened from a link show the Map tab selected. |
+| CMP-7 | App Store screenshots produced by the harness in section 7, from seed data with real model names. | P1 | Partial: `make screenshots` runs and writes all eight captures at 6.9" and 6.5". The preview seed now draws its own photos (a night lot and a car in the seed car's paint), friends sit in view on the map, and deep-linked screens select their tab (W9-F). Left before upload: the drawn body shape is picked by hash, so a Mustang can appear as a wagon and part listings show a car; rerun `make screenshots` and read the set. |
 
 ### 5.8 Observability, size, language (OBS, L10N)
 
