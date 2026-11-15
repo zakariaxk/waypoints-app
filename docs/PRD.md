@@ -254,10 +254,10 @@ Get from install to a car on the map with the least typing. Plan 10.2, 10.10.
 | ACC-3 | New users choose a handle (3 to 20 of `a-z0-9_`, unique, availability shown after 400 ms idle), a name, and a birth year. Under 17 cannot continue. | P0 | Coded |
 | ACC-4 | Onboarding embeds the vehicle picker so the first car is on the marker from minute one. It can be skipped. | P0 | Coded |
 | ACC-5 | A screen explains who sees you before the system location prompt, and asks the Nearby question once with Hidden preselected. | P0 | Coded |
-| ACC-6 | The terms gate (six rules) appears once after profile setup and again when terms change. No user content is shown before agreement. | P0 | Coded |
+| ACC-6 | The terms gate (six rules) appears once after profile setup and again when terms change. No user content is shown before agreement. | P0 | Partial (W9-H review): no re-prompt when the terms change; the Terms links in O1 and the gate are hard-coded to `waypoints.app` instead of `LINK_HOST`. |
 | ACC-7 | Notification permission is asked only at its first reason: the first Going RSVP, the first friend request sent, or turning on meets-nearby alerts. | P0 | Coded: asked at the first Going RSVP with a yes to "Remind you before it starts?" (W8-1A), the first friend request sent (G2 "Add friend" and G11 "Add"), and turning on "Meets near me" in Settings; nowhere else except a service reminder the user switches on (GAR-16). |
 | ACC-8 | A new user finishes onboarding in under 60 seconds. | P0 | Coded |
-| ACC-9 | The session survives relaunch and refreshes its token without the user noticing. Sign out returns to sign-in and clears local state. | P0 | Coded |
+| ACC-9 | The session survives relaunch and refreshes its token without the user noticing. Sign out returns to sign-in and clears local state. | P0 | Partial (W9-H review): sign-out clears the session, router, block cache, realtime state, and device token; `UserDefaults` flags and on-phone home zones persist into the next account. |
 | ACC-10 | Delete account: explains what is deleted, requires typing the handle, deletes the auth user and every row immediately, signs out. | P0 | Coded |
 | ACC-11 | A link opened while signed out continues to its target after sign-in. | P0 | Coded |
 | ACC-12 | Your data. Settings > Account offers "Download my data": one JSON file of your profile, cars, timeline, posts, listings, messages you sent, and settings, built by one RPC and handed to the share sheet. | P3 | New |
@@ -279,8 +279,8 @@ Privacy is the product's first advantage. It is enforced on the server. Plan 2.5
 | PRV-9 | Postgres stores one H3 resolution 7 cell per user and no track history. The only database write caused by location is the batched presence-cell flush. | P0 | Coded |
 | PRV-10 | Settings show a live preview of exactly what Friends, Teams, and Drivers nearby receive right now. | P0 | Coded |
 | PRV-11 | A convoy is always precise while active. The join screen says so, and joining while ghost asks first. | P0 | Coded |
-| PRV-12 | Background sharing is off until the user turns on "Keep sharing when the app is closed", after an explanation. It stops after 5 minutes parked. | P0 | Coded |
-| PRV-13 | Blocking stops location in both directions at once. | P0 | Coded |
+| PRV-12 | Background sharing is off until the user turns on "Keep sharing when the app is closed", after an explanation. It stops after 5 minutes parked. | P0 | Partial (W9-H review): sharing stops after 5 minutes parked, but the background session is also held under When-In-Use, so the "Keep sharing" switch does not gate it, and the parked stop also ends a paused background navigation or convoy. Needs a navigation/convoy signal in `LocationService`. |
+| PRV-13 | Blocking stops location in both directions at once. | P0 | Partial (W9-H review): relations and blocks load at connect, so a block or unfriend made mid-session applies at the next reconnect. Convoy fan-out honours blocks. |
 | PRV-14 | A privacy change takes effect for every viewer within one gateway tick. A failed save reverts the control and says "Couldn't save. Try again." | P0 | Coded |
 | PRV-15 | Drive recording is opt-in and stays on the device. | P0 | Coded |
 
@@ -295,11 +295,11 @@ The home screen: who is out, what is happening, how to get there. Plan 9.8, 10.3
 | MAP-3 | Approximate friends and teammates appear at 60% opacity inside a dashed ring, with no rotation. | P0 | Coded |
 | MAP-4 | Nearby strangers appear as small unlabelled markers with no name, car, or profile. Their peek explains why. | P0 | Coded |
 | MAP-5 | Markers age: the live ring stops after 60 s without a fix, the marker dims after 5 minutes, and it is removed after 30. | P0 | Coded |
-| MAP-6 | Crowded markers cluster into a count. You and a selected friend never cluster. | P0 | Coded |
-| MAP-7 | Zoomed out, individual markers give way to cell counts with "Zoom in to see drivers." | P0 | Coded |
-| MAP-8 | A bottom sheet with three detents carries a one-line summary and sections for Friends, Meets, the active convoy, and Reports nearby. Selecting a row or marker centres the camera and shows its detail. | P0 | Coded |
+| MAP-6 | Crowded markers cluster into a count. You and a selected friend never cluster. | P0 | Coded (W9-H): grid clustering with `ClusterMarker`; tap zooms in; the selected friend never clusters. |
+| MAP-7 | Zoomed out, individual markers give way to cell counts with "Zoom in to see drivers." | P0 | Partial (W9-H review): the "Zoom in to see drivers." line only; `CellAggregate` carries no coordinate, so cell-count markers are not drawn. |
+| MAP-8 | A bottom sheet with three detents carries a one-line summary and sections for Friends, Meets, the active convoy, and Reports nearby. Selecting a row or marker centres the camera and shows its detail. | P0 | Coded (W9-H): selecting a marker or row centres the camera. |
 | MAP-9 | One add button opens a menu of actions at the map centre: report a hazard, start a meet, start a convoy, spot a car. Long-press on the map opens the same menu at that point. | P0 | Coded |
-| MAP-10 | Recenter cycles between free, following, and heading-up. Tapping the Map tab again recenters. | P0 | Coded |
+| MAP-10 | Recenter cycles between free, following, and heading-up. Tapping the Map tab again recenters. | P0 | Coded (W9-H): panning frees the camera and the recenter control shows it. |
 | MAP-11 | Layers: Friends, Drivers nearby, Meets, Reports, Rated roads, Traffic. | P0 | Coded |
 | MAP-12 | A friend's peek shows distance and bearing, and offers Directions, Message, View profile, Invite to convoy, Remove friend, Block, Report. | P0 | Coded |
 | MAP-13 | Every state is designed: location off, nobody around, connecting (last snapshot at 50%), reconnecting (banner after 3 s), offline. | P0 | Coded |
@@ -331,8 +331,8 @@ Waze-grade guidance built on MapKit, with the one thing nobody else has: routes 
 | NAV-2 | Route preview draws up to three routes with time, distance, and main road. | P0 | Coded |
 | NAV-3 | Low-car routing. Each car has a clearance profile. For a lowered or slammed car, each route lists the reports that matter along it ("2 speed bumps, 1 steep entrance") or reads "Clear for a lowered car". Among routes within 20% of the fastest, the one with the fewest is preselected and labelled "Best for your car". When none is clean, the screen says Apple Maps routing cannot be steered around them. | P0 | Coded |
 | NAV-4 | Tapping the car in route preview switches which garage car is being scored. | P0 | Coded |
-| NAV-5 | Guidance shows the next maneuver, the distance to it, and the road name; the following maneuver when it is within 300 m; a heading-up, pitched, following map. | P0 | Coded |
-| NAV-6 | Spoken guidance at 800 m, 200 m, and at the maneuver, built from our own templates in the locale's units, ducking other audio. Mute persists. | P0 | Coded |
+| NAV-5 | Guidance shows the next maneuver, the distance to it, and the road name; the following maneuver when it is within 300 m; a heading-up, pitched, following map. | P0 | Partial (W9-H review): no second line for the following maneuver within 300 m. |
+| NAV-6 | Spoken guidance at 800 m, 200 m, and at the maneuver, built from our own templates in the locale's units, ducking other audio. Mute persists. | P0 | Partial (W9-H review): voice reads MapKit step instructions, not the plan's own templates; one prompt per distance threshold. |
 | NAV-7 | Leaving the route (40 m off for 5 s) recalculates without asking. At most one request per 8 s. | P0 | Coded |
 | NAV-8 | For a non-stock car, a clearance report within 250 m ahead shows a strip ("Speed bump in 250 ft"), one haptic, and one spoken line. | P0 | Coded |
 | NAV-9 | Your own speed appears on your navigation screen and nowhere else. | P0 | Coded |
@@ -351,12 +351,12 @@ The map is useful with nobody online. Plan 5.3, 10.3 (M5, M6).
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
 | RPT-1 | Eight kinds: speed bump, steep entrance, pothole, rough road, police, hazard, closure, E85 fuel. | P0 | Coded |
-| RPT-2 | Posting takes two taps: add, then the kind. An optional note (120). A toast offers Undo; the author can remove a report for 5 minutes. | P0 | Coded |
+| RPT-2 | Posting takes two taps: add, then the kind. An optional note (120). A toast offers Undo; the author can remove a report for 5 minutes. | P0 | Partial (W9-H review): Undo toast after posting; the report detail has no author "remove within 5 minutes" action. |
 | RPT-3 | Lifetimes: police 45 minutes, hazard 2 hours, closure 24 hours, each extended by "Still there"; pothole and rough road 90 days; speed bump, steep entrance, and E85 permanent. | P0 | Coded |
 | RPT-4 | A report within 30 m of an existing one of the same kind counts as a confirmation, not a duplicate. | P0 | Coded |
 | RPT-5 | Anyone can vote "Still there" or "Gone". Two Gone votes with no later Still there remove it. | P0 | Coded |
 | RPT-6 | A new, changed, or removed report reaches everyone viewing that area within one gateway tick. | P0 | Coded |
-| RPT-7 | Passing a temporary report while navigating asks "Still there?" for 8 seconds. | P0 | Coded |
+| RPT-7 | Passing a temporary report while navigating asks "Still there?" for 8 seconds. | P0 | Coded (W9-H): "Still there?" during guidance within 40 m of a police, hazard, or closure report, auto-dismissed after 8 s. |
 | RPT-8 | The shape of a report's badge encodes its severity, so colour is not the only signal. | P0 | Coded |
 | RPT-9 | Two more kinds: speed camera and red-light camera, permanent and confirmable like a speed bump. There is no checkpoint kind and never will be (App Review guideline 1.4.4 *(verify)*). | P1 | Coded |
 
@@ -410,10 +410,10 @@ Drive together and stay together. Plan 6, 7.6, 10.3 (M9).
 | CNV-4 | Members are listed in road order with their gap to the leader as time ("+40 s"), never speed. | P0 | Coded |
 | CNV-5 | The shared route is drawn for everyone, and the leader's marker is marked. | P0 | Coded |
 | CNV-6 | Regroup. When the last member has been more than 3 minutes behind the leader for 60 s, the leader is asked "The group has split. Set a regroup point?" Accepting drops a pin at the nearest fuel or parking point on the route within 3 km, or the leader's position, and every member sees "Regroup at <place>" with Directions. | P0 | Coded |
-| CNV-7 | The leader can change the destination and end the convoy (with a confirmation naming the driver count). Others see "Convoy ended." | P0 | Coded |
+| CNV-7 | The leader can change the destination and end the convoy (with a confirmation naming the driver count). Others see "Convoy ended." | P0 | Partial (W9-H review): the leader cannot change the destination from the UI (`setConvoyDestination` has no caller). |
 | CNV-8 | A member who loses signal reads "Lost signal" and ages like any marker. | P0 | Coded |
-| CNV-9 | Precise positions flow only while a member is in the convoy and stop the moment they leave. | P0 | Coded |
-| CNV-10 | A convoy survives a gateway restart or a move to another node. | P0 | Coded |
+| CNV-9 | Precise positions flow only while a member is in the convoy and stop the moment they leave. | P0 | Partial (W9-H review): leaving stops precise sharing on every device connected to the same node; not across nodes. |
+| CNV-10 | A convoy survives a gateway restart or a move to another node. | P0 | Partial (W9-H review): survives a restart; members connected to different nodes do not see each other (convoy fan-out has no bus path). |
 | CNV-11 | Every convoy has voice. "Talk" opens the voice sheet for the convoy's own room; you join muted; the room ends with the convoy. This replaces the plan's team-only Talk button. | P1 | Coded |
 | CNV-12 | Regroup. Any member can drop a regroup point (a place search or "here"). Every member sees it on the convoy line with one tap to route there; it clears when the host taps "Rolling" or the convoy ends. No speed, gap times, or ordering by position are shown. | P3 | New |
 
@@ -425,10 +425,10 @@ A person plus their garage. Plan 5.1, 10.8 (G1, G2, G10, G11).
 |---|---|---|---|
 | SOC-1 | Find people by handle. Send, accept, decline, and remove friend requests. | P0 | Coded |
 | SOC-2 | Friendship is mutual and is what location sharing is built on. Following is one-way and affects only the feed. | P0 | Coded |
-| SOC-3 | Your profile is the top of the Garage tab: avatar, name, bio, home region, and counts of friends, followers, and cars spotted. | P0 | Coded |
+| SOC-3 | Your profile is the top of the Garage tab: avatar, name, bio, home region, and counts of friends, followers, and cars spotted. | P0 | Partial (W9-H review): followers count missing (no repository call). |
 | SOC-4 | Someone else's profile offers Add friend (then Requested, then Friends), Follow, and Message, with Share profile, Block, and Report in the overflow. | P0 | Coded |
 | SOC-5 | A profile shows its cars as cards and its posts as a three-column grid. | P0 | Coded |
-| SOC-6 | Edit profile: avatar with circular crop, name, handle, bio, home region. | P0 | Coded |
+| SOC-6 | Edit profile: avatar with circular crop, name, handle, bio, home region. | P0 | Partial (W9-H review): no circular crop or preview of the picked photo. |
 | SOC-7 | "Invite a friend" shares a link to your profile. | P0 | Coded |
 | SOC-8 | A blocked or blocking profile reads "This profile isn't available." | P0 | Coded |
 | SOC-9 | Meet-in-person adding. "My code" shows a QR code of your profile link; "Scan" in Friends reads one and opens the profile. A team's invite shows a QR code too. | P1 | Coded |
@@ -448,10 +448,10 @@ Every car, chosen without clutter. Plan 5.2, 10.8 (G3 to G5), 11.1.
 | GAR-7 | A catalog snapshot ships inside the app and the picker never waits on the network. A newer catalog is checked for at most daily and swapped in on the next launch. | P0 | Coded: the `ios` make target builds the snapshot into `ios/App/Resources/` when missing. |
 | GAR-8 | Curated specs for at least 150 enthusiast model-generations: trim names, power, torque, curb weight, redline, gear ratios. Every row has a source URL. | P0 | Coded: `overrides.csv`, 621 rows over 71 models and 173 model-engine generations (248 trim-engine pairs), each with the Car and Driver spec page or Wikipedia article it was read from. 610 rows have torque, 483 curb weight, 491 gear ratios, 11 redline. |
 | GAR-9 | A car's page shows its photos, name, four readouts with ranges (est. hp, est. torque, 0 to 60, quarter mile), its build timeline, and a specs table marking each value "stock" or "edited". | P0 | Coded |
-| GAR-10 | A garage holds several cars in a chosen order. The primary car sets your marker's paint colour and your car label. | P0 | Coded |
+| GAR-10 | A garage holds several cars in a chosen order. The primary car sets your marker's paint colour and your car label. | P0 | Partial (W9-H review): primary car can be set from the car's overflow; no reorder UI. |
 | GAR-11 | Timeline entries carry a date, a title (60), details (500), one photo, and optionally a linked mod, which adds that mod to the car. | P0 | Coded |
 | GAR-12 | Each car has a clearance profile (stock, lowered, slammed) that drives NAV-3. | P0 | Coded |
-| GAR-13 | Every spec can be overridden by the owner. | P0 | Coded |
+| GAR-13 | Every spec can be overridden by the owner. | P0 | Partial (W9-H review): hp, weight, torque, and redline only, and only when the catalog has no specs. |
 | GAR-14 | Someone else's car shows its owner and "Message about this car". | P0 | Coded |
 | GAR-15 | Share build. A car's overflow renders a card (lead photo, name, the four estimates marked "est.", handle) to the share sheet. | P1 | Coded |
 | GAR-16 | Service log. A timeline entry can be marked as service with an odometer reading and an optional reminder date, delivered as a local notification. | P2 | Coded |
@@ -559,7 +559,7 @@ Watching builds, full screen. Plan 5.5, 10.5 (F1 to F3).
 | FEED-4 | Like (also by double-tap), comment, and share, each with a count where it has one. | P0 | Coded |
 | FEED-5 | Long-press offers Not interested, Report, and Block. | P0 | Coded |
 | FEED-6 | Comments open in a sheet. You can delete your own; a post's author can delete any on it. | P0 | Coded |
-| FEED-7 | Posting takes three steps: pick or record, trim anything over 30 s, add a caption (150), tag a car, choose the cover frame. The clip is exported to HEVC 720p under 12 MB and uploaded while the user goes elsewhere. A failed upload is kept as a draft. | P0 | Coded |
+| FEED-7 | Posting takes three steps: pick or record, trim anything over 30 s, add a caption (150), tag a car, choose the cover frame. The clip is exported to HEVC 720p under 12 MB and uploaded while the user goes elsewhere. A failed upload is kept as a draft. | P0 | Coded: no trim strip: the first 30 s are posted with a notice, and export stops at 12 MB rather than lowering bitrate. A failed upload offers Try again (W9-H). |
 | FEED-8 | Empty Following, empty region, a video that will not play ("Couldn't play this." with "Try again"), and offline each have their own state. | P0 | Coded |
 | FEED-9 | Scrolling 50 videos on Wi-Fi never shows a black frame longer than 200 ms, with at most three players alive and flat memory. | P0 | Coded |
 | FEED-10 | You can delete your own post. | P0 | Coded |
@@ -587,7 +587,7 @@ Parts and cars. Listings and messages, never payment. Plan 5.5, 10.6.
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
 | MKT-1 | Browse parts or cars with search. Parts are filtered by default to what fits your active car ("Fits: 2019 Mustang GT"), which can be changed or cleared. Further filters: price, condition, distance. | P0 | Coded |
-| MKT-2 | A listing shows photos, title, price, condition, region, what it fits, a description, and its seller. "Message seller" opens a thread with the listing pinned and "Is this still available?" prefilled. Listings can be saved. | P0 | Coded |
+| MKT-2 | A listing shows photos, title, price, condition, region, what it fits, a description, and its seller. "Message seller" opens a thread with the listing pinned and "Is this still available?" prefilled. Listings can be saved. | P0 | Coded: the opener is sent as a message, not prefilled in the composer (W9-H review). |
 | MKT-3 | Listing something is one scrolling screen: up to 8 photos in a chosen order, part or car, title (70), price, condition, what it fits (or a car from your garage, which prefills everything), description (1500), region. | P0 | Coded |
 | MKT-4 | "Yours" holds what you are selling and what you saved. A listing can be edited, marked sold, or removed. | P0 | Coded |
 | MKT-5 | Every listing carries "Meet in a public place. Waypoints doesn't handle payment." | P0 | Coded |
@@ -644,7 +644,7 @@ Required by App Review for any app with user content, and by the kind of place t
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| SAFE-1 | Every person, post, comment, message, listing, meet, map report, spot, road, car, and team can be reported, with a reason (spam, harassment, nudity, dangerous driving, scam, something else) and an optional note. | P0 | Coded |
+| SAFE-1 | Every person, post, comment, message, listing, meet, map report, spot, road, car, and team can be reported, with a reason (spam, harassment, nudity, dangerous driving, scam, something else) and an optional note. | P0 | Partial (W9-H review): reportable from every surface except convoy member rows and voice participants; the comment Report action opens the shell sheet while the comments sheet is up, which is expected not to present (unconfirmed). |
 | SAFE-2 | A person can be blocked from their profile, from the map, and from any message. Their content, markers, and messages disappear for the blocker at once, in both directions. Blocked people are listed in settings with Unblock. | P0 | Coded |
 | SAFE-3 | A reported item disappears for the person who reported it. | P0 | Coded |
 | SAFE-4 | A text filter with a bundled word list runs on messages, comments, captions, titles, names, and handles before they are sent. | P0 | Coded |
@@ -720,7 +720,7 @@ The engineering headline of the project. Plan 3.2, 7.
 | CONC-4 | The audio render block allocates nothing, takes no lock, and makes no runtime call. | P0 | Coded |
 | CONC-5 | The gateway uses one reader and one writer goroutine per connection, shard goroutines that own their state without locks, bounded channels, and conflation. Only location may be dropped. | P0 | Coded |
 | CONC-6 | A slow reader is closed without delaying anyone else. | P0 | Coded |
-| CONC-7 | The gateway runs a 60-second smoke scenario under the race detector with no reports. | P0 | Coded |
+| CONC-7 | The gateway runs a 60-second smoke scenario under the race detector with no reports. | P0 | Verified: `make check-rt` against a `-race` gateway, 0 race reports, 2026-11-14 (about 25 s of scenarios, not the 60 s smoke the row names). |
 
 ### 5.4 Performance (PERF)
 
@@ -751,7 +751,7 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| SEC-1 | Row-level security is on for every table, and `supabase/checks.sql` prints PASS for every access rule in plan section 5, including every table added since. | P0 | Coded |
+| SEC-1 | Row-level security is on for every table, and `supabase/checks.sql` prints PASS for every access rule in plan section 5, including every table added since. | P0 | Coded: migration `w9-h_hardening` and its checks added; `make check-db` not yet run against a database. |
 | SEC-2 | The service-role key, the LiveKit secret, and the APNs key exist only on the gateway. No secret is committed. | P0 | Coded |
 | SEC-3 | The gateway verifies Supabase tokens against the project's keys and fails closed. The token travels in the first frame, never in a URL. | P0 | Coded |
 | SEC-4 | Users write storage only under their own prefix. Uploaded photos and videos carry no location metadata. | P0 | Coded |
@@ -984,7 +984,7 @@ The owner chose code first, build later: packages push without running `make bui
 | W8-1 Benchmarks | PERF-1 to PERF-7 (loopback) |
 | W8-2 Store | CMP-1, CMP-4, CMP-7, `make archive` |
 
-Then, each alone: L10N-1 (String Catalogs in every module), the accessibility sweep (A11Y), and W8-0 green build. All three are in `main`, with W8-1 Benchmarks (loopback) and W8-5, which closed the client rows left Partial (ACC-7, SAFE-9, SET-3, LINK-3, LINK-5). The screenshot walk (DES-7), the Verified pass, and the owner's device check follow.
+Then, each alone: L10N-1 (String Catalogs in every module), the accessibility sweep (A11Y), and W8-0 green build. All three are in `main`, with W8-1 Benchmarks (loopback) and W8-5, which closed the client rows left Partial (ACC-7, SAFE-9, SET-3, LINK-3, LINK-5). W9-H (2026-11-14): seven agents made a hardening pass over the gateway, the data layer, and every feature module; what they fixed is in the W9-H commits and what they found and left is in the rows marked "W9-H review". The screenshot walk (DES-7), the Verified pass, and the owner's device check follow.
 
 ### 8.8 Wave 10: version 1.2
 
