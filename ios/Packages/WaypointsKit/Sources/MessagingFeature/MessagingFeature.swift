@@ -258,7 +258,7 @@ struct ChatView: View {
     @State private var sendTick = 0
     @State private var photo: PhotosPickerItem?
     @State private var pickPhoto = false
-    @State private var zoom: URL?
+    @State private var zoomPath: String?
     @State private var mutePrompt: MutePrompt?
 
     init(env: AppEnvironment, target: MessageTarget) { _model = State(initialValue: ChatModel(env: env, target: target)) }
@@ -357,8 +357,8 @@ struct ChatView: View {
                 self.photo = nil
             }
         }
-        .sheet(item: Binding(get: { zoom.map(ZoomURL.init) }, set: { zoom = $0?.url })) { z in
-            MediaView(url: z.url, label: Text("Photo", bundle: .module)).background(Color.asphalt)
+        .sheet(item: Binding(get: { zoomPath.map(ZoomPath.init) }, set: { zoomPath = $0?.path })) { z in
+            AttachmentZoom(env: model.env, path: z.path).background(Color.asphalt)
         }
         .task { await model.load() }
         .task { await model.listen() }
@@ -437,11 +437,7 @@ struct ChatView: View {
                 } else {
                     if !item.message.body.isEmpty { Text(verbatim: item.message.body).typeStyle(.body).foregroundStyle(Color.chalk) }
                     if let path = item.message.attachmentPath {
-                        let url = model.env.media.publicURL(bucket: .messages, path: path)
-                        Button { zoom = url } label: {
-                            MediaView(url: url, aspectRatio: 4.0 / 3.0, cornerRadius: Radius.r12, label: Text("Photo", bundle: .module))
-                                .frame(maxWidth: Size.row * 4)
-                        }
+                        AttachmentImage(env: model.env, path: path) { zoomPath = path }
                     }
                 }
                 let counts = (model.reactions[item.message.id] ?? [])
@@ -572,4 +568,81 @@ struct ChatView: View {
     }
 }
 
-struct ZoomURL: Identifiable { let url: URL; var id: URL { url } }
+struct ZoomPath: Identifiable { let path: String; var id: String { path } }
+
+/// Resolves the signed URL for a `messages` attachment — the bucket is private
+/// (W11-H-5), so `publicURL` would 400. One load per view appearance; a fresh signed
+/// URL each time also heals an expired one.
+@MainActor
+@Observable
+private final class AttachmentLoader {
+    private(set) var url: URL?
+    private(set) var failed = false
+
+    func load(_ env: AppEnvironment, path: String) async {
+        do {
+            url = try await env.media.signedURL(bucket: .messages, path: path)
+            failed = false
+        } catch {
+            failed = true
+        }
+    }
+}
+
+/// A DM attachment thumbnail. Shows a concrete placeholder while the signed URL is
+/// minted, the photo once loaded, and a retry line on failure — never a broken image.
+private struct AttachmentImage: View {
+    let env: AppEnvironment
+    let path: String
+    let zoom: () -> Void
+    @State private var loader = AttachmentLoader()
+
+    var body: some View {
+        Group {
+            if let url = loader.url {
+                Button(action: zoom) {
+                    MediaView(url: url, aspectRatio: 4.0 / 3.0, cornerRadius: Radius.r12,
+                              label: Text("Photo", bundle: .module))
+                        .frame(maxWidth: Size.row * 4)
+                }
+                .buttonStyle(PressScaleStyle())
+            } else if loader.failed {
+                Button { Task { await loader.load(env, path: path) } } label: {
+                    Text("Couldn't load the photo. Tap to retry.", bundle: .module)
+                        .typeStyle(.foot).foregroundStyle(Color.brake)
+                        .frame(minHeight: Size.hitTarget).contentShape(Rectangle())
+                }
+                .buttonStyle(PressScaleStyle())
+            } else {
+                Color.concrete
+                    .aspectRatio(4.0 / 3.0, contentMode: .fit)
+                    .frame(maxWidth: Size.row * 4)
+                    .clipShape(RoundedRectangle(cornerRadius: Radius.r12, style: .continuous))
+            }
+        }
+        .task { await loader.load(env, path: path) }
+    }
+}
+
+/// The full-screen version of `AttachmentImage`, presented by the zoom sheet.
+private struct AttachmentZoom: View {
+    let env: AppEnvironment
+    let path: String
+    @State private var loader = AttachmentLoader()
+
+    var body: some View {
+        ZStack {
+            Color.asphalt.ignoresSafeArea()
+            if let url = loader.url {
+                MediaView(url: url, label: Text("Photo", bundle: .module))
+            } else if loader.failed {
+                Button { Task { await loader.load(env, path: path) } } label: {
+                    Text("Couldn't load the photo. Tap to retry.", bundle: .module)
+                        .typeStyle(.foot).foregroundStyle(Color.brake)
+                }
+                .buttonStyle(PressScaleStyle())
+            }
+        }
+        .task { await loader.load(env, path: path) }
+    }
+}

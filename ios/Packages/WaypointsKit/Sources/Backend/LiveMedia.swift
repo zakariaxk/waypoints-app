@@ -65,6 +65,16 @@ struct LiveMedia: MediaStore {
         ctx.config.supabaseURL.appending(path: "storage/v1/object/public/\(bucket.rawValue)/\(path)")
     }
 
+    /// Signed URLs last an hour: long enough for any chat session, short enough that a
+    /// leaked URL (screenshot, share sheet, logs) stops working quickly. The storage
+    /// API authorizes the caller against `storage.objects` SELECT, so a signed URL can
+    /// only be minted for an object the user may read.
+    func signedURL(bucket: MediaBucket, path: String) async throws -> URL {
+        try await ctx.run {
+            try await ctx.client.storage.from(bucket.rawValue).createSignedURL(path: path, expiresIn: 3600)
+        }
+    }
+
     /// Decodes any ImageIO format (HEIC, JPEG, PNG), applies the EXIF orientation, caps the long
     /// edge, and writes a JPEG with no metadata.
     static func downscaledJPEG(_ data: Data) -> (data: Data, width: Int, height: Int)? {

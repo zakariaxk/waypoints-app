@@ -7,4 +7,7 @@ public protocol MediaStore: Sendable {
                 progress: @escaping @Sendable (Double) -> Void) async throws -> StoredMedia
     func delete(_ media: StoredMedia) async throws
     func publicURL(bucket: MediaBucket, path: String) -> URL
+    /// A URL that serves an object in a private bucket (currently only `messages`),
+    /// signed for the signed-in user. `publicURL` 400s on private buckets.
+    func signedURL(bucket: MediaBucket, path: String) async throws -> URL
 }

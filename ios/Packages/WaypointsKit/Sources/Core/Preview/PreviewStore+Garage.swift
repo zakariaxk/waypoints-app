@@ -96,6 +96,9 @@ extension PreviewStore: MediaStore {
     public nonisolated func publicURL(bucket: MediaBucket, path: String) -> URL {
         PreviewMedia.url(bucket: bucket, path: path)
     }
+    public nonisolated func signedURL(bucket: MediaBucket, path: String) async throws -> URL {
+        PreviewMedia.url(bucket: bucket, path: path)
+    }
 }
 
 extension PreviewStore: SpotRepository {

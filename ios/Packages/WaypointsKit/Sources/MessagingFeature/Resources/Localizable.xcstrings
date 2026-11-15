@@ -45,6 +45,9 @@
         }
       }
     },
+    "Couldn't load the photo. Tap to retry.": {
+      "extractionState": "manual"
+    },
     "Couldn't send the photo. Check your connection and try again.": {
       "extractionState": "manual",
       "localizations": {
