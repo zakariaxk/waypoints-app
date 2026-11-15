@@ -1,13 +1,28 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ needs a tune": {
+      "extractionState": "manual"
+    },
     "%@ rpm, %@ horsepower, %@ pound-feet": {
+      "extractionState": "manual"
+    },
+    "Add %@ too": {
       "extractionState": "manual"
     },
     "Add Stage 1 tune too": {
       "extractionState": "manual"
     },
+    "Add them too": {
+      "extractionState": "manual"
+    },
     "Adjust to read power at an rpm": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this car. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't save to the car. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "Debug: model beside published tests": {
@@ -59,6 +74,9 @@
       "extractionState": "manual"
     },
     "Save to car": {
+      "extractionState": "manual"
+    },
+    "Saved to car": {
       "extractionState": "manual"
     },
     "Synthesized sound": {

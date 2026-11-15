@@ -106,7 +106,13 @@ actor SQLiteCatalog: VehicleCatalogService {
         if let year { sql += " AND v.year = ?"; binds.append(.int(Int64(year))) }
         sql += " ORDER BY v.year DESC, v.hp DESC LIMIT ?"
         binds.append(.int(Int64(limit)))
-        return try self.query(sql, binds, row: Self.variant)
+        let rows = try self.query(sql, binds, row: Self.variant)
+        if rows.isEmpty, let year {
+            let all = (words + [String(year)]).map { "\"\($0)\"*" }.joined(separator: " ")
+            return try self.query(Self.variantSQL + " WHERE v.id IN (SELECT rowid FROM variant_fts WHERE variant_fts MATCH ?)"
+                + " ORDER BY v.year DESC, v.hp DESC LIMIT ?", [.text(all), .int(Int64(limit))], row: Self.variant)
+        }
+        return rows
     }
 
     func popularMakes() async throws -> [CatalogMake] {

@@ -70,6 +70,7 @@ struct Lobby: View {
     @State private var showPast = false
     @State private var bench: BenchCar?
     @State private var pickingBench = false
+    @State private var failed = false
     @AppStorage(Ladder.openedKey) private var opened = 0
     @AppStorage(Ladder.treeKey) private var tree = TreeKind.sportsman
 
@@ -82,7 +83,9 @@ struct Lobby: View {
                     let est = estimate(base: spec, mods: car.mods.compactMap(ModCatalog.mod))
                     VStack(alignment: .leading, spacing: Space.s4) {
                         Text(verbatim: car.nickname ?? car.fullLabel).typeStyle(.title).foregroundStyle(Color.chalk)
-                        Readout(String(format: "%.1f", (est.quarterET.lowerBound + est.quarterET.upperBound) / 2), unit: "s", label: "EST. ¼ MILE")
+                        Readout(String(format: "%.1f", (est.quarterET.lowerBound + est.quarterET.upperBound) / 2), unit: "s", label: "EST. ¼ MILE",
+                                range: .init(low: est.quarterET.lowerBound, high: est.quarterET.upperBound, bounds: 8...18))
+                            .frame(maxWidth: Size.row * 3, alignment: .leading)
                     }
                     SectionLabel("OPPONENT")
                     if let best { opponentRow(.ghost(best)) }
@@ -107,6 +110,10 @@ struct Lobby: View {
                 } else if car != nil {
                     Text("This car needs power and weight before it can run. Add them in the Mod simulator.", bundle: .module)
                         .typeStyle(.body).foregroundStyle(Color.dust)
+                } else if failed {
+                    ErrorState(Text("Couldn't load this car. Check your connection and try again.", bundle: .module)) {
+                        Task { await load() }
+                    }
                 } else {
                     SkeletonRow()
                 }
@@ -157,6 +164,7 @@ struct Lobby: View {
 
     private func load() async {
         car = try? await env.garage.car(carID)
+        failed = car == nil
         var variant: CatalogVariant?
         if let id = car?.catalogVariantID { variant = try? await env.catalog.variant(id) }
         if let car { spec = VehicleSpec.from(variant: variant, car: car) }
@@ -165,6 +173,7 @@ struct Lobby: View {
         // inputs give different times, so only runs from this version are offered.
         best = past.filter { $0.modelVersion == PerformanceModelVersion.current }.min { $0.etMs < $1.etMs }
         if opponent == nil { opponent = best.map(Opponent.ghost) ?? .house(Ladder.cars[openRung]) }
+        if case .ghost? = opponent { opponent = best.map(Opponent.ghost) ?? .house(Ladder.cars[openRung]) }
         var runs: [Opponent] = []
         for f in ((try? await env.friends.friends()) ?? []).prefix(10) {
             guard let r = try? await env.progress.raceResults(by: f.id, limit: 10)
@@ -206,6 +215,7 @@ final class RaceModel {
     @ObservationIgnored private var liftStart: Int?
     @ObservationIgnored private var acc = 0.0
     @ObservationIgnored private var last: Date?
+    @ObservationIgnored private var tasks: [Task<Void, Never>] = []
     @ObservationIgnored let synth = EngineSynth()
     static let dt = 1.0 / 240
 
@@ -219,7 +229,7 @@ final class RaceModel {
         switch opponent {
         case let .ghost(r):
             themLog = InputLog.decode(r.inputLog)
-            them = RunState(spec: mine, launchRpm: themLog?.launchRpm ?? 3500)
+            them = RunState(spec: modified(spec, mods: r.mods.compactMap(ModCatalog.mod), high: false), launchRpm: themLog?.launchRpm ?? 3500)
         case let .friend(_, r, s):
             themLog = InputLog.decode(r.inputLog)
             them = RunState(spec: s, launchRpm: themLog?.launchRpm ?? 3500)
@@ -237,22 +247,31 @@ final class RaceModel {
     }
 
     func start() {
+        guard tasks.isEmpty else { return }
         synth.start()
-        Task { [weak self] in
-            while let self, self.phase != .done, self.phase != .redLight || !self.them.finished {
+        tasks.append(Task { [weak self] in
+            while !Task.isCancelled, let self, self.phase != .done, self.phase != .redLight || !self.them.finished {
                 self.frame(.now)
                 try? await Task.sleep(for: .milliseconds(8))
                 if self.phase == .redLight { break }
             }
-        }
-        Task {
+        })
+        tasks.append(Task { [weak self] in
+            guard let tree = self?.tree else { return }
             for step in tree.sequence {
                 try? await Task.sleep(for: .milliseconds(step.ms))
-                if phase == .redLight { return }
-                phase = step.lit > 3 ? .racing : .tree(step.lit - 1)
+                guard let self else { return }
+                while self.paused, !Task.isCancelled { try? await Task.sleep(for: .milliseconds(50)) }
+                guard !Task.isCancelled, self.phase != .redLight else { return }
+                self.phase = step.lit > 3 ? .racing : .tree(step.lit - 1)
+                if step.lit > 3 { self.greenTick = self.tick }
             }
-            greenTick = tick
-        }
+        })
+    }
+
+    func stop() {
+        tasks.forEach { $0.cancel() }
+        synth.stop()
     }
 
     /// Left thumb: drop the clutch at green, then shift.
@@ -267,6 +286,7 @@ final class RaceModel {
                 reactionMs = Int(Double(tick - (greenTick ?? tick)) * Self.dt * 1000)
                 log.launchRpm = me.rpm
                 log.launchTick = tick - (greenTick ?? tick)
+                liftStart = throttle ? nil : log.launchTick
                 me = RunState(spec: me.spec, launchRpm: me.rpm)
             } else {
                 pendingShift = true
@@ -318,9 +338,9 @@ final class RaceModel {
         // Opponent.
         if let g = green, !them.finished {
             if let l = themLog {
-                if g >= l.launchTick {
+                if g > l.launchTick {
                     let rel = g
-                    let lifted = l.lifts.contains { rel >= $0[0] && rel < $0[1] }
+                    let lifted = l.lifts.contains { $0.count == 2 && rel > $0[0] && rel <= $0[1] }
                     them.step(throttle: lifted ? 0 : 1, shift: l.shifts.contains(rel), dt: Self.dt)
                 }
             } else if g >= themLaunchTick {
@@ -328,6 +348,7 @@ final class RaceModel {
             }
         }
         if me.finished && (them.finished || phase == .done) && phase == .racing {
+            if let s = liftStart, let g = green { log.lifts.append([s, g]); liftStart = nil }
             phase = .done
             synth.set(rpm: 900, load: 0)
         }
@@ -363,14 +384,14 @@ struct RunView: View {
     var body: some View {
         Group {
             if model.phase == .done || model.phase == .redLight {
-                TimeSlip(model: model, again: { dismiss() }, close: { dismiss() })
+                TimeSlip(model: model, again: { restart() }, close: { dismiss() })
             } else {
                 scene.orientation(.landscape)
-                    .background { TwoFingerTap { model.paused = true } }
+                    .background { TwoFingerTap { model.paused = true; model.synth.setMuted(true) } }
                     .overlay {
                         if model.paused {
                             VStack(spacing: Space.s12) {
-                                PrimaryButton("Resume") { model.paused = false }
+                                PrimaryButton("Resume") { model.paused = false; model.synth.setMuted(false) }
                                 SecondaryButton("Restart") { restart() }
                                 QuietButton("Quit") { dismiss() }
                             }
@@ -384,9 +405,9 @@ struct RunView: View {
         .background(Color.asphalt.ignoresSafeArea())
         .haptic(.thud, trigger: thud)
         .onAppear { model.start() }
-        .onDisappear { model.synth.stop() }
+        .onDisappear { model.stop() }
         .onChange(of: model.phase) {
-            if model.phase == .done && !saved {
+            if model.phase == .done && !saved && model.me.quarter != nil {
                 saved = true
                 if model.won, let rung = model.houseRung, rung >= opened, rung + 1 < Ladder.cars.count { opened = rung + 1 }
                 let r = model.meResult
@@ -402,7 +423,7 @@ struct RunView: View {
     }
 
     private func restart() {
-        model.synth.stop()
+        model.stop()
         model = RaceModel(car: setup.0, spec: setup.1, opponent: setup.2, tree: setup.3)
         saved = false
         model.start()

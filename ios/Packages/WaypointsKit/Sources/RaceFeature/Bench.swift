@@ -85,9 +85,13 @@ struct BenchPicker: View {
             return
         }
         chosen.subtract(m.conflicts)
-        for other in chosen.compactMap(ModCatalog.mod) where other.conflicts.contains(m.id) { chosen.remove(other.id) }
+        for other in chosen.compactMap(ModCatalog.mod)
+        where other.conflicts.contains(m.id) || (m.category == .forcedInduction && other.category == .forcedInduction) {
+            chosen.remove(other.id)
+        }
         chosen.insert(m.id)
-        for r in m.requires { chosen.insert(r) }
+        let tuned = chosen.compactMap(ModCatalog.mod).contains { $0.category == .tune }
+        for r in m.requires where ModCatalog.mod(r)?.category != .tune || !tuned { chosen.insert(r) }
     }
 
     private func choose(_ new: NewCar) async {

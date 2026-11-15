@@ -19,6 +19,7 @@ final class CarModel {
     var showdown: ShowdownEntry?
     var me: UserID?
     var uploading = false
+    var failed = false
 
     init(ctx: GarageContext, carID: CarID) { self.ctx = ctx; self.carID = carID }
 
@@ -32,7 +33,8 @@ final class CarModel {
     func load() async {
         let env = ctx.env
         me = await env.auth.currentSession()?.userID
-        guard let c = try? await env.garage.car(carID) else { return }
+        guard let c = try? await env.garage.car(carID) else { failed = car == nil; return }
+        failed = false
         car = c
         owner = try? await env.profiles.profile(c.ownerID)
         photos = (try? await env.garage.photos(of: carID)) ?? []
@@ -41,13 +43,17 @@ final class CarModel {
         showdown = try? await env.showdown.entry(for: carID)
     }
 
-    func addPhoto(_ item: PhotosPickerItem) async {
-        guard let data = try? await item.loadTransferable(type: Data.self) else { return }
+    func addPhoto(_ item: PhotosPickerItem) async -> Bool {
         uploading = true
         defer { uploading = false }
-        if let media = try? await ctx.env.media.upload(data, contentType: "image/jpeg", to: .cars, progress: { _ in }) {
-            _ = try? await ctx.env.garage.addPhoto(to: carID, media: media)
+        do {
+            guard let data = try await item.loadTransferable(type: Data.self) else { return false }
+            let media = try await ctx.env.media.upload(data, contentType: "image/jpeg", to: .cars, progress: { _ in })
+            try await ctx.env.garage.addPhoto(to: carID, media: media)
             photos = (try? await ctx.env.garage.photos(of: carID)) ?? photos
+            return true
+        } catch {
+            return false
         }
     }
 }
@@ -62,6 +68,7 @@ struct CarScreen: View {
     @State private var askShowdown = false
     @State private var confirmDelete = false
     @State private var shared: SharedImage?
+    @State private var toast: ToastMessage?
     @Environment(\.dismiss) private var dismiss
     @Environment(\.displayScale) private var displayScale
 
@@ -82,6 +89,11 @@ struct CarScreen: View {
                     specs(car)
                 }
                 .padding(.bottom, Space.s48)
+            } else if model.failed {
+                ErrorState(Text("Couldn't load this car. Check your connection and try again.", bundle: .module)) {
+                    Task { await model.load() }
+                }
+                .padding(.top, Space.s48)
             } else {
                 SkeletonBlock(height: Size.row * 4).padding(Space.margin)
             }
@@ -93,6 +105,14 @@ struct CarScreen: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button("Share build") { shareBuild() }
+                        Button("Make primary car") {
+                            Task {
+                                do {
+                                    try await ctx.env.profiles.updateMyProfile(ProfileUpdate(primaryCarID: model.carID))
+                                    toast = ToastMessage(Text("Primary car set", bundle: .module))
+                                } catch { toast = ToastMessage(Text(GarageCopy.failed)) }
+                            }
+                        }
                         Button("Delete car", role: .destructive) { confirmDelete = true }
                     } label: { Image.symbol(Symbol.more).frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget) }
                     .accessibilityLabel(Text("More options", bundle: .module))
@@ -109,24 +129,43 @@ struct CarScreen: View {
         }
         .confirmationDialog("Delete this car?", isPresented: $confirmDelete) {
             Button("Delete car", role: .destructive) {
-                Task { try? await ctx.env.garage.deleteCar(model.carID); dismiss() }
+                Task {
+                    do {
+                        try await ctx.env.garage.deleteCar(model.carID)
+                        for e in model.entries where e.remindOn != nil { ServiceReminder.cancel(e.id) }
+                        dismiss()
+                    } catch { toast = ToastMessage(Text(GarageCopy.failed)) }
+                }
             }
         } message: { Text("Its photos and timeline are deleted too.", bundle: .module) }
         .sheet(isPresented: $addEntry) {
-            TimelineEntrySheet(ctx: ctx, car: model.car!) { Task { await model.load() } }
+            if let car = model.car {
+                TimelineEntrySheet(ctx: ctx, car: car, variant: model.variant) { Task { await model.load() } }
+            }
         }
         .confirmationDialog("Enter Showdown", isPresented: $askShowdown) {
             ForEach(ShowdownClass.allCases, id: \.self) { c in
                 Button(c.rawValue.capitalized) {
                     Task {
-                        model.showdown = try? await ctx.env.showdown.enter(model.carID, class: c)
+                        do { model.showdown = try await ctx.env.showdown.enter(model.carID, class: c) } catch WaypointsError.rateLimited {
+                            toast = ToastMessage(Text(GarageCopy.rateLimited))
+                        } catch { toast = ToastMessage(Text(GarageCopy.failed)) }
                     }
                 }
             }
         } message: { Text("Needs at least one photo.", bundle: .module) }
         .sheet(item: $shared) { ShareSheet(items: [$0.image]).presentationDetents([.medium, .large]) }
         .photosPicker(isPresented: $pickPhoto, selection: $photoItem, matching: .images)
-        .onChange(of: photoItem) { if let item = photoItem { Task { await model.addPhoto(item); photoItem = nil } } }
+        .onChange(of: photoItem) {
+            if let item = photoItem {
+                Task {
+                    let added = await model.addPhoto(item)
+                    if !added { toast = ToastMessage(Text("Couldn't add the photo. Check your connection and try again.", bundle: .module)) }
+                    photoItem = nil
+                }
+            }
+        }
+        .toast($toast)
         .task { await model.load() }
     }
 
@@ -244,7 +283,7 @@ struct CarScreen: View {
                 Task {
                     if let t = try? await ctx.env.messages.openThread(with: owner.userID, listing: nil) {
                         ctx.env.router.open(.thread(t.id))
-                    }
+                    } else { toast = ToastMessage(Text(GarageCopy.failed)) }
                 }
             }
             .padding(.horizontal, Space.margin)
@@ -312,7 +351,11 @@ struct CarScreen: View {
                         Button(c.rawValue.capitalized) {
                             var updated = car
                             updated.clearance = c
-                            Task { model.car = try? await ctx.env.garage.updateCar(updated) }
+                            Task {
+                                if let saved = try? await ctx.env.garage.updateCar(updated) { model.car = saved } else {
+                                    toast = ToastMessage(Text(GarageCopy.failed))
+                                }
+                            }
                         }
                     }
                 } label: { Row(Text("Change clearance", bundle: .module), showsDivider: false, trailing: { Disclosure() }) }
@@ -326,6 +369,7 @@ struct CarScreen: View {
 struct TimelineEntrySheet: View {
     let ctx: GarageContext
     let car: Car
+    let variant: CatalogVariant?
     let onSave: () -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var date = Date.now
@@ -358,7 +402,7 @@ struct TimelineEntrySheet: View {
                     .buttonStyle(RowButtonStyle())
                     Menu {
                         Button("None") { modID = nil }
-                        ForEach(ModCatalog.all, id: \.id) { m in Button(m.name) { modID = m.id } }
+                        ForEach(linkable, id: \.id) { m in Button(m.name) { modID = m.id } }
                     } label: {
                         Row(Text("Link a mod", bundle: .module), showsDivider: false, trailing: {
                             Text(verbatim: modID.flatMap { ModCatalog.mod($0)?.name } ?? "").typeStyle(.sub)
@@ -386,7 +430,13 @@ struct TimelineEntrySheet: View {
         .presentationDetents([.large])
     }
 
+    private var linkable: [Mod] {
+        guard let spec = VehicleSpec.from(variant: variant, car: car) else { return ModCatalog.all.filter { $0.platforms.isEmpty } }
+        return ModCatalog.available(for: spec, platform: ModCatalog.platform(for: car, variant: variant))
+    }
+
     private func save() {
+        guard !saving else { return }
         saving = true
         Task {
             do {
@@ -400,8 +450,13 @@ struct TimelineEntrySheet: View {
                     isService: isService, odometer: reading, odometerUnit: reading == nil ? nil : unit,
                     remindOn: isService && remind ? remindOn : nil))
                 await ServiceReminder.sync(saved, car: car)
-                if let modID, !car.mods.contains(modID) {
+                if let modID, let mod = ModCatalog.mod(modID), !car.mods.contains(modID) {
                     var updated = car
+                    updated.mods.removeAll { id in
+                        guard let other = ModCatalog.mod(id) else { return false }
+                        return mod.conflicts.contains(id) || other.conflicts.contains(modID)
+                            || (mod.category == .forcedInduction && other.category == .forcedInduction)
+                    }
                     updated.mods.append(modID)
                     try await ctx.env.garage.updateCar(updated)
                 }
@@ -506,6 +561,7 @@ struct FriendsScreen: View {
     @State private var handle = ""
     @State private var meID: UserID?
     @State private var scanning = false
+    @State private var requested: Set<UserID> = []
     @State private var toast: ToastMessage?
     @Environment(\.dismiss) private var dismiss
 
@@ -516,19 +572,24 @@ struct FriendsScreen: View {
                     Field("Find people", text: $query, prompt: "Search by handle").padding(Space.margin)
                         .textInputAutocapitalization(.never)
                     if !query.isEmpty {
-                        ForEach(found) { p in
+                        ForEach(found.filter { $0.userID != meID }) { p in
+                            let friend = friends.contains { $0.profile.userID == p.userID }
                             Row(Text(verbatim: p.displayName), subtitle: Text(verbatim: "@\(p.handle)"), leading: {
                                 Avatar(name: p.displayName, size: .s40)
                             }, trailing: {
-                                SecondaryButton("Add") {
+                                SecondaryButton(friend ? "Friends" : requested.contains(p.userID) ? "Requested" : "Add") {
                                     askForNotifications()
                                     Task {
-                                        do { try await ctx.env.friends.sendRequest(to: p.userID) } catch WaypointsError.rateLimited {
+                                        do {
+                                            try await ctx.env.friends.sendRequest(to: p.userID)
+                                            requested.insert(p.userID)
+                                        } catch WaypointsError.rateLimited {
                                             toast = ToastMessage(Text(GarageCopy.rateLimited))
-                                        } catch {}
+                                        } catch { toast = ToastMessage(Text(GarageCopy.failed)) }
                                     }
                                 }
-                                    .frame(width: Size.row * 1.6)
+                                    .frame(width: Size.row * 2.2)
+                                    .disabled(friend || requested.contains(p.userID))
                             })
                         }
                     } else {
@@ -567,7 +628,12 @@ struct FriendsScreen: View {
                                 }, trailing: {
                                     HStack {
                                         SecondaryButton("Accept") {
-                                            Task { try? await ctx.env.friends.acceptRequest(from: r.profile.userID); await load() }
+                                            Task {
+                                                do { try await ctx.env.friends.acceptRequest(from: r.profile.userID) } catch {
+                                                    toast = ToastMessage(Text(GarageCopy.failed))
+                                                }
+                                                await load()
+                                            }
                                         }
                                         .frame(width: Size.row * 1.8)
                                         QuietButton("Decline") { remove(r.profile.userID) }
@@ -592,18 +658,25 @@ struct FriendsScreen: View {
         }
         .task { await load() }
         .task(id: query) {
+            guard !query.isEmpty else { found = []; return }
             try? await Task.sleep(for: .milliseconds(250))
-            found = (try? await ctx.env.profiles.search(query, limit: 20)) ?? []
+            guard !Task.isCancelled else { return }
+            let people = (try? await ctx.env.profiles.search(query, limit: 20)) ?? []
+            if !Task.isCancelled { found = people }
         }
     }
 
     private func load() async {
         friends = (try? await ctx.env.friends.friends()) ?? []
         requests = (try? await ctx.env.friends.incomingRequests()) ?? []
+        requested.formUnion(((try? await ctx.env.friends.outgoingRequests()) ?? []).map(\.profile.userID))
         if let me = try? await ctx.env.profiles.myProfile() { handle = me.handle; meID = me.userID }
     }
 
     private func remove(_ id: UserID) {
-        Task { try? await ctx.env.friends.remove(id); await load() }
+        Task {
+            do { try await ctx.env.friends.remove(id) } catch { toast = ToastMessage(Text(GarageCopy.failed)) }
+            await load()
+        }
     }
 }

@@ -232,6 +232,7 @@ public final class EngineSynth {
     private let engine = AVAudioEngine()
     private var node: AVAudioSourceNode?
     private var kernel: RenderKernel?
+    private var observers: [any NSObjectProtocol] = []
     public private(set) var isRunning = false
     public private(set) var profile = SoundProfile(layout: .inline4)
 
@@ -255,8 +256,25 @@ public final class EngineSynth {
             try engine.start()
             isRunning = true
         } catch {
-            isRunning = false
+            stop()
+            return
         }
+        let center = NotificationCenter.default
+        observers = [
+            center.addObserver(forName: .AVAudioEngineConfigurationChange, object: engine, queue: nil) { @Sendable [weak self] _ in
+                Task { @MainActor [weak self] in self?.resume() }
+            },
+            center.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: nil) { @Sendable [weak self] note in
+                let ended = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt == AVAudioSession.InterruptionType.ended.rawValue
+                Task { @MainActor [weak self] in if ended { self?.resume() } }
+            },
+        ]
+    }
+
+    private func resume() {
+        guard isRunning, !engine.isRunning else { return }
+        try? AVAudioSession.sharedInstance().setActive(true)
+        try? engine.start()
     }
 
     /// Built outside the main actor so the render block does not inherit its isolation.
@@ -271,6 +289,8 @@ public final class EngineSynth {
     }
 
     public func stop() {
+        for o in observers { NotificationCenter.default.removeObserver(o) }
+        observers = []
         engine.stop()
         if let node { engine.detach(node) }
         node = nil

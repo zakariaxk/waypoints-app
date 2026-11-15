@@ -31,6 +31,9 @@
     "Change opponent": {
       "extractionState": "manual"
     },
+    "Couldn't load this car. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "EST. ¼ MILE": {
       "extractionState": "manual"
     },

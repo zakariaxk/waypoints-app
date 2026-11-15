@@ -56,6 +56,8 @@ final class ModSimModel {
     var soundOn = true
     var loaded = false
     var prompt: Mod?
+    var failed = false
+    var toast: ToastMessage?
     @ObservationIgnored let synth = EngineSynth()
     @ObservationIgnored private var revTask: Task<Void, Never>?
 
@@ -72,10 +74,11 @@ final class ModSimModel {
 
     func load() async {
         car = try? await env.garage.car(carID)
+        failed = car == nil
         if let id = car?.catalogVariantID { variant = try? await env.catalog.variant(id) }
         if let car {
             stock = VehicleSpec.from(variant: variant, car: car)
-            mods = Set(car.mods)
+            mods = stock == nil ? Set(car.mods) : Set(car.mods).intersection(available.map(\.id))
             saved = mods
         }
         loaded = true
@@ -88,8 +91,12 @@ final class ModSimModel {
         c.specOverrides.weightLb = weight
         c.specOverrides.torqueLbFt = torque
         c.specOverrides.redline = redline
-        car = (try? await env.garage.updateCar(c)) ?? c
-        stock = VehicleSpec.from(variant: variant, car: car!)
+        do { car = try await env.garage.updateCar(c) } catch {
+            car = c
+            toast = ToastMessage(Text("Couldn't save to the car. Check your connection and try again.", bundle: .module))
+        }
+        stock = VehicleSpec.from(variant: variant, car: car ?? c)
+        mods.formIntersection(available.map(\.id))
         applySound()
     }
 
@@ -106,15 +113,22 @@ final class ModSimModel {
             mods.insert(m.id)
             let tuned = selected.contains { $0.category == .tune }
             if m.requiresTune && !tuned { prompt = m }
-            for r in m.requires where !mods.contains(r) { prompt = m }
+            if !missing(for: m).isEmpty { prompt = m }
         }
         applySound()
     }
 
+    func missing(for m: Mod) -> [Mod] {
+        let tuned = selected.contains { $0.category == .tune }
+        return m.requires.filter { !mods.contains($0) }.compactMap(ModCatalog.mod).filter { $0.category != .tune || !tuned }
+    }
+
     func addTune(for m: Mod) {
+        let tuned = selected.contains { $0.category == .tune }
         let tune = available.first { $0.category == .tune && $0.id.hasPrefix("tune_s1") }
-        if m.requiresTune, let tune { mods.insert(tune.id) }
-        for r in m.requires { mods.insert(r) }
+        let needed = missing(for: m)
+        if m.requiresTune, !tuned, let tune { mods.insert(tune.id) }
+        for r in needed { mods.insert(r.id) }
         applySound()
     }
 
@@ -153,7 +167,7 @@ final class ModSimModel {
                 if !down && self.revRpm <= 900 { break }
                 try? await Task.sleep(for: .milliseconds(16))
             }
-            self?.revTask = nil
+            if !Task.isCancelled { self?.revTask = nil }
         }
     }
 
@@ -161,13 +175,18 @@ final class ModSimModel {
         guard var c = car else { return }
         let added = mods.subtracting(saved)
         c.mods = Array(mods).sorted()
-        car = (try? await env.garage.updateCar(c)) ?? c
-        saved = mods
-        if addToTimeline {
-            for id in added {
-                guard let m = ModCatalog.mod(id) else { continue }
-                _ = try? await env.garage.addBuildEntry(BuildEntry(carID: carID, happenedOn: .now, title: m.name, modID: id))
+        do {
+            car = try await env.garage.updateCar(c)
+            saved = mods
+            if addToTimeline {
+                for id in added {
+                    guard let m = ModCatalog.mod(id) else { continue }
+                    try await env.garage.addBuildEntry(BuildEntry(carID: carID, happenedOn: .now, title: m.name, modID: id))
+                }
             }
+            toast = ToastMessage(Text("Saved to car", bundle: .module))
+        } catch {
+            toast = ToastMessage(Text("Couldn't save to the car. Check your connection and try again.", bundle: .module))
         }
     }
 }
@@ -188,6 +207,11 @@ struct ModSimView: View {
         ScrollView {
             if !model.loaded {
                 SkeletonBlock(height: Size.row * 4).padding(Space.margin)
+            } else if model.failed {
+                ErrorState(Text("Couldn't load this car. Check your connection and try again.", bundle: .module)) {
+                    Task { await model.load() }
+                }
+                .padding(.top, Space.s48)
             } else if model.stock == nil {
                 specsForm
             } else {
@@ -223,14 +247,35 @@ struct ModSimView: View {
             Button("Save") { Task { await model.save(addToTimeline: false) } }
             Button("Save and add to timeline") { Task { await model.save(addToTimeline: true) } }
         }
-        .confirmationDialog(model.prompt.map { "\($0.name) needs a tune" } ?? "", isPresented: Binding(
+        .confirmationDialog(promptTitle, isPresented: Binding(
             get: { model.prompt != nil }, set: { if !$0 { model.prompt = nil } })) {
-            if let m = model.prompt { Button("Add Stage 1 tune too") { model.addTune(for: m) } }
+            if let m = model.prompt {
+                let names = model.missing(for: m).map(\.name)
+                if names.count > 1 {
+                    Button("Add them too") { model.addTune(for: m) }
+                } else if let name = names.first {
+                    Button("Add \(name) too") { model.addTune(for: m) }
+                } else {
+                    Button("Add Stage 1 tune too") { model.addTune(for: m) }
+                }
+            }
             Button("Not now", role: .cancel) {}
         }
         .haptic(.tick, trigger: tick)
+        .toast(Binding(get: { model.toast }, set: { model.toast = $0 }))
         .task { await model.load() }
-        .onDisappear { model.synth.stop() }
+        .onDisappear {
+            revving = false
+            model.rev(false)
+            model.synth.stop()
+        }
+    }
+
+    private var promptTitle: String {
+        guard let m = model.prompt else { return "" }
+        let names = model.missing(for: m).map(\.name)
+        return names.isEmpty ? String(localized: "\(m.name) needs a tune", bundle: .module)
+            : String(localized: "\(m.name) needs \(names.formatted(.list(type: .and)))", bundle: .module)
     }
 
     static var metric: Bool { Locale.current.measurementSystem == .metric }
@@ -243,12 +288,12 @@ struct ModSimView: View {
             Field("Torque (lb-ft)", text: $torque).keyboardType(.numberPad)
             Field("Redline", text: $redline).keyboardType(.numberPad)
             PrimaryButton("Enter specs") {
-                guard let h = Int(hp), let entered = Int(weight) else { return }
+                guard let h = Int(hp), let entered = Int(weight), h > 0, entered > 0 else { return }
                 // Stored in pounds; entered in the locale's unit (SET-3).
                 let w = Self.metric ? Int((Double(entered) * 2.20462).rounded()) : entered
                 Task { await model.useSpecs(hp: h, weight: w, torque: Int(torque) ?? Int(Double(h) * 0.9), redline: Int(redline) ?? 6500) }
             }
-            .disabled(Int(hp) == nil || Int(weight) == nil)
+            .disabled((Int(hp) ?? 0) <= 0 || (Int(weight) ?? 0) <= 0)
         }
         .padding(Space.margin)
     }

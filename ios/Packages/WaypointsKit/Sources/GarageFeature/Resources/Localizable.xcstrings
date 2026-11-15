@@ -55,6 +55,15 @@
     "Change clearance": {
       "extractionState": "manual"
     },
+    "Couldn't add the photo. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this car. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this profile. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't save the car. Check your connection and try again.": {
       "extractionState": "manual"
     },
@@ -127,6 +136,9 @@
     "Link a mod": {
       "extractionState": "manual"
     },
+    "Make primary car": {
+      "extractionState": "manual"
+    },
     "Message": {
       "extractionState": "manual"
     },
@@ -167,6 +179,9 @@
       "extractionState": "manual"
     },
     "Point the camera at a friend's code.": {
+      "extractionState": "manual"
+    },
+    "Primary car set": {
       "extractionState": "manual"
     },
     "Remind me": {
@@ -224,6 +239,9 @@
       "extractionState": "manual"
     },
     "That code isn't a Waypoints profile.": {
+      "extractionState": "manual"
+    },
+    "That didn't go through. Check your connection and try again.": {
       "extractionState": "manual"
     },
     "That handle is taken.": {

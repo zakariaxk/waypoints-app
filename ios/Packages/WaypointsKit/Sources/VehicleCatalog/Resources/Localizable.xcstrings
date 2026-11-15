@@ -94,6 +94,9 @@
     "That VIN didn't decode. Check the 17 characters.": {
       "extractionState": "manual"
     },
+    "That VIN isn't in the catalog. Pick the car by hand.": {
+      "extractionState": "manual"
+    },
     "To": {
       "extractionState": "manual"
     },
@@ -110,6 +113,9 @@
       "extractionState": "manual"
     },
     "VIN": {
+      "extractionState": "manual"
+    },
+    "VIN lookup needs a connection.": {
       "extractionState": "manual"
     },
     "Year": {

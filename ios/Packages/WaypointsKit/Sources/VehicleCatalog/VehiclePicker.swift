@@ -72,6 +72,7 @@ public struct VehiclePicker: View {
     @State private var showVIN = false
     @State private var vin = ""
     @State private var vinError: String?
+    @State private var vinLoading = false
     @State private var scanning = false
     @State private var tick = 0
 
@@ -131,7 +132,9 @@ public struct VehiclePicker: View {
         .task(id: query) {
             guard !query.isEmpty else { results = []; return }
             try? await Task.sleep(for: .milliseconds(150))
-            results = (try? await catalog.search(query, limit: 8)) ?? []
+            guard !Task.isCancelled else { return }
+            let found = (try? await catalog.search(query, limit: 8)) ?? []
+            if !Task.isCancelled { results = found }
         }
     }
 
@@ -172,6 +175,7 @@ public struct VehiclePicker: View {
         case .trim: variant = nil; manualTrim = nil; fallthrough
         case .color: family = nil
         }
+        showManual = false
         unlistedAt = nil
     }
 
@@ -203,7 +207,11 @@ public struct VehiclePicker: View {
     private func makeRow(_ m: CatalogMake) -> some View {
         Button {
             make = m
-            Task { models = (try? await catalog.models(of: m.id)) ?? [] }
+            models = []
+            Task {
+                let list = (try? await catalog.models(of: m.id)) ?? []
+                if make?.id == m.id { models = list }
+            }
         } label: { Row(Text(verbatim: m.name)) }
             .buttonStyle(RowButtonStyle())
     }
@@ -286,7 +294,9 @@ public struct VehiclePicker: View {
             guard let y = draftYear else { return }
             let picked = step == .make ? CatalogMake(id: -1, name: makeName) : (make ?? CatalogMake(id: -1, name: makeName))
             make = picked
+            if step == .make { models = [] }
             model = CatalogModel(id: -1, makeID: picked.id, name: modelName, yearFrom: y, yearTo: y)
+            years = [y]
             year = y
             variants = []
             variant = nil
@@ -298,7 +308,12 @@ public struct VehiclePicker: View {
     private func modelRow(_ m: CatalogModel) -> some View {
         Button {
             model = m
-            Task { years = (try? await catalog.years(of: m.id)) ?? Array((m.yearFrom...m.yearTo).reversed()) }
+            years = []
+            Task {
+                var list = (try? await catalog.years(of: m.id)) ?? []
+                if list.isEmpty, m.yearFrom <= m.yearTo { list = Array((m.yearFrom...m.yearTo).reversed()) }
+                if model?.id == m.id { years = list }
+            }
         } label: {
             Row(Text(verbatim: m.name), trailing: {
                 Text(verbatim: "\(m.yearFrom)–\(m.yearTo)").typeStyle(.readoutS)
@@ -347,9 +362,11 @@ public struct VehiclePicker: View {
             year = y
             guard mode == .full else { return }
             Task {
-                variants = (try? await catalog.variants(of: model.id, year: y)) ?? []
-                if variants.count == 1 { variant = variants[0] }
-                if variants.isEmpty { manualTrim = ManualTrim() }
+                let list = (try? await catalog.variants(of: model.id, year: y)) ?? []
+                guard self.model?.id == model.id, year == y, variant == nil, manualTrim == nil else { return }
+                variants = list
+                if list.count == 1 { variant = list[0] }
+                if list.isEmpty { manualTrim = ManualTrim() }
             }
         }
     }
@@ -451,15 +468,31 @@ public struct VehiclePicker: View {
         let m = CatalogMake(id: -1, name: v.make)
         make = allMakes.first { $0.name == v.make } ?? m
         model = CatalogModel(id: v.modelID, makeID: make?.id ?? -1, name: v.model, yearFrom: v.year, yearTo: v.year)
+        yearTo = nil
+        manualTrim = nil
+        unlistedAt = nil
+        models = []
+        years = [v.year]
+        variants = [v]
         switch mode {
         case .full:
             year = v.year
             variant = v
         case .modelOnly:
             onPick(.model(make: v.make, model: v.model, modelID: v.modelID, year: v.year))
+            return
         case .range:
             year = v.year
-            Task { years = (try? await catalog.years(of: v.modelID)) ?? [v.year] }
+        }
+        let makeID = make?.id ?? -1
+        Task {
+            let m = makeID == -1 ? [] : (try? await catalog.models(of: makeID)) ?? []
+            let y = (try? await catalog.years(of: v.modelID)) ?? []
+            let t = mode == .full ? (try? await catalog.variants(of: v.modelID, year: v.year)) ?? [] : []
+            guard model?.id == v.modelID else { return }
+            if make?.id == makeID { models = m }
+            if !y.isEmpty { years = y }
+            if !t.isEmpty, year == v.year { variants = t }
         }
     }
 
@@ -473,25 +506,37 @@ public struct VehiclePicker: View {
                 if VINScanner.isAvailable {
                     SecondaryButton("Scan with the camera") { scanning = true }
                 }
-                PrimaryButton("Look up") {
+                PrimaryButton("Look up", isLoading: vinLoading) {
+                    vinError = nil
+                    vinLoading = true
                     Task {
+                        defer { vinLoading = false }
                         do {
                             let d = try await catalog.decodeVIN(vin)
                             if let id = d.variantID, let v = try await catalog.variant(id) {
+                                let trims = (try? await catalog.variants(of: v.modelID, year: v.year)) ?? []
                                 jump(to: v)
+                                if trims.count > 1 {
+                                    variants = trims
+                                    variant = d.trim.flatMap { t in trims.first { $0.trim?.lowercased() == t.lowercased() } }
+                                }
                             } else if let makeName = d.make, let found = allMakes.first(where: { $0.name.lowercased() == makeName.lowercased() }) {
+                                clear(from: .make)
                                 make = found
                                 models = (try? await catalog.models(of: found.id)) ?? []
+                            } else {
+                                vinError = String(localized: "That VIN isn't in the catalog. Pick the car by hand.", bundle: .module)
+                                return
                             }
                             showVIN = false
                         } catch WaypointsError.offline {
-                            vinError = "VIN lookup needs a connection."
+                            vinError = String(localized: "VIN lookup needs a connection.", bundle: .module)
                         } catch {
                             vinError = String(localized: "That VIN didn't decode. Check the 17 characters.", bundle: .module)
                         }
                     }
                 }
-                .disabled(vin.count != 17)
+                .disabled(vin.count != 17 || vinLoading)
             }
             .padding(Space.margin)
         }
@@ -515,6 +560,7 @@ extension Color {
         let ui = UIColor(self)
         var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
         ui.getRed(&r, green: &g, blue: &b, alpha: &a)
-        return String(format: "#%02X%02X%02X", Int(r * 255), Int(g * 255), Int(b * 255))
+        func byte(_ v: CGFloat) -> Int { Int((max(0, min(1, v)) * 255).rounded()) }
+        return String(format: "#%02X%02X%02X", byte(r), byte(g), byte(b))
     }
 }

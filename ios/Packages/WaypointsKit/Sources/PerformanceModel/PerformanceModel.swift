@@ -80,8 +80,8 @@ public struct VehicleSpec: Sendable, Hashable {
     /// neither power nor weight is known (G6 then asks for them).
     public static func from(variant: CatalogVariant?, car: Car) -> VehicleSpec? {
         let o = car.specOverrides
-        guard let hp = o.hp ?? variant?.hp else { return nil }
-        let weight = Double(o.weightLb ?? variant?.weightLb ?? 3400)
+        guard let hp = (o.hp ?? variant?.hp).map({ min(max($0, 1), 5000) }) else { return nil }
+        let weight = Double(min(max(o.weightLb ?? variant?.weightLb ?? 3400, 300), 20000))
         let cyl = variant?.cylinders ?? 4
         let engine = (variant?.engine ?? "").lowercased()
         let layout: EngineLayout = engine.contains("rotary") ? .rotary
@@ -89,12 +89,13 @@ public struct VehicleSpec: Sendable, Hashable {
             : cyl >= 6 && !engine.contains("inline") && !(car.make == "BMW" && cyl == 6) ? .v : .inline
         let trans = (variant?.transmission ?? "").lowercased()
         let auto = trans.contains("auto") || trans.contains("cvt") || trans.contains("dct")
-        let tq = Double(o.torqueLbFt ?? variant?.torqueLbFt ?? Int(Double(hp) * 0.9))
+        let tq = Double(min(max(o.torqueLbFt ?? variant?.torqueLbFt ?? Int(Double(hp) * 0.9), 1), 5000))
+        let gears = (o.gears ?? variant?.gears)?.filter { $0 > 0 && $0.isFinite }
         let flatPlane = ["Ferrari", "McLaren"].contains(car.make) || car.model.contains("GT350")
         return VehicleSpec(hpCrank: Double(hp), torqueLbFt: tq, weightLb: weight,
                            drivetrain: o.drivetrain ?? variant?.drive ?? .rwd, aspiration: variant?.aspiration ?? .natural,
-                           redline: Double(o.redline ?? variant?.redline ?? (cyl >= 8 ? 6500 : 7000)),
-                           gearRatios: o.gears ?? variant?.gears, cylinders: cyl, layout: layout,
+                           redline: Double(min(max(o.redline ?? variant?.redline ?? (cyl >= 8 ? 6500 : 7000), 2000), 20000)),
+                           gearRatios: gears, cylinders: cyl, layout: layout,
                            crankPlane: cyl == 8 && !flatPlane ? .cross : .flat, automatic: auto,
                            gearCount: Self.gearCount(in: trans))
     }
@@ -167,7 +168,7 @@ public func modified(_ spec: VehicleSpec, mods: [Mod], high: Bool) -> VehicleSpe
         s.hpCrank *= 1 + g.power
         s.torqueLbFt *= 1 + g.torque
     }
-    s.weightLb += mods.filter { $0.applies(to: spec) }.reduce(0) { $0 + $1.weightDeltaLb }
+    s.weightLb = max(spec.weightLb / 2, s.weightLb + mods.filter { $0.applies(to: spec) }.reduce(0) { $0 + $1.weightDeltaLb })
     if mods.contains(where: { $0.category == .forcedInduction && $0.applies(to: spec) }) && spec.aspiration == .natural {
         s.aspiration = .supercharged
     }

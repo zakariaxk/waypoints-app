@@ -87,6 +87,7 @@ final class ProfileModel {
     var blocked = false
     var me: UserID?
     var failed = false
+    var offline = false
 
     init(ctx: GarageContext, userID: UserID) { self.ctx = ctx; self.userID = userID }
 
@@ -98,6 +99,7 @@ final class ProfileModel {
             failed = false
         } catch {
             failed = true
+            offline = (error as? WaypointsError) == .offline
             return
         }
         cars = (try? await env.garage.cars(of: userID)) ?? []
@@ -115,7 +117,10 @@ final class ProfileModel {
     }
 
     func watchCars() async {
-        for await list in await ctx.env.garage.carChanges(of: userID) { cars = list }
+        for await list in await ctx.env.garage.carChanges(of: userID) {
+            cars = list
+            for car in list where photos[car.id] == nil { photos[car.id] = try? await ctx.env.garage.photos(of: car.id).first }
+        }
     }
 }
 
@@ -139,7 +144,8 @@ struct ProfileScreen: View {
     var body: some View {
         ScrollView {
             if model.failed {
-                ErrorState(Text("This profile isn't available.", bundle: .module)) { Task { await model.load() } }
+                ErrorState(model.offline ? Text("Couldn't load this profile. Check your connection and try again.", bundle: .module)
+                           : Text("This profile isn't available.", bundle: .module)) { Task { await model.load() } }
             } else if let p = model.profile {
                 VStack(alignment: .leading, spacing: 0) {
                     header(p)
@@ -185,7 +191,15 @@ struct ProfileScreen: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         if let url = Route.profile(p.userID).shareURL { ShareLink("Share profile", item: url) }
-                        Button("Block", role: .destructive) { Task { try? await ctx.env.safety.block(p.userID) } }
+                        Button("Block", role: .destructive) {
+                            Task {
+                                do {
+                                    try await ctx.env.safety.block(p.userID)
+                                    model.offline = false
+                                    model.failed = true
+                                } catch { toast = ToastMessage(Text(GarageCopy.failed)) }
+                            }
+                        }
                         Button("Report") { ctx.env.router.open(.reportContent(.user(p.userID))) }
                     } label: { Image.symbol(Symbol.more).frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget) }
                     .accessibilityLabel(Text("More options", bundle: .module))
@@ -249,22 +263,28 @@ struct ProfileScreen: View {
                         askForNotifications()
                         do { try await ctx.env.friends.sendRequest(to: p.userID) } catch WaypointsError.rateLimited {
                             toast = ToastMessage(Text(GarageCopy.rateLimited))
-                        } catch {}
+                        } catch { toast = ToastMessage(Text(GarageCopy.failed)) }
                     }
-                    else if status?.status == .pending, status?.requesterID != model.me { try? await ctx.env.friends.acceptRequest(from: p.userID) }
-                    model.friendship = try? await ctx.env.friends.friendship(with: p.userID)
+                    else if status?.status == .pending, status?.requesterID != model.me {
+                        do { try await ctx.env.friends.acceptRequest(from: p.userID) } catch { toast = ToastMessage(Text(GarageCopy.failed)) }
+                    }
+                    if let now = try? await ctx.env.friends.friendship(with: p.userID) { model.friendship = now }
                 }
             }
             .disabled(status?.status == .accepted || (status?.status == .pending && status?.requesterID == model.me))
             SecondaryButton(model.following ? "Following" : "Follow") {
                 Task {
-                    if model.following { try? await ctx.env.posts.unfollow(p.userID) } else { try? await ctx.env.posts.follow(p.userID) }
-                    model.following.toggle()
+                    do {
+                        if model.following { try await ctx.env.posts.unfollow(p.userID) } else { try await ctx.env.posts.follow(p.userID) }
+                        model.following.toggle()
+                    } catch { toast = ToastMessage(Text(GarageCopy.failed)) }
                 }
             }
             IconButton(Symbol.comment, label: "Message") {
                 Task {
-                    if let t = try? await ctx.env.messages.openThread(with: p.userID, listing: nil) { ctx.env.router.open(.thread(t.id)) }
+                    if let t = try? await ctx.env.messages.openThread(with: p.userID, listing: nil) { ctx.env.router.open(.thread(t.id)) } else {
+                        toast = ToastMessage(Text(GarageCopy.failed))
+                    }
                 }
             }
         }
@@ -348,6 +368,7 @@ struct PickerSheet: View {
     let editing: CarID?
     @Environment(\.dismiss) private var dismiss
     @State private var error: String?
+    @State private var saving = false
     @State private var icon = "coupe"
 
     var body: some View {
@@ -368,6 +389,9 @@ struct PickerSheet: View {
     }
 
     private func save(_ new: NewCar) async {
+        guard !saving else { return }
+        saving = true
+        defer { saving = false }
         do {
             if let editing {
                 var car = try await ctx.env.garage.car(editing)
