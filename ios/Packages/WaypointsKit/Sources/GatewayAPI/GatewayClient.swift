@@ -70,7 +70,7 @@ struct GatewayClient: Sendable {
         let message = body?.message ?? body?.error ?? String(decoding: data.prefix(200), as: UTF8.self)
         switch status {
         case 401: return .notSignedIn
-        case 403: return .forbidden
+        case 403: return message == "suspended" ? .suspended : .forbidden
         case 404: return .notFound
         case 409: return .conflict(message)
         case 400, 422: return .invalid(message)

@@ -174,9 +174,9 @@ actor LiveAuth: AuthService {
         // Best effort: remove the user's media first; database rows cascade from auth.users.
         for bucket in MediaBucket.allCases where bucket != .catalog {
             let api = ctx.client.storage.from(bucket.rawValue)
-            if let files = try? await api.list(path: me.key), !files.isEmpty {
-                _ = try? await api.remove(paths: files.map { "\(me.key)/\($0.name)" })
-            }
+            // `list` returns 100 names at a time.
+            while let files = try? await api.list(path: me.key), !files.isEmpty,
+                  let removed = try? await api.remove(paths: files.map { "\(me.key)/\($0.name)" }), !removed.isEmpty {}
         }
         try await Self.deleteAccountRow(ctx: ctx)
         DeviceTokenStore.clear()

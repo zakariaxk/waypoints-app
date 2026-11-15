@@ -195,6 +195,13 @@ public actor LiveRealtimeService: RealtimeService {
                 lastToken = nil
                 await stopConnection()
                 setState(.offline)
+                // Nothing from this account carries over to the next: its convoy, or its markers.
+                convoy = nil
+                setConvoy(nil)
+                if let stale = staleFromPrevious {
+                    staleFromPrevious = nil
+                    eventBroadcast.send(.gone(Array(stale)))
+                }
                 continue
             }
             if session.userID == signedInUser {
@@ -309,7 +316,17 @@ public actor LiveRealtimeService: RealtimeService {
         activeChildren += 1
         defer { activeChildren -= 1 }
         while true {
-            let message = try await ws.receive()
+            let message: URLSessionWebSocketTask.Message
+            do {
+                message = try await ws.receive()
+            } catch {
+                // SAFE-7: the Error frame can be lost; the close reason says the same.
+                if ws.closeReason == Data("suspended".utf8) {
+                    suspensionBroadcast.send(())
+                    throw ConnectionEnd.fatal
+                }
+                throw error
+            }
             lastReceived = .now
             guard case .data(let data) = message,
                   let frame = try? Waypoints_V1_ServerFrame(serializedBytes: data) else { continue }

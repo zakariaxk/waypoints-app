@@ -10,6 +10,8 @@ import UniformTypeIdentifiers
 struct LiveMedia: MediaStore {
     let ctx: BackendContext
     static let maxPixels = 2048
+    /// The storage limit (`file_size_limit` in `supabase/config.toml`).
+    static let maxBytes = 15 * 1024 * 1024
 
     func upload(_ data: Data, contentType: String, to bucket: MediaBucket,
                 progress: @escaping @Sendable (Double) -> Void) async throws -> StoredMedia {
@@ -23,6 +25,7 @@ struct LiveMedia: MediaStore {
             guard let image = Self.downscaledJPEG(data) else { throw WaypointsError.invalid("image") }
             body = image.data; type = "image/jpeg"; width = image.width; height = image.height
         }
+        guard body.count <= Self.maxBytes else { throw WaypointsError.invalid("size") }
         let ext = UTType(mimeType: type)?.preferredFilenameExtension ?? "bin"
         let path = "\(me.key)/\(UUID().uuidString.lowercased()).\(ext)"
 

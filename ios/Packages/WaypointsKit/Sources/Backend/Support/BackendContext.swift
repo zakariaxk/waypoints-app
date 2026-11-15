@@ -58,7 +58,7 @@ final class BackendContext: Sendable {
             case "PT423": return WaypointsError.suspended
             case "42501": return WaypointsError.forbidden
             case "PGRST116", "P0002": return WaypointsError.notFound
-            case "PGRST301", "PGRST302": return WaypointsError.notSignedIn
+            case "PGRST301", "PGRST302", "PGRST303": return WaypointsError.notSignedIn
             default: return WaypointsError.server(error.message)
             }
         case let error as AuthError:
@@ -68,6 +68,10 @@ final class BackendContext: Sendable {
             case let .api(message, code, _, response):
                 if response.statusCode == 429 || code == .overEmailSendRateLimit || code == .overRequestRateLimit {
                     return WaypointsError.rateLimited
+                }
+                if code == .sessionNotFound || code == .sessionExpired || code == .refreshTokenNotFound
+                    || code == .refreshTokenAlreadyUsed || code == .userNotFound {
+                    return WaypointsError.notSignedIn
                 }
                 if code == .otpExpired || code == .validationFailed || response.statusCode == 403 {
                     return WaypointsError.invalid("code")

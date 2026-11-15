@@ -766,7 +766,7 @@ struct LiveProgress: ProgressRepository {
         struct Conf: Decodable { let confirmations: Int }
         let reports: [Conf] = (try? await ctx.table("reports").select("confirmations").eq("author_id", value: me.key).execute().value) ?? []
         let confirmed = reports.filter { $0.confirmations > 1 }.count
-        struct Spot: Decodable { let catalogModelId: Int64 }
+        struct Spot: Decodable { let catalogModelId: Int64? }
         let spots: [Spot] = (try? await ctx.table("spots").select("catalog_model_id").eq("spotter_id", value: me.key).execute().value) ?? []
         let roads = await count("road_ratings", "user_id", me)
         let posts = await count("posts", "author_id", me)
@@ -778,8 +778,8 @@ struct LiveProgress: ProgressRepository {
         let best = races.map(\.etMs).min() ?? Int.max
         let current: [String: Int] = [
             "reports_1": confirmed, "reports_10": confirmed, "reports_50": confirmed,
-            "spots_5": Set(spots.map(\.catalogModelId)).count, "spots_25": Set(spots.map(\.catalogModelId)).count,
-            "spots_100": Set(spots.map(\.catalogModelId)).count, "roads_1": roads, "roads_5": roads, "posts_5": posts,
+            "spots_5": Set(spots.compactMap(\.catalogModelId)).count, "spots_25": Set(spots.compactMap(\.catalogModelId)).count,
+            "spots_100": Set(spots.compactMap(\.catalogModelId)).count, "roads_1": roads, "roads_5": roads, "posts_5": posts,
             "listing_1": listings, "venue_5": venue, "teams_join": teams, "strip_1": races.count,
             "strip_12s": best < 12000 ? 1 : 0, "strip_10s": best < 10000 ? 1 : 0,
         ]

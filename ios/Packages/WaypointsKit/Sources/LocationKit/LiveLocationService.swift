@@ -15,6 +15,7 @@ public struct LocationDiagnostics: Sendable, Hashable {
 /// plan section 3.3. Updates run only while sharing is on and location is authorized.
 public actor LiveLocationService: LocationService {
     private static let sharingKey = "app.waypoints.location.sharing"
+    static let parkedLimit: Duration = .seconds(300)
 
     private let zoneStore: HomeZoneStore
     private let defaults: UserDefaults
@@ -30,6 +31,7 @@ public actor LiveLocationService: LocationService {
     private var monitorTask: Task<AuthorizationMonitor, Never>?
     private var updatesTask: Task<Void, Never>?
     private var backgroundSession: CLBackgroundActivitySession?
+    private var parkedTask: Task<Void, Never>?
     private var sampler = AdaptiveSampler()
     private var sent: [(Date, AdaptiveSampler.Mode)] = []
 
@@ -121,8 +123,27 @@ public actor LiveLocationService: LocationService {
         } else if !shouldRun, let task = updatesTask {
             task.cancel()
             updatesTask = nil
+            parkedTask?.cancel()
+            parkedTask = nil
             backgroundSession?.invalidate()
             backgroundSession = nil
+        }
+    }
+
+    /// PRV-12: five minutes parked ends background sharing; the next movement seen while the
+    /// app is open starts it again.
+    private func parked(_ stationary: Bool) {
+        if !stationary {
+            parkedTask?.cancel()
+            parkedTask = nil
+            if backgroundSession == nil { backgroundSession = CLBackgroundActivitySession() }
+        } else if parkedTask == nil {
+            parkedTask = Task {
+                try? await Task.sleep(for: Self.parkedLimit)
+                if Task.isCancelled { return }
+                self.backgroundSession?.invalidate()
+                self.backgroundSession = nil
+            }
         }
     }
 
@@ -130,12 +151,20 @@ public actor LiveLocationService: LocationService {
         do {
             for try await update in CLLocationUpdate.liveUpdates(.automotiveNavigation) {
                 if Task.isCancelled { break }
+                parked(update.stationary)
                 guard let location = update.location else { continue }
                 handle(sample(from: location, stationary: update.stationary))
             }
         } catch {
             // The stream ends on cancellation or a Core Location failure; `reconcile` restarts it
             // on the next sharing or authorization change.
+        }
+        if !Task.isCancelled {
+            updatesTask = nil
+            parkedTask?.cancel()
+            parkedTask = nil
+            backgroundSession?.invalidate()
+            backgroundSession = nil
         }
     }
 

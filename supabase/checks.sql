@@ -931,6 +931,80 @@ begin
     to_regclass('public.help_requests_requester_created_idx') is not null
     and to_regclass('public.report_votes_user_created_idx') is not null);
 
+  ---------------------------------------------------------------- hardening (W9-H)
+  perform pg_temp.deny('is_blocked_pair: says nothing about other people''s blocks', b,
+    format($s$select 1 where public.is_blocked_pair(%L, %L)$s$, a, c));
+  perform pg_temp.allow('is_blocked_pair: answers for the caller''s own pair', c,
+    format($s$select 1 where public.is_blocked_pair(%L, %L)$s$, a, c));
+  perform pg_temp.deny('are_friends: says nothing about other people''s friendships', c,
+    format($s$select 1 where public.are_friends(%L, %L)$s$, a, b));
+  perform pg_temp.allow('are_friends: answers for the caller''s own pair', b,
+    format($s$select 1 where public.are_friends(%L, %L)$s$, a, b));
+  perform pg_temp.deny('can_read_help: not callable by anon', 'anon',
+    format($s$select public.can_read_help(%L)$s$, a));
+  perform pg_temp.truth('security definer functions: none callable by anon',
+    not exists (select 1 from pg_proc p
+                where p.pronamespace = 'public'::regnamespace and p.prosecdef
+                  and has_function_privilege('anon', p.oid, 'execute')));
+
+  perform pg_temp.deny('showdown_entries: cannot withdraw another''s car', b,
+    format($s$delete from showdown_entries where car_id = %L$s$, car_a));
+  perform pg_temp.allow('showdown_entries: owner withdraws own car', a,
+    format($s$delete from showdown_entries where car_id = %L$s$, car_a));
+
+  insert into meets (id, host_id, title, kind, geom, starts_at, ends_at, visibility) values
+    ('cccccccc-0000-4000-8003-000000000004', a::uuid, 'Check: live meet', 'meet',
+     st_setsrid(st_makepoint(-75.05, 39.91), 4326)::geography, now() - interval '1 hour', now() + interval '1 hour', 'public');
+  insert into meet_rsvps (meet_id, user_id, status, car_id)
+    values ('cccccccc-0000-4000-8003-000000000004', a::uuid, 'going', car_a::uuid);
+  insert into meet_checkins (meet_id, user_id) values ('cccccccc-0000-4000-8003-000000000004', b::uuid);
+  perform pg_temp.allow('meet_votes: checked-in person picks a car by upsert', b,
+    format($s$insert into meet_votes (meet_id, voter_id, car_id) values ('cccccccc-0000-4000-8003-000000000004', %L, %L)
+      on conflict (meet_id, voter_id) do update
+      set meet_id = excluded.meet_id, voter_id = excluded.voter_id, car_id = excluded.car_id$s$, b, car_a));
+  perform pg_temp.deny('meet_votes: cannot pick as someone else', b,
+    format($s$insert into meet_votes (meet_id, voter_id, car_id) values ('cccccccc-0000-4000-8003-000000000004', %L, %L)$s$, a, car_a));
+
+  insert into listing_photos (listing_id, path) values (lst_a::uuid, a || '/top.jpg');
+  perform pg_temp.allow('listing_photos: readable with the listing', b,
+    format($s$select 1 from listing_photos where listing_id = %L$s$, lst_a));
+  update listings set hidden_at = now() where id = lst_a::uuid;
+  perform pg_temp.deny('listing_photos: hidden with the listing', b,
+    format($s$select 1 from listing_photos where listing_id = %L$s$, lst_a));
+  update listings set hidden_at = null where id = lst_a::uuid;
+
+  insert into post_comments (post_id, author_id, body) values (post_a::uuid, b::uuid, 'Check: comment');
+  perform pg_temp.allow('post_comments: readable with the post', b,
+    format($s$select 1 from post_comments where post_id = %L$s$, post_a));
+  perform pg_temp.deny('post_comments: hidden with the post across a block', c,
+    format($s$select 1 from post_comments where post_id = %L$s$, post_a));
+
+  perform moderation_suspend(a);
+  perform pg_temp.deny('race_results: runs by a suspended account drop out', b,
+    format($s$select 1 from race_results where user_id = %L$s$, a));
+  perform moderation_unsuspend(a);
+
+  insert into team_roles (id, team_id, name, permissions)
+    values ('cccccccc-0000-4000-800a-000000000001', team_p::uuid, 'Role manager', 4);
+  update team_members set role_id = 'cccccccc-0000-4000-800a-000000000001'
+    where team_id = team_p::uuid and user_id = b::uuid;
+  perform pg_temp.allow('team_roles: manage_roles adds a role within its own permissions', b,
+    format($s$insert into team_roles (team_id, name, permissions) values (%L, 'Helper', 4)$s$, team_p));
+  perform pg_temp.deny('team_roles: manage_roles cannot grant permissions it lacks', b,
+    format($s$insert into team_roles (team_id, name, permissions) values (%L, 'Boss', 63)$s$, team_p));
+  perform pg_temp.deny('team_members: manage_roles cannot hand out the Owner role', b,
+    format($s$update team_members set role_id = (select id from team_roles where team_id = %L and name = 'Owner')
+      where team_id = %L and user_id = %L$s$, team_p, team_p, b));
+
+  perform pg_temp.allow('storage: owner uploads a message attachment', a,
+    format($s$insert into storage.objects (bucket_id, name) values ('messages', %L)$s$, a || '/dm.jpg'), true);
+  perform pg_temp.allow('storage: owner lists own message attachments', a,
+    format($s$select 1 from storage.objects where bucket_id = 'messages' and name = %L$s$, a || '/dm.jpg'));
+  perform pg_temp.deny('storage: others cannot list message attachments', b,
+    $s$select 1 from storage.objects where bucket_id = 'messages'$s$);
+  perform pg_temp.deny('storage: anon cannot list message attachments', 'anon',
+    $s$select 1 from storage.objects where bucket_id = 'messages'$s$);
+
   ---------------------------------------------------------------- cascade
   delete from storage.objects where name like a || '/%';
   delete from auth.users where id = a::uuid;
