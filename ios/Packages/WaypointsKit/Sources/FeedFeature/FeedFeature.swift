@@ -13,10 +13,13 @@ public enum FeedFeature: FeatureModule {
     public static func register(in registry: FeatureRegistry, env: AppEnvironment) {
         let uploader = Uploader(env: env)
         registry.registerTab(.feed) { AnyView(FeedHome(env: env, registry: registry, uploader: uploader)) }
-        registry.registerRoute(.post) { route in
+        registry.registerRoute(.post, presentation: .push(tab: .feed)) { route in
             guard case let .post(id) = route else { return nil }
             return AnyView(SinglePost(env: env, postID: id))
         }
+        #if DEBUG
+        registry.registerDebugScreen("comments") { AnyView(DebugComments(env: env)) }
+        #endif
     }
 }
 
@@ -232,12 +235,11 @@ struct FeedHome: View {
                 Pager(model: model, followingOnly: mode == "following", switchToForYou: { mode = "foryou" }, post: { posting = true })
                     .id(mode)
             }
-            HStack(spacing: 0) {
-                Spacer(minLength: 0)
-                SegmentedSwitch(selection: $mode, options: options).fixedSize()
-                Spacer(minLength: 0)
-                IconButton(Symbol.add, label: "Post", style: .overMap) { posting = true }
-            }
+            SegmentedSwitch(selection: $mode, options: options).fixedSize()
+                .frame(maxWidth: .infinity)
+                .overlay(alignment: .trailing) {
+                    IconButton(Symbol.add, label: "Post", style: .overMap) { posting = true }
+                }
             .padding(.horizontal, Space.s12)
             .padding(.top, Space.s8)
             if uploader.progress != nil {
@@ -293,6 +295,8 @@ struct Pager: View {
                     Spacer()
                 }
             } else {
+                // Pages run under the status bar and the tab bar; each pads its content clear of the tab bar.
+                GeometryReader { geo in
                 ScrollView(.vertical) {
                     LazyVStack(spacing: 0) {
                         ForEach(Array(posts.enumerated()), id: \.element.id) { i, p in
@@ -306,6 +310,7 @@ struct Pager: View {
                                     PhotoPage(model: model, post: p, comments: { commentsFor = p }, overflow: { overflow = p })
                                 }
                             }
+                                .padding(.bottom, geo.safeAreaInsets.bottom)
                                 .containerRelativeFrame([.horizontal, .vertical])
                                 .id(i)
                                 .onAppear { if i >= posts.count - 3 { Task { await model.more() } } }
@@ -315,10 +320,11 @@ struct Pager: View {
                 }
                 .scrollTargetBehavior(.paging)
                 .scrollPosition(id: $current)
-                .ignoresSafeArea(edges: .top)
+                .ignoresSafeArea()
                 .onChange(of: current) { pool.play(current ?? 0) }
                 .onAppear { pool.play(current ?? 0) }
                 .onDisappear { pool.pauseAll() }
+                }
             }
         }
         .connectionBanner(model.offline ? .offline : nil)
@@ -374,7 +380,11 @@ struct VideoPage: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            MediaView(url: model.env.media.publicURL(bucket: .posts, path: post.posterPath), cornerRadius: 0, label: Text(verbatim: post.caption))
+            // Full-bleed: MediaView needs the frame's own ratio.
+            GeometryReader { g in
+                MediaView(url: model.env.media.publicURL(bucket: .posts, path: post.posterPath), aspectRatio: g.size.width / max(g.size.height, 1),
+                          cornerRadius: 0, label: Text(verbatim: post.caption))
+            }
             if failed {
                 VStack(spacing: Space.s12) {
                     Text("Couldn't play this.", bundle: .module).typeStyle(.body).foregroundStyle(Color.chalk)
@@ -438,7 +448,7 @@ struct PostOverlay: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            Gradients.scrim.frame(height: Size.row * 4).allowsHitTesting(false)
+            Gradients.scrim.allowsHitTesting(false)
             HStack(alignment: .bottom) {
                 info
                 Spacer()
@@ -524,8 +534,11 @@ struct PhotoPage: View {
         ZStack(alignment: .bottom) {
             TabView(selection: $page) {
                 ForEach(Array(post.photoPaths.enumerated()), id: \.offset) { i, path in
-                    MediaView(url: model.env.media.publicURL(bucket: .posts, path: path), cornerRadius: 0, label: Text(verbatim: post.caption))
-                        .tag(i)
+                    GeometryReader { g in
+                        MediaView(url: model.env.media.publicURL(bucket: .posts, path: path), aspectRatio: g.size.width / max(g.size.height, 1),
+                                  cornerRadius: 0, label: Text(verbatim: post.caption))
+                    }
+                    .tag(i)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: post.photoPaths.count > 1 ? .always : .never))
@@ -573,8 +586,10 @@ struct SinglePost: View {
                           pool: pool, comments: { comments = p }, overflow: { overflow = true }, retry: { pool.retry(0, url: url) })
                     .onAppear { pool.play(0) }
                     .onDisappear { pool.pauseAll() }
+                    .ignoresSafeArea(edges: .top)
             } else if let p = model.posts.first {
                 PhotoPage(model: model, post: p, comments: { comments = p }, overflow: { overflow = true })
+                    .ignoresSafeArea(edges: .top)
             } else if failed {
                 ErrorState(Text("Couldn't load this post.", bundle: .module)) { Task { await load() } }
             } else {
@@ -649,9 +664,9 @@ struct Comments: View {
                         } else if comments.isEmpty { Text("No comments yet.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin) }
                         ForEach(comments) { c in
                             let a = authors[c.authorID]
-                            Row(Text(verbatim: "@\(a?.handle ?? "")  \(c.body)"),
+                            Row(Text(verbatim: "@\(a?.handle ?? "")  ") + Text(verbatim: c.body).fontWeight(.regular),
                                 subtitle: Text(verbatim: c.createdAt.formatted(.relative(presentation: .numeric))),
-                                leading: { Avatar(name: a?.displayName ?? "", size: .s28) })
+                                leading: { Avatar(name: a?.displayName ?? "", url: a?.avatarPath.map { env.media.publicURL(bucket: .avatars, path: $0) }, size: .s28) })
                                 .contextMenu {
                                     if c.authorID != me {
                                         Button("Report") { env.router.open(.reportContent(ContentRef(kind: .comment, id: c.id.description))) }
@@ -683,8 +698,11 @@ struct Comments: View {
                         }
                     }
                 }
-                if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
-                HStack {
+                if let error {
+                    Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake)
+                        .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, Space.margin)
+                }
+                HStack(alignment: .bottom, spacing: Space.s8) {
                     Field("Comment", text: $draft, prompt: "Add a comment", limit: 300)
                     IconButton(Symbol.send, label: "Send") {
                         let text = draft
@@ -709,8 +727,10 @@ struct Comments: View {
                         }
                     }
                     .disabled(draft.isEmpty || sending)
+                    .padding(.bottom, Space.s4)
                 }
-                .padding(Space.s12)
+                .padding(.horizontal, Space.margin)
+                .padding(.vertical, Space.s12)
             }
         }
         .presentationDetents([.medium, .large])
@@ -727,6 +747,21 @@ struct Comments: View {
         for p in (try? await env.profiles.profiles(Array(Set(comments.map(\.authorID))))) ?? [] { authors[p.userID] = p }
     }
 }
+
+#if DEBUG
+/// `waypoints://debug/comments`: F2 over the first For you post.
+private struct DebugComments: View {
+    let env: AppEnvironment
+    @State private var post: Post?
+
+    var body: some View {
+        Group {
+            if let post { Comments(env: env, post: post) } else { Color.tarmac.ignoresSafeArea() }
+        }
+        .task { post = (try? await env.posts.forYou(after: nil, limit: 1))?.items.first }
+    }
+}
+#endif
 
 // MARK: F3 Post a video
 

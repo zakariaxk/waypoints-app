@@ -186,7 +186,7 @@ struct Browse: View {
                     ForEach(shown) { l in wantedRow(l) }
                 }
                 if next != nil {
-                    Color.clear.frame(height: 1).onAppear { Task { await load(more: true) } }
+                    Color.clear.frame(height: Space.s2).onAppear { Task { await load(more: true) } }
                 }
             }
             .padding(Space.margin)
@@ -281,10 +281,14 @@ struct Browse: View {
         Button { env.router.open(.listing(l.id)) } label: {
             VStack(alignment: .leading, spacing: Space.s4) {
                 MediaView(url: photo(l), aspectRatio: 1, cornerRadius: Radius.r12, label: Text(verbatim: l.title))
-                Text(verbatim: l.title).typeStyle(.sub).foregroundStyle(Color.chalk).multilineTextAlignment(.leading)
+                    .allowsHitTesting(false)
+                    .padding(.bottom, Space.s4)
+                Text(verbatim: l.title).typeStyle(.sub).foregroundStyle(Color.chalk).multilineTextAlignment(.leading).lineLimit(2)
                 Text(verbatim: Price.text(l.priceCents)).typeStyle(.readoutM).foregroundStyle(Color.chalk)
-                Text(verbatim: l.region).typeStyle(.foot).foregroundStyle(Color.dust)
+                Text(verbatim: l.region).typeStyle(.foot).foregroundStyle(Color.dust).lineLimit(1)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
@@ -301,9 +305,13 @@ struct Browse: View {
         Button { env.router.open(.listing(l.id)) } label: {
             VStack(alignment: .leading, spacing: Space.s4) {
                 MediaView(url: photo(l), aspectRatio: 16.0 / 9.0, cornerRadius: Radius.r12, label: Text(verbatim: l.title))
-                Text(verbatim: l.title).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                    .allowsHitTesting(false)
+                    .padding(.bottom, Space.s4)
+                Text(verbatim: l.title).typeStyle(.bodyStrong).foregroundStyle(Color.chalk).multilineTextAlignment(.leading)
                 Text(verbatim: Price.text(l.priceCents)).typeStyle(.readoutM).foregroundStyle(Color.chalk)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
@@ -344,7 +352,8 @@ struct ListingScreen: View {
                             Text(verbatim: Price.text(l.priceCents)).typeStyle(.readoutL).foregroundStyle(Color.chalk)
                                 .strikethrough(l.status == .sold)
                             if l.status == .sold {
-                                Text(l.kind == .wanted ? "Found" : "Sold").typeStyle(.label).foregroundStyle(Color.brake)
+                                (l.kind == .wanted ? Text("Found", bundle: .module) : Text("Sold", bundle: .module))
+                                    .typeStyle(.label).foregroundStyle(Color.brake)
                             }
                             if l.sellerID == me, l.isExpired() {
                                 Text("Expired", bundle: .module).typeStyle(.label).foregroundStyle(Color.dust)
@@ -365,6 +374,7 @@ struct ListingScreen: View {
                         if !l.description.isEmpty { Text(verbatim: l.description).typeStyle(.body).foregroundStyle(Color.chalk) }
                     }
                     .padding(.horizontal, Space.margin)
+                    .padding(.top, l.photos.isEmpty ? Space.s12 : 0)
                     if let s = seller {
                         Button { env.router.open(.profile(s.userID)) } label: {
                             Row(Text(verbatim: s.displayName), subtitle: Text("Member since \(s.createdAt.formatted(.dateTime.year()))", bundle: .module), leading: {
@@ -399,7 +409,7 @@ struct ListingScreen: View {
                                 }
                             }
                         }
-                    } label: { Image.symbol(Symbol.more).frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget) }
+                    } label: { Image.symbol(Symbol.more).foregroundStyle(Color.chalk).frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget) }
                     .accessibilityLabel(Text("More options", bundle: .module))
                 }
             }
@@ -413,6 +423,7 @@ struct ListingScreen: View {
     private func bar(_ l: Listing) -> some View {
         VStack(spacing: Space.s8) {
             Text("Meet in a public place. Waypoints doesn't handle payment.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
+                .frame(maxWidth: .infinity, alignment: .leading)
             HStack(spacing: Space.s12) {
                 if l.sellerID == me {
                     if l.isExpired() {
@@ -449,8 +460,10 @@ struct ListingScreen: View {
                 }
             }
         }
-        .padding(Space.margin)
+        .padding(.horizontal, Space.margin)
+        .padding(.vertical, Space.s12)
         .background(Color.tarmac)
+        .overlay(alignment: .top) { Hairline() }
     }
 
     private func condition(_ c: ListingCondition) -> String {
@@ -710,7 +723,8 @@ struct Yours: View {
                     SkeletonRow()
                 } else if list.isEmpty {
                     VStack(alignment: .leading, spacing: Space.s8) {
-                        Text(tab == 0 ? "You haven't listed anything." : "Nothing saved yet.").typeStyle(.body).foregroundStyle(Color.dust)
+                        (tab == 0 ? Text("You haven't listed anything.", bundle: .module) : Text("Nothing saved yet.", bundle: .module))
+                            .typeStyle(.body).foregroundStyle(Color.dust)
                         if tab == 0 { QuietButton("List something") { listing = true } }
                     }
                     .padding(Space.margin)
@@ -721,6 +735,7 @@ struct Yours: View {
                             MediaView(url: l.photos.first.map { env.media.publicURL(bucket: .listings, path: $0.path) }, aspectRatio: 1,
                                       cornerRadius: Radius.r6, label: Text(verbatim: l.title))
                                 .frame(width: Size.hitTarget, height: Size.hitTarget)
+                                .allowsHitTesting(false)
                         }, trailing: {
                             status(l).typeStyle(.foot)
                         })

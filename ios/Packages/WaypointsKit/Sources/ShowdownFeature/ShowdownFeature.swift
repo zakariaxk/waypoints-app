@@ -10,6 +10,10 @@ public enum ShowdownFeature: FeatureModule {
     @MainActor
     public static func register(in registry: FeatureRegistry, env: AppEnvironment) {
         registry.registerFeedMode(ShowdownMode(env: env))
+        #if DEBUG
+        registry.registerDebugScreen("showdown") { AnyView(NavigationStack { ShowdownView(env: env) }) }
+        registry.registerDebugScreen("rankings") { AnyView(NavigationStack { RankingsView(env: env, cls: .street) }) }
+        #endif
     }
 }
 
@@ -57,9 +61,10 @@ struct ShowdownView: View {
             .padding(.vertical, Space.s8)
             if let pair {
                 GeometryReader { geo in
+                    let height = (geo.size.height - Space.s2) / 2
                     VStack(spacing: Space.s2) {
-                        half(pair.left, top: true, height: geo.size.height / 2)
-                        half(pair.right, top: false, height: geo.size.height / 2)
+                        half(pair.left, top: true, width: geo.size.width, height: height)
+                        half(pair.right, top: false, width: geo.size.width, height: height)
                     }
                 }
             } else if loading {
@@ -87,16 +92,19 @@ struct ShowdownView: View {
         .task { if pair == nil { await next() } }
     }
 
-    private func half(_ c: ShowdownContender, top: Bool, height: CGFloat) -> some View {
+    private func half(_ c: ShowdownContender, top: Bool, width: CGFloat, height: CGFloat) -> some View {
         let isWinner = winner == c.car.id
         let hidden = winner != nil && !isWinner
         let paint = c.car.colorHex.flatMap { Color(paintHex: $0) } ?? .dust
         let est = VehicleSpec.from(variant: nil, car: c.car).map { estimate(base: $0, mods: c.car.mods.compactMap(ModCatalog.mod)) }
         return ZStack(alignment: top ? .bottomLeading : .topLeading) {
-            MediaView(url: c.photos.first.map { env.media.publicURL(bucket: .cars, path: $0.path) }, cornerRadius: 0,
+            // Full-bleed at the half's own ratio; taps go to the half (pick), not to the photo viewer.
+            MediaView(url: c.photos.first.map { env.media.publicURL(bucket: .cars, path: $0.path) },
+                      aspectRatio: width / max(isWinner ? height * 2 : height, 1), cornerRadius: 0,
                       label: Text(verbatim: c.car.fullLabel))
                 .frame(height: isWinner ? height * 2 : height)
                 .clipped()
+                .allowsHitTesting(false)
             VStack(alignment: .leading, spacing: Space.s4) {
                 Button { env.router.open(.car(c.car.id)) } label: { CarBadge(c.car.shortLabel, icon: c.owner.markerIcon, paint: paint) }
                 Text(verbatim: "@\(c.owner.handle)").typeStyle(.foot).foregroundStyle(Color.chalk)
@@ -239,6 +247,7 @@ struct RankingsView: View {
                     MediaView(url: c.photos.first.map { env.media.publicURL(bucket: .cars, path: $0.path) }, aspectRatio: 1,
                               cornerRadius: Radius.r6, label: Text(verbatim: c.car.shortLabel))
                         .frame(width: Size.hitTarget, height: Size.hitTarget)
+                        .allowsHitTesting(false)
                 }
             }, trailing: { Text(verbatim: "\(c.entry.rating)").typeStyle(.readoutS) })
         }

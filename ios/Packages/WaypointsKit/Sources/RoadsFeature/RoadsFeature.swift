@@ -237,7 +237,7 @@ struct RoadDetail: View {
                                     }
                                 }
                             }
-                        } label: { Image.symbol(Symbol.more).frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget) }
+                        } label: { Image.symbol(Symbol.more).foregroundStyle(Color.chalk).frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget) }
                         .accessibilityLabel(Text("More options", bundle: .module))
                     }
                 }
@@ -253,7 +253,7 @@ struct RoadDetail: View {
                 if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                 if ratingOpen {
                     RatingSteppers(rating: $rating)
-                    PrimaryButton("Save") {
+                    SecondaryButton("Save") {
                         Task {
                             do {
                                 try await env.roads.rate(roadID, rating)
@@ -292,12 +292,12 @@ struct RoadDetail: View {
             HStack {
                 Text(title).typeStyle(.sub).foregroundStyle(Color.chalk)
                 Spacer()
-                Text(verbatim: count == 0 ? "No ratings" : String(format: "%.1f · %d", value, count)).typeStyle(.readoutS).foregroundStyle(Color.dust)
+                Text(verbatim: count == 0 ? String(localized: "No ratings", bundle: .module) : String(format: "%.1f · %d", value, count)).typeStyle(.readoutS).foregroundStyle(Color.dust)
             }
             GeometryReader { g in
                 ZStack(alignment: .leading) {
                     Capsule().fill(Color.curb)
-                    Capsule().fill(Color.sodium).frame(width: g.size.width * value / 5)
+                    Capsule().fill(Color.chalk).frame(width: g.size.width * value / 5)
                 }
             }
             .frame(height: Size.rangeBar)
@@ -392,9 +392,9 @@ struct SaveStretch: View {
                 VStack(alignment: .leading, spacing: Space.s16) {
                     Map {
                         MapPolyline(coordinates: drive.points.map { CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude) })
-                            .stroke(Color.dust, lineWidth: 3)
+                            .stroke(Color.dust, lineWidth: Size.Route.alternate)
                         MapPolyline(coordinates: stretch.map { CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude) })
-                            .stroke(Color.sodium, lineWidth: 6)
+                            .stroke(Color.sodium, lineWidth: Size.Route.selected)
                     }
                     .frame(height: Size.row * 4)
                     .clipShape(RoundedRectangle(cornerRadius: Radius.r20))
