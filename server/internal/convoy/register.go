@@ -120,8 +120,15 @@ func Register(a *app.App) {
 
 // IsMember implements ws.ConvoyAuthority.
 func (s *Service) IsMember(id string, uid uint64) bool {
-	c := s.get(context.Background(), id)
-	return c != nil && !c.Ended && c.has(uid)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	c := s.get(ctx, id)
+	if c == nil {
+		return false
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return !c.Ended && c.has(uid)
 }
 
 // Snapshot implements ws.ConvoyAuthority.
@@ -204,24 +211,25 @@ func (s *Service) changed(ctx context.Context, c *Convoy) {
 	st := c.wire()
 	members := append([]uint64(nil), c.MemberUIDs...)
 	v := s.voice
-	if c.Ended {
+	ended := c.Ended
+	if ended {
 		delete(s.byID, c.ID)
 		delete(s.byCode, c.JoinCode)
 	}
 	s.mu.Unlock()
-	if c.Ended && v != nil {
+	if ended && v != nil {
 		go v.ConvoyEnded(c.ID)
 	}
 	if pool := s.store.Pool(); pool != nil {
 		_, _ = pool.Exec(ctx, `insert into public.convoys (id, join_code, state, ended, updated_at)
 			values ($1, $2, $3, $4, now())
 			on conflict (id) do update set state = excluded.state, ended = excluded.ended, updated_at = now()`,
-			c.ID, c.JoinCode, raw, c.Ended)
+			c.ID, c.JoinCode, raw, ended)
 	}
 	frame := &wire.ServerFrame{Body: &wire.ServerFrame_Convoy{Convoy: st}}
 	for _, m := range members {
 		s.ws.SendToUID(m, frame)
-		if c.Ended {
+		if ended {
 			s.ws.DropFromConvoy(c.ID, m)
 		}
 	}
@@ -256,7 +264,8 @@ func (s *Service) create(w http.ResponseWriter, r *http.Request, cl auth.Claims)
 		// Encoded polyline (precision 5) the convoy drives, e.g. a cruise's saved road (MEET-13).
 		Polyline string `json:"route_polyline"`
 	}
-	if api.Decode(r, &b) != nil || len([]rune(b.Name)) > 40 || len(b.Polyline) > maxPolyline {
+	if api.Decode(r, &b) != nil || len([]rune(b.Name)) > 40 || len(b.Polyline) > maxPolyline ||
+		(b.Destination != nil && !geo.Valid(geo.E7(b.Destination.Lat), geo.E7(b.Destination.Lng))) {
 		api.Error(w, http.StatusBadRequest, "bad body")
 		return
 	}
@@ -291,7 +300,7 @@ func (s *Service) join(w http.ResponseWriter, r *http.Request, cl auth.Claims) {
 	if c == nil {
 		c = s.load(r.Context(), "join_code = $1", code)
 	}
-	if c == nil || c.Ended {
+	if c == nil {
 		api.Error(w, http.StatusNotFound, "not found")
 		return
 	}
@@ -301,10 +310,15 @@ func (s *Service) join(w http.ResponseWriter, r *http.Request, cl auth.Claims) {
 		return
 	}
 	s.mu.Lock()
-	if !c.has(uid) {
+	ended := c.Ended
+	if !ended && !c.has(uid) {
 		c.MemberUIDs = append(c.MemberUIDs, uid)
 	}
 	s.mu.Unlock()
+	if ended {
+		api.Error(w, http.StatusNotFound, "not found")
+		return
+	}
 	s.changed(r.Context(), c)
 	s.awardJoin(r.Context(), cl.UserID, uid)
 	s.mu.Lock()
@@ -318,10 +332,15 @@ var errForbidden = errors.New("forbidden")
 
 func (s *Service) leaderConvoy(r *http.Request, cl auth.Claims) (*Convoy, error) {
 	c := s.get(r.Context(), r.PathValue("id"))
-	if c == nil || c.Ended {
+	if c == nil {
 		return nil, errors.New("not found")
 	}
 	uid, err := s.uid(r.Context(), cl.UserID)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if c.Ended {
+		return nil, errors.New("not found")
+	}
 	if err != nil || uid != c.LeaderUID {
 		return nil, errForbidden
 	}
@@ -427,7 +446,14 @@ func (s *Service) invite(w http.ResponseWriter, r *http.Request, cl auth.Claims)
 	}
 	c := s.get(r.Context(), r.PathValue("id"))
 	uid, err := s.uid(r.Context(), cl.UserID)
-	if c == nil || c.Ended || err != nil || !c.has(uid) {
+	if c != nil {
+		s.mu.Lock()
+		if c.Ended || !c.has(uid) {
+			c = nil
+		}
+		s.mu.Unlock()
+	}
+	if c == nil || err != nil {
 		api.Error(w, http.StatusNotFound, "not found")
 		return
 	}

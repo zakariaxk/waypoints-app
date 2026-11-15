@@ -248,6 +248,19 @@ func (s *shard) handle(c cmd) {
 			s.gc(tp)
 		}
 
+	case opForget:
+		if t := s.cell(tp.Key, false); t != nil {
+			for uid, u := range t.last {
+				if u.Remote {
+					delete(t.last, uid)
+					for sink := range t.subs {
+						s.gone(sink, tp, uid)
+					}
+				}
+			}
+			s.gc(tp)
+		}
+
 	case opJoinAgg:
 		t := s.agg(tp.Key, true)
 		if _, ok := t.members[c.uid]; !ok {

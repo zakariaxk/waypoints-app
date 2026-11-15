@@ -64,6 +64,7 @@ type Update struct {
 	At           time.Time // when the gateway accepted the fix
 	OriginMs     uint64    // publisher client_ms, only under -bench
 	Info         *Info
+	Remote       bool // received from another node over the bus
 }
 
 // Sink receives deliveries. Implementations must be fast and non-blocking:
@@ -88,6 +89,7 @@ const (
 	opJoinAgg
 	opLeaveAgg
 	opOffline
+	opForget
 )
 
 type cmd struct {

@@ -235,7 +235,11 @@ func (s *Service) deliver(ctx context.Context, token, env string, n Note) {
 		"url":  n.URL,
 		"kind": n.Kind,
 	})
-	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, host+"/3/device/"+token, bytes.NewReader(payload))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, host+"/3/device/"+token, bytes.NewReader(payload))
+	if err != nil { // a stored token that does not form a URL
+		s.failed.Inc()
+		return
+	}
 	req.Header.Set("authorization", "bearer "+jwtTok)
 	req.Header.Set("apns-topic", s.cfg.APNsTopic)
 	req.Header.Set("apns-push-type", "alert")

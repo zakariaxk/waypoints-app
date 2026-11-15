@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/coder/websocket"
@@ -130,7 +131,7 @@ func Register(a *app.App) {
 	_, _ = s.bus.Subscribe(MapEventSubject, func(m bus.Msg) { s.fanMapEvent(m.Data) })
 	a.Mux.HandleFunc("GET /v1/rt", s.serve)
 	a.Go("ws-suspensions", s.sweepSuspended)
-	a.OnStop("ws", func(context.Context) error { s.closeAll(); return nil })
+	a.OnStop("ws", func(ctx context.Context) error { s.closeAll(ctx); return nil })
 	app.Provide(a, s)
 }
 
@@ -214,16 +215,26 @@ func (s *Server) fanMapEvent(frame []byte) {
 	}
 }
 
-func (s *Server) closeAll() {
+func (s *Server) closeAll(ctx context.Context) {
 	s.mu.RLock()
 	var cs []*conn
 	for c := range s.conns {
 		cs = append(cs, c)
 	}
 	s.mu.RUnlock()
+	var wg sync.WaitGroup
 	for _, c := range cs {
-		c.sendError(wire.Error_SHUTTING_DOWN, "shutting down")
-		c.ws.Close(websocket.StatusGoingAway, "shutting down")
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			c.closeWith(wire.Error_SHUTTING_DOWN, "shutting down", websocket.StatusGoingAway)
+		}()
+	}
+	done := make(chan struct{})
+	go func() { wg.Wait(); close(done) }()
+	select {
+	case <-done:
+	case <-ctx.Done():
 	}
 }
 
@@ -272,7 +283,9 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 	defer ws.CloseNow() // the socket is hijacked: nothing else closes it when the client just drops
 	ws.SetReadLimit(maxFrameBytes)
 	c := &conn{s: s, ws: ws, log: s.a.Log.With("pkg", "ws")}
-	c.run(r.Context())
+	// The request context is cancelled the moment shutdown begins, which would drop the
+	// socket before closeAll can say why.
+	c.run(context.WithoutCancel(r.Context()))
 }
 
 // conn is one client.
@@ -286,9 +299,13 @@ type conn struct {
 
 	userID string
 	uid    uint64
-	expiry time.Time
+	expiry atomic.Int64 // token expiry, Unix ms; the reader refreshes it, the pinger enforces it
 	info   *hub.Info
 	out    *Outbox
+
+	// pubMu serialises a policy change with a location publish, so a cell publish
+	// decided under the old policy never lands after the leave the new one sent.
+	pubMu sync.Mutex
 
 	mu        sync.Mutex // guards the fields below (reader goroutine and bus callbacks)
 	settings  store.Settings
@@ -329,7 +346,9 @@ func (c *conn) run(ctx context.Context) {
 		c.closeWith(wire.Error_PROTOCOL_VERSION, "unsupported protocol", closeBadFrame)
 		return
 	}
-	claims, err := c.s.auth.Verify(ctx, hello.AccessToken)
+	lctx, lcancel := context.WithTimeout(ctx, helloTimeout)
+	defer lcancel()
+	claims, err := c.s.auth.Verify(lctx, hello.AccessToken)
 	if errors.Is(err, auth.ErrSuspended) {
 		c.closeWith(wire.Error_UNAUTHORIZED, "suspended", closeUnauthorized)
 		return
@@ -338,9 +357,10 @@ func (c *conn) run(ctx context.Context) {
 		c.closeWith(wire.Error_UNAUTHORIZED, "unauthorized", closeUnauthorized)
 		return
 	}
-	c.userID, c.expiry = claims.UserID, claims.Expiry
+	c.userID = claims.UserID
+	c.expiry.Store(claims.Expiry.UnixMilli())
 
-	prof, err := c.s.store.Profile(ctx, c.userID)
+	prof, err := c.s.store.Profile(lctx, c.userID)
 	if err != nil {
 		c.closeWith(wire.Error_UNAUTHORIZED, "no profile", closeUnauthorized)
 		return
@@ -349,14 +369,20 @@ func (c *conn) run(ctx context.Context) {
 	c.info = &hub.Info{MarkerIcon: prof.MarkerIcon, MarkerTrail: prof.MarkerTrail, PaintRGB: prof.PaintRGB,
 		DisplayName: prof.DisplayName, CarLabel: prof.CarLabel}
 
-	settings, err := c.s.priv.Acquire(ctx, c.userID)
+	// Without the user's settings and blocks nothing may be published for them: defaults
+	// would share more than they chose.
+	settings, err := c.s.priv.Acquire(lctx, c.userID)
 	if err != nil {
-		settings = store.DefaultSettings()
-	} else {
-		defer c.s.priv.Release(c.userID)
+		c.ws.Close(websocket.StatusTryAgainLater, "store unavailable")
+		return
 	}
+	defer c.s.priv.Release(c.userID)
 	c.settings = settings
-	rels, _ := c.s.store.Relations(ctx, c.userID)
+	rels, err := c.s.store.Relations(lctx, c.userID)
+	if err != nil {
+		c.ws.Close(websocket.StatusTryAgainLater, "store unavailable")
+		return
+	}
 
 	c.out = newOutbox(c.uid, rels.Blocked, func() {
 		c.s.m.slowClosed.Inc()
@@ -387,7 +413,9 @@ func (c *conn) run(ctx context.Context) {
 			c.mu.Lock()
 			c.settings = st
 			c.mu.Unlock()
+			c.pubMu.Lock()
 			c.updatePolicy(time.Now())
+			c.pubMu.Unlock()
 		}
 	})
 
@@ -399,11 +427,14 @@ func (c *conn) run(ctx context.Context) {
 			c.s.hub.Unsubscribe(hub.UserTopic(f), c.out)
 		}
 		for _, t := range rels.Teammates {
-			c.s.hub.Unsubscribe(hub.UserTopic(t), c.out)
+			if _, ok := friends[t]; !ok {
+				c.s.hub.Unsubscribe(hub.UserTopic(t), c.out)
+			}
 		}
 		c.mu.Lock()
-		cells, aggs, pubCell, pubAgg := c.cells, c.aggs, c.pubCell, c.pubAgg
+		cells, aggs, pubCell, pubAgg, convoy := c.cells, c.aggs, c.pubCell, c.pubAgg, c.convoy
 		c.mu.Unlock()
+		c.leaveConvoy(convoy)
 		for h := range cells {
 			c.s.hub.Unsubscribe(hub.CellTopic(h), c.out)
 		}
@@ -438,6 +469,10 @@ func (c *conn) startPinger(ctx context.Context, cancel context.CancelFunc) (stop
 	armed := make(chan struct{})
 	t = time.AfterFunc(pingEvery, func() {
 		<-armed
+		if time.Now().UnixMilli() > c.expiry.Load() {
+			c.closeWith(wire.Error_UNAUTHORIZED, "token expired", closeUnauthorized)
+			return
+		}
 		pctx, pcancel := context.WithTimeout(ctx, pongTimeout)
 		err := c.ws.Ping(pctx)
 		pcancel()
@@ -507,7 +542,7 @@ func (c *conn) reader(ctx context.Context) {
 		}
 		c.s.m.frames.Inc()
 		now := time.Now()
-		if now.After(c.expiry) {
+		if now.UnixMilli() > c.expiry.Load() {
 			c.closeWith(wire.Error_UNAUTHORIZED, "token expired", closeUnauthorized)
 			return
 		}
@@ -520,7 +555,7 @@ func (c *conn) reader(ctx context.Context) {
 			c.enqueue(&wire.ServerFrame{Body: &wire.ServerFrame_Pong{Pong: &wire.Pong{ClientMs: b.Ping.ClientMs, ServerMs: uint64(now.UnixMilli())}}})
 		case *wire.ClientFrame_RefreshToken:
 			if cl, err := c.s.auth.Verify(ctx, b.RefreshToken.AccessToken); err == nil && cl.UserID == c.userID {
-				c.expiry = cl.Expiry
+				c.expiry.Store(cl.Expiry.UnixMilli())
 			} else {
 				c.closeWith(wire.Error_UNAUTHORIZED, "unauthorized", closeUnauthorized)
 				return
@@ -547,7 +582,7 @@ func (c *conn) reader(ctx context.Context) {
 			c.mu.Lock()
 			id := c.convoy
 			c.mu.Unlock()
-			c.leaveConvoy(id)
+			c.s.DropFromConvoy(id, c.uid)
 			c.s.mu.RLock()
 			ca := c.s.cauth
 			c.s.mu.RUnlock()
@@ -662,6 +697,8 @@ func (c *conn) onLocation(l *wire.LocationUpdate, now time.Time) {
 		return
 	}
 	c.lastLoc = now
+	c.pubMu.Lock()
+	defer c.pubMu.Unlock()
 	heading := l.HeadingDeg
 	if heading > 360 {
 		heading = 360
@@ -716,7 +753,7 @@ func (c *conn) onLocation(l *wire.LocationUpdate, now time.Time) {
 		topic := hub.Topic{Kind: KindConvoy, Key: convoyKey(convoy)}
 		c.s.mu.RLock()
 		for m := range c.s.convoys[convoy] {
-			if m.uid != c.uid {
+			if m.uid != c.uid && !m.out.Blocks(c.uid) {
 				m.out.Deliver(topic, wire.Relation_CONVOY, precise)
 			}
 		}

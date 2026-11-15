@@ -101,7 +101,7 @@ func (b *bridge) decodeUpdate(r *remoteUpdate) *Update {
 	}
 	b.mu.Unlock()
 	return &Update{UID: r.UID, LatE7: r.LatE7, LngE7: r.LngE7, Heading: r.Heading, Tier: r.Tier,
-		At: time.UnixMilli(r.AtMs), OriginMs: r.OriginMs, Info: info}
+		At: time.UnixMilli(r.AtMs), OriginMs: r.OriginMs, Info: info, Remote: true}
 }
 
 func (b *bridge) publish(t Topic, m remoteMsg) {
@@ -130,6 +130,15 @@ func (b *bridge) ref(t Topic, delta int) {
 		if un := b.unsubs[s]; un != nil {
 			un()
 			delete(b.unsubs, s)
+			// Nothing keeps what other nodes published here current from now on. Drop it, so
+			// a later subscriber is never shown a position its publisher has since hidden.
+			if t.Kind == KindCell {
+				b.h.send(cmd{op: opForget, topic: t})
+			} else if _, here := b.local[t.Key]; !here {
+				delete(b.pols, t.Key)
+				delete(b.infos, t.Key)
+				b.h.send(cmd{op: opOffline, topic: t})
+			}
 		}
 	}
 }
@@ -154,6 +163,10 @@ func (b *bridge) ingest(t Topic, data []byte) {
 	case "user":
 		h.trySend(cmd{op: opPublishUser, topic: t, precise: b.decodeUpdate(m.Precise), approx: b.decodeUpdate(m.Approx)})
 	case "offline":
+		b.mu.Lock()
+		delete(b.pols, m.UID) // the shard forgets the policy too; the next one must count as a change
+		delete(b.infos, m.UID)
+		b.mu.Unlock()
 		h.send(cmd{op: opOffline, topic: t})
 	case "cell":
 		if u := b.decodeUpdate(m.Precise); u != nil {

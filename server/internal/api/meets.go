@@ -399,6 +399,10 @@ func (s *Service) updateMeet(w http.ResponseWriter, r *http.Request, c auth.Clai
 		return
 	}
 	ctx := r.Context()
+	if b.TeamID != nil && !s.canHostForTeam(ctx, pool, c.UserID, *b.TeamID) {
+		Error(w, http.StatusForbidden, "forbidden")
+		return
+	}
 	h3 := int64(geo.Cell(geo.E7(b.Lat), geo.E7(b.Lng), geo.ResCell))
 	dLat, dLng, dName := b.destArgs()
 	m, err := scanMeet(pool.QueryRow(ctx, `update public.meets set title = $2, kind = $3::public.meet_kind,
