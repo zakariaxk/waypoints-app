@@ -35,8 +35,9 @@ func askForNotifications() {
     let key = "notifications.asked"
     guard !UserDefaults.standard.bool(forKey: key) else { return }
     UserDefaults.standard.set(true, forKey: key)
-    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-        if granted { Task { @MainActor in UIApplication.shared.registerForRemoteNotifications() } }
+    Task {
+        let granted = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])
+        if granted == true { UIApplication.shared.registerForRemoteNotifications() }
     }
 }
 

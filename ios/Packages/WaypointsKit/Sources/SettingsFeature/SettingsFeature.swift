@@ -26,8 +26,9 @@ func askForNotifications() {
     let key = "notifications.asked"
     guard !UserDefaults.standard.bool(forKey: key) else { return }
     UserDefaults.standard.set(true, forKey: key)
-    UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, _ in
-        if granted { Task { @MainActor in UIApplication.shared.registerForRemoteNotifications() } }
+    Task {
+        let granted = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])
+        if granted == true { UIApplication.shared.registerForRemoteNotifications() }
     }
 }
 
@@ -300,9 +301,7 @@ struct NotificationsView: View {
         .task {
             prefs = (try? await env.profiles.notificationPrefs()) ?? NotificationPrefs()
             privacy = (try? await env.profiles.myPrivacySettings()) ?? .defaults
-            systemOff = await withCheckedContinuation { c in
-                UNUserNotificationCenter.current().getNotificationSettings { c.resume(returning: $0.authorizationStatus == .denied) }
-            }
+            systemOff = await notificationStatus() == .denied
         }
     }
 
@@ -493,4 +492,9 @@ enum SettingsUnits {
         let v = metric ? m : Measurement(value: (m.converted(to: .feet).value / 10).rounded() * 10, unit: UnitLength.feet)
         return v.formatted(.measurement(width: .abbreviated, usage: .asProvided, numberFormatStyle: .number.precision(.fractionLength(0))))
     }
+}
+
+/// Read off the main actor: `UNNotificationSettings` is not Sendable, its status is.
+private nonisolated func notificationStatus() async -> UNAuthorizationStatus {
+    await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
 }

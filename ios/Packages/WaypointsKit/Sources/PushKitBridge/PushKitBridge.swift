@@ -31,11 +31,8 @@ public enum PushKitBridge: FeatureModule {
 
     @MainActor
     static func registerIfAllowed() async {
-        let allowed = await withCheckedContinuation { c in
-            UNUserNotificationCenter.current().getNotificationSettings { s in
-                c.resume(returning: s.authorizationStatus == .authorized || s.authorizationStatus == .provisional)
-            }
-        }
+        let status = await notificationStatus()
+        let allowed = status == .authorized || status == .provisional
         if allowed { UIApplication.shared.registerForRemoteNotifications() }
     }
 
@@ -61,4 +58,9 @@ public enum PushKitBridge: FeatureModule {
             await MainActor.run { UIApplication.shared.open(url) }
         }
     }
+}
+
+/// Read off the main actor: `UNNotificationSettings` is not Sendable, its status is.
+private nonisolated func notificationStatus() async -> UNAuthorizationStatus {
+    await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
 }
