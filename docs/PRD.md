@@ -315,7 +315,7 @@ The gamified icon set. Earned by taking part, never bought, never for speed or d
 | ICN-3 | Every unlock has one requirement, stated in plain words, that rewards taking part: meets attended and hosted, reports confirmed, cars spotted, roads rated, timeline entries, votes cast, convoys led, virtual runs. The key table is plan 9.8 plus `ProgressFeature.unlocks`. | P0 | Coded |
 | ICN-4 | The marker picker shows a live preview, the icon and trail palettes, and for each locked item its requirement and exact progress ("Rally: get 10 reports confirmed. You're at 6."). There is no purchase path and no "coming soon". | P0 | Coded |
 | ICN-5 | Earning an unlock shows it once in the map sheet with "Use it". | P0 | Coded |
-| ICN-6 | Unlocks are awarded by database triggers, by the gateway for those that need presence (meet check-ins, convoys), and by the weekly Showdown close. | P0 | Partial: the weekly close does not exist (SHOW-7). |
+| ICN-6 | Unlocks are awarded by database triggers, by the gateway for those that need presence (meet check-ins, convoys), and by the weekly Showdown close. | P0 | Coded: the weekly close (`w6-8_showdown_week`, SHOW-7) awards `showdown_top10`; it needs pg_cron on the project. |
 | ICN-7 | A profile shows the icons its owner has earned. | P1 | Coded |
 
 ### 4.5 Search, routes, and navigation (NAV)
