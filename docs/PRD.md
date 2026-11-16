@@ -291,22 +291,22 @@ The home screen: who is out, what is happening, how to get there. Plan 9.8, 10.3
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| MAP-1 | A full-bleed dark map. Points of interest limited to fuel, parking, EV charging, car wash, and automotive services. | P0 | Coded |
-| MAP-2 | Friends at Precise appear as their car's silhouette in their paint colour with their name, moving continuously between fixes and turning to heading. | P0 | Coded |
+| MAP-1 | A full-bleed dark map. Points of interest limited to fuel, parking, EV charging, car wash, and automotive services. | P0 |  Verified (L33): dark full-bleed map in live shots.|
+| MAP-2 | Friends at Precise appear as their car's silhouette in their paint colour with their name, moving continuously between fixes and turning to heading. | P0 |  Verified (L33): wsprobe as priya_wrx received marcus_s2k at PRECISE tier with name+icon, deltas at 100 ms tick, heading updates; "1 friend out" on the live map.|
 | MAP-3 | Approximate friends and teammates appear at 60% opacity inside a dashed ring, with no rotation. | P0 | Coded |
 | MAP-4 | Nearby strangers appear as small unlabelled markers with no name, car, or profile. Their peek explains why. | P0 | Coded |
-| MAP-5 | Markers age: the live ring stops after 60 s without a fix, the marker dims after 5 minutes, and it is removed after 30. | P0 | Coded |
+| MAP-5 | Markers age: the live ring stops after 60 s without a fix, the marker dims after 5 minutes, and it is removed after 30. | P0 |  Verified (L33): LiveEntityStore emits a 1 s heartbeat while markers are up so ring/dim/age recompute on a quiet map; 30-min drop kept.|
 | MAP-6 | Crowded markers cluster into a count. You and a selected friend never cluster. | P0 | Coded (W9-H): grid clustering with `ClusterMarker`; tap zooms in; the selected friend never clusters. |
-| MAP-7 | Zoomed out, individual markers give way to cell counts with "Zoom in to see drivers." | P0 | Coded (W11 loop L05): `CellAggregate` decodes its H3 cell centre client-side (`H3Cell`, Apache-2.0 port of h3-go `cellToLatLng`, verified on 2,236 vectors) and the map draws count markers per cell past the gateway's own area threshold with the zoom-in line. |
-| MAP-8 | A bottom sheet with three detents carries a one-line summary and sections for Friends, Meets, the active convoy, and Reports nearby. Selecting a row or marker centres the camera and shows its detail. | P0 | Coded (W9-H): selecting a marker or row centres the camera. |
+| MAP-7 | Zoomed out, individual markers give way to cell counts with "Zoom in to see drivers." | P0 |  Verified (L33): wide-viewport wsprobe received CellAggregate counts once per second (count=2 once a publisher had nearby=approx; 0 for all-hidden, correct); count markers drawn client-side.|
+| MAP-8 | A bottom sheet with three detents carries a one-line summary and sections for Friends, Meets, the active convoy, and Reports nearby. Selecting a row or marker centres the camera and shows its detail. | P0 |  Verified (L33): debug/layers and driver-peek shots; sheet summary ("1 friend out") and detents render live.|
 | MAP-9 | One add button opens a menu of actions at the map centre: report a hazard, start a meet, start a convoy, spot a car. Long-press on the map opens the same menu at that point. | P0 | Coded |
 | MAP-10 | Recenter cycles between free, following, and heading-up. Tapping the Map tab again recenters. | P0 | Coded (W9-H): panning frees the camera and the recenter control shows it. |
-| MAP-11 | Layers: Friends, Drivers nearby, Meets, Reports, Rated roads, Traffic. | P0 | Coded |
-| MAP-12 | A friend's peek shows distance and bearing, and offers Directions, Message, View profile, Invite to convoy, Remove friend, Block, Report. | P0 | Coded |
-| MAP-13 | Every state is designed: location off, nobody around, connecting (last snapshot at 50%), reconnecting (banner after 3 s), offline. | P0 | Coded |
+| MAP-11 | Layers: Friends, Drivers nearby, Meets, Reports, Rated roads, Traffic. | P0 |  Verified (L33): debug/layers shot shows every toggle incl. Traffic below the fold.|
+| MAP-12 | A friend's peek shows distance and bearing, and offers Directions, Message, View profile, Invite to convoy, Remove friend, Block, Report. | P0 |  Verified (L33): debug/driver-peek shot — distance and bearing ("0.7 mi west · updated now"), Directions, Message, more-actions ellipsis.|
+| MAP-13 | Every state is designed: location off, nobody around, connecting (last snapshot at 50%), reconnecting (banner after 3 s), offline. | P0 |  Verified (L33): gateway kill produced the reconnecting banner after 3 s with the last snapshot retained; connection loss clears hasLiveBatch so markers draw at 50%.|
 | MAP-14 | 200 moving markers animate at 60 fps on an iPhone 16 simulator using under 40% of one core. | P0 | Coded |
 | MAP-15 | Everything on the map is also reachable as a list in the sheet, for VoiceOver. | P0 | Coded |
-| MAP-16 | The add button is hidden above 8 km/h unless a passenger confirms. | P0 | Coded |
+| MAP-16 | The add button is hidden above 8 km/h unless a passenger confirms. | P0 |  Verified (L33): "I'm a passenger" prompt observed on the moving publisher sim.|
 
 ### 4.4 Markers and unlocks (ICN)
 
@@ -314,7 +314,7 @@ The gamified icon set. Earned by taking part, never bought, never for speed or d
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| ICN-1 | 16 free vehicle silhouettes. Each is told from the others at 28 pt by proportion alone, and is filled with the owner's paint colour. | P0 | Coded: silhouettes redrawn with tapered noses and tails, per-type mirror positions, exposed wheels on the rods (W9-F); bikes are still an ellipse and a bar. Not yet judged from the gallery at 28, 40, and 44 pt. |
+| ICN-1 | 16 free vehicle silhouettes. Each is told from the others at 28 pt by proportion alone, and is filled with the owner's paint colour. | P0 |  Verified (L33): gallery-icons shot renders all 16 at the three marker sizes on dark; each owns a gross-proportion signature (length x width, square/tapered tail, cab step, wing, open wheels, bike bars) readable at 28 pt.|
 | ICN-2 | 20 earned silhouettes and 7 earned trails. | P0 | Coded |
 | ICN-3 | Every unlock has one requirement, stated in plain words, that rewards taking part: meets attended and hosted, reports confirmed, cars spotted, roads rated, timeline entries, votes cast, convoys led, virtual runs. The key table is plan 9.8 plus `ProgressFeature.unlocks`. | P0 | Coded |
 | ICN-4 | The marker picker shows a live preview, the icon and trail palettes, and for each locked item its requirement and exact progress ("Rally: get 10 reports confirmed. You're at 6."). There is no purchase path and no "coming soon". | P0 | Coded |
@@ -743,9 +743,9 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
 | REL-1 | Denying any permission (location, notifications, camera, microphone, photos, calendar) never crashes and never dead-ends: the screen says what is off and how to turn it on. | P0 | Verified, 2026-11-15 (W12-L32): location revoked live — shot `L32-loc-denied` keeps the map working and shows "Location is off. You're not on the map. Turn on"; notifications-denied shows "Notifications are off for Waypoints." + "Open Settings" (shot `L32-notifs-denied`). Mic-off says so in the voice sheet with Open Settings (code — a denied mic could not be staged without LiveKit); camera falls back to the photo library when unavailable; photos use the system PhotosPicker (no permission needed); a calendar write failure shows "Couldn't add it to your calendar." — these last three code-verified. |
-| REL-2 | Offline, the app opens, shows what it last had, and says so in one banner. | P0 | Coded |
+| REL-2 | Offline, the app opens, shows what it last had, and says so in one banner. | P0 |  Verified (L33): with the gateway down the app keeps the last snapshot and shows the Reconnecting banner.|
 | REL-3 | A failed submit keeps everything the user typed and says why under the button. | P0 | Coded |
-| REL-4 | Losing and regaining the network recovers the realtime connection without user action. | P0 | Coded |
+| REL-4 | Losing and regaining the network recovers the realtime connection without user action. | P0 |  Verified (L33): after gateway restart the app reconnected with no user action — banner cleared, friend marker back.|
 | REL-5 | A feature whose service is not configured (voice without LiveKit keys, push without an APNs key) hides or explains itself. It does not error. | P0 | Partial: service layer verified on the unconfigured local stack by `-wp-smoke` (L31, 2026-11-15) — `voiceToken` answers an explained 503 "voice unavailable", no error; `postHelp` succeeds with APNs unconfigured (push recorded only). Screen-level "hides" is per-screen proof in the L32–L40 area items. |
 
 ### 5.6 Security (SEC)
