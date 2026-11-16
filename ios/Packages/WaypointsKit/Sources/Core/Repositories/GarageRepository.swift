@@ -9,6 +9,10 @@ public protocol GarageRepository: Sendable {
     func deleteCar(_ id: CarID) async throws
     func reorderCars(_ ids: [CarID]) async throws
 
+    /// GAR-5: distinct paint names other owners gave cars of this make, for the
+    /// colour step's suggestions. `cars` is already readable where the owner isn't blocked.
+    func paintNames(forMake make: String) async throws -> [String]
+
     func photos(of car: CarID) async throws -> [CarPhoto]
     @discardableResult func addPhoto(to car: CarID, media: StoredMedia) async throws -> CarPhoto
     func removePhoto(_ id: CarPhotoID) async throws

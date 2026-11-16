@@ -23,8 +23,13 @@ import sys
 APP_CATALOG = os.path.join(os.path.dirname(__file__), "..", "..", "ios", "App", "Localizable.xcstrings")
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..", "ios", "Packages", "WaypointsKit", "Sources")
 
-# A Swift string literal that may contain simple interpolations without nested quotes.
-LIT = r'"((?:[^"\\\n]|\\[^(\n]|\\\((?:[^"()\n]|\([^"()\n]*\))*\))*)"'
+# A Swift string literal that may contain interpolations with up to three levels of
+# nested parentheses (e.g. \(Set(list.map(\.id)).count)).
+P1 = r'\([^"()\n]*\)'
+P2 = r'\((?:[^"()\n]|%s)*\)' % P1
+P3 = r'\((?:[^"()\n]|%s)*\)' % P2
+EXPR = r'\\\((?:[^"()\n]|%s)*\)' % P3
+LIT = r'"((?:[^"\\\n]|\\[^(\n]|%s)*)"' % EXPR
 
 # Calls whose literal argument is user-facing copy (DesignSystem components take LocalizedStringKey).
 COMPONENTS = ("Text|PrimaryButton|SecondaryButton|QuietButton|DestructiveButton|EmptyState|SectionLabel|"
@@ -52,7 +57,7 @@ STRING_CONTEXTS = [
     re.compile(r'(^\s*static let \w+\s+=\s+)%s(?=\s*$)' % SENTENCE, re.M),
     re.compile(r'(^\s*case [^"\n]*:\s+)%s(?=\s*$)' % SENTENCE, re.M),
 ]
-INTERP = re.compile(r'\\\((?:[^"()\n]|\([^"()\n]*\))*\)')
+INTERP = re.compile(EXPR)
 
 # SwiftUI's LocalizedStringKey picks the format specifier from the interpolation's
 # type: %@ for objects/strings, %lld for integers, %f for floating point. The

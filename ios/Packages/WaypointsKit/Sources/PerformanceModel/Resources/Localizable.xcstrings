@@ -342,6 +342,17 @@
         }
       }
     },
+    "Performance camshaft": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Árbol de levas de competición"
+          }
+        }
+      }
+    },
     "Pops and burble map": {
       "extractionState": "manual",
       "localizations": {
@@ -525,6 +536,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Turbo mejorado"
+          }
+        }
+      }
+    },
+    "Water-methanol injection": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inyección de agua-metanol"
           }
         }
       }

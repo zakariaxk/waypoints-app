@@ -38,6 +38,10 @@ extension PreviewStore: GarageRepository {
         buildEntries.removeAll { $0.carID == id }
         carsChanged(of: me)
     }
+    public func paintNames(forMake make: String) async throws -> [String] {
+        cars.values.filter { $0.make.caseInsensitiveCompare(make) == .orderedSame }
+            .compactMap(\.paintName).reduce(into: [String]()) { if !$0.contains($1) { $0.append($1) } }.sorted()
+    }
     public func reorderCars(_ ids: [CarID]) async throws {
         let me = try me()
         for (index, id) in ids.enumerated() where cars[id]?.ownerID == me { cars[id]?.sort = index }

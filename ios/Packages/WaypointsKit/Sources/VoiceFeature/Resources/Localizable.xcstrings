@@ -2,7 +2,15 @@
   "sourceLanguage": "en",
   "strings": {
     "%@, muted": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, silenciado"
+          }
+        }
+      }
     },
     "%@, speaking": {
       "extractionState": "manual",
@@ -16,7 +24,15 @@
       }
     },
     "%f, muted": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, silenciado"
+          }
+        }
+      }
     },
     "%f, speaking": {
       "extractionState": "manual",
@@ -24,13 +40,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@, hablando"
+            "value": "%f, hablando"
           }
         }
       }
     },
     "%lld, muted": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, silenciado"
+          }
+        }
+      }
     },
     "%lld, speaking": {
       "extractionState": "manual",
@@ -38,7 +62,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@, hablando"
+            "value": "%lld, hablando"
           }
         }
       }
@@ -154,7 +178,15 @@
       }
     },
     "Report": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reportar"
+          }
+        }
+      }
     },
     "Speaking": {
       "extractionState": "manual",

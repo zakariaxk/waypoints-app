@@ -13,7 +13,15 @@
       }
     },
     "%@ seconds behind": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ s de retraso"
+          }
+        }
+      }
     },
     "%f drivers": {
       "extractionState": "manual",
@@ -21,13 +29,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ conductores"
+            "value": "%f conductores"
           }
         }
       }
     },
     "%f seconds behind": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f s de retraso"
+          }
+        }
+      }
     },
     "%lld drivers": {
       "extractionState": "manual",
@@ -35,13 +51,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ conductores"
+            "value": "%lld conductores"
           }
         }
       }
     },
     "%lld seconds behind": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld s de retraso"
+          }
+        }
+      }
     },
     "6 characters": {
       "extractionState": "manual",
@@ -66,7 +90,15 @@
       }
     },
     "Change": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cambiar"
+          }
+        }
+      }
     },
     "Code": {
       "extractionState": "manual",
@@ -102,7 +134,15 @@
       }
     },
     "Couldn't change the destination. Check your connection and try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cambiar el destino. Comprueba tu conexión e inténtalo de nuevo."
+          }
+        }
+      }
     },
     "Couldn't clear the regroup point. Check your connection and try again.": {
       "extractionState": "manual",
@@ -242,7 +282,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Terminar la caravana para los %@ conductores?"
+            "value": "¿Terminar la caravana para los %f conductores?"
           }
         }
       }
@@ -253,7 +293,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Terminar la caravana para los %@ conductores?"
+            "value": "¿Terminar la caravana para los %lld conductores?"
           }
         }
       }
@@ -286,7 +326,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Camino a %@"
+            "value": "Camino a %f"
           }
         }
       }
@@ -297,7 +337,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Camino a %@"
+            "value": "Camino a %lld"
           }
         }
       }
@@ -468,7 +508,15 @@
       }
     },
     "Report": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reportar"
+          }
+        }
+      }
     },
     "Rolling": {
       "extractionState": "manual",
@@ -493,10 +541,26 @@
       }
     },
     "Set a destination": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige un destino"
+          }
+        }
+      }
     },
     "Set destination": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fijar destino"
+          }
+        }
+      }
     },
     "Set regroup point": {
       "extractionState": "manual",

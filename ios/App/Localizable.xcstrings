@@ -18,7 +18,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%@ en %f"
           }
         }
       }
@@ -29,7 +29,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%@ en %lld"
           }
         }
       }
@@ -40,7 +40,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%f en %@"
           }
         }
       }
@@ -51,7 +51,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%f en %f"
           }
         }
       }
@@ -62,7 +62,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%f en %lld"
           }
         }
       }
@@ -73,7 +73,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%lld en %@"
           }
         }
       }
@@ -84,7 +84,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%lld en %f"
           }
         }
       }
@@ -95,7 +95,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%lld en %lld"
           }
         }
       }
@@ -150,7 +150,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %@ · %f avistado"
           }
         }
       }
@@ -161,7 +161,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %@ · %lld avistado"
           }
         }
       }
@@ -172,7 +172,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%@ %f"
           }
         }
       }
@@ -183,7 +183,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%@ %f del mes"
           }
         }
       }
@@ -194,7 +194,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %f · %@ avistado"
           }
         }
       }
@@ -205,7 +205,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %f · %f avistado"
           }
         }
       }
@@ -216,7 +216,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %f · %lld avistado"
           }
         }
       }
@@ -227,7 +227,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%@ %lld"
           }
         }
       }
@@ -238,7 +238,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%@ %lld del mes"
           }
         }
       }
@@ -249,7 +249,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %lld · %@ avistado"
           }
         }
       }
@@ -260,7 +260,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %lld · %f avistado"
           }
         }
       }
@@ -271,7 +271,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %lld · %lld avistado"
           }
         }
       }
@@ -293,7 +293,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%@ Estás en %f."
           }
         }
       }
@@ -304,7 +304,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%@ Estás en %lld."
           }
         }
       }
@@ -381,7 +381,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%@ en %f"
           }
         }
       }
@@ -392,7 +392,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%@ en %lld"
           }
         }
       }
@@ -419,6 +419,18 @@
         }
       }
     },
+    "%@ models": {
+      "extractionState": "manual"
+    },
+    "%@ needs %@": {
+      "extractionState": "manual"
+    },
+    "%@ needs %f": {
+      "extractionState": "manual"
+    },
+    "%@ needs %lld": {
+      "extractionState": "manual"
+    },
     "%@ needs a tune": {
       "extractionState": "manual",
       "localizations": {
@@ -431,7 +443,15 @@
       }
     },
     "%@ new": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nuevos"
+          }
+        }
+      }
     },
     "%@ of %@ cars": {
       "extractionState": "manual",
@@ -461,7 +481,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%@ de %f coches"
           }
         }
       }
@@ -472,7 +492,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%@ de %f tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
@@ -483,7 +503,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%@ de %lld coches"
           }
         }
       }
@@ -494,7 +514,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%@ de %lld tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
@@ -511,16 +531,48 @@
       }
     },
     "%@ of 5": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de 5"
+          }
+        }
+      }
     },
     "%@ of 5 · %@ ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de 5 · %@ valoraciones"
+          }
+        }
+      }
     },
     "%@ of 5 · %f ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de 5 · %f valoraciones"
+          }
+        }
+      }
     },
     "%@ of 5 · %lld ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de 5 · %lld valoraciones"
+          }
+        }
+      }
     },
     "%@ on the way": {
       "extractionState": "manual",
@@ -534,7 +586,15 @@
       }
     },
     "%@ rating": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ valoraciones"
+          }
+        }
+      }
     },
     "%@ reported": {
       "extractionState": "manual",
@@ -575,7 +635,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %@ caballos, %f lb-pie"
           }
         }
       }
@@ -586,7 +646,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %@ caballos, %lld lb-pie"
           }
         }
       }
@@ -597,7 +657,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %f caballos, %@ lb-pie"
           }
         }
       }
@@ -608,7 +668,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %f caballos, %f lb-pie"
           }
         }
       }
@@ -619,7 +679,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %f caballos, %lld lb-pie"
           }
         }
       }
@@ -630,7 +690,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %lld caballos, %@ lb-pie"
           }
         }
       }
@@ -641,7 +701,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %lld caballos, %f lb-pie"
           }
         }
       }
@@ -652,7 +712,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %lld caballos, %lld lb-pie"
           }
         }
       }
@@ -669,7 +729,15 @@
       }
     },
     "%@ seconds behind": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ s de retraso"
+          }
+        }
+      }
     },
     "%@ to %@": {
       "extractionState": "manual",
@@ -688,7 +756,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%@ a %f"
           }
         }
       }
@@ -699,7 +767,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%@ a %lld"
           }
         }
       }
@@ -716,7 +784,15 @@
       }
     },
     "%@ votes": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ votos"
+          }
+        }
+      }
     },
     "%@%@": {
       "extractionState": "manual",
@@ -757,7 +833,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%@, visto por última vez hace %f minutos"
           }
         }
       }
@@ -768,7 +844,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%@, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -790,7 +866,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%@%f"
           }
         }
       }
@@ -801,7 +877,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%@%f, ahora mismo"
           }
         }
       }
@@ -812,7 +888,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%f, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -823,7 +899,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%f, visto por última vez hace %f minutos"
           }
         }
       }
@@ -834,7 +910,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%f, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -845,7 +921,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%@%f, en movimiento"
           }
         }
       }
@@ -856,7 +932,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%@%lld"
           }
         }
       }
@@ -867,7 +943,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%@%lld, ahora mismo"
           }
         }
       }
@@ -878,7 +954,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%lld, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -889,7 +965,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%lld, visto por última vez hace %f minutos"
           }
         }
       }
@@ -900,7 +976,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%lld, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -911,10 +987,19 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%@%lld, en movimiento"
           }
         }
       }
+    },
+    "%@'s run · %@ s": {
+      "extractionState": "manual"
+    },
+    "%@'s run · %f s": {
+      "extractionState": "manual"
+    },
+    "%@'s run · %lld s": {
+      "extractionState": "manual"
     },
     "%@, locked": {
       "extractionState": "manual",
@@ -928,7 +1013,15 @@
       }
     },
     "%@, muted": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, silenciado"
+          }
+        }
+      }
     },
     "%@, speaking": {
       "extractionState": "manual",
@@ -947,7 +1040,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@"
+            "value": "%f"
           }
         }
       }
@@ -958,7 +1051,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%f %@"
           }
         }
       }
@@ -969,7 +1062,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%f %@ del mes"
           }
         }
       }
@@ -980,7 +1073,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %@ · %@ avistado"
           }
         }
       }
@@ -991,7 +1084,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %@ · %f avistado"
           }
         }
       }
@@ -1002,7 +1095,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %@ · %lld avistado"
           }
         }
       }
@@ -1013,7 +1106,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%f %f"
           }
         }
       }
@@ -1024,7 +1117,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%f %f del mes"
           }
         }
       }
@@ -1035,7 +1128,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %f · %@ avistado"
           }
         }
       }
@@ -1046,7 +1139,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %f · %f avistado"
           }
         }
       }
@@ -1057,7 +1150,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %f · %lld avistado"
           }
         }
       }
@@ -1068,7 +1161,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%f %lld"
           }
         }
       }
@@ -1079,7 +1172,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%f %lld del mes"
           }
         }
       }
@@ -1090,7 +1183,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %lld · %@ avistado"
           }
         }
       }
@@ -1101,7 +1194,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %lld · %f avistado"
           }
         }
       }
@@ -1112,7 +1205,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %lld · %lld avistado"
           }
         }
       }
@@ -1123,7 +1216,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%f Estás en %@."
           }
         }
       }
@@ -1134,7 +1227,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%f Estás en %f."
           }
         }
       }
@@ -1145,7 +1238,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%f Estás en %lld."
           }
         }
       }
@@ -1156,7 +1249,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quedan %@ caracteres"
+            "value": "Quedan %f caracteres"
           }
         }
       }
@@ -1167,7 +1260,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ vienen"
+            "value": "%f vienen"
           }
         }
       }
@@ -1178,7 +1271,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ conductores"
+            "value": "%f conductores"
           }
         }
       }
@@ -1189,7 +1282,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ amigos circulando"
+            "value": "%f amigos circulando"
           }
         }
       }
@@ -1200,7 +1293,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Icono de %@, conseguido"
+            "value": "Icono de %f, conseguido"
           }
         }
       }
@@ -1211,7 +1304,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%f en %@"
           }
         }
       }
@@ -1222,7 +1315,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%f en %f"
           }
         }
       }
@@ -1233,7 +1326,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%f en %lld"
           }
         }
       }
@@ -1244,7 +1337,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en voz"
+            "value": "%f en voz"
           }
         }
       }
@@ -1255,10 +1348,22 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ miembros"
+            "value": "%f miembros"
           }
         }
       }
+    },
+    "%f models": {
+      "extractionState": "manual"
+    },
+    "%f needs %@": {
+      "extractionState": "manual"
+    },
+    "%f needs %f": {
+      "extractionState": "manual"
+    },
+    "%f needs %lld": {
+      "extractionState": "manual"
     },
     "%f needs a tune": {
       "extractionState": "manual",
@@ -1266,13 +1371,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ necesita puesta a punto"
+            "value": "%f necesita puesta a punto"
           }
         }
       }
     },
     "%f new": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f nuevos"
+          }
+        }
+      }
     },
     "%f of %@ cars": {
       "extractionState": "manual",
@@ -1280,7 +1393,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%f de %@ coches"
           }
         }
       }
@@ -1291,7 +1404,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%f de %@ tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
@@ -1302,7 +1415,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%f de %f coches"
           }
         }
       }
@@ -1313,7 +1426,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%f de %f tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
@@ -1324,7 +1437,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%f de %lld coches"
           }
         }
       }
@@ -1335,7 +1448,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%f de %lld tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
@@ -1346,22 +1459,54 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de 3 encendidos"
+            "value": "%f de 3 encendidos"
           }
         }
       }
     },
     "%f of 5": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f de 5"
+          }
+        }
+      }
     },
     "%f of 5 · %@ ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f de 5 · %@ valoraciones"
+          }
+        }
+      }
     },
     "%f of 5 · %f ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f de 5 · %f valoraciones"
+          }
+        }
+      }
     },
     "%f of 5 · %lld ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f de 5 · %lld valoraciones"
+          }
+        }
+      }
     },
     "%f on the way": {
       "extractionState": "manual",
@@ -1369,13 +1514,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en camino"
+            "value": "%f en camino"
           }
         }
       }
     },
     "%f rating": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f valoraciones"
+          }
+        }
+      }
     },
     "%f reported": {
       "extractionState": "manual",
@@ -1383,7 +1536,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ reportados"
+            "value": "%f reportados"
           }
         }
       }
@@ -1394,7 +1547,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm"
+            "value": "%f rpm"
           }
         }
       }
@@ -1405,7 +1558,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %@ caballos, %@ lb-pie"
           }
         }
       }
@@ -1416,7 +1569,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %@ caballos, %f lb-pie"
           }
         }
       }
@@ -1427,7 +1580,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %@ caballos, %lld lb-pie"
           }
         }
       }
@@ -1438,7 +1591,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %f caballos, %@ lb-pie"
           }
         }
       }
@@ -1449,7 +1602,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %f caballos, %f lb-pie"
           }
         }
       }
@@ -1460,7 +1613,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %f caballos, %lld lb-pie"
           }
         }
       }
@@ -1471,7 +1624,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %lld caballos, %@ lb-pie"
           }
         }
       }
@@ -1482,7 +1635,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %lld caballos, %f lb-pie"
           }
         }
       }
@@ -1493,7 +1646,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %lld caballos, %lld lb-pie"
           }
         }
       }
@@ -1504,13 +1657,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, cambia ya"
+            "value": "%f rpm, cambia ya"
           }
         }
       }
     },
     "%f seconds behind": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f s de retraso"
+          }
+        }
+      }
     },
     "%f to %@": {
       "extractionState": "manual",
@@ -1518,7 +1679,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%f a %@"
           }
         }
       }
@@ -1529,7 +1690,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%f a %f"
           }
         }
       }
@@ -1540,7 +1701,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%f a %lld"
           }
         }
       }
@@ -1551,13 +1712,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ sin leer"
+            "value": "%f sin leer"
           }
         }
       }
     },
     "%f votes": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f votos"
+          }
+        }
+      }
     },
     "%f%@": {
       "extractionState": "manual",
@@ -1565,7 +1734,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%f%@"
           }
         }
       }
@@ -1576,7 +1745,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%f%@, ahora mismo"
           }
         }
       }
@@ -1587,7 +1756,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%@, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -1598,7 +1767,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%@, visto por última vez hace %f minutos"
           }
         }
       }
@@ -1609,7 +1778,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%@, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -1620,7 +1789,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%f%@, en movimiento"
           }
         }
       }
@@ -1631,7 +1800,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%f%f"
           }
         }
       }
@@ -1642,7 +1811,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%f%f, ahora mismo"
           }
         }
       }
@@ -1653,7 +1822,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%f, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -1664,7 +1833,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%f, visto por última vez hace %f minutos"
           }
         }
       }
@@ -1675,7 +1844,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%f, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -1686,7 +1855,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%f%f, en movimiento"
           }
         }
       }
@@ -1697,7 +1866,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%f%lld"
           }
         }
       }
@@ -1708,7 +1877,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%f%lld, ahora mismo"
           }
         }
       }
@@ -1719,7 +1888,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%lld, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -1730,7 +1899,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%lld, visto por última vez hace %f minutos"
           }
         }
       }
@@ -1741,7 +1910,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%lld, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -1752,10 +1921,19 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%f%lld, en movimiento"
           }
         }
       }
+    },
+    "%f's run · %@ s": {
+      "extractionState": "manual"
+    },
+    "%f's run · %f s": {
+      "extractionState": "manual"
+    },
+    "%f's run · %lld s": {
+      "extractionState": "manual"
     },
     "%f, locked": {
       "extractionState": "manual",
@@ -1763,13 +1941,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@, bloqueado"
+            "value": "%f, bloqueado"
           }
         }
       }
     },
     "%f, muted": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, silenciado"
+          }
+        }
+      }
     },
     "%f, speaking": {
       "extractionState": "manual",
@@ -1777,7 +1963,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@, hablando"
+            "value": "%f, hablando"
           }
         }
       }
@@ -1788,7 +1974,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@"
+            "value": "%lld"
           }
         }
       }
@@ -1799,7 +1985,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%lld %@"
           }
         }
       }
@@ -1810,7 +1996,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%lld %@ del mes"
           }
         }
       }
@@ -1821,7 +2007,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %@ · %@ avistado"
           }
         }
       }
@@ -1832,7 +2018,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %@ · %f avistado"
           }
         }
       }
@@ -1843,7 +2029,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %@ · %lld avistado"
           }
         }
       }
@@ -1854,7 +2040,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%lld %f"
           }
         }
       }
@@ -1865,7 +2051,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%lld %f del mes"
           }
         }
       }
@@ -1876,7 +2062,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %f · %@ avistado"
           }
         }
       }
@@ -1887,7 +2073,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %f · %f avistado"
           }
         }
       }
@@ -1898,7 +2084,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %f · %lld avistado"
           }
         }
       }
@@ -1909,7 +2095,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%lld %lld"
           }
         }
       }
@@ -1920,7 +2106,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%lld %lld del mes"
           }
         }
       }
@@ -1931,7 +2117,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %lld · %@ avistado"
           }
         }
       }
@@ -1942,7 +2128,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %lld · %f avistado"
           }
         }
       }
@@ -1953,7 +2139,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %lld · %lld avistado"
           }
         }
       }
@@ -1964,7 +2150,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%lld Estás en %@."
           }
         }
       }
@@ -1975,7 +2161,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%lld Estás en %f."
           }
         }
       }
@@ -1986,7 +2172,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%lld Estás en %lld."
           }
         }
       }
@@ -1997,7 +2183,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quedan %@ caracteres"
+            "value": "Quedan %lld caracteres"
           }
         }
       }
@@ -2008,7 +2194,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ vienen"
+            "value": "%lld vienen"
           }
         }
       }
@@ -2019,7 +2205,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ conductores"
+            "value": "%lld conductores"
           }
         }
       }
@@ -2030,7 +2216,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ amigos circulando"
+            "value": "%lld amigos circulando"
           }
         }
       }
@@ -2041,7 +2227,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Icono de %@, conseguido"
+            "value": "Icono de %lld, conseguido"
           }
         }
       }
@@ -2052,7 +2238,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%lld en %@"
           }
         }
       }
@@ -2063,7 +2249,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%lld en %f"
           }
         }
       }
@@ -2074,7 +2260,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%lld en %lld"
           }
         }
       }
@@ -2085,7 +2271,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en voz"
+            "value": "%lld en voz"
           }
         }
       }
@@ -2096,10 +2282,22 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ miembros"
+            "value": "%lld miembros"
           }
         }
       }
+    },
+    "%lld models": {
+      "extractionState": "manual"
+    },
+    "%lld needs %@": {
+      "extractionState": "manual"
+    },
+    "%lld needs %f": {
+      "extractionState": "manual"
+    },
+    "%lld needs %lld": {
+      "extractionState": "manual"
     },
     "%lld needs a tune": {
       "extractionState": "manual",
@@ -2107,13 +2305,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ necesita puesta a punto"
+            "value": "%lld necesita puesta a punto"
           }
         }
       }
     },
     "%lld new": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nuevos"
+          }
+        }
+      }
     },
     "%lld of %@ cars": {
       "extractionState": "manual",
@@ -2121,7 +2327,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%lld de %@ coches"
           }
         }
       }
@@ -2132,7 +2338,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%lld de %@ tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
@@ -2143,7 +2349,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%lld de %f coches"
           }
         }
       }
@@ -2154,7 +2360,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%lld de %f tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
@@ -2165,7 +2371,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%lld de %lld coches"
           }
         }
       }
@@ -2176,7 +2382,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%lld de %lld tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
@@ -2187,22 +2393,54 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de 3 encendidos"
+            "value": "%lld de 3 encendidos"
           }
         }
       }
     },
     "%lld of 5": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld de 5"
+          }
+        }
+      }
     },
     "%lld of 5 · %@ ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld de 5 · %@ valoraciones"
+          }
+        }
+      }
     },
     "%lld of 5 · %f ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld de 5 · %f valoraciones"
+          }
+        }
+      }
     },
     "%lld of 5 · %lld ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld de 5 · %lld valoraciones"
+          }
+        }
+      }
     },
     "%lld on the way": {
       "extractionState": "manual",
@@ -2210,13 +2448,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en camino"
+            "value": "%lld en camino"
           }
         }
       }
     },
     "%lld rating": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld valoraciones"
+          }
+        }
+      }
     },
     "%lld reported": {
       "extractionState": "manual",
@@ -2224,7 +2470,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ reportados"
+            "value": "%lld reportados"
           }
         }
       }
@@ -2235,7 +2481,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm"
+            "value": "%lld rpm"
           }
         }
       }
@@ -2246,7 +2492,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %@ caballos, %@ lb-pie"
           }
         }
       }
@@ -2257,7 +2503,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %@ caballos, %f lb-pie"
           }
         }
       }
@@ -2268,7 +2514,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %@ caballos, %lld lb-pie"
           }
         }
       }
@@ -2279,7 +2525,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %f caballos, %@ lb-pie"
           }
         }
       }
@@ -2290,7 +2536,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %f caballos, %f lb-pie"
           }
         }
       }
@@ -2301,7 +2547,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %f caballos, %lld lb-pie"
           }
         }
       }
@@ -2312,7 +2558,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %lld caballos, %@ lb-pie"
           }
         }
       }
@@ -2323,7 +2569,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %lld caballos, %f lb-pie"
           }
         }
       }
@@ -2334,7 +2580,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %lld caballos, %lld lb-pie"
           }
         }
       }
@@ -2345,13 +2591,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, cambia ya"
+            "value": "%lld rpm, cambia ya"
           }
         }
       }
     },
     "%lld seconds behind": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld s de retraso"
+          }
+        }
+      }
     },
     "%lld to %@": {
       "extractionState": "manual",
@@ -2359,7 +2613,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%lld a %@"
           }
         }
       }
@@ -2370,7 +2624,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%lld a %f"
           }
         }
       }
@@ -2381,7 +2635,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%lld a %lld"
           }
         }
       }
@@ -2392,13 +2646,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ sin leer"
+            "value": "%lld sin leer"
           }
         }
       }
     },
     "%lld votes": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld votos"
+          }
+        }
+      }
     },
     "%lld%@": {
       "extractionState": "manual",
@@ -2406,7 +2668,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%lld%@"
           }
         }
       }
@@ -2417,7 +2679,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%lld%@, ahora mismo"
           }
         }
       }
@@ -2428,7 +2690,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%@, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -2439,7 +2701,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%@, visto por última vez hace %f minutos"
           }
         }
       }
@@ -2450,7 +2712,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%@, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -2461,7 +2723,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%lld%@, en movimiento"
           }
         }
       }
@@ -2472,7 +2734,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%lld%f"
           }
         }
       }
@@ -2483,7 +2745,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%lld%f, ahora mismo"
           }
         }
       }
@@ -2494,7 +2756,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%f, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -2505,7 +2767,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%f, visto por última vez hace %f minutos"
           }
         }
       }
@@ -2516,7 +2778,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%f, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -2527,7 +2789,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%lld%f, en movimiento"
           }
         }
       }
@@ -2538,7 +2800,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%lld%lld"
           }
         }
       }
@@ -2549,7 +2811,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%lld%lld, ahora mismo"
           }
         }
       }
@@ -2560,7 +2822,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%lld, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -2571,7 +2833,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%lld, visto por última vez hace %f minutos"
           }
         }
       }
@@ -2582,7 +2844,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%lld, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -2593,10 +2855,19 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%lld%lld, en movimiento"
           }
         }
       }
+    },
+    "%lld's run · %@ s": {
+      "extractionState": "manual"
+    },
+    "%lld's run · %f s": {
+      "extractionState": "manual"
+    },
+    "%lld's run · %lld s": {
+      "extractionState": "manual"
     },
     "%lld, locked": {
       "extractionState": "manual",
@@ -2604,13 +2875,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@, bloqueado"
+            "value": "%lld, bloqueado"
           }
         }
       }
     },
     "%lld, muted": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, silenciado"
+          }
+        }
+      }
     },
     "%lld, speaking": {
       "extractionState": "manual",
@@ -2618,10 +2897,19 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@, hablando"
+            "value": "%lld, hablando"
           }
         }
       }
+    },
+    "+%@ min": {
+      "extractionState": "manual"
+    },
+    "+%f min": {
+      "extractionState": "manual"
+    },
+    "+%lld min": {
+      "extractionState": "manual"
     },
     "1 friend out": {
       "extractionState": "manual",
@@ -2717,7 +3005,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un conductor cerca%@"
+            "value": "Un conductor cerca%f"
           }
         }
       }
@@ -2728,7 +3016,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un conductor cerca%@"
+            "value": "Un conductor cerca%lld"
           }
         }
       }
@@ -2882,7 +3170,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Añadir también %@"
+            "value": "Añadir también %f"
           }
         }
       }
@@ -2893,7 +3181,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Añadir también %@"
+            "value": "Añadir también %lld"
           }
         }
       }
@@ -3195,6 +3483,15 @@
         }
       }
     },
+    "Adds %@ minutes to the trip": {
+      "extractionState": "manual"
+    },
+    "Adds %f minutes to the trip": {
+      "extractionState": "manual"
+    },
+    "Adds %lld minutes to the trip": {
+      "extractionState": "manual"
+    },
     "Adjust to read power at an rpm": {
       "extractionState": "manual",
       "localizations": {
@@ -3300,7 +3597,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloquear también a @%@"
+            "value": "Bloquear también a @%f"
           }
         }
       }
@@ -3311,7 +3608,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloquear también a @%@"
+            "value": "Bloquear también a @%lld"
           }
         }
       }
@@ -3476,7 +3773,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ubicación aproximada%@"
+            "value": "Ubicación aproximada%f"
           }
         }
       }
@@ -3487,7 +3784,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ubicación aproximada%@"
+            "value": "Ubicación aproximada%lld"
           }
         }
       }
@@ -3502,6 +3799,33 @@
           }
         }
       }
+    },
+    "Asked %@ · ends %@": {
+      "extractionState": "manual"
+    },
+    "Asked %@ · ends %f": {
+      "extractionState": "manual"
+    },
+    "Asked %@ · ends %lld": {
+      "extractionState": "manual"
+    },
+    "Asked %f · ends %@": {
+      "extractionState": "manual"
+    },
+    "Asked %f · ends %f": {
+      "extractionState": "manual"
+    },
+    "Asked %f · ends %lld": {
+      "extractionState": "manual"
+    },
+    "Asked %lld · ends %@": {
+      "extractionState": "manual"
+    },
+    "Asked %lld · ends %f": {
+      "extractionState": "manual"
+    },
+    "Asked %lld · ends %lld": {
+      "extractionState": "manual"
     },
     "Aspect": {
       "extractionState": "manual",
@@ -3542,7 +3866,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@"
+            "value": "En %f"
           }
         }
       }
@@ -3553,7 +3877,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "A %@ rpm."
+            "value": "A %f rpm."
           }
         }
       }
@@ -3564,7 +3888,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@"
+            "value": "En %lld"
           }
         }
       }
@@ -3575,7 +3899,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "A %@ rpm."
+            "value": "A %lld rpm."
           }
         }
       }
@@ -3669,13 +3993,37 @@
       }
     },
     "Bearer %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bearer %@"
+          }
+        }
+      }
     },
     "Bearer %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bearer %f"
+          }
+        }
+      }
     },
     "Bearer %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bearer %lld"
+          }
+        }
+      }
     },
     "Beat house car %@ to open house car %@.": {
       "extractionState": "manual",
@@ -3694,7 +4042,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %f."
           }
         }
       }
@@ -3705,7 +4053,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %lld."
           }
         }
       }
@@ -3716,7 +4064,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %f para abrir el coche de la casa %@."
           }
         }
       }
@@ -3727,7 +4075,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %f para abrir el coche de la casa %f."
           }
         }
       }
@@ -3738,7 +4086,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %f para abrir el coche de la casa %lld."
           }
         }
       }
@@ -3749,7 +4097,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %lld para abrir el coche de la casa %@."
           }
         }
       }
@@ -3760,7 +4108,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %lld para abrir el coche de la casa %f."
           }
         }
       }
@@ -3771,7 +4119,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %lld para abrir el coche de la casa %lld."
           }
         }
       }
@@ -3958,7 +4306,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %@ · %f"
           }
         }
       }
@@ -3969,7 +4317,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %@ · %lld"
           }
         }
       }
@@ -3980,7 +4328,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@"
+            "value": "Presupuesto %f"
           }
         }
       }
@@ -3991,7 +4339,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %f · %@"
           }
         }
       }
@@ -4002,7 +4350,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %f · %f"
           }
         }
       }
@@ -4013,7 +4361,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %f · %lld"
           }
         }
       }
@@ -4024,7 +4372,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@"
+            "value": "Presupuesto %lld"
           }
         }
       }
@@ -4035,7 +4383,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %lld · %@"
           }
         }
       }
@@ -4046,7 +4394,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %lld · %f"
           }
         }
       }
@@ -4057,7 +4405,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %lld · %lld"
           }
         }
       }
@@ -4145,7 +4493,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%f)."
           }
         }
       }
@@ -4156,7 +4504,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%lld)."
           }
         }
       }
@@ -4167,7 +4515,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%f) y la [Política de privacidad](%@)."
           }
         }
       }
@@ -4178,7 +4526,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%f) y la [Política de privacidad](%f)."
           }
         }
       }
@@ -4189,7 +4537,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%f) y la [Política de privacidad](%lld)."
           }
         }
       }
@@ -4200,7 +4548,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%lld) y la [Política de privacidad](%@)."
           }
         }
       }
@@ -4211,7 +4559,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%lld) y la [Política de privacidad](%f)."
           }
         }
       }
@@ -4222,7 +4570,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%lld) y la [Política de privacidad](%lld)."
           }
         }
       }
@@ -4365,7 +4713,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Cancelar este encuentro? Se avisará a las %@ personas que confirmaron."
+            "value": "¿Cancelar este encuentro? Se avisará a las %f personas que confirmaron."
           }
         }
       }
@@ -4376,7 +4724,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Cancelar este encuentro? Se avisará a las %@ personas que confirmaron."
+            "value": "¿Cancelar este encuentro? Se avisará a las %lld personas que confirmaron."
           }
         }
       }
@@ -4849,7 +5197,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Confirmado por %@"
+            "value": "Confirmado por %f"
           }
         }
       }
@@ -4860,7 +5208,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Confirmado por %@"
+            "value": "Confirmado por %lld"
           }
         }
       }
@@ -5097,7 +5445,15 @@
       }
     },
     "Couldn't change the destination. Check your connection and try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cambiar el destino. Comprueba tu conexión e inténtalo de nuevo."
+          }
+        }
+      }
     },
     "Couldn't change your marker. Check your connection and try again.": {
       "extractionState": "manual",
@@ -5749,7 +6105,15 @@
       }
     },
     "Couldn't remove the report. Check your connection and try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo eliminar el reporte. Comprueba tu conexión e inténtalo de nuevo."
+          }
+        }
+      }
     },
     "Couldn't save it. Check your connection and try again.": {
       "extractionState": "manual",
@@ -6544,7 +6908,15 @@
       }
     },
     "Drag to reorder.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrastra para reordenar."
+          }
+        }
+      }
     },
     "Drag to reorder. The first photo is the cover.": {
       "extractionState": "manual",
@@ -6677,6 +7049,33 @@
           }
         }
       }
+    },
+    "Driving %@ · %@": {
+      "extractionState": "manual"
+    },
+    "Driving %@ · %f": {
+      "extractionState": "manual"
+    },
+    "Driving %@ · %lld": {
+      "extractionState": "manual"
+    },
+    "Driving %f · %@": {
+      "extractionState": "manual"
+    },
+    "Driving %f · %f": {
+      "extractionState": "manual"
+    },
+    "Driving %f · %lld": {
+      "extractionState": "manual"
+    },
+    "Driving %lld · %@": {
+      "extractionState": "manual"
+    },
+    "Driving %lld · %f": {
+      "extractionState": "manual"
+    },
+    "Driving %lld · %lld": {
+      "extractionState": "manual"
     },
     "Drop a regroup point": {
       "extractionState": "manual",
@@ -6822,7 +7221,15 @@
       }
     },
     "Edit specs": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar especificaciones"
+          }
+        }
+      }
     },
     "Edit team": {
       "extractionState": "manual",
@@ -6891,7 +7298,15 @@
       }
     },
     "End of the stretch": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Final del tramo"
+          }
+        }
+      }
     },
     "End the convoy for all %@ drivers?": {
       "extractionState": "manual",
@@ -6910,7 +7325,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Terminar la caravana para los %@ conductores?"
+            "value": "¿Terminar la caravana para los %f conductores?"
           }
         }
       }
@@ -6921,7 +7336,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Terminar la caravana para los %@ conductores?"
+            "value": "¿Terminar la caravana para los %lld conductores?"
           }
         }
       }
@@ -6982,7 +7397,15 @@
       }
     },
     "Enter each spec as a number.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduce cada especificación como un número."
+          }
+        }
+      }
     },
     "Enter specs": {
       "extractionState": "manual",
@@ -7056,7 +7479,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Entrada: %@"
+            "value": "Entrada: %f"
           }
         }
       }
@@ -7067,7 +7490,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Entrada: %@"
+            "value": "Entrada: %lld"
           }
         }
       }
@@ -7122,7 +7545,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cada %@"
+            "value": "Cada %f"
           }
         }
       }
@@ -7133,7 +7556,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cada %@"
+            "value": "Cada %lld"
           }
         }
       }
@@ -7155,7 +7578,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cada %@ alternos"
+            "value": "Cada %f alternos"
           }
         }
       }
@@ -7166,7 +7589,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cada %@ alternos"
+            "value": "Cada %lld alternos"
           }
         }
       }
@@ -7496,7 +7919,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Encaja: %@"
+            "value": "Encaja: %f"
           }
         }
       }
@@ -7507,7 +7930,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Encaja: %@"
+            "value": "Encaja: %lld"
           }
         }
       }
@@ -7837,7 +8260,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Marcha %@"
+            "value": "Marcha %f"
           }
         }
       }
@@ -7848,7 +8271,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Marcha %@"
+            "value": "Marcha %lld"
           }
         }
       }
@@ -7925,7 +8348,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modo fantasma hasta %@. Nadie te ve."
+            "value": "Modo fantasma hasta %f. Nadie te ve."
           }
         }
       }
@@ -7936,7 +8359,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Modo fantasma hasta %@. Nadie te ve."
+            "value": "Modo fantasma hasta %lld. Nadie te ve."
           }
         }
       }
@@ -7953,7 +8376,15 @@
       }
     },
     "Glyphs": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glifos"
+          }
+        }
+      }
     },
     "Go": {
       "extractionState": "manual",
@@ -8148,7 +8579,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Camino a %@"
+            "value": "Camino a %f"
           }
         }
       }
@@ -8159,7 +8590,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Camino a %@"
+            "value": "Camino a %lld"
           }
         }
       }
@@ -8247,7 +8678,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Caballos"
+            "value": "Caballos de fuerza"
           }
         }
       }
@@ -8291,7 +8722,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Organizado por %@"
+            "value": "Organizado por %f"
           }
         }
       }
@@ -8302,7 +8733,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Organizado por %@"
+            "value": "Organizado por %lld"
           }
         }
       }
@@ -8324,7 +8755,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El coche de la casa %@ está abierto."
+            "value": "El coche de la casa %f está abierto."
           }
         }
       }
@@ -8335,7 +8766,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El coche de la casa %@ está abierto."
+            "value": "El coche de la casa %lld está abierto."
           }
         }
       }
@@ -8456,7 +8887,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %@, %f"
           }
         }
       }
@@ -8467,7 +8898,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %@, %lld"
           }
         }
       }
@@ -8478,7 +8909,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %f, %@"
           }
         }
       }
@@ -8489,7 +8920,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %f, %f"
           }
         }
       }
@@ -8500,7 +8931,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %f, %lld"
           }
         }
       }
@@ -8511,7 +8942,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %lld, %@"
           }
         }
       }
@@ -8522,7 +8953,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %lld, %f"
           }
         }
       }
@@ -8533,7 +8964,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %lld, %lld"
           }
         }
       }
@@ -8555,7 +8986,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En Showdown · %@"
+            "value": "En Showdown · %f"
           }
         }
       }
@@ -8566,7 +8997,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En Showdown · %@"
+            "value": "En Showdown · %lld"
           }
         }
       }
@@ -8726,7 +9157,15 @@
       }
     },
     "It's removed for everyone.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se ha eliminado para todos."
+          }
+        }
+      }
     },
     "Its photos and timeline are deleted too.": {
       "extractionState": "manual",
@@ -9306,7 +9745,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cargado %@"
+            "value": "Cargado %f"
           }
         }
       }
@@ -9317,7 +9756,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cargado %@"
+            "value": "Cargado %lld"
           }
         }
       }
@@ -9438,7 +9877,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aparcamiento: %@"
+            "value": "Aparcamiento: %f"
           }
         }
       }
@@ -9449,7 +9888,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aparcamiento: %@"
+            "value": "Aparcamiento: %lld"
           }
         }
       }
@@ -9795,6 +10234,15 @@
         }
       }
     },
+    "Member since %@": {
+      "extractionState": "manual"
+    },
+    "Member since %f": {
+      "extractionState": "manual"
+    },
+    "Member since %lld": {
+      "extractionState": "manual"
+    },
     "Members": {
       "extractionState": "manual",
       "localizations": {
@@ -10016,22 +10464,70 @@
       }
     },
     "Move %@ down": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bajar %@"
+          }
+        }
+      }
     },
     "Move %@ up": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subir %@"
+          }
+        }
+      }
     },
     "Move %f down": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bajar %f"
+          }
+        }
+      }
     },
     "Move %f up": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subir %f"
+          }
+        }
+      }
     },
     "Move %lld down": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bajar %lld"
+          }
+        }
+      }
     },
     "Move %lld up": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subir %lld"
+          }
+        }
+      }
     },
     "Move down": {
       "extractionState": "manual",
@@ -10039,7 +10535,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mover abajo"
+            "value": "Bajar"
           }
         }
       }
@@ -10072,7 +10568,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mover arriba"
+            "value": "Subir"
           }
         }
       }
@@ -10204,7 +10700,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Necesita puesta a punto · %@"
+            "value": "Necesita puesta a punto · %f"
           }
         }
       }
@@ -10215,7 +10711,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Necesita puesta a punto · %@"
+            "value": "Necesita puesta a punto · %lld"
           }
         }
       }
@@ -10353,7 +10849,15 @@
       }
     },
     "No drivers on the map yet.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no hay conductores en el mapa."
+          }
+        }
+      }
     },
     "No entries yet. Log the first thing you did to it.": {
       "extractionState": "manual",
@@ -10647,7 +11151,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nadie busca aún piezas de %@."
+            "value": "Nadie busca aún piezas de %f."
           }
         }
       }
@@ -10658,7 +11162,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nadie busca aún piezas de %@."
+            "value": "Nadie busca aún piezas de %lld."
           }
         }
       }
@@ -10812,7 +11316,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se encontró nada para '%@'."
+            "value": "No se encontró nada para '%f'."
           }
         }
       }
@@ -10823,7 +11327,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se encontró nada para '%@'."
+            "value": "No se encontró nada para '%lld'."
           }
         }
       }
@@ -10845,7 +11349,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aún no hay nada anunciado de %@."
+            "value": "Aún no hay nada anunciado de %f."
           }
         }
       }
@@ -10856,7 +11360,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aún no hay nada anunciado de %@."
+            "value": "Aún no hay nada anunciado de %lld."
           }
         }
       }
@@ -11059,8 +11563,25 @@
         }
       }
     },
-    "Onboarding registered twice": {
+    "On the way: %@": {
       "extractionState": "manual"
+    },
+    "On the way: %f": {
+      "extractionState": "manual"
+    },
+    "On the way: %lld": {
+      "extractionState": "manual"
+    },
+    "Onboarding registered twice": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onboarding registrado dos veces"
+          }
+        }
+      }
     },
     "Only the first 30 seconds are posted.": {
       "extractionState": "manual",
@@ -11160,6 +11681,9 @@
           }
         }
       }
+    },
+    "Other owners used": {
+      "extractionState": "manual"
     },
     "Out of fuel": {
       "extractionState": "manual",
@@ -11299,7 +11823,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elección popular: %@"
+            "value": "Elección popular: %f"
           }
         }
       }
@@ -11310,7 +11834,18 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elección popular: %@"
+            "value": "Elección popular: %lld"
+          }
+        }
+      }
+    },
+    "Performance camshaft": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Árbol de levas de competición"
           }
         }
       }
@@ -11343,7 +11878,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Foto %@"
+            "value": "Foto %f"
           }
         }
       }
@@ -11354,7 +11889,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Foto %@"
+            "value": "Foto %lld"
           }
         }
       }
@@ -11387,7 +11922,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elige %@"
+            "value": "Elige %f"
           }
         }
       }
@@ -11398,7 +11933,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elige %@"
+            "value": "Elige %lld"
           }
         }
       }
@@ -11904,7 +12439,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Puesto %@"
+            "value": "Puesto %f"
           }
         }
       }
@@ -11915,7 +12450,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Puesto %@"
+            "value": "Puesto %lld"
           }
         }
       }
@@ -11987,7 +12522,15 @@
       }
     },
     "Readout takes a readout token": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readout acepta un token de lectura"
+          }
+        }
+      }
     },
     "Reads higher than you are going": {
       "extractionState": "manual",
@@ -12226,7 +12769,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recordatorio %@"
+            "value": "Recordatorio %f"
           }
         }
       }
@@ -12237,7 +12780,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recordatorio %@"
+            "value": "Recordatorio %lld"
           }
         }
       }
@@ -12265,7 +12808,15 @@
       }
     },
     "Remove %@ from the loop": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitar %@ del grupo"
+          }
+        }
+      }
     },
     "Remove %f as a friend?": {
       "extractionState": "manual",
@@ -12273,13 +12824,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Quitar a %@ como amigo?"
+            "value": "¿Quitar a %f como amigo?"
           }
         }
       }
     },
     "Remove %f from the loop": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitar %f del grupo"
+          }
+        }
+      }
     },
     "Remove %lld as a friend?": {
       "extractionState": "manual",
@@ -12287,13 +12846,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Quitar a %@ como amigo?"
+            "value": "¿Quitar a %lld como amigo?"
           }
         }
       }
     },
     "Remove %lld from the loop": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitar %lld del grupo"
+          }
+        }
+      }
     },
     "Remove friend": {
       "extractionState": "manual",
@@ -12340,7 +12907,15 @@
       }
     },
     "Remove report": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar reporte"
+          }
+        }
+      }
     },
     "Remove stop": {
       "extractionState": "manual",
@@ -12436,7 +13011,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Denunciar"
+            "value": "Reportar"
           }
         }
       }
@@ -12458,7 +13033,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Denunciar %@"
+            "value": "Denunciar %f"
           }
         }
       }
@@ -12469,7 +13044,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Denunciar %@"
+            "value": "Denunciar %lld"
           }
         }
       }
@@ -12528,6 +13103,33 @@
           }
         }
       }
+    },
+    "Reported %@ · confirmed by %@": {
+      "extractionState": "manual"
+    },
+    "Reported %@ · confirmed by %f": {
+      "extractionState": "manual"
+    },
+    "Reported %@ · confirmed by %lld": {
+      "extractionState": "manual"
+    },
+    "Reported %f · confirmed by %@": {
+      "extractionState": "manual"
+    },
+    "Reported %f · confirmed by %f": {
+      "extractionState": "manual"
+    },
+    "Reported %f · confirmed by %lld": {
+      "extractionState": "manual"
+    },
+    "Reported %lld · confirmed by %@": {
+      "extractionState": "manual"
+    },
+    "Reported %lld · confirmed by %f": {
+      "extractionState": "manual"
+    },
+    "Reported %lld · confirmed by %lld": {
+      "extractionState": "manual"
     },
     "Reported. We review reports within 24 hours.": {
       "extractionState": "manual",
@@ -12689,7 +13291,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saliendo hacia %@"
+            "value": "Saliendo hacia %f"
           }
         }
       }
@@ -12700,7 +13302,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saliendo hacia %@"
+            "value": "Saliendo hacia %lld"
           }
         }
       }
@@ -12805,13 +13407,37 @@
       }
     },
     "Route %@ registered twice": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ruta %@ registrada dos veces"
+          }
+        }
+      }
     },
     "Route %f registered twice": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ruta %f registrada dos veces"
+          }
+        }
+      }
     },
     "Route %lld registered twice": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ruta %lld registrada dos veces"
+          }
+        }
+      }
     },
     "Rows": {
       "extractionState": "manual",
@@ -13100,7 +13726,15 @@
       }
     },
     "Save specs": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar especificaciones"
+          }
+        }
+      }
     },
     "Save to car": {
       "extractionState": "manual",
@@ -13356,7 +13990,15 @@
       }
     },
     "SegmentedSwitch holds at most three options (plan 9.9)": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SegmentedSwitch admite como máximo tres opciones (plan 9.9)"
+          }
+        }
+      }
     },
     "Selling": {
       "extractionState": "manual",
@@ -13452,7 +14094,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recordatorio de servicio: %@"
+            "value": "Recordatorio de servicio: %f"
           }
         }
       }
@@ -13463,7 +14105,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recordatorio de servicio: %@"
+            "value": "Recordatorio de servicio: %lld"
           }
         }
       }
@@ -13485,7 +14127,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Servicio · %@"
+            "value": "Servicio · %f"
           }
         }
       }
@@ -13496,16 +14138,32 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Servicio · %@"
+            "value": "Servicio · %lld"
           }
         }
       }
     },
     "Set a destination": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige un destino"
+          }
+        }
+      }
     },
     "Set destination": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fijar destino"
+          }
+        }
+      }
     },
     "Set regroup point": {
       "extractionState": "manual",
@@ -14069,7 +14727,15 @@
       }
     },
     "Start of the stretch": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inicio del tramo"
+          }
+        }
+      }
     },
     "Start team": {
       "extractionState": "manual",
@@ -14110,7 +14776,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empieza en 30 minutos en %@."
+            "value": "Empieza en 30 minutos en %f."
           }
         }
       }
@@ -14121,7 +14787,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empieza en 30 minutos en %@."
+            "value": "Empieza en 30 minutos en %lld."
           }
         }
       }
@@ -14380,13 +15046,37 @@
       }
     },
     "Tab %@ registered twice": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pestaña %@ registrada dos veces"
+          }
+        }
+      }
     },
     "Tab %f registered twice": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pestaña %f registrada dos veces"
+          }
+        }
+      }
     },
     "Tab %lld registered twice": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pestaña %lld registrada dos veces"
+          }
+        }
+      }
     },
     "Tag": {
       "extractionState": "manual",
@@ -14889,7 +15579,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %@, llegando a %f. No tu ubicación."
           }
         }
       }
@@ -14900,7 +15590,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %@, llegando a %lld. No tu ubicación."
           }
         }
       }
@@ -14911,7 +15601,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %f, llegando a %@. No tu ubicación."
           }
         }
       }
@@ -14922,7 +15612,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %f, llegando a %f. No tu ubicación."
           }
         }
       }
@@ -14933,7 +15623,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %f, llegando a %lld. No tu ubicación."
           }
         }
       }
@@ -14944,7 +15634,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %lld, llegando a %@. No tu ubicación."
           }
         }
       }
@@ -14955,7 +15645,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %lld, llegando a %f. No tu ubicación."
           }
         }
       }
@@ -14966,7 +15656,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %lld, llegando a %lld. No tu ubicación."
           }
         }
       }
@@ -15065,7 +15755,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Este es el inicio de %@."
+            "value": "Este es el inicio de %f."
           }
         }
       }
@@ -15076,7 +15766,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Este es el inicio de %@."
+            "value": "Este es el inicio de %lld."
           }
         }
       }
@@ -15230,7 +15920,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hoy %@"
+            "value": "Hoy %f"
           }
         }
       }
@@ -15241,7 +15931,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hoy %@"
+            "value": "Hoy %lld"
           }
         }
       }
@@ -15263,7 +15953,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mañana %@"
+            "value": "Mañana %f"
           }
         }
       }
@@ -15274,7 +15964,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mañana %@"
+            "value": "Mañana %lld"
           }
         }
       }
@@ -15296,7 +15986,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esta noche %@"
+            "value": "Esta noche %f"
           }
         }
       }
@@ -15307,7 +15997,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esta noche %@"
+            "value": "Esta noche %lld"
           }
         }
       }
@@ -15472,7 +16162,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %@ %f"
           }
         }
       }
@@ -15483,7 +16173,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %@ %lld"
           }
         }
       }
@@ -15494,7 +16184,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %f %@"
           }
         }
       }
@@ -15505,7 +16195,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %f %f"
           }
         }
       }
@@ -15516,7 +16206,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %f %lld"
           }
         }
       }
@@ -15527,7 +16217,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %lld %@"
           }
         }
       }
@@ -15538,7 +16228,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %lld %f"
           }
         }
       }
@@ -15549,7 +16239,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %lld %lld"
           }
         }
       }
@@ -15890,7 +16580,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vía %@"
+            "value": "Vía %f"
           }
         }
       }
@@ -15901,7 +16591,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vía %@"
+            "value": "Vía %lld"
           }
         }
       }
@@ -16033,7 +16723,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lista de espera · %@"
+            "value": "Lista de espera · %f"
           }
         }
       }
@@ -16044,7 +16734,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lista de espera · %@"
+            "value": "Lista de espera · %lld"
           }
         }
       }
@@ -16067,6 +16757,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Se busca"
+          }
+        }
+      }
+    },
+    "Water-methanol injection": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inyección de agua-metanol"
           }
         }
       }
@@ -16407,7 +17108,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quién va · %@"
+            "value": "Quién va · %f"
           }
         }
       }
@@ -16418,7 +17119,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quién va · %@"
+            "value": "Quién va · %lld"
           }
         }
       }
@@ -16737,7 +17438,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Estás en la lista de espera, %@"
+            "value": "Estás en la lista de espera, %f"
           }
         }
       }
@@ -16748,7 +17449,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Estás en la lista de espera, %@"
+            "value": "Estás en la lista de espera, %lld"
           }
         }
       }
@@ -16781,7 +17482,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ya has juzgado todas las parejas de %@. Prueba otra categoría."
+            "value": "Ya has juzgado todas las parejas de %f. Prueba otra categoría."
           }
         }
       }
@@ -16792,7 +17493,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ya has juzgado todas las parejas de %@. Prueba otra categoría."
+            "value": "Ya has juzgado todas las parejas de %lld. Prueba otra categoría."
           }
         }
       }
@@ -16853,7 +17554,15 @@
       }
     },
     "Your numbers replace the catalog's. Leave a field blank to use the catalog value.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus cifras sustituyen a las del catálogo. Deja un campo en blanco para usar el valor del catálogo."
+          }
+        }
+      }
     },
     "Your photo": {
       "extractionState": "manual",
@@ -17433,7 +18142,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "actualizado hace %@ min"
+            "value": "actualizado hace %f min"
           }
         }
       }
@@ -17444,7 +18153,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "actualizado hace %@ min"
+            "value": "actualizado hace %lld min"
           }
         }
       }
@@ -17499,7 +18208,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %@ en %f"
           }
         }
       }
@@ -17510,7 +18219,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %@ en %lld"
           }
         }
       }
@@ -17521,7 +18230,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %f en %@"
           }
         }
       }
@@ -17532,7 +18241,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %f en %f"
           }
         }
       }
@@ -17543,7 +18252,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %f en %lld"
           }
         }
       }
@@ -17554,7 +18263,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %lld en %@"
           }
         }
       }
@@ -17565,7 +18274,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %lld en %f"
           }
         }
       }
@@ -17576,7 +18285,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %lld en %lld"
           }
         }
       }

@@ -445,7 +445,7 @@ struct PickerSheet: View {
                     Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake)
                         .frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, Space.margin)
                 }
-                VehiclePicker(catalog: ctx.env.catalog, markerIcon: icon,
+                VehiclePicker(catalog: ctx.env.catalog, garage: ctx.env.garage, markerIcon: icon,
                               actionTitle: editing == nil ? "Add to garage" : "Save car") { picked in
                     guard case let .car(new) = picked else { return }
                     Task { await save(new) }
@@ -493,7 +493,7 @@ struct SpottedView: View {
             LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(Dictionary(grouping: spots, by: \.make).sorted { $0.key < $1.key }, id: \.key) { make, list in
                     NavigationLink { models(make, list) } label: {
-                        Row(Text(verbatim: make), subtitle: Text("\(Set(list.map(\.catalogModelID)).count) models"),
+                        Row(Text(verbatim: make), subtitle: Text("\(Set(list.map(\.catalogModelID)).count) models", bundle: .module),
                             trailing: { Text(verbatim: "\(list.count)").typeStyle(.readoutS) })
                     }
                     .buttonStyle(RowButtonStyle())

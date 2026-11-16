@@ -18,7 +18,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%@ en %f"
           }
         }
       }
@@ -29,7 +29,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%@ en %lld"
           }
         }
       }
@@ -40,7 +40,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%f en %@"
           }
         }
       }
@@ -51,7 +51,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%f en %f"
           }
         }
       }
@@ -62,7 +62,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%f en %lld"
           }
         }
       }
@@ -73,7 +73,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%lld en %@"
           }
         }
       }
@@ -84,7 +84,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%lld en %f"
           }
         }
       }
@@ -95,19 +95,43 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "#%@ en %@"
+            "value": "#%lld en %lld"
           }
         }
       }
     },
     "%@ rating": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ valoraciones"
+          }
+        }
+      }
     },
     "%f rating": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f valoraciones"
+          }
+        }
+      }
     },
     "%lld rating": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld valoraciones"
+          }
+        }
+      }
     },
     "ALL": {
       "extractionState": "manual",
@@ -236,7 +260,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elige %@"
+            "value": "Elige %f"
           }
         }
       }
@@ -247,7 +271,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elige %@"
+            "value": "Elige %lld"
           }
         }
       }
@@ -346,7 +370,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ya has juzgado todas las parejas de %@. Prueba otra categoría."
+            "value": "Ya has juzgado todas las parejas de %f. Prueba otra categoría."
           }
         }
       }
@@ -357,7 +381,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ya has juzgado todas las parejas de %@. Prueba otra categoría."
+            "value": "Ya has juzgado todas las parejas de %lld. Prueba otra categoría."
           }
         }
       }
@@ -401,7 +425,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %@ en %f"
           }
         }
       }
@@ -412,7 +436,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %@ en %lld"
           }
         }
       }
@@ -423,7 +447,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %f en %@"
           }
         }
       }
@@ -434,7 +458,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %f en %f"
           }
         }
       }
@@ -445,7 +469,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %f en %lld"
           }
         }
       }
@@ -456,7 +480,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %lld en %@"
           }
         }
       }
@@ -467,7 +491,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %lld en %f"
           }
         }
       }
@@ -478,7 +502,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "▲ %@ en %@"
+            "value": "▲ %lld en %lld"
           }
         }
       }

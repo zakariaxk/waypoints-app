@@ -34,13 +34,22 @@
         }
       }
     },
+    "%@'s run · %@ s": {
+      "extractionState": "manual"
+    },
+    "%@'s run · %f s": {
+      "extractionState": "manual"
+    },
+    "%@'s run · %lld s": {
+      "extractionState": "manual"
+    },
     "%f of 3 lit": {
       "extractionState": "manual",
       "localizations": {
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de 3 encendidos"
+            "value": "%f de 3 encendidos"
           }
         }
       }
@@ -51,7 +60,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm"
+            "value": "%f rpm"
           }
         }
       }
@@ -62,10 +71,19 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, cambia ya"
+            "value": "%f rpm, cambia ya"
           }
         }
       }
+    },
+    "%f's run · %@ s": {
+      "extractionState": "manual"
+    },
+    "%f's run · %f s": {
+      "extractionState": "manual"
+    },
+    "%f's run · %lld s": {
+      "extractionState": "manual"
     },
     "%lld of 3 lit": {
       "extractionState": "manual",
@@ -73,7 +91,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de 3 encendidos"
+            "value": "%lld de 3 encendidos"
           }
         }
       }
@@ -84,7 +102,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm"
+            "value": "%lld rpm"
           }
         }
       }
@@ -95,10 +113,19 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, cambia ya"
+            "value": "%lld rpm, cambia ya"
           }
         }
       }
+    },
+    "%lld's run · %@ s": {
+      "extractionState": "manual"
+    },
+    "%lld's run · %f s": {
+      "extractionState": "manual"
+    },
+    "%lld's run · %lld s": {
+      "extractionState": "manual"
     },
     "All ten house cars are open.": {
       "extractionState": "manual",
@@ -150,7 +177,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %f."
           }
         }
       }
@@ -161,7 +188,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %lld."
           }
         }
       }
@@ -172,7 +199,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %f para abrir el coche de la casa %@."
           }
         }
       }
@@ -183,7 +210,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %f para abrir el coche de la casa %f."
           }
         }
       }
@@ -194,7 +221,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %f para abrir el coche de la casa %lld."
           }
         }
       }
@@ -205,7 +232,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %lld para abrir el coche de la casa %@."
           }
         }
       }
@@ -216,7 +243,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %lld para abrir el coche de la casa %f."
           }
         }
       }
@@ -227,7 +254,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gana al coche de la casa %@ para abrir el coche de la casa %@."
+            "value": "Gana al coche de la casa %lld para abrir el coche de la casa %lld."
           }
         }
       }
@@ -381,7 +408,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Marcha %@"
+            "value": "Marcha %f"
           }
         }
       }
@@ -392,7 +419,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Marcha %@"
+            "value": "Marcha %lld"
           }
         }
       }
@@ -425,7 +452,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El coche de la casa %@ está abierto."
+            "value": "El coche de la casa %f está abierto."
           }
         }
       }
@@ -436,7 +463,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "El coche de la casa %@ está abierto."
+            "value": "El coche de la casa %lld está abierto."
           }
         }
       }

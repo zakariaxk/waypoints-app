@@ -18,7 +18,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%@ Estás en %f."
           }
         }
       }
@@ -29,7 +29,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%@ Estás en %lld."
           }
         }
       }
@@ -62,7 +62,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%f Estás en %@."
           }
         }
       }
@@ -73,7 +73,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%f Estás en %f."
           }
         }
       }
@@ -84,7 +84,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%f Estás en %lld."
           }
         }
       }
@@ -95,7 +95,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ amigos circulando"
+            "value": "%f amigos circulando"
           }
         }
       }
@@ -106,7 +106,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@, bloqueado"
+            "value": "%f, bloqueado"
           }
         }
       }
@@ -117,7 +117,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%lld Estás en %@."
           }
         }
       }
@@ -128,7 +128,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%lld Estás en %f."
           }
         }
       }
@@ -139,7 +139,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ Estás en %@."
+            "value": "%lld Estás en %lld."
           }
         }
       }
@@ -150,7 +150,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ amigos circulando"
+            "value": "%lld amigos circulando"
           }
         }
       }
@@ -161,7 +161,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@, bloqueado"
+            "value": "%lld, bloqueado"
           }
         }
       }
@@ -761,7 +761,15 @@
       }
     },
     "No drivers on the map yet.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no hay conductores en el mapa."
+          }
+        }
+      }
     },
     "No friends on the map yet.": {
       "extractionState": "manual",
@@ -791,7 +799,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se encontró nada para '%@'."
+            "value": "No se encontró nada para '%f'."
           }
         }
       }
@@ -802,7 +810,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se encontró nada para '%@'."
+            "value": "No se encontró nada para '%lld'."
           }
         }
       }
@@ -923,7 +931,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Quitar a %@ como amigo?"
+            "value": "¿Quitar a %f como amigo?"
           }
         }
       }
@@ -934,7 +942,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Quitar a %@ como amigo?"
+            "value": "¿Quitar a %lld como amigo?"
           }
         }
       }
@@ -1330,7 +1338,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "actualizado hace %@ min"
+            "value": "actualizado hace %f min"
           }
         }
       }
@@ -1341,7 +1349,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "actualizado hace %@ min"
+            "value": "actualizado hace %lld min"
           }
         }
       }

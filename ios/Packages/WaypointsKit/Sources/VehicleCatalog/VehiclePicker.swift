@@ -45,6 +45,8 @@ public enum PaintFamily: String, CaseIterable, Sendable {
 /// G4 Vehicle picker (plan 11.1): one question at a time, a breadcrumb of answers, search always on top.
 public struct VehiclePicker: View {
     let catalog: any VehicleCatalogService
+    /// GAR-5: supplies paint names other owners used on the picked make; nil in previews.
+    let garage: (any GarageRepository)?
     let mode: PickerMode
     let markerIcon: String
     let actionTitle: LocalizedStringKey
@@ -69,6 +71,7 @@ public struct VehiclePicker: View {
     @State private var customColor: Color = .gray
     @State private var useCustom = false
     @State private var paintName = ""
+    @State private var paintSuggestions: [String] = []
     @State private var showVIN = false
     @State private var vin = ""
     @State private var vinError: String?
@@ -80,9 +83,11 @@ public struct VehiclePicker: View {
     /// The free-text car typed after "Mine isn't listed" at the make or model step (GAR-3).
     struct UnlistedCar: Hashable { var make = ""; var model = ""; var year = ""; var trim = "" }
 
-    public init(catalog: any VehicleCatalogService, mode: PickerMode = .full, markerIcon: String = "coupe",
+    public init(catalog: any VehicleCatalogService, garage: (any GarageRepository)? = nil, mode: PickerMode = .full,
+                markerIcon: String = "coupe",
                 actionTitle: LocalizedStringKey = "Add to garage", onPick: @escaping @MainActor (PickedVehicle) -> Void) {
-        self.catalog = catalog; self.mode = mode; self.markerIcon = markerIcon; self.actionTitle = actionTitle
+        self.catalog = catalog; self.garage = garage; self.mode = mode; self.markerIcon = markerIcon
+        self.actionTitle = actionTitle
         self.onPick = onPick
     }
 
@@ -128,6 +133,10 @@ public struct VehiclePicker: View {
         .task {
             popular = (try? await catalog.popularMakes()) ?? []
             allMakes = (try? await catalog.makes()) ?? []
+        }
+        .task(id: make?.name) {
+            guard let garage, let name = make?.name else { paintSuggestions = []; return }
+            paintSuggestions = (try? await garage.paintNames(forMake: name)) ?? []
         }
         .task(id: query) {
             guard !query.isEmpty else { results = []; return }
@@ -430,6 +439,18 @@ public struct VehiclePicker: View {
             }
             .onChange(of: customColor) { useCustom = true }
             Field("Paint name", text: $paintName, prompt: "Like 'Grabber Blue'", limit: 40)
+            if !paintSuggestions.isEmpty {
+                VStack(alignment: .leading, spacing: Space.s8) {
+                    SectionLabel("Other owners used")
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: Space.s8) {
+                            ForEach(paintSuggestions, id: \.self) { name in
+                                Chip(LocalizedStringKey(name), isSelected: paintName == name) { paintName = name }
+                            }
+                        }
+                    }
+                }
+            }
             PrimaryButton(actionTitle) { finish() }
                 .disabled(family == nil && !useCustom)
         }

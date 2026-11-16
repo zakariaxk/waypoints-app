@@ -40,7 +40,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ vienen"
+            "value": "%f vienen"
           }
         }
       }
@@ -51,7 +51,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en camino"
+            "value": "%f en camino"
           }
         }
       }
@@ -62,7 +62,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ reportados"
+            "value": "%f reportados"
           }
         }
       }
@@ -73,7 +73,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ vienen"
+            "value": "%lld vienen"
           }
         }
       }
@@ -84,7 +84,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en camino"
+            "value": "%lld en camino"
           }
         }
       }
@@ -95,7 +95,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ reportados"
+            "value": "%lld reportados"
           }
         }
       }
@@ -155,6 +155,33 @@
         }
       }
     },
+    "Asked %@ · ends %@": {
+      "extractionState": "manual"
+    },
+    "Asked %@ · ends %f": {
+      "extractionState": "manual"
+    },
+    "Asked %@ · ends %lld": {
+      "extractionState": "manual"
+    },
+    "Asked %f · ends %@": {
+      "extractionState": "manual"
+    },
+    "Asked %f · ends %f": {
+      "extractionState": "manual"
+    },
+    "Asked %f · ends %lld": {
+      "extractionState": "manual"
+    },
+    "Asked %lld · ends %@": {
+      "extractionState": "manual"
+    },
+    "Asked %lld · ends %f": {
+      "extractionState": "manual"
+    },
+    "Asked %lld · ends %lld": {
+      "extractionState": "manual"
+    },
     "Closure": {
       "extractionState": "manual",
       "localizations": {
@@ -183,7 +210,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Confirmado por %@"
+            "value": "Confirmado por %f"
           }
         }
       }
@@ -194,7 +221,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Confirmado por %@"
+            "value": "Confirmado por %lld"
           }
         }
       }
@@ -266,7 +293,15 @@
       }
     },
     "Couldn't remove the report. Check your connection and try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo eliminar el reporte. Comprueba tu conexión e inténtalo de nuevo."
+          }
+        }
+      }
     },
     "Couldn't send that. Check your connection and try again.": {
       "extractionState": "manual",
@@ -357,7 +392,15 @@
       }
     },
     "It's removed for everyone.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se ha eliminado para todos."
+          }
+        }
+      }
     },
     "Jump start": {
       "extractionState": "manual",
@@ -436,6 +479,15 @@
         }
       }
     },
+    "On the way: %@": {
+      "extractionState": "manual"
+    },
+    "On the way: %f": {
+      "extractionState": "manual"
+    },
+    "On the way: %lld": {
+      "extractionState": "manual"
+    },
     "Optional": {
       "extractionState": "manual",
       "localizations": {
@@ -503,7 +555,15 @@
       }
     },
     "Remove report": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar reporte"
+          }
+        }
+      }
     },
     "Report": {
       "extractionState": "manual",
@@ -537,6 +597,33 @@
           }
         }
       }
+    },
+    "Reported %@ · confirmed by %@": {
+      "extractionState": "manual"
+    },
+    "Reported %@ · confirmed by %f": {
+      "extractionState": "manual"
+    },
+    "Reported %@ · confirmed by %lld": {
+      "extractionState": "manual"
+    },
+    "Reported %f · confirmed by %@": {
+      "extractionState": "manual"
+    },
+    "Reported %f · confirmed by %f": {
+      "extractionState": "manual"
+    },
+    "Reported %f · confirmed by %lld": {
+      "extractionState": "manual"
+    },
+    "Reported %lld · confirmed by %@": {
+      "extractionState": "manual"
+    },
+    "Reported %lld · confirmed by %f": {
+      "extractionState": "manual"
+    },
+    "Reported %lld · confirmed by %lld": {
+      "extractionState": "manual"
     },
     "Rough road": {
       "extractionState": "manual",

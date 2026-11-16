@@ -12,8 +12,19 @@
         }
       }
     },
-    "%@ new": {
+    "%@ models": {
       "extractionState": "manual"
+    },
+    "%@ new": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nuevos"
+          }
+        }
+      }
     },
     "%f icon, earned": {
       "extractionState": "manual",
@@ -21,13 +32,24 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Icono de %@, conseguido"
+            "value": "Icono de %f, conseguido"
           }
         }
       }
     },
-    "%f new": {
+    "%f models": {
       "extractionState": "manual"
+    },
+    "%f new": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f nuevos"
+          }
+        }
+      }
     },
     "%lld icon, earned": {
       "extractionState": "manual",
@@ -35,13 +57,24 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Icono de %@, conseguido"
+            "value": "Icono de %lld, conseguido"
           }
         }
       }
     },
-    "%lld new": {
+    "%lld models": {
       "extractionState": "manual"
+    },
+    "%lld new": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nuevos"
+          }
+        }
+      }
     },
     "Accept": {
       "extractionState": "manual",
@@ -203,7 +236,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "A %@ rpm."
+            "value": "A %f rpm."
           }
         }
       }
@@ -214,7 +247,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "A %@ rpm."
+            "value": "A %lld rpm."
           }
         }
       }
@@ -462,7 +495,15 @@
       }
     },
     "Drag to reorder.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrastra para reordenar."
+          }
+        }
+      }
     },
     "Drivetrain": {
       "extractionState": "manual",
@@ -498,7 +539,15 @@
       }
     },
     "Edit specs": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar especificaciones"
+          }
+        }
+      }
     },
     "Engine": {
       "extractionState": "manual",
@@ -534,7 +583,15 @@
       }
     },
     "Enter each spec as a number.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Introduce cada especificación como un número."
+          }
+        }
+      }
     },
     "Enter the cost as a number, like 349.99.": {
       "extractionState": "manual",
@@ -674,7 +731,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Marcha %@"
+            "value": "Marcha %f"
           }
         }
       }
@@ -685,7 +742,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Marcha %@"
+            "value": "Marcha %lld"
           }
         }
       }
@@ -735,7 +792,15 @@
       }
     },
     "Horsepower": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caballos de fuerza"
+          }
+        }
+      }
     },
     "ICONS": {
       "extractionState": "manual",
@@ -765,7 +830,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En Showdown · %@"
+            "value": "En Showdown · %f"
           }
         }
       }
@@ -776,7 +841,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En Showdown · %@"
+            "value": "En Showdown · %lld"
           }
         }
       }
@@ -892,10 +957,26 @@
       }
     },
     "Move down": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bajar"
+          }
+        }
+      }
     },
     "Move up": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subir"
+          }
+        }
+      }
     },
     "My code": {
       "extractionState": "manual",
@@ -1145,7 +1226,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recordatorio %@"
+            "value": "Recordatorio %f"
           }
         }
       }
@@ -1156,7 +1237,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recordatorio %@"
+            "value": "Recordatorio %lld"
           }
         }
       }
@@ -1305,7 +1386,15 @@
       }
     },
     "Save specs": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar especificaciones"
+          }
+        }
+      }
     },
     "Scan": {
       "extractionState": "manual",
@@ -1368,7 +1457,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recordatorio de servicio: %@"
+            "value": "Recordatorio de servicio: %f"
           }
         }
       }
@@ -1379,7 +1468,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recordatorio de servicio: %@"
+            "value": "Recordatorio de servicio: %lld"
           }
         }
       }
@@ -1401,7 +1490,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Servicio · %@"
+            "value": "Servicio · %f"
           }
         }
       }
@@ -1412,7 +1501,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Servicio · %@"
+            "value": "Servicio · %lld"
           }
         }
       }
@@ -1583,7 +1672,15 @@
       }
     },
     "Torque (lb-ft)": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Par (lb-ft)"
+          }
+        }
+      }
     },
     "Total": {
       "extractionState": "manual",
@@ -1624,7 +1721,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %@ %f"
           }
         }
       }
@@ -1635,7 +1732,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %@ %lld"
           }
         }
       }
@@ -1646,7 +1743,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %f %@"
           }
         }
       }
@@ -1657,7 +1754,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %f %f"
           }
         }
       }
@@ -1668,7 +1765,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %f %lld"
           }
         }
       }
@@ -1679,7 +1776,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %lld %@"
           }
         }
       }
@@ -1690,7 +1787,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %lld %f"
           }
         }
       }
@@ -1701,7 +1798,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Velocidad real cuando marca %@ %@"
+            "value": "Velocidad real cuando marca %lld %lld"
           }
         }
       }
@@ -1740,10 +1837,26 @@
       }
     },
     "Weight (kg)": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peso (kg)"
+          }
+        }
+      }
     },
     "Weight (lb)": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peso (lb)"
+          }
+        }
+      }
     },
     "What did you do?": {
       "extractionState": "manual",
@@ -1801,7 +1914,15 @@
       }
     },
     "Your numbers replace the catalog's. Leave a field blank to use the catalog value.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus cifras sustituyen a las del catálogo. Deja un campo en blanco para usar el valor del catálogo."
+          }
+        }
+      }
     },
     "edited": {
       "extractionState": "manual",

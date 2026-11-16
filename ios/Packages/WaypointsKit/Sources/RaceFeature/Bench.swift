@@ -37,7 +37,7 @@ struct BenchPicker: View {
                             Text("The catalog has no power figure for that car. Pick another.", bundle: .module)
                                 .typeStyle(.foot).foregroundStyle(Color.brake).padding(.horizontal, Space.margin)
                         }
-                        VehiclePicker(catalog: env.catalog, actionTitle: "Race this car") { picked in
+                        VehiclePicker(catalog: env.catalog, garage: env.garage, actionTitle: "Race this car") { picked in
                             guard case let .car(new) = picked else { return }
                             Task { await choose(new) }
                         }

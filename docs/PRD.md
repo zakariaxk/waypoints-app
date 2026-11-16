@@ -444,7 +444,7 @@ Every car, chosen without clutter. Plan 5.2, 10.8 (G3 to G5), 11.1.
 | GAR-2 | The catalog also covers what the federal data does not: classics before 1981 and popular grey-market imports. A hand-kept `tools/catalog/supplement.csv` adds at least 300 models with their year spans. | P0 | Verified (L36): 538 supplement rows with sources; pre-1981 classics present. |
 | GAR-3 | No car is ever blocked. Make, model, and trim each end with "Mine isn't listed" leading to a short free-text form, and the car is stored as text. | P0 | Verified (L36): "Mine isn't listed" free-text path; null-variant car insert live. |
 | GAR-4 | The picker asks one question at a time, records answers as tappable tokens, and keeps a search field on every step that parses "2019 mustang gt" in any order into at most 8 direct matches in under 30 ms. A typed search adds a car in at most 4 taps. | P0 | Verified (L36, code): stepper + always-on search, any-order tokens, ≤4 taps. |
-| GAR-5 | Steps: make (12 popular, then A to Z, text only), model (current first), year (a strip grouped by generation, not a wheel), trim (skipped when there is one), colour (16 families, an exact-colour wheel, an optional paint name with suggestions from other owners of that make). | P0 | Coded — gap (L36): everything present except paint-name suggestions from other owners of the make; queued. |
+| GAR-5 | Steps: make (12 popular, then A to Z, text only), model (current first), year (a strip grouped by generation, not a wheel), trim (skipped when there is one), colour (16 families, an exact-colour wheel, an optional paint name with suggestions from other owners of that make). | P0 | Verified (L61): colour step shows an "Other owners used" chip row populated from PostgREST distinct paint_name on cars for the picked make; verified live against seed data (Ford → Oxford White / Tangerine Scream / Nitrous Blue). |
 | GAR-6 | "Use VIN" scans or accepts 17 characters and lands on the resolved step. | P0 | Verified (L36): VIN sheet → vPIC decode live (Accord 2003 EX-V6); scan/typing paths. |
 | GAR-7 | A catalog snapshot ships inside the app and the picker never waits on the network. A newer catalog is checked for at most daily and swapped in on the next launch. | P0 | Coded: the `ios` make target builds the snapshot into `ios/App/Resources/` when missing. |
 | GAR-8 | Curated specs for at least 150 enthusiast model-generations: trim names, power, torque, curb weight, redline, gear ratios. Every row has a source URL. | P0 | Coded: `overrides.csv`, 621 rows over 71 models and 173 model-engine generations (248 trim-engine pairs), each with the Car and Driver spec page or Wikipedia article it was read from. 610 rows have torque, 483 curb weight, 491 gear ratios, 11 redline. |
@@ -574,7 +574,7 @@ Two builds, pick one. Plan 5.5, 10.5 (F4, F5).
 |---|---|---|---|
 | SHOW-1 | An owner enters a car with at least one photo into one class: Street, Built, Show, or Classic. They can withdraw it. | P0 | Verified (L39): withdraw/re-enter resets to 1200/0-0; photo-required and own-car RLS pass. |
 | SHOW-2 | Two cars fill the screen. Tap or drag one to pick it; the winner expands and shows its rank movement, then the next pair arrives. | P0 | Verified (L39, code): pair view, tap/drag pick, winner expand. |
-| SHOW-3 | Pairs are the same class, within 150 rating points, never your own car, never a pair you have judged. | P0 | Verified (L39): same-class ±150 pairs excluding own/judged; generated client-side (server RPC queued). |
+| SHOW-3 | Pairs are the same class, within 150 rating points, never your own car, never a pair you have judged. | P0 | Verified (L39, L59): `showdown_next_pair` RPC (migration 20261115200000) picks the pair in SQL — same-class, ±150, unjudged, not own; LiveShowdown.nextPair calls it; check-db 528/528 covers same-class/unjudged/own-car/anon. |
 | SHOW-4 | Votes apply Elo (K = 24) on the server. A vote for your own car, or a repeat, is refused by the server. | P0 | Verified (L39): Elo +K24 applied correctly; repeat pair 409, own car 403, per-voter uniqueness. |
 | SHOW-5 | Skip is always offered. Opening a car returns to the same pair. | P0 | Verified (L39, code): skip; pair survives detail round-trip. |
 | SHOW-6 | Rankings by class for this week and all time, with your own cars pinned at the top. | P0 | Verified (L39): week_top and all-time leaderboards return real votes; own cars pinned. |
@@ -680,6 +680,32 @@ Growth here is one person sending a link to another. Plan 10.10 (X3).
 | LINK-4 | A static site in `site/` holds the link landing page, the association file, the Terms, and the Privacy Policy. Plain HTML, no build step, free hosting (section 9.1). | P0 | Verified: published at https://zakariaxk.github.io — /, /terms, /privacy, /.well-known/apple-app-site-association all 200; unknown paths serve the custom 404.html. |
 | LINK-5 | Share cards. A meet shares as an image (title, time, place, a map snapshot) alongside its link. Builds and time slips have theirs (GAR-15, STR-5). | P1 | Coded: the meet card, the build card (GAR-15), and the time slip image (STR-5). |
 
+### 4.26 Guides and knowledge base (KNW)
+
+How to actually fix and mod your car. Structured guides, not scraped forum text. Every fact carries a source URL; forums are mined for evidence, never copied (section 2.1 licences rule).
+
+| ID | Requirement | Pri | Status |
+|---|---|---|---|
+| KNW-1 | A `repair_guides` row carries a task title, the cars it applies to (make, optional model or variant), ordered steps, a tools list, a parts list with cost ranges, a difficulty (1 to 5), a time range, tradeoffs, common mistakes, and at least one source URL. Readable by any signed-in user; written only by the pipeline and owner curations. | P1 | Open |
+| KNW-2 | A Guides browser inside the Garage tab lists guides for your cars first, then a search over every task. | P1 | Open |
+| KNW-3 | A guide page shows tools, parts with cost, steps with a per-step checkbox kept on the device, time and difficulty, tradeoffs, and mistakes, with its sources at the foot. | P1 | Open |
+| KNW-4 | A guide can link the mods its task installs, so "Simulate this" hands the part list to the mod simulator (MOD). | P2 | Open |
+| KNW-5 | The scrape pipeline (offline tool, section 8.10 W13-C) turns forum/manual sources into draft guides: facts extracted, text rewritten, sources kept. Nothing is published to `repair_guides` without a source URL. | P1 | Open |
+| KNW-6 | Ships with at least 30 curated guides covering the seeded enthusiast platforms (oil/brakes/fluids, intake/exhaust/tune installs, suspension). | P1 | Open |
+
+### 4.27 3D garage and test drive (GME)
+
+A stylized 3D shop and a small closed-loop test drive, native to the app. No licensed car models, no manufacturer logos — bodies are procedural and parameterized from catalog dimensions.
+
+| ID | Requirement | Pri | Status |
+|---|---|---|---|
+| GME-1 | The shop renders a car in 3D (RealityKit) you can orbit, pan, and zoom. The body is generated from the car's catalog class and dimensions — stylized, never a real manufacturer's design. | P2 | Open |
+| GME-2 | Shop swaps render live: paint family/colour, wheels, suspension height (drives the car's `clearance` profile, GAR-12), and aero parts from the mods list. | P2 | Open |
+| GME-3 | A test drive (SceneKit) on a small authored closed-loop road — chase cam, touch throttle/brake/steering, SCNPhysicsVehicle suspension. | P2 | Open |
+| GME-4 | Your build drives the physics: power curve, weight, gearing, and drivetrain come from `VehicleSpec` plus the car's mod list (PerformanceModel), and the exhaust sound is the existing EngineAudio synth — mods audible as you drive. | P2 | Open |
+| GME-5 | Entry from a car page: "Open in shop" and "Test drive". One accent, dark scene (DES-8); every screen has loading/empty states. | P2 | Open |
+| GME-6 | 60 fps on an iPhone 15-class device; all 3D assets generated or permissively licensed and recorded with their source. | P2 | Open |
+
 ---
 
 ## 5. Requirements that cut across areas
@@ -777,7 +803,7 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 | OBS-1 | The gateway exposes connection, publish, delivery, drop, outbox, and flush metrics on a private port, with `pprof`. | P0 | Coded |
 | OBS-2 | The client collects MetricKit diagnostics and can show the last payload on a debug screen. No third-party SDK. | P1 | Coded |
 | L10N-1 | English only. Every string lives in a String Catalog in its module. | P1 | Coded: every module with copy has a String Catalog (`tools/l10n/extract.py`, 790 keys in all). Plain `Text` and `String(localized:)` resolve from `.module`; copy held in a `String` before it is shown (error lines, switch arms, fallbacks) is wrapped in `String(localized:bundle:)`; and the script writes the union of the module catalogs to `ios/App/Localizable.xcstrings` so keys handed to DesignSystem components and SwiftUI modifiers resolve from the main bundle. Not checked with a second language. |
-| L10N-2 | Spanish. Every catalog key has a Spanish translation written by an agent and read back in screenshots of each root screen launched in Spanish; units and dates already follow the locale. Plan copy stays the English source. | P3 | Coded |
+| L10N-2 | Spanish. Every catalog key has a Spanish translation written by an agent and read back in screenshots of each root screen launched in Spanish; units and dates already follow the locale. Plan copy stays the English source. | P3 | Partial: extractor emits typed %lld/%f variant keys; ~700 `es` values corrected to matching specifiers (previously caused a launch crash in LocalizedStringKey.resolve); all 1862 catalog keys now carry `es`; `Voy/Quizá/No puedo` and `QUIÉN VA • 3` proven in `.build/shots/l10n-es.png`. Still open: per-root-screen Spanish sweep. |
 
 ---
 
@@ -1021,6 +1047,20 @@ End state: everything an agent can prove from a terminal is proven — against t
 | Store readiness | L49 to L51 | Unsigned Release build and bundle checks, then a final PRD audit and gate. |
 
 Owner-blocked work stays at the bottom of the queue: the hosted Supabase project and live deploy (L52), the Apple Developer items (L25, L27), LiveKit (L28), the perf reference host (L26), and the device pass plus App Store Connect (L29).
+
+### 8.10 Wave 13: guides and the 3D garage
+
+A knowledge base for fixing and modding your car (KNW), and a stylized 3D shop with a closed-loop test drive (GME). Native frameworks only — RealityKit for the shop, SceneKit for the drive — so both share `VehicleSpec`, `Mods`, and the account; no Unity, no licensed car models, no scraped text republished (facts extracted, sources kept). Queue rows L63 to L67; run in parallel, ownership is disjoint by package.
+
+| Package | Covers | Owns |
+|---|---|---|
+| **W13-A Guide schema + seed** | KNW-1, KNW-6 | A migration (`repair_guides` + RLS), 30 curated seed guides, `supabase/checks.sql` rows |
+| **W13-B Guide UI** | KNW-2, KNW-3, KNW-4 | `Core` repository protocol + `Backend` impl + `Sources/GuidesFeature/**` + entry from GarageFeature |
+| **W13-C Scrape pipeline** | KNW-5 | `tools/guides/**` — fetch → fact extraction → draft guides with sources; offline, nothing auto-publishes |
+| **W13-D 3D shop** | GME-1, GME-2, GME-5, GME-6 | `Sources/Shop3DFeature/**` (RealityKit, procedural bodies, paint/wheel/suspension/aero swaps) |
+| **W13-E Test drive** | GME-3, GME-4, GME-5, GME-6 | `Sources/DriveFeature/**` (SceneKit closed loop, SCNPhysicsVehicle fed by PerformanceModel + EngineAudio) |
+
+Integration (orchestrator): `waypoints://debug/shop` and `waypoints://debug/drive` routes, car-page entry points, `make build`, PRD status lines, commit.
 
 ---
 

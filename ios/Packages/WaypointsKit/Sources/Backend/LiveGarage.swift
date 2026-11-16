@@ -54,6 +54,18 @@ struct LiveGarage: GarageRepository {
         await publish(me)
     }
 
+    func paintNames(forMake make: String) async throws -> [String] {
+        struct Row: Decodable { let paint_name: String? }
+        let rows: [Row] = try await ctx.run {
+            try await ctx.table("cars").select("paint_name")
+                .ilike("make", pattern: make).not("paint_name", operator: .is, value: "null")
+                .limit(200).execute().value
+        }
+        return rows.compactMap(\.paint_name)
+            .reduce(into: [String]()) { if !$0.contains($1) { $0.append($1) } }
+            .sorted()
+    }
+
     func reorderCars(_ ids: [CarID]) async throws {
         let me = try ctx.me()
         struct Body: Encodable { let sort: Int }

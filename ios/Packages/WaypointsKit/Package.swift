@@ -19,6 +19,7 @@ let featureNames = [
     "MessagingFeature", "TeamsFeature", "VoiceFeature", "FeedFeature", "ShowdownFeature",
     "GarageFeature", "ModSimFeature", "RaceFeature", "MarketFeature", "SpotsFeature",
     "RoadsFeature", "ProgressFeature", "OnboardingFeature", "SettingsFeature", "PushKitBridge",
+    "GuidesFeature", "Shop3DFeature", "DriveFeature",
 ]
 
 let infrastructure: [Target] = [

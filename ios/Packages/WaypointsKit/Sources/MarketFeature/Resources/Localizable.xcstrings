@@ -18,7 +18,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%@ %f"
           }
         }
       }
@@ -29,7 +29,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%@ %lld"
           }
         }
       }
@@ -40,7 +40,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%f %@"
           }
         }
       }
@@ -51,7 +51,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%f %f"
           }
         }
       }
@@ -62,7 +62,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%f %lld"
           }
         }
       }
@@ -73,7 +73,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%lld %@"
           }
         }
       }
@@ -84,7 +84,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%lld %f"
           }
         }
       }
@@ -95,7 +95,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@"
+            "value": "%lld %lld"
           }
         }
       }
@@ -227,7 +227,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %@ · %f"
           }
         }
       }
@@ -238,7 +238,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %@ · %lld"
           }
         }
       }
@@ -249,7 +249,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@"
+            "value": "Presupuesto %f"
           }
         }
       }
@@ -260,7 +260,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %f · %@"
           }
         }
       }
@@ -271,7 +271,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %f · %f"
           }
         }
       }
@@ -282,7 +282,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %f · %lld"
           }
         }
       }
@@ -293,7 +293,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@"
+            "value": "Presupuesto %lld"
           }
         }
       }
@@ -304,7 +304,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %lld · %@"
           }
         }
       }
@@ -315,7 +315,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %lld · %f"
           }
         }
       }
@@ -326,7 +326,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Presupuesto %@ · %@"
+            "value": "Presupuesto %lld · %lld"
           }
         }
       }
@@ -700,7 +700,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Encaja: %@"
+            "value": "Encaja: %f"
           }
         }
       }
@@ -711,7 +711,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Encaja: %@"
+            "value": "Encaja: %lld"
           }
         }
       }
@@ -925,6 +925,15 @@
         }
       }
     },
+    "Member since %@": {
+      "extractionState": "manual"
+    },
+    "Member since %f": {
+      "extractionState": "manual"
+    },
+    "Member since %lld": {
+      "extractionState": "manual"
+    },
     "Message": {
       "extractionState": "manual",
       "localizations": {
@@ -1041,7 +1050,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nadie busca aún piezas de %@."
+            "value": "Nadie busca aún piezas de %f."
           }
         }
       }
@@ -1052,7 +1061,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nadie busca aún piezas de %@."
+            "value": "Nadie busca aún piezas de %lld."
           }
         }
       }
@@ -1085,7 +1094,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aún no hay nada anunciado de %@."
+            "value": "Aún no hay nada anunciado de %f."
           }
         }
       }
@@ -1096,7 +1105,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aún no hay nada anunciado de %@."
+            "value": "Aún no hay nada anunciado de %lld."
           }
         }
       }
@@ -1173,7 +1182,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Foto %@"
+            "value": "Foto %f"
           }
         }
       }
@@ -1184,7 +1193,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Foto %@"
+            "value": "Foto %lld"
           }
         }
       }

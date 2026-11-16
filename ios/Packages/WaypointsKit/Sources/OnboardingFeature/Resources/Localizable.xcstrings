@@ -62,7 +62,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%f)."
           }
         }
       }
@@ -73,7 +73,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%lld)."
           }
         }
       }
@@ -84,7 +84,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%f) y la [Política de privacidad](%@)."
           }
         }
       }
@@ -95,7 +95,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%f) y la [Política de privacidad](%f)."
           }
         }
       }
@@ -106,7 +106,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%f) y la [Política de privacidad](%lld)."
           }
         }
       }
@@ -117,7 +117,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%lld) y la [Política de privacidad](%@)."
           }
         }
       }
@@ -128,7 +128,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%lld) y la [Política de privacidad](%f)."
           }
         }
       }
@@ -139,7 +139,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+            "value": "Al continuar aceptas los [Términos](%lld) y la [Política de privacidad](%lld)."
           }
         }
       }

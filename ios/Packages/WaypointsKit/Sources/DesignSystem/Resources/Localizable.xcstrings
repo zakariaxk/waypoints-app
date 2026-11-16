@@ -62,7 +62,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%@, visto por última vez hace %f minutos"
           }
         }
       }
@@ -73,7 +73,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%@, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -95,7 +95,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%@%f"
           }
         }
       }
@@ -106,7 +106,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%@%f, ahora mismo"
           }
         }
       }
@@ -117,7 +117,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%f, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -128,7 +128,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%f, visto por última vez hace %f minutos"
           }
         }
       }
@@ -139,7 +139,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%f, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -150,7 +150,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%@%f, en movimiento"
           }
         }
       }
@@ -161,7 +161,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%@%lld"
           }
         }
       }
@@ -172,7 +172,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%@%lld, ahora mismo"
           }
         }
       }
@@ -183,7 +183,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%lld, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -194,7 +194,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%lld, visto por última vez hace %f minutos"
           }
         }
       }
@@ -205,7 +205,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%@%lld, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -216,7 +216,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%@%lld, en movimiento"
           }
         }
       }
@@ -227,7 +227,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quedan %@ caracteres"
+            "value": "Quedan %f caracteres"
           }
         }
       }
@@ -238,7 +238,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ conductores"
+            "value": "%f conductores"
           }
         }
       }
@@ -249,7 +249,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%f%@"
           }
         }
       }
@@ -260,7 +260,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%f%@, ahora mismo"
           }
         }
       }
@@ -271,7 +271,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%@, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -282,7 +282,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%@, visto por última vez hace %f minutos"
           }
         }
       }
@@ -293,7 +293,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%@, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -304,7 +304,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%f%@, en movimiento"
           }
         }
       }
@@ -315,7 +315,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%f%f"
           }
         }
       }
@@ -326,7 +326,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%f%f, ahora mismo"
           }
         }
       }
@@ -337,7 +337,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%f, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -348,7 +348,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%f, visto por última vez hace %f minutos"
           }
         }
       }
@@ -359,7 +359,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%f, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -370,7 +370,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%f%f, en movimiento"
           }
         }
       }
@@ -381,7 +381,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%f%lld"
           }
         }
       }
@@ -392,7 +392,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%f%lld, ahora mismo"
           }
         }
       }
@@ -403,7 +403,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%lld, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -414,7 +414,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%lld, visto por última vez hace %f minutos"
           }
         }
       }
@@ -425,7 +425,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%f%lld, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -436,7 +436,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%f%lld, en movimiento"
           }
         }
       }
@@ -447,7 +447,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quedan %@ caracteres"
+            "value": "Quedan %lld caracteres"
           }
         }
       }
@@ -458,7 +458,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ conductores"
+            "value": "%lld conductores"
           }
         }
       }
@@ -469,7 +469,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%lld%@"
           }
         }
       }
@@ -480,7 +480,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%lld%@, ahora mismo"
           }
         }
       }
@@ -491,7 +491,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%@, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -502,7 +502,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%@, visto por última vez hace %f minutos"
           }
         }
       }
@@ -513,7 +513,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%@, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -524,7 +524,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%lld%@, en movimiento"
           }
         }
       }
@@ -535,7 +535,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%lld%f"
           }
         }
       }
@@ -546,7 +546,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%lld%f, ahora mismo"
           }
         }
       }
@@ -557,7 +557,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%f, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -568,7 +568,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%f, visto por última vez hace %f minutos"
           }
         }
       }
@@ -579,7 +579,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%f, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -590,7 +590,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%lld%f, en movimiento"
           }
         }
       }
@@ -601,7 +601,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@"
+            "value": "%lld%lld"
           }
         }
       }
@@ -612,7 +612,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, ahora mismo"
+            "value": "%lld%lld, ahora mismo"
           }
         }
       }
@@ -623,7 +623,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%lld, visto por última vez hace %@ minutos"
           }
         }
       }
@@ -634,7 +634,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%lld, visto por última vez hace %f minutos"
           }
         }
       }
@@ -645,7 +645,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, visto por última vez hace %@ minutos"
+            "value": "%lld%lld, visto por última vez hace %lld minutos"
           }
         }
       }
@@ -656,7 +656,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@%@, en movimiento"
+            "value": "%lld%lld, en movimiento"
           }
         }
       }
@@ -678,7 +678,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un conductor cerca%@"
+            "value": "Un conductor cerca%f"
           }
         }
       }
@@ -689,7 +689,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Un conductor cerca%@"
+            "value": "Un conductor cerca%lld"
           }
         }
       }
@@ -733,7 +733,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ubicación aproximada%@"
+            "value": "Ubicación aproximada%f"
           }
         }
       }
@@ -744,7 +744,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ubicación aproximada%@"
+            "value": "Ubicación aproximada%lld"
           }
         }
       }
@@ -915,7 +915,15 @@
       }
     },
     "Glyphs": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glifos"
+          }
+        }
+      }
     },
     "Handle": {
       "extractionState": "manual",
@@ -1116,7 +1124,15 @@
       }
     },
     "Readout takes a readout token": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readout acepta un token de lectura"
+          }
+        }
+      }
     },
     "Recenter": {
       "extractionState": "manual",
@@ -1185,7 +1201,15 @@
       }
     },
     "SegmentedSwitch holds at most three options (plan 9.9)": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SegmentedSwitch admite como máximo tres opciones (plan 9.9)"
+          }
+        }
+      }
     },
     "Share link": {
       "extractionState": "manual",

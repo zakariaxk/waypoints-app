@@ -29,7 +29,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloquear también a @%@"
+            "value": "Bloquear también a @%f"
           }
         }
       }
@@ -40,7 +40,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bloquear también a @%@"
+            "value": "Bloquear también a @%lld"
           }
         }
       }
@@ -68,13 +68,37 @@
       }
     },
     "Bearer %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bearer %@"
+          }
+        }
+      }
     },
     "Bearer %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bearer %f"
+          }
+        }
+      }
     },
     "Bearer %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bearer %lld"
+          }
+        }
+      }
     },
     "Content-Type": {
       "extractionState": "manual",
@@ -247,7 +271,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Denunciar %@"
+            "value": "Denunciar %f"
           }
         }
       }
@@ -258,7 +282,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Denunciar %@"
+            "value": "Denunciar %lld"
           }
         }
       }
@@ -308,7 +332,15 @@
       }
     },
     "Something else": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otra cosa"
+          }
+        }
+      }
     },
     "Spam": {
       "extractionState": "manual",

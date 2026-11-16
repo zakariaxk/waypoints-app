@@ -615,28 +615,21 @@ struct LiveShowdown: ShowdownRepository {
         return out
     }
 
+    /// The server picks the pair (same class, ±150 rating, not yet judged by the caller).
     func nextPair(in showdownClass: ShowdownClass) async throws -> ShowdownPair? {
-        let me = try ctx.me()
-        let entries: [ShowdownEntry] = try await ctx.run {
-            let rows: [ShowdownRow] = try await ctx.table("showdown_entries").select().eq("class", value: showdownClass.rawValue)
-                .limit(300).execute().value
-            return rows.map(\.model)
+        struct Params: Encodable { let cls: ShowdownClass }
+        struct PairRow: Decodable { let a: UUID; let b: UUID }
+        let pairs: [PairRow] = try await ctx.run {
+            try await ctx.client.rpc("showdown_next_pair", params: Params(cls: showdownClass)).execute().value
         }
-        let mine = Set(try await garage.cars(of: me).map(\.id))
-        struct Vote: Decodable { let winnerCarId: UUID; let loserCarId: UUID }
-        let votes: [Vote] = try await ctx.run {
-            // Newest 1000 votes bound the judged set; a user votes far less in practice.
-            try await ctx.table("showdown_votes").select("winner_car_id,loser_car_id").eq("voter_id", value: me.key)
-                .order("created_at", ascending: false).limit(1000).execute().value
+        guard let pair = pairs.first else { return nil }
+        let rows: [ShowdownRow] = try await ctx.run {
+            try await ctx.table("showdown_entries").select()
+                .in("car_id", values: [pair.a, pair.b].map { $0.uuidString.lowercased() }).execute().value
         }
-        let judged = Set(votes.map { Set([$0.winnerCarId, $0.loserCarId]) })
-        let pool = entries.filter { !mine.contains($0.carID) }.shuffled()
-        for (i, a) in pool.enumerated() {
-            for b in pool[(i + 1)...] where abs(a.rating - b.rating) <= 150 && !judged.contains(Set([a.carID.raw, b.carID.raw])) {
-                return ShowdownPair(left: try await contender(a), right: try await contender(b))
-            }
-        }
-        return nil
+        let byID = Dictionary(rows.map { ($0.carId, $0.model) }, uniquingKeysWith: { x, _ in x })
+        guard let ea = byID[pair.a], let eb = byID[pair.b] else { return nil }
+        return ShowdownPair(left: try await contender(ea), right: try await contender(eb))
     }
 
     func vote(winner: CarID, loser: CarID) async throws {

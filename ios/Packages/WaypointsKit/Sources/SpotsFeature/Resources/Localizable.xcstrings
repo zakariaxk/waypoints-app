@@ -18,7 +18,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %@ · %f avistado"
           }
         }
       }
@@ -29,7 +29,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %@ · %lld avistado"
           }
         }
       }
@@ -40,7 +40,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %f · %@ avistado"
           }
         }
       }
@@ -51,7 +51,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %f · %f avistado"
           }
         }
       }
@@ -62,7 +62,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %f · %lld avistado"
           }
         }
       }
@@ -73,7 +73,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %lld · %@ avistado"
           }
         }
       }
@@ -84,7 +84,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %lld · %f avistado"
           }
         }
       }
@@ -95,7 +95,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%@ %lld · %lld avistado"
           }
         }
       }
@@ -106,7 +106,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %@ · %@ avistado"
           }
         }
       }
@@ -117,7 +117,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %@ · %f avistado"
           }
         }
       }
@@ -128,7 +128,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %@ · %lld avistado"
           }
         }
       }
@@ -139,7 +139,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %f · %@ avistado"
           }
         }
       }
@@ -150,7 +150,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %f · %f avistado"
           }
         }
       }
@@ -161,7 +161,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %f · %lld avistado"
           }
         }
       }
@@ -172,7 +172,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %lld · %@ avistado"
           }
         }
       }
@@ -183,7 +183,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %lld · %f avistado"
           }
         }
       }
@@ -194,7 +194,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%f %lld · %lld avistado"
           }
         }
       }
@@ -205,7 +205,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %@ · %@ avistado"
           }
         }
       }
@@ -216,7 +216,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %@ · %f avistado"
           }
         }
       }
@@ -227,7 +227,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %@ · %lld avistado"
           }
         }
       }
@@ -238,7 +238,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %f · %@ avistado"
           }
         }
       }
@@ -249,7 +249,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %f · %f avistado"
           }
         }
       }
@@ -260,7 +260,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %f · %lld avistado"
           }
         }
       }
@@ -271,7 +271,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %lld · %@ avistado"
           }
         }
       }
@@ -282,7 +282,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %lld · %f avistado"
           }
         }
       }
@@ -293,7 +293,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ · %@ avistado"
+            "value": "%lld %lld · %lld avistado"
           }
         }
       }

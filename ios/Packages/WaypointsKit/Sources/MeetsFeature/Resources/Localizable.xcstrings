@@ -18,7 +18,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%@ %f del mes"
           }
         }
       }
@@ -29,7 +29,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%@ %lld del mes"
           }
         }
       }
@@ -51,7 +51,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%@ de %f coches"
           }
         }
       }
@@ -62,7 +62,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%@ de %lld coches"
           }
         }
       }
@@ -73,7 +73,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%f %@ del mes"
           }
         }
       }
@@ -84,7 +84,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%f %f del mes"
           }
         }
       }
@@ -95,7 +95,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%f %lld del mes"
           }
         }
       }
@@ -106,7 +106,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%f de %@ coches"
           }
         }
       }
@@ -117,7 +117,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%f de %f coches"
           }
         }
       }
@@ -128,7 +128,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%f de %lld coches"
           }
         }
       }
@@ -139,7 +139,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%lld %@ del mes"
           }
         }
       }
@@ -150,7 +150,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%lld %f del mes"
           }
         }
       }
@@ -161,7 +161,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %@ del mes"
+            "value": "%lld %lld del mes"
           }
         }
       }
@@ -172,7 +172,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%lld de %@ coches"
           }
         }
       }
@@ -183,7 +183,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%lld de %f coches"
           }
         }
       }
@@ -194,7 +194,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ coches"
+            "value": "%lld de %lld coches"
           }
         }
       }
@@ -293,7 +293,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Cancelar este encuentro? Se avisará a las %@ personas que confirmaron."
+            "value": "¿Cancelar este encuentro? Se avisará a las %f personas que confirmaron."
           }
         }
       }
@@ -304,7 +304,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¿Cancelar este encuentro? Se avisará a las %@ personas que confirmaron."
+            "value": "¿Cancelar este encuentro? Se avisará a las %lld personas que confirmaron."
           }
         }
       }
@@ -474,6 +474,33 @@
         }
       }
     },
+    "Driving %@ · %@": {
+      "extractionState": "manual"
+    },
+    "Driving %@ · %f": {
+      "extractionState": "manual"
+    },
+    "Driving %@ · %lld": {
+      "extractionState": "manual"
+    },
+    "Driving %f · %@": {
+      "extractionState": "manual"
+    },
+    "Driving %f · %f": {
+      "extractionState": "manual"
+    },
+    "Driving %f · %lld": {
+      "extractionState": "manual"
+    },
+    "Driving %lld · %@": {
+      "extractionState": "manual"
+    },
+    "Driving %lld · %f": {
+      "extractionState": "manual"
+    },
+    "Driving %lld · %lld": {
+      "extractionState": "manual"
+    },
     "Edit": {
       "extractionState": "manual",
       "localizations": {
@@ -535,7 +562,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Entrada: %@"
+            "value": "Entrada: %f"
           }
         }
       }
@@ -546,7 +573,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Entrada: %@"
+            "value": "Entrada: %lld"
           }
         }
       }
@@ -568,7 +595,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cada %@"
+            "value": "Cada %f"
           }
         }
       }
@@ -579,7 +606,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cada %@"
+            "value": "Cada %lld"
           }
         }
       }
@@ -601,7 +628,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cada %@ alternos"
+            "value": "Cada %f alternos"
           }
         }
       }
@@ -612,7 +639,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cada %@ alternos"
+            "value": "Cada %lld alternos"
           }
         }
       }
@@ -755,7 +782,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Organizado por %@"
+            "value": "Organizado por %f"
           }
         }
       }
@@ -766,7 +793,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Organizado por %@"
+            "value": "Organizado por %lld"
           }
         }
       }
@@ -865,7 +892,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aparcamiento: %@"
+            "value": "Aparcamiento: %f"
           }
         }
       }
@@ -876,7 +903,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aparcamiento: %@"
+            "value": "Aparcamiento: %lld"
           }
         }
       }
@@ -1063,7 +1090,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elección popular: %@"
+            "value": "Elección popular: %f"
           }
         }
       }
@@ -1074,7 +1101,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elección popular: %@"
+            "value": "Elección popular: %lld"
           }
         }
       }
@@ -1195,7 +1222,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saliendo hacia %@"
+            "value": "Saliendo hacia %f"
           }
         }
       }
@@ -1206,7 +1233,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Saliendo hacia %@"
+            "value": "Saliendo hacia %lld"
           }
         }
       }
@@ -1338,7 +1365,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empieza en 30 minutos en %@."
+            "value": "Empieza en 30 minutos en %f."
           }
         }
       }
@@ -1349,7 +1376,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Empieza en 30 minutos en %@."
+            "value": "Empieza en 30 minutos en %lld."
           }
         }
       }
@@ -1426,7 +1453,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hoy %@"
+            "value": "Hoy %f"
           }
         }
       }
@@ -1437,7 +1464,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hoy %@"
+            "value": "Hoy %lld"
           }
         }
       }
@@ -1459,7 +1486,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mañana %@"
+            "value": "Mañana %f"
           }
         }
       }
@@ -1470,7 +1497,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mañana %@"
+            "value": "Mañana %lld"
           }
         }
       }
@@ -1492,7 +1519,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esta noche %@"
+            "value": "Esta noche %f"
           }
         }
       }
@@ -1503,7 +1530,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esta noche %@"
+            "value": "Esta noche %lld"
           }
         }
       }
@@ -1547,7 +1574,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lista de espera · %@"
+            "value": "Lista de espera · %f"
           }
         }
       }
@@ -1558,7 +1585,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lista de espera · %@"
+            "value": "Lista de espera · %lld"
           }
         }
       }
@@ -1701,7 +1728,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quién va · %@"
+            "value": "Quién va · %f"
           }
         }
       }
@@ -1712,7 +1739,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quién va · %@"
+            "value": "Quién va · %lld"
           }
         }
       }
@@ -1734,7 +1761,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Estás en la lista de espera, %@"
+            "value": "Estás en la lista de espera, %f"
           }
         }
       }
@@ -1745,7 +1772,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Estás en la lista de espera, %@"
+            "value": "Estás en la lista de espera, %lld"
           }
         }
       }

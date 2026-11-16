@@ -56,26 +56,85 @@
         }
       }
     },
-    "Onboarding registered twice": {
+    "Not interested": {
       "extractionState": "manual"
+    },
+    "Onboarding registered twice": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onboarding registrado dos veces"
+          }
+        }
+      }
     },
     "Route %@ registered twice": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ruta %@ registrada dos veces"
+          }
+        }
+      }
     },
     "Route %f registered twice": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ruta %f registrada dos veces"
+          }
+        }
+      }
     },
     "Route %lld registered twice": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ruta %lld registrada dos veces"
+          }
+        }
+      }
     },
     "Tab %@ registered twice": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pestaña %@ registrada dos veces"
+          }
+        }
+      }
     },
     "Tab %f registered twice": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pestaña %f registrada dos veces"
+          }
+        }
+      }
     },
     "Tab %lld registered twice": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pestaña %lld registrada dos veces"
+          }
+        }
+      }
     },
     "Teams": {
       "extractionState": "manual",

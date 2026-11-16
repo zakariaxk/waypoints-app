@@ -18,7 +18,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%@ de %f tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
@@ -29,22 +29,54 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%@ de %lld tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
     },
     "%@ of 5": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de 5"
+          }
+        }
+      }
     },
     "%@ of 5 · %@ ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de 5 · %@ valoraciones"
+          }
+        }
+      }
     },
     "%@ of 5 · %f ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de 5 · %f valoraciones"
+          }
+        }
+      }
     },
     "%@ of 5 · %lld ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ de 5 · %lld valoraciones"
+          }
+        }
+      }
     },
     "%f of %@ stretches of road here. Counted on this phone only.": {
       "extractionState": "manual",
@@ -52,7 +84,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%f de %@ tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
@@ -63,7 +95,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%f de %f tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
@@ -74,22 +106,54 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%f de %lld tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
     },
     "%f of 5": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f de 5"
+          }
+        }
+      }
     },
     "%f of 5 · %@ ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f de 5 · %@ valoraciones"
+          }
+        }
+      }
     },
     "%f of 5 · %f ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f de 5 · %f valoraciones"
+          }
+        }
+      }
     },
     "%f of 5 · %lld ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f de 5 · %lld valoraciones"
+          }
+        }
+      }
     },
     "%lld of %@ stretches of road here. Counted on this phone only.": {
       "extractionState": "manual",
@@ -97,7 +161,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%lld de %@ tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
@@ -108,7 +172,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%lld de %f tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
@@ -119,22 +183,54 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ de %@ tramos de carretera aquí. Contado solo en este teléfono."
+            "value": "%lld de %lld tramos de carretera aquí. Contado solo en este teléfono."
           }
         }
       }
     },
     "%lld of 5": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld de 5"
+          }
+        }
+      }
     },
     "%lld of 5 · %@ ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld de 5 · %@ valoraciones"
+          }
+        }
+      }
     },
     "%lld of 5 · %f ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld de 5 · %f valoraciones"
+          }
+        }
+      }
     },
     "%lld of 5 · %lld ratings": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld de 5 · %lld valoraciones"
+          }
+        }
+      }
     },
     "A road can't start or end in one of your home zones. Move the handles.": {
       "extractionState": "manual",
@@ -390,7 +486,15 @@
       }
     },
     "End of the stretch": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Final del tramo"
+          }
+        }
+      }
     },
     "Every road you saved is in this loop.": {
       "extractionState": "manual",
@@ -481,22 +585,70 @@
       }
     },
     "Move %@ down": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bajar %@"
+          }
+        }
+      }
     },
     "Move %@ up": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subir %@"
+          }
+        }
+      }
     },
     "Move %f down": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bajar %f"
+          }
+        }
+      }
     },
     "Move %f up": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subir %f"
+          }
+        }
+      }
     },
     "Move %lld down": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bajar %lld"
+          }
+        }
+      }
     },
     "Move %lld up": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subir %lld"
+          }
+        }
+      }
     },
     "Move down": {
       "extractionState": "manual",
@@ -598,13 +750,37 @@
       }
     },
     "Remove %@ from the loop": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitar %@ del grupo"
+          }
+        }
+      }
     },
     "Remove %f from the loop": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitar %f del grupo"
+          }
+        }
+      }
     },
     "Remove %lld from the loop": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitar %lld del grupo"
+          }
+        }
+      }
     },
     "Remove from loop": {
       "extractionState": "manual",
@@ -728,7 +904,15 @@
       }
     },
     "Start of the stretch": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inicio del tramo"
+          }
+        }
+      }
     },
     "Surface": {
       "extractionState": "manual",

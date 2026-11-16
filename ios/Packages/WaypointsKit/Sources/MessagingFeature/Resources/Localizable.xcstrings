@@ -282,7 +282,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Este es el inicio de %@."
+            "value": "Este es el inicio de %f."
           }
         }
       }
@@ -293,7 +293,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Este es el inicio de %@."
+            "value": "Este es el inicio de %lld."
           }
         }
       }

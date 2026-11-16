@@ -344,7 +344,7 @@ struct CarStepView: View {
             Text("What do you drive?", bundle: .module).typeStyle(.title).foregroundStyle(Color.chalk)
                 .padding(.horizontal, Space.margin).padding(.vertical, Space.s8)
             if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake).padding(.horizontal, Space.margin) }
-            VehiclePicker(catalog: env.catalog) { picked in
+            VehiclePicker(catalog: env.catalog, garage: env.garage) { picked in
                 guard case let .car(newCar) = picked else { return }
                 Task {
                     do {

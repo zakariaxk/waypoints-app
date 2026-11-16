@@ -35,7 +35,15 @@
       }
     },
     "%@ votes": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ votos"
+          }
+        }
+      }
     },
     "%f in voice": {
       "extractionState": "manual",
@@ -43,7 +51,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en voz"
+            "value": "%f en voz"
           }
         }
       }
@@ -54,7 +62,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ miembros"
+            "value": "%f miembros"
           }
         }
       }
@@ -65,13 +73,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ sin leer"
+            "value": "%f sin leer"
           }
         }
       }
     },
     "%f votes": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f votos"
+          }
+        }
+      }
     },
     "%lld in voice": {
       "extractionState": "manual",
@@ -79,7 +95,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en voz"
+            "value": "%lld en voz"
           }
         }
       }
@@ -90,7 +106,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ miembros"
+            "value": "%lld miembros"
           }
         }
       }
@@ -101,13 +117,21 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ sin leer"
+            "value": "%lld sin leer"
           }
         }
       }
     },
     "%lld votes": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld votos"
+          }
+        }
+      }
     },
     "2–5 letters": {
       "extractionState": "manual",
@@ -885,7 +909,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Puesto %@"
+            "value": "Puesto %f"
           }
         }
       }
@@ -896,7 +920,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Puesto %@"
+            "value": "Puesto %lld"
           }
         }
       }

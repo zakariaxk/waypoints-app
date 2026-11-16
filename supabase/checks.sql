@@ -122,6 +122,8 @@ declare
   lst_a   constant text := 'cccccccc-0000-4000-8006-00000000000a';
   help_a  constant text := 'cccccccc-0000-4000-8009-00000000000a';
   general_p uuid;
+  v_a uuid;
+  v_b uuid;
   msg_b bigint;
   v_int int;
 begin
@@ -592,6 +594,32 @@ begin
     $s$select 1 from showdown_votes$s$);
   perform pg_temp.deny('showdown_votes: others cannot read', b,
     $s$select 1 from showdown_votes$s$);
+
+  -- Whatever pair it returns must be same-class, within ±150, neither car owned by
+  -- the caller, and a pair the caller has not judged.
+  perform pg_temp.become(b);
+  select p.a, p.b into v_a, v_b from public.showdown_next_pair('street') p;
+  reset role;
+  perform set_config('request.jwt.claim.sub', '', true);
+  perform set_config('request.jwt.claims', '', true);
+  perform pg_temp.truth('showdown_next_pair: returns an unjudged same-class pair within ±150',
+    v_a is not null
+    and (select abs(x.rating - y.rating) <= 150
+         from showdown_entries x, showdown_entries y
+         where x.car_id = v_a and y.car_id = v_b and x.class = 'street' and y.class = 'street')
+    and public.car_owner(v_a) is distinct from b::uuid
+    and public.car_owner(v_b) is distinct from b::uuid
+    and not exists (select 1 from showdown_votes v
+                    where v.voter_id = b::uuid and v.car_lo = v_a and v.car_hi = v_b));
+  perform pg_temp.deny('showdown_next_pair: not callable by anon', 'anon',
+    $s$select 1 from showdown_next_pair('street')$s$);
+  -- Move every other entry out of the street class: A's only candidate is B-vs-C,
+  -- which A already judged, so there must be no pair.
+  create temp table _sd_classes on commit drop as select car_id, class from showdown_entries;
+  update showdown_entries set class = 'built' where car_id not in (car_a::uuid, car_b::uuid, car_c::uuid);
+  perform pg_temp.deny('showdown_next_pair: skips judged pairs and own cars', a,
+    $s$select 1 from showdown_next_pair('street')$s$);
+  update showdown_entries e set class = s.class from _sd_classes s where e.car_id = s.car_id;
 
   ---------------------------------------------------------------- market
   perform pg_temp.allow('listings: seller lists a part', a,

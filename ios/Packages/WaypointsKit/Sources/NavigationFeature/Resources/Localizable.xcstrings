@@ -18,7 +18,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%@ en %f"
           }
         }
       }
@@ -29,7 +29,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%@ en %lld"
           }
         }
       }
@@ -51,7 +51,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%@ a %f"
           }
         }
       }
@@ -62,7 +62,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%@ a %lld"
           }
         }
       }
@@ -73,7 +73,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%f en %@"
           }
         }
       }
@@ -84,7 +84,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%f en %f"
           }
         }
       }
@@ -95,7 +95,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%f en %lld"
           }
         }
       }
@@ -106,7 +106,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%f a %@"
           }
         }
       }
@@ -117,7 +117,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%f a %f"
           }
         }
       }
@@ -128,7 +128,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%f a %lld"
           }
         }
       }
@@ -139,7 +139,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%lld en %@"
           }
         }
       }
@@ -150,7 +150,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%lld en %f"
           }
         }
       }
@@ -161,7 +161,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ en %@"
+            "value": "%lld en %lld"
           }
         }
       }
@@ -172,7 +172,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%lld a %@"
           }
         }
       }
@@ -183,7 +183,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%lld a %f"
           }
         }
       }
@@ -194,10 +194,19 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ a %@"
+            "value": "%lld a %lld"
           }
         }
       }
+    },
+    "+%@ min": {
+      "extractionState": "manual"
+    },
+    "+%f min": {
+      "extractionState": "manual"
+    },
+    "+%lld min": {
+      "extractionState": "manual"
     },
     "Add a stop": {
       "extractionState": "manual",
@@ -209,6 +218,15 @@
           }
         }
       }
+    },
+    "Adds %@ minutes to the trip": {
+      "extractionState": "manual"
+    },
+    "Adds %f minutes to the trip": {
+      "extractionState": "manual"
+    },
+    "Adds %lld minutes to the trip": {
+      "extractionState": "manual"
     },
     "Best for your car": {
       "extractionState": "manual",
@@ -425,7 +443,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %@, %f"
           }
         }
       }
@@ -436,7 +454,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %@, %lld"
           }
         }
       }
@@ -447,7 +465,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %f, %@"
           }
         }
       }
@@ -458,7 +476,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %f, %f"
           }
         }
       }
@@ -469,7 +487,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %f, %lld"
           }
         }
       }
@@ -480,7 +498,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %lld, %@"
           }
         }
       }
@@ -491,7 +509,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %lld, %f"
           }
         }
       }
@@ -502,7 +520,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "En %@, %@"
+            "value": "En %lld, %lld"
           }
         }
       }
@@ -733,7 +751,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %@, llegando a %f. No tu ubicación."
           }
         }
       }
@@ -744,7 +762,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %@, llegando a %lld. No tu ubicación."
           }
         }
       }
@@ -755,7 +773,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %f, llegando a %@. No tu ubicación."
           }
         }
       }
@@ -766,7 +784,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %f, llegando a %f. No tu ubicación."
           }
         }
       }
@@ -777,7 +795,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %f, llegando a %lld. No tu ubicación."
           }
         }
       }
@@ -788,7 +806,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %lld, llegando a %@. No tu ubicación."
           }
         }
       }
@@ -799,7 +817,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %lld, llegando a %f. No tu ubicación."
           }
         }
       }
@@ -810,7 +828,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reciben un solo aviso: %@, llegando a %@. No tu ubicación."
+            "value": "Reciben un solo aviso: %lld, llegando a %lld. No tu ubicación."
           }
         }
       }
@@ -843,7 +861,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vía %@"
+            "value": "Vía %f"
           }
         }
       }
@@ -854,7 +872,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vía %@"
+            "value": "Vía %lld"
           }
         }
       }

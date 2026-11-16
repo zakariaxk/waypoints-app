@@ -260,7 +260,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se encontró nada para '%@'."
+            "value": "No se encontró nada para '%f'."
           }
         }
       }
@@ -271,7 +271,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "No se encontró nada para '%@'."
+            "value": "No se encontró nada para '%lld'."
           }
         }
       }
@@ -286,6 +286,9 @@
           }
         }
       }
+    },
+    "Other owners used": {
+      "extractionState": "manual"
     },
     "Paint name": {
       "extractionState": "manual",

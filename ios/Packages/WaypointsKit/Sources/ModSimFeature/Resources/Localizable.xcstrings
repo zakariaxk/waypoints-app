@@ -1,6 +1,15 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ needs %@": {
+      "extractionState": "manual"
+    },
+    "%@ needs %f": {
+      "extractionState": "manual"
+    },
+    "%@ needs %lld": {
+      "extractionState": "manual"
+    },
     "%@ needs a tune": {
       "extractionState": "manual",
       "localizations": {
@@ -29,7 +38,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %@ caballos, %f lb-pie"
           }
         }
       }
@@ -40,7 +49,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %@ caballos, %lld lb-pie"
           }
         }
       }
@@ -51,7 +60,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %f caballos, %@ lb-pie"
           }
         }
       }
@@ -62,7 +71,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %f caballos, %f lb-pie"
           }
         }
       }
@@ -73,7 +82,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %f caballos, %lld lb-pie"
           }
         }
       }
@@ -84,7 +93,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %lld caballos, %@ lb-pie"
           }
         }
       }
@@ -95,7 +104,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %lld caballos, %f lb-pie"
           }
         }
       }
@@ -106,10 +115,19 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%@ rpm, %lld caballos, %lld lb-pie"
           }
         }
       }
+    },
+    "%f needs %@": {
+      "extractionState": "manual"
+    },
+    "%f needs %f": {
+      "extractionState": "manual"
+    },
+    "%f needs %lld": {
+      "extractionState": "manual"
     },
     "%f needs a tune": {
       "extractionState": "manual",
@@ -117,7 +135,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ necesita puesta a punto"
+            "value": "%f necesita puesta a punto"
           }
         }
       }
@@ -128,7 +146,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %@ caballos, %@ lb-pie"
           }
         }
       }
@@ -139,7 +157,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %@ caballos, %f lb-pie"
           }
         }
       }
@@ -150,7 +168,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %@ caballos, %lld lb-pie"
           }
         }
       }
@@ -161,7 +179,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %f caballos, %@ lb-pie"
           }
         }
       }
@@ -172,7 +190,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %f caballos, %f lb-pie"
           }
         }
       }
@@ -183,7 +201,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %f caballos, %lld lb-pie"
           }
         }
       }
@@ -194,7 +212,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %lld caballos, %@ lb-pie"
           }
         }
       }
@@ -205,7 +223,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %lld caballos, %f lb-pie"
           }
         }
       }
@@ -216,10 +234,19 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%f rpm, %lld caballos, %lld lb-pie"
           }
         }
       }
+    },
+    "%lld needs %@": {
+      "extractionState": "manual"
+    },
+    "%lld needs %f": {
+      "extractionState": "manual"
+    },
+    "%lld needs %lld": {
+      "extractionState": "manual"
     },
     "%lld needs a tune": {
       "extractionState": "manual",
@@ -227,7 +254,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ necesita puesta a punto"
+            "value": "%lld necesita puesta a punto"
           }
         }
       }
@@ -238,7 +265,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %@ caballos, %@ lb-pie"
           }
         }
       }
@@ -249,7 +276,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %@ caballos, %f lb-pie"
           }
         }
       }
@@ -260,7 +287,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %@ caballos, %lld lb-pie"
           }
         }
       }
@@ -271,7 +298,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %f caballos, %@ lb-pie"
           }
         }
       }
@@ -282,7 +309,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %f caballos, %f lb-pie"
           }
         }
       }
@@ -293,7 +320,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %f caballos, %lld lb-pie"
           }
         }
       }
@@ -304,7 +331,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %lld caballos, %@ lb-pie"
           }
         }
       }
@@ -315,7 +342,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %lld caballos, %f lb-pie"
           }
         }
       }
@@ -326,7 +353,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ rpm, %@ caballos, %@ lb-pie"
+            "value": "%lld rpm, %lld caballos, %lld lb-pie"
           }
         }
       }
@@ -348,7 +375,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Añadir también %@"
+            "value": "Añadir también %f"
           }
         }
       }
@@ -359,7 +386,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Añadir también %@"
+            "value": "Añadir también %lld"
           }
         }
       }
@@ -612,7 +639,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cargado %@"
+            "value": "Cargado %f"
           }
         }
       }
@@ -623,7 +650,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cargado %@"
+            "value": "Cargado %lld"
           }
         }
       }
@@ -667,7 +694,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Necesita puesta a punto · %@"
+            "value": "Necesita puesta a punto · %f"
           }
         }
       }
@@ -678,7 +705,7 @@
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Necesita puesta a punto · %@"
+            "value": "Necesita puesta a punto · %lld"
           }
         }
       }
