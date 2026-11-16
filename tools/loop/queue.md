@@ -91,3 +91,6 @@ Format: `- [ ] L## | REQ-IDS | files it owns | one-line task`
 - [x] L76 | CNV-13 | ConvoyFeature | Join-code QR on the convoy invite sheet, same pattern as SOC-9's profile/team QR codes. New requirement row.
 - [x] L77 | SPOT-7 | SpotsFeature, DesignSystem share-card component | Share a spot collection as a card (like GAR-15's BuildCard): lead photo or silhouette, counts, handle. New requirement row.
 - [x] L78 | GAR-19 | supabase migration, GarageFeature | Planned build entries: an entry can be marked planned (no date cost? — owner-only like GAR-18), listed ahead on the timeline with a Planned mark; marking it done fills today's date. Owner-only planned-cost subtotal. New requirement row.
+- [ ] L79 | TEAM-12 | TeamsFeature | Team page Garage section: members' public cars as chips opening the car. New requirement row.
+- [ ] L80 | KNW-8 | supabase migration + checks.sql, Backend, GuidesFeature | guide_votes table + RLS; helpful count + vote/unvote on the guide page; browser sorts by votes. New requirement row.
+- [ ] L81 | GAR-20 | GarageFeature, Backend | "Listed for $X" on a car page when it has an active listing; opens the listing. New requirement row.

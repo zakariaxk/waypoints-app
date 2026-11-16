@@ -209,7 +209,6 @@ Found by the audit. Each is carried by the requirement in the last column.
 | Meet reminders are local-only | MEET-6 schedules on-device notifications; there is no server-side reminder for users without the app open recently. Within spec (local notification is the design). | MEET-6 |
 | Weekly Showdown close needs pg_cron | The `showdown_top10` award function exists; it only runs once pg_cron is enabled on the hosted project (L52). | SHOW-7 |
 | Universal links wait on TEAMID | AASA is served at zakariaxk.github.io with a placeholder team id; LINK-2 stays Partial until the owner's Apple team id replaces it. | LINK-2 |
-| No MetricKit | Nothing subscribes to it. | OBS-2 |
 | Installed size unverified on device | Release bundle measures 65 MB uncompressed; thinned per-device install size needs a device or App Store Connect report. | PERF-8 |
 
 
@@ -447,6 +446,7 @@ Every car, chosen without clutter. Plan 5.2, 10.8 (G3 to G5), 11.1.
 | GAR-17 | Gearing and tire calculator. From the car's catalog ratios and tire size: speed at redline in each gear, rpm at a chosen cruising speed, and the speedometer error for a different tire size or final drive. Cars without ratios in the catalog say so instead of guessing. On the device only. | P3 | Verified (L36, code): gearing math + manual fallbacks; catalog ratios for 1,007 variants. |
 | GAR-18 | Build cost. A timeline entry can carry what it cost. The owner alone sees a running total on the car and per-year subtotals; cost is never shown to anyone else and never ranked. | P3 | Verified (L36): cost insert, owner-only read (column privilege), running total. |
 | GAR-19 | Plans. A timeline entry can be marked planned; planned entries sit ahead on the owner's timeline with a Planned mark and no date. Marking one done stamps today. The owner alone sees a planned-cost subtotal; visitors never see planned entries or their cost. | P3 | Coded (L78): is_planned + recreated build_entries_read policy (planned rows owner-only); Planned mark, Mark done, planned subtotal, sheet toggle; checks.sql rows. Statically reviewed; check-db deferred. |
+| GAR-20 | A car with an active market listing reads "Listed for $X" under its readouts and opens the listing. | P3 | New |
 
 ### 4.12 Mod simulator (MOD)
 
@@ -504,6 +504,7 @@ Servers for car clubs. Plan 5.4, 10.7 (T1, T4 to T6).
 | TEAM-8 | A team's page offers Invite people, Members, Meets, and, when permitted, Channels, Roles, and Edit team. Members can leave; the owner deletes by typing the team's name. | P0 | Verified (L38, code): invite code/QR/share URL; leave + type-name delete. |
 | TEAM-9 | Teammates see each other on the map at the level each chose for Teams. | P0 | Verified (L62, live WS probe): omar(team_level=approx) arrives fuzzed — ~2.4 km offset, heading stripped, 88 ms; priya(precise) arrives exact at 10 ms. |
 | TEAM-10 | Only the Teams tab carries an unread count. | P0 | Verified (L38, code): badge only on teams tab, excludes muted. |
+| TEAM-12 | A team's page lists its members' public cars: a Garage section of car chips (owner, make/model, paint), each opening the car. No private data — cars are already world-readable. | P3 | New |
 | TEAM-11 | Team standings. Each week a team's score is the sum of Showdown votes its members' cars won, shown on the team page and in a weekly list of teams. Votes only: nothing from driving, distance, or the Strip counts. | P3 | Verified (L38): team_standings live ranks; private hidden; check fixed hermetic. |
 
 ### 4.15 Messaging (MSG)
@@ -685,6 +686,7 @@ How to actually fix and mod your car. Structured guides, not scraped forum text.
 | KNW-5 | The scrape pipeline (offline tool, section 8.10 W13-C) turns forum/manual sources into draft guides: facts extracted, text rewritten, sources kept. Nothing is published to `repair_guides` without a source URL. | P1 | Verified (L65): `tools/guides` (stdlib only) fetches politely (robots + 1 r/s), extracts steps/tools/parts/torque specs into a draft guide JSON, `--emit-sql` writes a jsonb INSERT, `--dedupe` refuses existing (make, task); thin extractions emit TODO skeletons, never verbatim text — proven live on a real install guide + rollback INSERT. |
 | KNW-6 | Ships with at least 30 curated guides covering the seeded enthusiast platforms (oil/brakes/fluids, intake/exhaust/tune installs, suspension). | P1 | Verified (L63): 44 curated guides over 19 seed platforms w/ real part numbers, cost ranges, sources. |
 | KNW-7 | Log it. When every step of a guide is checked, the guide page offers "Add to build log": a timeline entry on the car being worked on carrying the guide's title, today's date, and the guide's linked mods. | P3 | Coded (L72): all-checked-steps → "Add to build log" → context car > single make/model match > picker → addBuildEntry (title ≤60, first linked mod). Statically reviewed; build deferred. |
+| KNW-8 | Helpful votes. A guide shows a count of people who found it useful; tapping the same control votes or unvotes. The browser sorts matching guides by votes first. One row per person, changeable, no down-votes. | P3 | New |
 
 ### 4.27 3D garage and test drive (GME)
 
@@ -794,7 +796,7 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
 | OBS-1 | The gateway exposes connection, publish, delivery, drop, outbox, and flush metrics on a private port, with `pprof`. | P0 | Coded |
-| OBS-2 | The client collects MetricKit diagnostics and can show the last payload on a debug screen. No third-party SDK. | P1 | Coded |
+| OBS-2 | The client collects MetricKit diagnostics and can show the last payload on a debug screen. No third-party SDK. | P1 | Coded (implemented): `ios/App/MetricsCollector.swift` subscribes and writes JSON payloads to Application Support/MetricKit/; Settings' debug MetricKit row reads them. (Stale gap note removed from 3.3.) |
 | L10N-1 | English only. Every string lives in a String Catalog in its module. | P1 | Coded: every module with copy has a String Catalog (`tools/l10n/extract.py`, 790 keys in all). Plain `Text` and `String(localized:)` resolve from `.module`; copy held in a `String` before it is shown (error lines, switch arms, fallbacks) is wrapped in `String(localized:bundle:)`; and the script writes the union of the module catalogs to `ios/App/Localizable.xcstrings` so keys handed to DesignSystem components and SwiftUI modifiers resolve from the main bundle. Not checked with a second language. |
 | L10N-2 | Spanish. Every catalog key has a Spanish translation written by an agent and read back in screenshots of each root screen launched in Spanish; units and dates already follow the locale. Plan copy stays the English source. | P3 | Partial: extractor emits typed %lld/%f variant keys; ~700 `es` values corrected to matching specifiers (previously caused a launch crash in LocalizedStringKey.resolve); all 1862 catalog keys now carry `es`; `Voy/Quizá/No puedo` and `QUIÉN VA • 3` proven in `.build/shots/l10n-es.png`. Still open: per-root-screen Spanish sweep. |
 
