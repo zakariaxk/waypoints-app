@@ -20,7 +20,6 @@ public enum GuidesFeature: FeatureModule {
         }
         #if DEBUG
         registry.registerDebugScreen("guides") { AnyView(NavigationStack { GuidesScreen(ctx: ctx) }) }
-        #if DEBUG
         registry.registerDebugScreen("guide") { AnyView(DebugGuide(ctx: ctx)) }
         #endif
     }

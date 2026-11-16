@@ -518,6 +518,10 @@ begin
     format($s$insert into posts (author_id, video_path) values (%L, 'x.mp4')$s$, a));
   perform pg_temp.deny('posts: cannot tag another''s car', b,
     format($s$insert into posts (author_id, car_id, video_path) values (%L, %L, 'x.mp4')$s$, b, car_a));
+  -- L91: road_id needed its own column grant (anyone may tag any readable road).
+  perform pg_temp.allow('posts: tagging a road keeps it', a,
+    format($s$insert into posts (author_id, road_id, video_path)
+      values (%L, 'cccccccc-0000-4000-8007-00000000000a', 'road.mp4')$s$, a), true);
   perform pg_temp.allow('posts: readable by signed-in users', b,
     format($s$select 1 from posts where id = %L$s$, post_a));
   perform pg_temp.deny('posts: hidden across a block', c,
