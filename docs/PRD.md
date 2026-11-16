@@ -690,7 +690,7 @@ How to actually fix and mod your car. Structured guides, not scraped forum text.
 | KNW-2 | A Guides browser inside the Garage tab lists guides for your cars first, then a search over every task. | P1 | Open |
 | KNW-3 | A guide page shows tools, parts with cost, steps with a per-step checkbox kept on the device, time and difficulty, tradeoffs, and mistakes, with its sources at the foot. | P1 | Open |
 | KNW-4 | A guide can link the mods its task installs, so "Simulate this" hands the part list to the mod simulator (MOD). | P2 | Open |
-| KNW-5 | The scrape pipeline (offline tool, section 8.10 W13-C) turns forum/manual sources into draft guides: facts extracted, text rewritten, sources kept. Nothing is published to `repair_guides` without a source URL. | P1 | Open |
+| KNW-5 | The scrape pipeline (offline tool, section 8.10 W13-C) turns forum/manual sources into draft guides: facts extracted, text rewritten, sources kept. Nothing is published to `repair_guides` without a source URL. | P1 | Verified (L65): `tools/guides` (stdlib only) fetches politely (robots + 1 r/s), extracts steps/tools/parts/torque specs into a draft guide JSON, `--emit-sql` writes a jsonb INSERT, `--dedupe` refuses existing (make, task); thin extractions emit TODO skeletons, never verbatim text — proven live on a real install guide + rollback INSERT. |
 | KNW-6 | Ships with at least 30 curated guides covering the seeded enthusiast platforms (oil/brakes/fluids, intake/exhaust/tune installs, suspension). | P1 | Open |
 
 ### 4.27 3D garage and test drive (GME)
