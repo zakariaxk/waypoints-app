@@ -27,17 +27,21 @@ SIZES=(
   "6.5|iPhone 11 Pro Max|com.apple.CoreSimulator.SimDeviceType.iPhone-11-Pro-Max"
 )
 
-# order | name | debug screen
+# order | name | debug screen | settle override (s, defaults to SETTLE)
 SHOTS=(
-  "01|map|map"                 # live map with friends, a meet pin, reports
-  "02|meet|meet"               # meet sheet: who's going, venue notes, Roll out
-  "03|route|route-preview"     # route preview with the low-car score
-  "04|mod|mod-simulator"       # mod simulator with est. ranges
-  "05|garage|garage-car"       # a garage car with its build log
-  "06|showdown|showdown"       # Showdown vote
-  "07|team|team-channel"       # a team text channel with the voice strip
-  "08|market|market"           # market browse, fits filter on
+  "01|map|map|10"              # live map with friends, a meet pin, reports
+  "02|meet|meet|"              # meet sheet: who's going, venue notes, Roll out
+  "03|route|route-preview|25"  # route preview: ETAs and Go need the route fetch to land
+  "04|mod|mod-simulator|"      # mod simulator with est. ranges
+  "05|garage|garage-car|"      # a garage car with its build log
+  "06|showdown|showdown|"      # Showdown vote
+  "07|team|team-channel|"      # a team text channel with the voice strip
+  "08|market|market|"          # market browse, fits filter on
 )
+
+# Preview seed centre (Cherry Hill), also DebugLinks.here — gives the simulator a
+# user location so the map's .userLocation camera is deterministic (STORE-1).
+SEED_LOCATION="39.9387,-75.0230"
 
 want="${1:-}"
 
@@ -78,14 +82,14 @@ build_once() {
   BUILT=1
 }
 
-direct_shot() { # udid out screen
-  local udid="$1" out="$2" screen="$3"
+direct_shot() { # udid out screen settle
+  local udid="$1" out="$2" screen="$3" wait="${4:-$SETTLE}"
   build_once
   xcrun simctl install "$udid" "$DERIVED/Build/Products/Debug-iphonesimulator/Waypoints.app"
   xcrun simctl privacy "$udid" grant location "$BUNDLE_ID" || true
   xcrun simctl terminate "$udid" "$BUNDLE_ID" 2>/dev/null || true
   xcrun simctl launch "$udid" "$BUNDLE_ID" -wp-preview -wp-open "waypoints://debug/$screen" >/dev/null
-  sleep "$SETTLE"
+  sleep "$wait"
   xcrun simctl io "$udid" screenshot --type=png "$out" >/dev/null
 }
 
@@ -96,18 +100,19 @@ for size_row in "${SIZES[@]}"; do
   xcrun simctl boot "$udid" 2>/dev/null || true
   xcrun simctl bootstatus "$udid" -b >/dev/null
   clean_status_bar "$udid"
+  xcrun simctl location "$udid" set "$SEED_LOCATION" || true
   mkdir -p "$OUT/$size"
   echo "==> $size\" on $sim"
   for shot_row in "${SHOTS[@]}"; do
-    IFS='|' read -r order name screen <<<"$shot_row"
-    screen="${screen%%#*}"; screen="${screen// /}"
+    IFS='|' read -r order name screen wait <<<"$shot_row"
+    screen="${screen%%#*}"; screen="${screen// /}"; wait="${wait// /}"
     dest="$OUT/$size/$order-$name.png"
     if has_make_shot; then
-      make shot SIMULATOR="$sim" NAME="store-$size-$name" \
+      WAIT="${wait:-$SETTLE}" make shot SIMULATOR="$sim" NAME="store-$size-$name" \
         ARGS="-wp-preview -wp-open waypoints://debug/$screen"
       cp ".build/shots/store-$size-$name.png" "$dest"
     else
-      direct_shot "$udid" "$dest" "$screen"
+      direct_shot "$udid" "$dest" "$screen" "$wait"
     fi
     echo "    $dest"
   done
