@@ -4047,13 +4047,101 @@
         }
       }
     },
-    "By continuing you agree to the [Terms](https://waypoints.app/terms) and [Privacy Policy](https://waypoints.app/privacy).": {
+    "By continuing you agree to the [Terms](%@) and [Privacy Policy](%@).": {
       "extractionState": "manual",
       "localizations": {
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Al continuar aceptas los [Términos](https://waypoints.app/terms) y la [Política de privacidad](https://waypoints.app/privacy)."
+            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+          }
+        }
+      }
+    },
+    "By continuing you agree to the [Terms](%@) and [Privacy Policy](%f).": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+          }
+        }
+      }
+    },
+    "By continuing you agree to the [Terms](%@) and [Privacy Policy](%lld).": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+          }
+        }
+      }
+    },
+    "By continuing you agree to the [Terms](%f) and [Privacy Policy](%@).": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+          }
+        }
+      }
+    },
+    "By continuing you agree to the [Terms](%f) and [Privacy Policy](%f).": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+          }
+        }
+      }
+    },
+    "By continuing you agree to the [Terms](%f) and [Privacy Policy](%lld).": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+          }
+        }
+      }
+    },
+    "By continuing you agree to the [Terms](%lld) and [Privacy Policy](%@).": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+          }
+        }
+      }
+    },
+    "By continuing you agree to the [Terms](%lld) and [Privacy Policy](%f).": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
+          }
+        }
+      }
+    },
+    "By continuing you agree to the [Terms](%lld) and [Privacy Policy](%lld).": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Al continuar aceptas los [Términos](%@) y la [Política de privacidad](%@)."
           }
         }
       }

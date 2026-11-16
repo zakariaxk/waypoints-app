@@ -49,7 +49,6 @@ public actor PreviewStore {
     var savedBuilds: [CarID: [SavedBuild]] = PreviewSeed.savedBuilds
     var reactions: [MessageID: [ReactionCount]] = PreviewW10Reactions.seeded
     var mutes: [String: PreviewW10Reactions.StoredMute] = [:]
-    var termsAccepted = true
     var notificationPrefs = NotificationPrefs()
 
     var sessionBroadcast = Broadcast<AuthSession?>()

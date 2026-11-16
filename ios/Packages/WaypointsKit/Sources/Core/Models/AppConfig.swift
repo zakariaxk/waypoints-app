@@ -19,6 +19,11 @@ public struct AppConfig: Sendable, Hashable {
     /// Info.plist key the composition root, `DeepLink`, and Settings read the link host from.
     public static let linkHostInfoKey = "WPLinkHost"
 
+    /// LINK-4: the host that serves `site/` (`terms`, `privacy`, support). `LINK_HOST`
+    /// (Info.plist `WPLinkHost`) once the owner picks one (PRD 9.1 step 6); `waypoints.app`
+    /// until then. Every Terms/Privacy link builds on this.
+    public static var siteHost: String { Route.linkHost ?? "waypoints.app" }
+
     /// Where the app target's MetricKit subscriber keeps the last payloads (OBS-2), read by the
     /// debug screen in Settings. Application Support/MetricKit/.
     public static var metricKitDirectory: URL {
@@ -60,7 +65,7 @@ public extension Route {
         case .team(let id): "team/\(id)"
         case .listing(let id): "listing/\(id)"
         case .post(let id): "post/\(id)"
-        case .thread(let id): "thread/\(id)"
+        case .thread(let id, _): "thread/\(id)"
         case .channel(let id): "channel/\(id)"
         case .help(let id): "help/\(id)"
         case .loop(let id): "loop/\(id)"
@@ -92,7 +97,7 @@ public extension Route {
         case "team": route = TeamID(string: value).map(Route.team)
         case "listing": route = ListingID(string: value).map(Route.listing)
         case "post": route = PostID(string: value).map(Route.post)
-        case "thread": route = ThreadID(string: value).map(Route.thread)
+        case "thread": route = ThreadID(string: value).map { Route.thread($0) }
         case "channel": route = ChannelID(string: value).map(Route.channel)
         case "help": route = HelpRequestID(string: value).map(Route.help)
         case "loop": route = LoopID(string: value).map(Route.loop)

@@ -246,15 +246,15 @@ actor LiveAuth: AuthService {
 
     private nonisolated static func accountFlags(ctx: BackendContext, id: UUID) async -> (acceptedTerms: Bool, suspended: Bool) {
         struct Flags: Decodable, Sendable { let acceptedTermsAt: Date?; let suspendedAt: Date? }
-        struct Terms: Decodable, Sendable { let acceptedTermsAt: Date? }
+        struct TermsRow: Decodable, Sendable { let acceptedTermsAt: Date? }
         if let row: Flags = try? await ctx.table("profiles").select("accepted_terms_at,suspended_at")
             .eq("user_id", value: id).single().execute().value {
-            return (row.acceptedTermsAt != nil, row.suspendedAt != nil)
+            return (row.acceptedTermsAt.map { $0 >= Terms.effectiveAt } ?? false, row.suspendedAt != nil)
         }
         // A database without the W7-1 migration has no `suspended_at` column yet.
-        let row: Terms? = try? await ctx.table("profiles").select("accepted_terms_at")
+        let row: TermsRow? = try? await ctx.table("profiles").select("accepted_terms_at")
             .eq("user_id", value: id).single().execute().value
-        return (row?.acceptedTermsAt != nil, false)
+        return (row?.acceptedTermsAt.map { $0 >= Terms.effectiveAt } ?? false, false)
     }
 
     private nonisolated static func deleteAccountRow(ctx: BackendContext) async throws {

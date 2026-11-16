@@ -84,7 +84,6 @@ extension PreviewStore: ProfileRepository {
     public func acceptTerms() async throws {
         var profile = try await myProfile()
         profile.acceptedTermsAt = .now
-        termsAccepted = true
         profileChanged(profile)
     }
     public func myPrivacySettings() async throws -> PrivacySettings { privacy[try me()] ?? .defaults }
@@ -157,7 +156,10 @@ extension PreviewStore: SafetyService {
     }
     public func blockedChanges() async -> AsyncStream<Set<UserID>> { blockedBroadcast.subscribe(initial: blockedSet()) }
     public func check(_ text: String) async -> TextCheck { .ok }
-    public func needsTermsAcceptance() async -> Bool { !termsAccepted }
+    public func needsTermsAcceptance() async -> Bool {
+        guard let me = session?.userID, let profile = profiles[me] else { return true }
+        return !profile.acceptedCurrentTerms
+    }
 
     private func blockedSet() -> Set<UserID> {
         guard let me = session?.userID else { return [] }

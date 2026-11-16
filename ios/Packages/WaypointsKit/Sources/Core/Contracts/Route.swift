@@ -2,7 +2,9 @@ import Foundation
 
 /// Navigation between features without importing each other (plan 4.3).
 public enum Route: Hashable, Sendable {
-    case profile(UserID), car(CarID), meet(MeetID), team(TeamID), channel(ChannelID), voice(ChannelID), thread(ThreadID)
+    case profile(UserID), car(CarID), meet(MeetID), team(TeamID), channel(ChannelID), voice(ChannelID)
+    /// MKT-2: `draft` prefills the composer (Message seller); nil opens the thread as before.
+    case thread(ThreadID, draft: String? = nil)
     case listing(ListingID), post(PostID), report(ReportID), vehiclePicker(forCar: CarID?)
     case modSim(CarID), race(CarID), reportContent(ContentRef), settings, settingsPrivacy, createMeet(Coordinate?), createReport(Coordinate), spotCar
     case navigate(to: Coordinate, name: String?)

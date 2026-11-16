@@ -24,13 +24,42 @@ final class OnboardingModel {
     let env: AppEnvironment
     var step: Step = .signIn
     var session: AuthSession?
+    /// ACC-6: the gate is the only step left — a re-prompt after the terms changed, not
+    /// first-run onboarding.
+    var termsOnly = false
 
     init(env: AppEnvironment) { self.env = env }
 
     func observe() async {
         for await s in await env.auth.sessions() {
             session = s
-            if s == nil { step = .signIn } else if step == .signIn { step = .you }
+            if s == nil {
+                step = .signIn
+                termsOnly = false
+            } else if step == .signIn {
+                step = await landingStep()
+            }
+        }
+    }
+
+    /// Where a signed-in user lands: O2 until the profile has a handle, then the gate until
+    /// the terms in force are agreed (`Profile.acceptedCurrentTerms`, X2). Anything later
+    /// resumes at O3.
+    private func landingStep() async -> Step {
+        guard let profile = try? await env.profiles.myProfile(), !profile.handle.isEmpty else { return .you }
+        guard !profile.acceptedCurrentTerms else { return .car }
+        // ACC-6: an agreed-then-stale `acceptedTermsAt` is a re-prompt — the gate is the
+        // only step. Never agreed means a first run resumed mid-flow; it continues to O3.
+        termsOnly = profile.acceptedTermsAt != nil
+        return .terms
+    }
+
+    /// After "Agree": onboarding continues to O3; a re-prompt (ACC-6) is done.
+    func afterTerms() {
+        if termsOnly {
+            Task { try? await finish() }
+        } else {
+            step = .car
         }
     }
 
@@ -47,7 +76,7 @@ struct OnboardingRoot: View {
                 switch model.step {
                 case .signIn: SignInView(env: model.env)
                 case .you: YouView(env: model.env) { model.step = .terms }
-                case .terms: TermsGate(safety: model.env.safety) { model.step = .car }
+                case .terms: TermsGate(safety: model.env.safety) { model.afterTerms() }
                 case .car: CarStepView(env: model.env) { model.step = .location }
                 case .location: LocationStepView(env: model.env) { try await model.finish() }
                 }
@@ -83,7 +112,7 @@ struct SignInView: View {
                 Spacer()
                 if showEmail { emailForm } else { buttons }
                 if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
-                Text("By continuing you agree to the [Terms](https://waypoints.app/terms) and [Privacy Policy](https://waypoints.app/privacy).", bundle: .module)
+                Text("By continuing you agree to the [Terms](\(termsURL)) and [Privacy Policy](\(privacyURL)).", bundle: .module)
                     .typeStyle(.foot).foregroundStyle(Color.gravel).tint(.xenon)
                     .padding(.top, Space.s8)
             }
@@ -100,6 +129,10 @@ struct SignInView: View {
             }
         }
     }
+
+    /// LINK-4: the site's legal pages on the shared link host (`AppConfig.siteHost`).
+    private var termsURL: String { "https://\(AppConfig.siteHost)/terms" }
+    private var privacyURL: String { "https://\(AppConfig.siteHost)/privacy" }
 
     private var buttons: some View {
         VStack(spacing: Space.s12) {

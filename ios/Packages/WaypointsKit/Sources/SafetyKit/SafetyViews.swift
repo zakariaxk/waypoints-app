@@ -133,7 +133,7 @@ public struct TermsGate: View {
             ForEach(Array(Self.rules.enumerated()), id: \.offset) { _, rule in
                 Text(rule, bundle: .module).typeStyle(.body).foregroundStyle(Color.chalk)
             }
-            Link(destination: URL(string: "https://waypoints.app/terms")!) {
+            Link(destination: URL(string: "https://\(AppConfig.siteHost)/terms")!) {
                 Text("Read the full Terms", bundle: .module).typeStyle(.sub).foregroundStyle(Color.xenon)
                     .frame(minHeight: Size.hitTarget).contentShape(Rectangle())
             }

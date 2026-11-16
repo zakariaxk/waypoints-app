@@ -596,10 +596,8 @@ struct AboutView: View {
                 Text(verbatim: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "")
                     .typeStyle(.readoutS)
             })
-            if let host = Self.linkHost {
-                link("Terms", "https://\(host)/terms")
-                link("Privacy Policy", "https://\(host)/privacy")
-            }
+            link("Terms", "https://\(AppConfig.siteHost)/terms")
+            link("Privacy Policy", "https://\(AppConfig.siteHost)/privacy")
             link("Contact", "mailto:support@waypoints.app")
             NavigationLink {
                 ScrollView {
@@ -610,13 +608,6 @@ struct AboutView: View {
             } label: { Row(Text("Open-source licences", bundle: .module), showsDivider: false, trailing: { Disclosure() }) }
                 .buttonStyle(RowButtonStyle())
         }
-    }
-
-    /// The site host (`LINK_HOST`), which serves `site/` (LINK-4). Rows are hidden until set.
-    static var linkHost: String? {
-        guard let raw = Bundle.main.object(forInfoDictionaryKey: AppConfig.linkHostInfoKey) as? String else { return nil }
-        let host = raw.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        return host.isEmpty || host.contains("$(") ? nil : host
     }
 
     private func link(_ title: LocalizedStringKey, _ url: String) -> some View {

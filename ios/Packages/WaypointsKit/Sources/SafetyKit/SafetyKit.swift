@@ -158,7 +158,7 @@ actor LiveSafetyService: SafetyService {
 
     func needsTermsAcceptance() async -> Bool {
         guard let profile = try? await profiles.myProfile() else { return true }
-        return profile.acceptedTermsAt == nil
+        return !profile.acceptedCurrentTerms
     }
 
     func acceptTerms() async throws { try await profiles.acceptTerms() }
