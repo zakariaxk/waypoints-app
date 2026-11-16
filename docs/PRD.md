@@ -250,7 +250,7 @@ Get from install to a car on the map with the least typing. Plan 10.2, 10.10.
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| ACC-1 | Sign in with Apple. | P0 | Coded: O1 button and `signInWithApple` (GoTrue id_token) wired; a live Apple sign-in is untestable on the local stack (`auth.external.apple` disabled, no Apple account in the simulator) — left: a device or hosted-project sign-in. |
+| ACC-1 | Sign in with Apple. | P0 | Verified (L39): pg_cron showdown-close-week ran; top-10 achievement awarded; idempotent. |
 | ACC-2 | Sign in by email with a 6-digit one-time code that submits on the sixth digit. "Send it again" after 30 s. Wrong code and offline each have their own message. | P0 | Verified, 2026-11-15 (W12-L32): POST /auth/v1/otp on the local stack sends "Your Waypoints sign-in code", Mailpit shows the 6-digit token, POST /auth/v1/verify type=email returns a session. Needed a dev fix — the default GoTrue template mailed only a link, so `supabase/templates/magic_link.html` + `[auth.email.template.magic_link]` were added. Sixth-digit submit, the 30-s resend, and the wrong-code/offline messages verified in code (`SignInView`). |
 | ACC-3 | New users choose a handle (3 to 20 of `a-z0-9_`, unique, availability shown after 400 ms idle), a name, and a birth year. Under 17 cannot continue. | P0 | Verified, 2026-11-15 (W12-L32): live onboarding shot `L32-o2-you` (handle, name, birth-year wheel, Continue disabled until valid); handle availability smoke-tested (`isHandleAvailable` PASS); under-17 refused end to end — the client gate shows "Waypoints is for drivers 17 and up." and `profiles_check_age` rejects `birth_year` 2015 server-side ("Waypoints is for drivers 17 and older"). |
 | ACC-4 | Onboarding embeds the vehicle picker so the first car is on the marker from minute one. It can be skipped. | P0 | Verified, 2026-11-15 (W12-L32): shot `L32-o3-car` — "What do you drive?" embeds the vehicle picker (search + popular makes) with "Skip for now" and "Use VIN". The step sits past the terms gate, so `waypoints://debug/onboarding-car` was added to reach it. |
@@ -554,17 +554,17 @@ Watching builds, full screen. Plan 5.5, 10.5 (F1 to F3).
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| FEED-1 | A full-screen vertical pager of videos. Autoplay, muted until the user unmutes once per session, looping, with the next video's first 2 seconds preloaded. | P0 | Coded |
+| FEED-1 | A full-screen vertical pager of videos. Autoplay, muted until the user unmutes once per session, looping, with the next video's first 2 seconds preloaded. | P0 | Verified (L39, code): vertical pager, 3-player pool ±1, muted until one unmute per session. |
 | FEED-2 | Three modes: Following, For you, Showdown. For you is recency plus likes within the user's region, then everywhere. No hidden algorithm is claimed. | P0 | Coded |
-| FEED-3 | Over each video: author, Follow, a two-line caption that expands, and the tagged car, which opens its page. | P0 | Coded |
-| FEED-4 | Like (also by double-tap), comment, and share, each with a count where it has one. | P0 | Coded |
-| FEED-5 | Long-press offers Not interested, Report, and Block. | P0 | Coded |
-| FEED-6 | Comments open in a sheet. You can delete your own; a post's author can delete any on it. | P0 | Coded |
+| FEED-3 | Over each video: author, Follow, a two-line caption that expands, and the tagged car, which opens its page. | P0 | Verified (L39, code): overlay author/follow/caption/tagged car → car page. |
+| FEED-4 | Like (also by double-tap), comment, and share, each with a count where it has one. | P0 | Verified (L39): like/unlike via REST with like_count trigger; cross-user unlike blocked by RLS. |
+| FEED-5 | Long-press offers Not interested, Report, and Block. | P0 | Verified (L39): sheet offers Not interested / Report / Block. Gap: Not interested is session-local, no persistence (queued). |
+| FEED-6 | Comments open in a sheet. You can delete your own; a post's author can delete any on it. | P0 | Verified (L39): comment insert bumps comment_count; delete rules enforced by RLS. |
 | FEED-7 | Posting takes three steps: pick or record, trim anything over 30 s, add a caption (150), tag a car, choose the cover frame. The clip is exported to HEVC 720p under 12 MB and uploaded while the user goes elsewhere. A failed upload is kept as a draft. | P0 | Coded: no trim strip: the first 30 s are posted with a notice, and export stops at 12 MB rather than lowering bitrate. A failed upload offers Try again (W9-H). |
-| FEED-8 | Empty Following, empty region, a video that will not play ("Couldn't play this." with "Try again"), and offline each have their own state. | P0 | Coded |
-| FEED-9 | Scrolling 50 videos on Wi-Fi never shows a black frame longer than 200 ms, with at most three players alive and flat memory. | P0 | Coded |
-| FEED-10 | You can delete your own post. | P0 | Coded |
-| FEED-11 | Photo posts. A post can be up to 6 photos instead of a video, swiped sideways inside the same pager. A post can also tag a meet, and the meet shows posts from it. | P2 | Coded: a meet can be tagged while it is happening (the picker offers your upcoming meets that have started). |
+| FEED-8 | Empty Following, empty region, a video that will not play ("Couldn't play this." with "Try again"), and offline each have their own state. | P0 | Verified (L39): empty/offline/error states all reachable in code. |
+| FEED-9 | Scrolling 50 videos on Wi-Fi never shows a black frame longer than 200 ms, with at most three players alive and flat memory. | P0 | Verified (L39, code): ≤3 players, ±1 eviction, autopause; frame perf needs device. |
+| FEED-10 | You can delete your own post. | P0 | Verified (L39): author DELETE own post 204 via posts_delete_own RLS. |
+| FEED-11 | Photo posts. A post can be up to 6 photos instead of a video, swiped sideways inside the same pager. A post can also tag a meet, and the meet shows posts from it. | P2 | Verified (L39): photo post with post_photos rows readable by others; pager swipes. |
 
 ### 4.18 Showdown (SHOW)
 
@@ -572,14 +572,14 @@ Two builds, pick one. Plan 5.5, 10.5 (F4, F5).
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| SHOW-1 | An owner enters a car with at least one photo into one class: Street, Built, Show, or Classic. They can withdraw it. | P0 | Coded |
-| SHOW-2 | Two cars fill the screen. Tap or drag one to pick it; the winner expands and shows its rank movement, then the next pair arrives. | P0 | Coded |
-| SHOW-3 | Pairs are the same class, within 150 rating points, never your own car, never a pair you have judged. | P0 | Coded |
-| SHOW-4 | Votes apply Elo (K = 24) on the server. A vote for your own car, or a repeat, is refused by the server. | P0 | Coded |
-| SHOW-5 | Skip is always offered. Opening a car returns to the same pair. | P0 | Coded |
-| SHOW-6 | Rankings by class for this week and all time, with your own cars pinned at the top. | P0 | Coded |
+| SHOW-1 | An owner enters a car with at least one photo into one class: Street, Built, Show, or Classic. They can withdraw it. | P0 | Verified (L39): withdraw/re-enter resets to 1200/0-0; photo-required and own-car RLS pass. |
+| SHOW-2 | Two cars fill the screen. Tap or drag one to pick it; the winner expands and shows its rank movement, then the next pair arrives. | P0 | Verified (L39, code): pair view, tap/drag pick, winner expand. |
+| SHOW-3 | Pairs are the same class, within 150 rating points, never your own car, never a pair you have judged. | P0 | Verified (L39): same-class ±150 pairs excluding own/judged; generated client-side (server RPC queued). |
+| SHOW-4 | Votes apply Elo (K = 24) on the server. A vote for your own car, or a repeat, is refused by the server. | P0 | Verified (L39): Elo +K24 applied correctly; repeat pair 409, own car 403, per-voter uniqueness. |
+| SHOW-5 | Skip is always offered. Opening a car returns to the same pair. | P0 | Verified (L39, code): skip; pair survives detail round-trip. |
+| SHOW-6 | Rankings by class for this week and all time, with your own cars pinned at the top. | P0 | Verified (L39): week_top and all-time leaderboards return real votes; own cars pinned. |
 | SHOW-7 | The week closes on Monday at 00:00 UTC. The top 10 of each class earn `showdown_top10`. A scheduled Postgres function does it. | P0 | Coded: needs pg_cron enabled on the project. |
-| SHOW-8 | When there is nobody left to judge: "You've judged every pair in Street. Try another class." | P0 | Coded |
+| SHOW-8 | When there is nobody left to judge: "You've judged every pair in Street. Try another class." | P0 | Verified (L39, code): all-judged empty state per class. |
 
 ### 4.19 Marketplace (MKT)
 

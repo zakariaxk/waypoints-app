@@ -261,7 +261,9 @@ func (s *Service) deliver(ctx context.Context, token, env string, n Note) {
 	s.failed.Inc()
 	if resp.StatusCode == http.StatusGone || resp.StatusCode == http.StatusBadRequest {
 		if pool := s.store.Pool(); pool != nil {
-			_, _ = pool.Exec(ctx, `delete from public.device_tokens where apns_token = $1`, token)
+			if _, err := pool.Exec(ctx, `delete from public.device_tokens where apns_token = $1`, token); err != nil {
+				s.log.Warn("device token delete", "err", err)
+			}
 		}
 	}
 }

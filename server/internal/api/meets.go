@@ -39,7 +39,9 @@ func (s *Service) runChoice(ctx context.Context) {
 		case <-t.C:
 		}
 		if pool := s.store.Pool(); pool != nil {
-			_, _ = pool.Exec(ctx, `select public.settle_peoples_choice()`)
+			if _, err := pool.Exec(ctx, `select public.settle_peoples_choice()`); err != nil {
+				s.log.Warn("peoples choice settle", "err", err)
+			}
 		}
 	}
 }
@@ -112,7 +114,9 @@ func (s *Service) runCheckins(ctx context.Context) {
 		}
 		rows.Close()
 		for _, h := range hits {
-			_, _ = pool.Exec(ctx, `insert into public.meet_checkins (meet_id, user_id) values ($1, $2) on conflict do nothing`, h.meet, h.user)
+			if _, err := pool.Exec(ctx, `insert into public.meet_checkins (meet_id, user_id) values ($1, $2) on conflict do nothing`, h.meet, h.user); err != nil {
+				s.log.Warn("meet checkin insert", "err", err)
+			}
 		}
 	}
 }

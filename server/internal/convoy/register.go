@@ -15,6 +15,7 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"math/big"
 	"net/http"
 	"strings"
@@ -85,6 +86,7 @@ type Service struct {
 	store *store.Store
 	ws    *ws.Server
 	push  *push.Service
+	log   *slog.Logger
 	bus   bus.Bus // nil in single-node mode
 	node  string
 
@@ -115,6 +117,7 @@ func Register(a *app.App) {
 	s := &Service{
 		store:  app.MustLookup[*store.Store](a),
 		ws:     app.MustLookup[*ws.Server](a),
+		log:    a.Log,
 		byID:   map[string]*Convoy{},
 		byCode: map[string]string{},
 		unsub:  map[string]func(){},
@@ -263,10 +266,12 @@ func (s *Service) changed(ctx context.Context, c *Convoy) {
 	if pool := s.store.Pool(); pool != nil {
 		// string, not []byte: the simple query protocol would send bytes as
 		// a \x-hex bytea literal, which jsonb rejects.
-		_, _ = pool.Exec(ctx, `insert into public.convoys (id, join_code, state, ended, updated_at)
+		if _, err := pool.Exec(ctx, `insert into public.convoys (id, join_code, state, ended, updated_at)
 			values ($1, $2, $3, $4, now())
 			on conflict (id) do update set state = excluded.state, ended = excluded.ended, updated_at = now()`,
-			c.ID, c.JoinCode, string(raw), ended)
+			c.ID, c.JoinCode, string(raw), ended); err != nil {
+			s.log.Warn("convoy mirror", "err", err, "convoy", c.ID)
+		}
 	}
 	frame := &wire.ServerFrame{Body: &wire.ServerFrame_Convoy{Convoy: st}}
 	for _, m := range members {
@@ -584,7 +589,9 @@ func (s *Service) end(w http.ResponseWriter, r *http.Request, cl auth.Claims) {
 // gateway sees convoys.
 func (s *Service) award(ctx context.Context, userID, key string) {
 	if pool := s.store.Pool(); pool != nil {
-		_, _ = pool.Exec(ctx, `insert into public.achievements (user_id, key) values ($1, $2) on conflict do nothing`, userID, key)
+		if _, err := pool.Exec(ctx, `insert into public.achievements (user_id, key) values ($1, $2) on conflict do nothing`, userID, key); err != nil {
+			s.log.Warn("achievement award", "err", err, "key", key)
+		}
 	}
 }
 

@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -31,6 +32,7 @@ type Service struct {
 	auth  *auth.Verifier
 	ws    *ws.Server
 	push  *push.Service
+	log   *slog.Logger
 	apple *appleRevoker // nil until WAYPOINTS_APPLE_* is configured
 }
 
@@ -40,6 +42,7 @@ func Register(a *app.App) {
 		store: app.MustLookup[*store.Store](a),
 		auth:  app.MustLookup[*auth.Verifier](a),
 		ws:    app.MustLookup[*ws.Server](a),
+		log:   a.Log,
 	}
 	s.push, _ = app.Lookup[*push.Service](a)
 	s.apple = loadAppleRevoker(a)
