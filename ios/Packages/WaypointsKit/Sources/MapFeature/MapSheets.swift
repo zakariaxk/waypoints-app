@@ -50,11 +50,11 @@ struct DriverPeek: View {
                 } label: { Image.symbol(Symbol.more).foregroundStyle(Color.chalk).frame(width: Size.hitTarget, height: Size.hitTarget) }
                     .accessibilityLabel(Text("More", bundle: .module))
             }
-            Text(verbatim: "\(model.distanceLine(to: entity.coordinate)) · " + (entity.tier == .approximate
+            Text(readout: "\(model.distanceLine(to: entity.coordinate)) · " + (entity.tier == .approximate
                  ? String(localized: "approximate", bundle: .module)
                  : entity.staleness < 60 ? String(localized: "updated now", bundle: .module)
-                 : String(localized: "updated \(Int(entity.staleness / 60)) min ago", bundle: .module)))
-                .typeStyle(.readoutS).foregroundStyle(Color.dust)
+                 : String(localized: "updated \(Int(entity.staleness / 60)) min ago", bundle: .module)),
+                 token: .readoutS).foregroundStyle(Color.dust)
             HStack(spacing: Space.s12) {
                 PrimaryButton("Directions") {
                     model.env.router.open(.navigate(to: entity.coordinate, name: f.profile.displayName))
@@ -413,7 +413,7 @@ struct SearchView: View {
             model.env.router.open(.navigate(to: start, name: r.name))
         } label: {
             Row(Text(verbatim: r.name), trailing: {
-                Text(verbatim: Self.length(r.lengthMeters)).typeStyle(.readoutS)
+                Text(readout: Self.length(r.lengthMeters), token: .readoutS)
             })
         }
         .buttonStyle(RowButtonStyle())
@@ -432,7 +432,7 @@ struct SearchView: View {
             model.env.router.open(.meet(m.id))
         } label: {
             Row(Text(verbatim: m.title), trailing: {
-                Text(verbatim: m.startsAt.formatted(date: .omitted, time: .shortened)).typeStyle(.readoutS)
+                Text(readout: m.startsAt.formatted(date: .omitted, time: .shortened), token: .readoutS)
             })
         }
         .buttonStyle(RowButtonStyle())

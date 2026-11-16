@@ -176,7 +176,7 @@ struct LoopDetail: View {
                 ForEach(Array(roads.enumerated()), id: \.element.id) { i, r in
                     let len = Units.length(r.lengthMeters)
                     Row(Text(verbatim: "\(i + 1). \(r.name)"),
-                        trailing: { Text(verbatim: "\(len.value) \(len.unit)").typeStyle(.readoutS) })
+                        trailing: { Text(readout: "\(len.value) \(len.unit)", token: .readoutS) })
                 }
             }
             .padding(.horizontal, -Space.margin)

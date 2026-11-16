@@ -57,7 +57,7 @@ struct GuideDetailScreen: View {
                 ForEach(Array(guide.parts.enumerated()), id: \.offset) { _, part in
                     Row(Text(verbatim: part.name),
                         subtitle: part.partNumber.map { Text(verbatim: $0) },
-                        trailing: { Text(verbatim: costLabel(part)).typeStyle(.readoutS).foregroundStyle(Color.dust) })
+                        trailing: { Text(readout: costLabel(part), token: .readoutS).foregroundStyle(Color.dust) })
                 }
             }
             if !guide.tools.isEmpty {

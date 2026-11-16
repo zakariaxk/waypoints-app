@@ -386,8 +386,8 @@ struct MapScreen: View {
                         Avatar(name: f.profile.displayName, size: .s40)
                     }, trailing: {
                         if let e {
-                            Text(verbatim: "\(model.distanceText(to: e.coordinate)) · \(e.moving ? String(localized: "moving", bundle: .module) : String(localized: "parked", bundle: .module))")
-                                .typeStyle(.readoutS)
+                            Text(readout: "\(model.distanceText(to: e.coordinate)) · \(e.moving ? String(localized: "moving", bundle: .module) : String(localized: "parked", bundle: .module))",
+                                 token: .readoutS)
                         }
                     })
             }

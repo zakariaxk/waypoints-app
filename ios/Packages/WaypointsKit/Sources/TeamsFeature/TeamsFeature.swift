@@ -322,7 +322,7 @@ struct TeamsHome: View {
                 SectionLabel("UPCOMING")
                 Button { model.env.router.open(.meet(m.id)) } label: {
                     Row(Text(verbatim: m.title), subtitle: m.placeName.isEmpty ? nil : Text(verbatim: m.placeName), trailing: {
-                        Text(verbatim: m.startsAt.formatted(date: .abbreviated, time: .shortened)).typeStyle(.readoutS)
+                        Text(readout: m.startsAt.formatted(date: .abbreviated, time: .shortened), token: .readoutS)
                     })
                 }
                 .buttonStyle(RowButtonStyle())
@@ -1052,7 +1052,7 @@ struct TeamMeets: View {
                     ForEach(meets) { m in
                         Button { model.env.router.open(.meet(m.id)) } label: {
                             Row(Text(verbatim: m.title), subtitle: m.placeName.isEmpty ? nil : Text(verbatim: m.placeName), trailing: {
-                                Text(verbatim: m.startsAt.formatted(date: .abbreviated, time: .shortened)).typeStyle(.readoutS)
+                                Text(readout: m.startsAt.formatted(date: .abbreviated, time: .shortened), token: .readoutS)
                             })
                         }
                         .buttonStyle(RowButtonStyle())

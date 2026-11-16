@@ -439,7 +439,7 @@ struct ModSimView: View {
                 RuleMark(x: .value("rpm", rpm)).foregroundStyle(Color.chalk)
                     .annotation(position: .top) {
                         if let p = modCurve.min(by: { abs($0.rpm - rpm) < abs($1.rpm - rpm) }) {
-                            Text(verbatim: "\(Int(rpm).formatted(.number)) rpm · \(Int(p.hp).formatted(.number)) hp · \(Int(p.torque).formatted(.number)) lb-ft").typeStyle(.readoutS)
+                            Text(readout: "\(Int(rpm).formatted(.number)) rpm · \(Int(p.hp).formatted(.number)) hp · \(Int(p.torque).formatted(.number)) lb-ft", token: .readoutS)
                                 .foregroundStyle(Color.chalk).padding(Space.s4).background(Color.tarmac, in: RoundedRectangle(cornerRadius: Radius.r6))
                         }
                     }
@@ -547,7 +547,7 @@ struct ModSimView: View {
         return VStack(alignment: .leading, spacing: Space.s2) {
             Readout(Format.number(mid, fractionDigits: digits), unit: unit, label: label, range: .init(low: r.lowerBound, high: r.upperBound, bounds: bounds))
             if abs(delta) >= 0.05 {
-                Text(verbatim: Format.delta(delta, fractionDigits: digits)).typeStyle(.readoutS)
+                Text(readout: Format.delta(delta, fractionDigits: digits), token: .readoutS)
                     .foregroundStyle((delta > 0) == higherBetter ? Color.go : Color.brake)
             }
         }

@@ -253,7 +253,7 @@ struct RankingsView: View {
                         .frame(width: Size.hitTarget, height: Size.hitTarget)
                         .allowsHitTesting(false)
                 }
-            }, trailing: { Text(verbatim: c.entry.rating.formatted(.number)).typeStyle(.readoutS)
+            }, trailing: { Text(readout: c.entry.rating.formatted(.number), token: .readoutS)
                 .accessibilityLabel(Text("\(c.entry.rating.formatted(.number)) rating", bundle: .module)) })
         }
         .buttonStyle(RowButtonStyle())

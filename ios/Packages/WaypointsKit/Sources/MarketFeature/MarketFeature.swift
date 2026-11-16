@@ -285,7 +285,7 @@ struct Browse: View {
                     .allowsHitTesting(false)
                     .padding(.bottom, Space.s4)
                 Text(verbatim: l.title).typeStyle(.sub).foregroundStyle(Color.chalk).multilineTextAlignment(.leading).lineLimit(2)
-                Text(verbatim: Price.text(l.priceCents)).typeStyle(.readoutM).foregroundStyle(Color.chalk)
+                Text(readout: Price.text(l.priceCents), token: .readoutM).foregroundStyle(Color.chalk)
                 Text(verbatim: l.region).typeStyle(.foot).foregroundStyle(Color.dust).lineLimit(1)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -309,7 +309,7 @@ struct Browse: View {
                     .allowsHitTesting(false)
                     .padding(.bottom, Space.s4)
                 Text(verbatim: l.title).typeStyle(.bodyStrong).foregroundStyle(Color.chalk).multilineTextAlignment(.leading)
-                Text(verbatim: Price.text(l.priceCents)).typeStyle(.readoutM).foregroundStyle(Color.chalk)
+                Text(readout: Price.text(l.priceCents), token: .readoutM).foregroundStyle(Color.chalk)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
@@ -350,7 +350,7 @@ struct ListingScreen: View {
                         Text(verbatim: l.title).typeStyle(.title).foregroundStyle(Color.chalk)
                         if l.kind == .wanted { Text("Budget", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust) }
                         HStack {
-                            Text(verbatim: Price.text(l.priceCents)).typeStyle(.readoutL).foregroundStyle(Color.chalk)
+                            Text(readout: Price.text(l.priceCents), token: .readoutL).foregroundStyle(Color.chalk)
                                 .strikethrough(l.status == .sold)
                             if l.status == .sold {
                                 (l.kind == .wanted ? Text("Found", bundle: .module) : Text("Sold", bundle: .module))

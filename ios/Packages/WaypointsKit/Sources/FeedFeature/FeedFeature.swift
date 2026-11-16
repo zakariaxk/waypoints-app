@@ -529,7 +529,7 @@ struct PostOverlay: View {
         Button(action: action) {
             VStack(spacing: Space.s2) {
                 Image(systemName: symbol).font(.title2).foregroundStyle(tint)
-                Text(verbatim: count.formatted(.number)).typeStyle(.readoutS).foregroundStyle(Color.chalk)
+                Text(readout: count.formatted(.number), token: .readoutS).foregroundStyle(Color.chalk)
             }
             .frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget)
         }

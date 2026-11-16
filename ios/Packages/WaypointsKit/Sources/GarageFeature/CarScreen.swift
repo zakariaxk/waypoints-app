@@ -272,7 +272,7 @@ struct CarScreen: View {
             }
             if let entry = model.showdown {
                 Row(Text("In Showdown · \(entry.showdownClass.rawValue.capitalized)", bundle: .module),
-                    trailing: { Text(verbatim: entry.rating.formatted(.number)).typeStyle(.readoutS) })
+                    trailing: { Text(readout: entry.rating.formatted(.number), token: .readoutS) })
             } else if !ctx.registry.feedModes.isEmpty {
                 actionRow("Enter Showdown") { askShowdown = true }
                     .disabled(model.photos.isEmpty)
@@ -326,7 +326,7 @@ struct CarScreen: View {
         } else {
             ForEach(model.entries) { e in
                 VStack(alignment: .leading, spacing: Space.s4) {
-                    Text(verbatim: e.happenedOn.formatted(date: .abbreviated, time: .omitted)).typeStyle(.readoutS).foregroundStyle(Color.dust)
+                    Text(readout: e.happenedOn.formatted(date: .abbreviated, time: .omitted), token: .readoutS).foregroundStyle(Color.dust)
                     Text(verbatim: e.title).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
                     if let cents = model.costs[e.id] {
                         Text(verbatim: GarageUnits.money(cents: cents)).typeStyle(.sub).foregroundStyle(Color.dust)
@@ -360,11 +360,11 @@ struct CarScreen: View {
             let years = Dictionary(grouping: costed) { $0.year }.mapValues { $0.reduce(0) { $0 + $1.cents } }.sorted { $0.key > $1.key }
             SectionLabel("BUILD COST")
             Row(Text("Total", bundle: .module), subtitle: Text("Only you can see what the build cost.", bundle: .module), trailing: {
-                Text(verbatim: GarageUnits.money(cents: costed.reduce(0) { $0 + $1.cents })).typeStyle(.readoutM).foregroundStyle(Color.chalk)
+                Text(readout: GarageUnits.money(cents: costed.reduce(0) { $0 + $1.cents }), token: .readoutM).foregroundStyle(Color.chalk)
             })
             ForEach(years, id: \.key) { year, cents in
                 Row(Text(verbatim: String(year)), showsDivider: year != years.last?.key, trailing: {
-                    Text(verbatim: GarageUnits.money(cents: cents)).typeStyle(.readoutS)
+                    Text(readout: GarageUnits.money(cents: cents), token: .readoutS)
                 })
             }
         }

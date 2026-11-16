@@ -847,7 +847,7 @@ struct GuidanceView: View {
                 HStack {
                     let readout = model.speedReadout
                     HStack(alignment: .firstTextBaseline, spacing: Space.s4) {
-                        Text(verbatim: readout.value).typeStyle(.readoutXL).foregroundStyle(Color.chalk)
+                        Text(readout: readout.value, token: .readoutXL).foregroundStyle(Color.chalk)
                         Text(verbatim: readout.unit).typeStyle(.readoutS).foregroundStyle(Color.dust)
                     }
                     .padding(.horizontal, Space.s16)

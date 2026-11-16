@@ -109,6 +109,8 @@ public struct MapIconGallery: View {
     public init() {}
 
     public var body: some View {
+        // `containerRelativeFrame` pins to the presenting container: a debug sheet lays its
+        // content out at ideal width (~450 pt here), so unbounded rows crop off-screen.
         VStack(alignment: .leading, spacing: 0) {
             ForEach([Size.Marker.stranger, Size.Marker.friend, Size.Marker.you], id: \.self) { size in
                 // Fixed rows, not LazyVGrid: a grid in a debug sheet sizes past the proposed
@@ -116,6 +118,7 @@ public struct MapIconGallery: View {
                 ForEach(MapGlyphs.free.chunks(of: 5), id: \.self) { row in
                     HStack(spacing: Space.s8) {
                         ForEach(row, id: \.self) { cell($0, size: size) }
+                        Spacer(minLength: 0)
                     }
                     .padding(.bottom, Space.s8)
                 }
@@ -132,7 +135,9 @@ public struct MapIconGallery: View {
             .padding(Space.margin)
             HStack(spacing: Space.s8) {
                 ForEach(["speed_bump", "steep_entrance", "pothole", "rough_road", "police", "hazard", "closure", "fuel_e85"], id: \.self) {
-                    ReportBadge(kind: $0)
+                    // ReportBadge carries a 44 pt hit-target frame; at badge size the row's
+                    // ideal width exceeds the screen and a debug sheet crops both edges.
+                    ReportBadge(kind: $0).frame(width: 32, height: 44)
                 }
             }
             .padding(.horizontal, Space.margin)
@@ -149,7 +154,10 @@ public struct MapIconGallery: View {
             Text(verbatim: name).typeStyle(.readoutS).foregroundStyle(Color.dust)
                 .lineLimit(1).minimumScaleFactor(0.5)
         }
-        .frame(minWidth: size, maxWidth: .infinity, minHeight: size)
+        // Fixed width keeps the whole view's ideal under the narrowest phone; a debug
+        // sheet lays its content out at ideal width, so anything wider crops.
+        .frame(width: 60, alignment: .center)
+        .frame(minHeight: size)
     }
 }
 

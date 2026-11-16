@@ -225,7 +225,7 @@ struct Lobby: View {
                         // Trap stays in mph everywhere: it is the drag strip's unit, as on a real time slip (SET-3).
                         Row(Text(verbatim: Format.number(Double(r.etMs) / 1000, fractionDigits: 3) + " s"),
                             subtitle: Text(verbatim: r.createdAt.formatted(date: .abbreviated, time: .shortened)),
-                            trailing: { Text(verbatim: Format.number(Double(r.trapMphX10) / 10, fractionDigits: 1) + " mph").typeStyle(.readoutS) })
+                            trailing: { Text(readout: Format.number(Double(r.trapMphX10) / 10, fractionDigits: 1) + " mph", token: .readoutS) })
                     }
                 }
             }
@@ -692,7 +692,7 @@ struct TimeSlip: View {
         let red = model.phase == .redLight
         let won = !red && model.won
         return VStack(alignment: .leading, spacing: Space.s4) {
-            Text("VIRTUAL RUN · WAYPOINTS", bundle: .module).typeStyle(.readoutS)
+            Text(readout: String(localized: "VIRTUAL RUN · WAYPOINTS", bundle: .module), token: .readoutS)
             Text(verbatim: model.car.fullLabel).typeStyle(.readoutM)
             if weekly { Text("Car of the week", bundle: .module).typeStyle(.readoutS) }
             rule
@@ -705,8 +705,9 @@ struct TimeSlip: View {
             line("¼ ET", Format.number(a.quarterET, fractionDigits: 3), Format.number(b.quarterET, fractionDigits: 3))
             line("¼ MPH", Format.number(a.quarterMph, fractionDigits: 2), Format.number(b.quarterMph, fractionDigits: 2))
             rule
-            (red ? Text("RED LIGHT", bundle: .module) : won ? Text("WIN · YOU", bundle: .module) : Text("WIN · OPPONENT", bundle: .module))
-                .typeStyle(.readoutM)
+            (red ? Text(readout: String(localized: "RED LIGHT", bundle: .module), token: .readoutM)
+                 : won ? Text(readout: String(localized: "WIN · YOU", bundle: .module), token: .readoutM)
+                 : Text(readout: String(localized: "WIN · OPPONENT", bundle: .module), token: .readoutM))
         }
         .foregroundStyle(Color.asphalt)
         .padding(Space.s16)
@@ -732,11 +733,10 @@ struct TimeSlip: View {
 
     private func line(_ k: String, _ a: String, _ b: String) -> some View {
         HStack(spacing: Space.s8) {
-            Text(verbatim: k).frame(width: Size.row + Space.s16, alignment: .leading)
-            Text(verbatim: a).frame(maxWidth: .infinity, alignment: .trailing)
-            Text(verbatim: b).frame(maxWidth: .infinity, alignment: .trailing)
+            Text(readout: k, token: .readoutM).frame(width: Size.row + Space.s16, alignment: .leading)
+            Text(readout: a, token: .readoutM).frame(maxWidth: .infinity, alignment: .trailing)
+            Text(readout: b, token: .readoutM).frame(maxWidth: .infinity, alignment: .trailing)
         }
-        .typeStyle(.readoutM)
         .lineLimit(1)
     }
 }

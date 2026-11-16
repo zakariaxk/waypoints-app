@@ -149,8 +149,8 @@ struct WeeklyBoardBody: View {
                 Row(mine ? Text("You", bundle: .module) : Text(verbatim: r.displayName),
                     subtitle: Text(verbatim: Format.number(Double(r.trapMphX10) / 10, fractionDigits: 1) + " mph"),
                     trailing: {
-                        Text(verbatim: Format.number(Double(r.etMs) / 1000, fractionDigits: 3))
-                            .typeStyle(.readoutS).foregroundStyle(Color.chalk)
+                        Text(readout: Format.number(Double(r.etMs) / 1000, fractionDigits: 3), token: .readoutS)
+                            .foregroundStyle(Color.chalk)
                     })
             }
         }

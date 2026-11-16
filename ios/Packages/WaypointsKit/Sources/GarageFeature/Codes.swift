@@ -199,8 +199,8 @@ struct BuildCard: View {
     private func cell(_ r: ClosedRange<Double>, _ label: LocalizedStringKey, digits: Int, unit: String) -> some View {
         VStack(alignment: .leading, spacing: Space.s2) {
             Text(label).typeStyle(.label).foregroundStyle(Color.dust)
-            Text(verbatim: Format.range(r, fractionDigits: digits))
-                .typeStyle(.readoutS).foregroundStyle(Color.chalk)
+            Text(readout: Format.range(r, fractionDigits: digits), token: .readoutS)
+                .foregroundStyle(Color.chalk)
             Text(verbatim: unit).typeStyle(.readoutS).foregroundStyle(Color.dust)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

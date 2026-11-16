@@ -90,7 +90,7 @@ struct MeetsSectionView: View {
                         Row(Text(verbatim: m.title), subtitle: Text(verbatim: MeetFormat.place(m, from: here)), leading: {
                             MeetPin(kind: m.kind.rawValue, live: m.isHappening()).scaleEffect(0.7)
                                 .frame(width: Size.Marker.meetPin, height: Size.Marker.meetPin)
-                        }, trailing: { Text(verbatim: MeetFormat.when(m)).typeStyle(.readoutS) })
+                        }, trailing: { Text(readout: MeetFormat.when(m), token: .readoutS) })
                     }
                     .buttonStyle(RowButtonStyle())
                 }
@@ -470,7 +470,7 @@ struct MeetDetail: View {
                 } label: { Image.symbol(Symbol.more).foregroundStyle(Color.chalk).frame(width: Size.hitTarget, height: Size.hitTarget) }
                 .accessibilityLabel(Text("More options", bundle: .module))
             }
-            Text(verbatim: MeetFormat.when(m)).typeStyle(.readoutM).foregroundStyle(Color.chalk)
+            Text(readout: MeetFormat.when(m), token: .readoutM).foregroundStyle(Color.chalk)
             Text(verbatim: MeetFormat.place(m, from: here)).typeStyle(.sub).foregroundStyle(Color.dust)
             if let repeats = MeetFormat.repeats(m) {
                 Text(verbatim: repeats).typeStyle(.sub).foregroundStyle(Color.dust)

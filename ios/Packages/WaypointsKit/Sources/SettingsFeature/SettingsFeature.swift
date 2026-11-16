@@ -40,7 +40,9 @@ public enum SettingsFeature: FeatureModule {
         registry.registerDebugScreen("settings-about") { AnyView(NavigationStack { AboutView() }) }
         registry.registerDebugScreen("settings-home-zone") { AnyView(NavigationStack { HomeZoneEditor { _ in } }) }
         registry.registerDebugScreen("gallery") { AnyView(NavigationStack { Gallery() }) }
-        registry.registerDebugScreen("gallery-icons") { AnyView(ScrollView { MapIconGallery() }.background(Color.asphalt)) }
+        registry.registerDebugScreen("gallery-icons") {
+            AnyView(NavigationStack { ScrollView { MapIconGallery() }.background(Color.asphalt) })
+        }
         #endif
     }
 }
@@ -599,8 +601,7 @@ struct AboutView: View {
     var body: some View {
         SettingsList(title: "About") {
             Row(Text("Version", bundle: .module), trailing: {
-                Text(verbatim: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "")
-                    .typeStyle(.readoutS)
+                Text(readout: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "", token: .readoutS)
             })
             link("Terms", "https://\(AppConfig.siteHost)/terms")
             link("Privacy Policy", "https://\(AppConfig.siteHost)/privacy")

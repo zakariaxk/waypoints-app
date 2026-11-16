@@ -17,6 +17,8 @@ public enum MapFeature: FeatureModule {
         registry.registerDebugScreen("layers") { AnyView(DebugLayers(model: model)) }
         registry.registerDebugScreen("marker-picker") { AnyView(MarkerPicker(model: model)) }
         registry.registerDebugScreen("driver-peek") { AnyView(DebugDriverPeek(model: model)) }
+        // Registered names win over the built-ins, so `debug/search` opens M2 rather than the tab.
+        registry.registerDebugScreen("search") { AnyView(SearchView(model: model)) }
         #endif
         model.start()
     }

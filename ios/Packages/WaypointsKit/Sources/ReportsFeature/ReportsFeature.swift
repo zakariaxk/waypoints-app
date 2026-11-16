@@ -99,7 +99,7 @@ struct ReportsSectionView: View {
                         Row(Text(verbatim: ReportText.name(r.kind)),
                             subtitle: Text("Confirmed by \(r.confirmations)", bundle: .module),
                             leading: { ReportBadge(kind: r.kind.rawValue).accessibilityHidden(true) },
-                            trailing: { Text(verbatim: r.createdAt.formatted(.relative(presentation: .numeric, unitsStyle: .narrow))).typeStyle(.readoutS) })
+                            trailing: { Text(readout: r.createdAt.formatted(.relative(presentation: .numeric, unitsStyle: .narrow)), token: .readoutS) })
                     }
                     .buttonStyle(RowButtonStyle())
                 }

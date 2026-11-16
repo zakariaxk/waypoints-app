@@ -298,8 +298,8 @@ struct RoadDetail: View {
             HStack {
                 Text(title).typeStyle(.sub).foregroundStyle(Color.chalk)
                 Spacer()
-                Text(verbatim: count == 0 ? String(localized: "No ratings", bundle: .module)
-                     : "\(Format.number(value, fractionDigits: 1)) · \(count.formatted(.number))").typeStyle(.readoutS).foregroundStyle(Color.dust)
+                Text(readout: count == 0 ? String(localized: "No ratings", bundle: .module)
+                     : "\(Format.number(value, fractionDigits: 1)) · \(count.formatted(.number))", token: .readoutS).foregroundStyle(Color.dust)
                     .accessibilityLabel(count == 0 ? Text("No ratings", bundle: .module)
                         : Text("\(Format.number(value, fractionDigits: 1)) of 5 · \(count.formatted(.number)) ratings", bundle: .module))
             }

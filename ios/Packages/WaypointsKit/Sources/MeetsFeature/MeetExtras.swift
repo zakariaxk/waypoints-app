@@ -172,8 +172,8 @@ struct MeetShareCard: View {
             VStack(alignment: .leading, spacing: Space.s4) {
                 Text(MeetFormat.kindTitle(meet.kind)).typeStyle(.label).foregroundStyle(Color.sodium)
                 Text(verbatim: meet.title).typeStyle(.title).foregroundStyle(Color.chalk)
-                Text(verbatim: meet.startsAt.formatted(.dateTime.weekday(.wide).month().day().hour().minute()))
-                    .typeStyle(.readoutM).foregroundStyle(Color.chalk)
+                Text(readout: meet.startsAt.formatted(.dateTime.weekday(.wide).month().day().hour().minute()), token: .readoutM)
+                    .foregroundStyle(Color.chalk)
                 if !meet.placeName.isEmpty {
                     Text(verbatim: meet.placeName).typeStyle(.sub).foregroundStyle(Color.dust)
                 }
