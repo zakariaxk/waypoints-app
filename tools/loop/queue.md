@@ -32,7 +32,7 @@ Format: `- [ ] L## | REQ-IDS | files it owns | one-line task`
 - [x] L23 | l10n | tools/l10n/es.json | Regenerate es.json from the module catalogs (it is stale since the %lld/%f variant keys and tuple extraction); or remove it and note catalogs are canonical. Keep whatever the file's docstring says it is for consistent.
 - [x] L16b | SAFE-1 | ConvoyFeature | Report action on convoy member rows (deferred from L16 to avoid a file collision; voice participants already done).
 - [x] L24a | DES-7 | MeetsFeature, ReportsFeature, Help, MapScreen, ActivityScreen | Swap the remaining non-marker SF Symbols to GlyphArt (L17 leftovers): MeetsFeature.swift:105+167, ReportsFeature.swift:122, Help.swift:117, MapScreen.swift:401+411, ActivityScreen.swift:110; `MapAction.symbol` needs a glyph-keyed enum, not a String.
-- [ ] L24 | A11Y | DesignSystem, all feature modules | VoiceOver/Dynamic Type audit pass: every interactive control has a label, readouts announce values, text scales at AX5 without clipping in the three worst screens (guidance, meet sheet, standings).
+- [~] L24 | A11Y | DesignSystem, all feature modules | VoiceOver/Dynamic Type audit pass: every interactive control has a label, readouts announce values, text scales at AX5 without clipping in the three worst screens (guidance, meet sheet, standings).
 - [-] L25 | LINK-2, LINK-4, CMP-5 | blocked-owner | Needs the link host decision (PRD 9.1 step 6).
 - [-] L26 | PERF-1..3,6,7 | blocked-owner | Needs the Linux reference host (PRD 9.1 step 7).
 - [-] L27 | apple-revoke e2e, pushes, SIWA | blocked-owner | Needs Apple Developer account + `WAYPOINTS_APPLE_*` keys.
