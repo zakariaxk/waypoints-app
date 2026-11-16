@@ -118,6 +118,7 @@ final class RenderKernel: @unchecked Sendable {
     private var age0 = 1e9, age1 = 1e9, amp0 = 0.0, amp1 = 0.0
     private var lp1 = 0.0, lp2 = 0.0, intake = 0.0, whinePhase = 0.0, whistlePhase = 0.0, spool = 0.0
     private var crackleLeft = 0
+    private var bovLeft = 0
     private var seed: UInt64 = 0x9E3779B97F4A7C15
 
     init(sampleRate: Double) {
@@ -186,6 +187,10 @@ final class RenderKernel: @unchecked Sendable {
                 crackleLeft = Int(sampleRate * 0.004)
             }
             if crackleLeft > 0 { crackleLeft -= 1; x += noise() * 0.9; x2 += noise() * 0.9 }
+            // Blow-off: lifting under boost vents the charge to a short hiss.
+            if f & 8 != 0 && lastLoad >= 0.5 && load < 0.5 && bovLeft == 0 {
+                bovLeft = Int(sampleRate * 0.12)
+            }
             lastLoad = load
 
             // Pipes: a delay line with reflection and a gentle loss filter, per bank.
@@ -218,6 +223,11 @@ final class RenderKernel: @unchecked Sendable {
                 if whistlePhase > 2 * .pi { whistlePhase -= 2 * .pi }
                 let w = sin(whistlePhase) * 0.03 * spool
                 outL += w; outR += w
+            }
+            if bovLeft > 0 {
+                bovLeft -= 1
+                let b = noise() * 0.2 * Double(bovLeft) / (sampleRate * 0.12)
+                outL += b; outR += b
             }
             let g = muted ? 0 : gain * 0.5
             left[n] = Float(max(-1, min(1, outL * g)))

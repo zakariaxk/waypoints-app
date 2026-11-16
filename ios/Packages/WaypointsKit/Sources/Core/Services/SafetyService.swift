@@ -18,6 +18,8 @@ public extension Profile {
 /// Report, block, text filter, terms gate (section 10.10), implemented by `SafetyKit`.
 public protocol SafetyService: Sendable {
     func report(_ target: ContentRef, reason: ContentReportReason, note: String?) async throws
+    /// Targets the signed-in user has reported (SAFE-3): a reported item disappears for its reporter.
+    func reportedTargets() async throws -> Set<ContentRef>
     func block(_ user: UserID) async throws
     func unblock(_ user: UserID) async throws
     func blockedUsers() async throws -> [Profile]

@@ -133,6 +133,8 @@ final class FeedModel {
     var exhausted = false
     var loaded = false
     var me: UserID?
+    /// SAFE-3: posts and authors the user has reported stay hidden for them.
+    private var reported: Set<ContentRef>?
     /// Following reads `follows`; For you reads `feed_for_you` (FEED-2).
     let followingOnly: Bool
 
@@ -142,6 +144,7 @@ final class FeedModel {
         guard !loading else { return }
         next = nil
         exhausted = false
+        reported = nil
         await load(replacing: true)
     }
 
@@ -160,9 +163,13 @@ final class FeedModel {
             } else {
                 page = try await env.posts.forYou(after: next, limit: 10)
             }
+            if reported == nil { reported = (try? await env.safety.reportedTargets()) ?? [] }
+            let hidden = reported ?? []
             if replacing { posts = [] }
             let seen = Set(posts.map(\.id))
-            posts += page.items.filter { !seen.contains($0.id) }
+            posts += page.items.filter { !seen.contains($0.id)
+                && !hidden.contains(ContentRef(kind: .post, id: $0.id.description))
+                && !hidden.contains(ContentRef(kind: .user, id: $0.authorID.description)) }
             next = page.next
             exhausted = page.next == nil
             failed = false

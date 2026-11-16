@@ -36,6 +36,7 @@ actor LiveSafetyService: SafetyService {
     private let profiles: any ProfileRepository
     private let session = URLSession(configuration: .ephemeral)
     private var blocked: Set<UserID> = []
+    private var reported: Set<ContentRef> = []
     private var loaded = false
     private var owner: UserID?
     private var continuations: [UUID: AsyncStream<Set<UserID>>.Continuation] = [:]
@@ -55,6 +56,7 @@ actor LiveSafetyService: SafetyService {
         if owner != nil {
             loaded = false
             blocked = []
+            reported = []
         }
         owner = user
         try? await load()
@@ -102,6 +104,13 @@ actor LiveSafetyService: SafetyService {
             .init(name: "select", value: "blocked_id"), .init(name: "blocker_id", value: "eq.\(me)"),
         ])
         blocked = Set(try JSONDecoder().decode([Row].self, from: data).map { UserID(raw: $0.blocked_id) })
+        // SAFE-3: own reports hide their targets for the reporter (`content_reports_read_own` RLS).
+        struct Reported: Decodable { let target_kind: String; let target_id: String }
+        let rdata = try await request("GET", "content_reports",
+                                      query: [.init(name: "select", value: "target_kind,target_id")])
+        reported = Set(try JSONDecoder().decode([Reported].self, from: rdata).compactMap { r in
+            ContentKind(rawValue: r.target_kind).map { ContentRef(kind: $0, id: r.target_id) }
+        })
         loaded = true
     }
 
@@ -113,9 +122,15 @@ actor LiveSafetyService: SafetyService {
         let me = try await me()
         let body: [String: String?] = ["reporter_id": me.description, "target_kind": target.kind.rawValue,
                                        "target_id": target.id, "reason": reason.rawValue, "note": note]
-        // content_reports has no SELECT for the reporter, so ON CONFLICT (ignore-duplicates)
-        // is denied; a report is a new row every time, never a duplicate.
+        // content_reports grants the reporter SELECT of own rows only (L53), so ON CONFLICT
+        // (ignore-duplicates) is still denied; a report is a new row every time.
         _ = try await request("POST", "content_reports", body: try JSONEncoder().encode(body), prefer: "return=minimal")
+        reported.insert(target)
+    }
+
+    func reportedTargets() async throws -> Set<ContentRef> {
+        try await load()
+        return reported
     }
 
     func block(_ user: UserID) async throws {

@@ -139,7 +139,9 @@ extension PreviewStore: FriendRepository {
 extension PreviewStore: SafetyService {
     public func report(_ target: ContentRef, reason: ContentReportReason, note: String?) async throws {
         _ = try me()
+        reported.insert(target)
     }
+    public func reportedTargets() async throws -> Set<ContentRef> { reported }
     public func block(_ user: UserID) async throws {
         let me = try me()
         blocks.insert(Pair(me.raw, user.raw))

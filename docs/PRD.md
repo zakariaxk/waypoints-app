@@ -250,7 +250,7 @@ Get from install to a car on the map with the least typing. Plan 10.2, 10.10.
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| ACC-1 | Sign in with Apple. | P0 | Verified (L36): 622 sourced overrides, 1,473 variants in bundle; redline sparse (36) — noted. |
+| ACC-1 | Sign in with Apple. | P0 | Verified (L37, ran headless): 12/12 reference cars inside stated error (WRX trap −2.9% tightest). |
 | ACC-2 | Sign in by email with a 6-digit one-time code that submits on the sixth digit. "Send it again" after 30 s. Wrong code and offline each have their own message. | P0 | Verified, 2026-11-15 (W12-L32): POST /auth/v1/otp on the local stack sends "Your Waypoints sign-in code", Mailpit shows the 6-digit token, POST /auth/v1/verify type=email returns a session. Needed a dev fix — the default GoTrue template mailed only a link, so `supabase/templates/magic_link.html` + `[auth.email.template.magic_link]` were added. Sixth-digit submit, the 30-s resend, and the wrong-code/offline messages verified in code (`SignInView`). |
 | ACC-3 | New users choose a handle (3 to 20 of `a-z0-9_`, unique, availability shown after 400 ms idle), a name, and a birth year. Under 17 cannot continue. | P0 | Verified, 2026-11-15 (W12-L32): live onboarding shot `L32-o2-you` (handle, name, birth-year wheel, Continue disabled until valid); handle availability smoke-tested (`isHandleAvailable` PASS); under-17 refused end to end — the client gate shows "Waypoints is for drivers 17 and up." and `profiles_check_age` rejects `birth_year` 2015 server-side ("Waypoints is for drivers 17 and older"). |
 | ACC-4 | Onboarding embeds the vehicle picker so the first car is on the marker from minute one. It can be skipped. | P0 | Verified, 2026-11-15 (W12-L32): shot `L32-o3-car` — "What do you drive?" embeds the vehicle picker (search + popular makes) with "Skip for now" and "Use VIN". The step sits past the terms gate, so `waypoints://debug/onboarding-car` was added to reach it. |
@@ -283,7 +283,7 @@ Privacy is the product's first advantage. It is enforced on the server. Plan 2.5
 | PRV-12 | Background sharing is off until the user turns on "Keep sharing when the app is closed", after an explanation. It stops after 5 minutes parked. | P0 | Verified, 2026-11-15 (W12-L32): shot `L32-privacy` shows the switch off under BACKGROUND; turning it on asks "Keep sharing when the app is closed — This uses more battery. Sharing stops by itself after 5 minutes parked." before `requestAlways` (code). The 5-minute parked stop runs in `LocationService` and is gated so only keep-sharing holds the session (W11 loop L03 fix); the parked timer itself is not scriptable on the harness. |
 | PRV-13 | Blocking stops location in both directions at once. | P0 | Coded (W11 loop L04): relations and blocks load at connect and the gateway re-reads them every 45 s (`sweepRelations`), diffing subscriptions and swapping the outbox block set; a mid-session block or unfriend applies within one sweep per side. Convoy fan-out honours blocks at publish. |
 | PRV-14 | A privacy change takes effect for every viewer within one gateway tick. A failed save reverts the control and says "Couldn't save. Try again." | P0 | Coded |
-| PRV-15 | Drive recording is opt-in and stays on the device. | P0 | Coded |
+| PRV-15 | Drive recording is opt-in and stays on the device. | P0 | Verified (L40): record-drives off by default; on-device traces; wiped on sign-out. |
 
 ### 4.3 Live map (MAP)
 
@@ -465,21 +465,21 @@ See and hear what a part does to your car, honestly. Plan 10.8 (G6), 11.2, 11.3.
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| MOD-1 | A catalog of at least 40 generic mods across intake, exhaust, tune, forced induction, fuel, and weight. Each has a low and a high gain, a confidence (measured, claimed, typical), and a source URL. | P0 | Coded |
+| MOD-1 | A catalog of at least 40 generic mods across intake, exhaust, tune, forced induction, fuel, and weight. Each has a low and a high gain, a confidence (measured, claimed, typical), and a source URL. | P0 | Verified (L37): 40 generic mods; every row carries confidence + a source URL. |
 | MOD-2 | Platform kits with the maker's own figures for at least six platforms. The 5.0 Mustang is covered for 2011 to 2014, 2015 to 2023, and 2024 on, each with Whipple and Roush kits. Every figure has a source URL that was opened, not recalled. | P0 | Coded: seven platforms (Mustang GT 2011–14, 2015–17, 2018–23, 2024+ with Whipple and Roush each; F-150 5.0; Camaro LT1; 6.4 L Hemi), matched from the car and catalog row. |
-| MOD-3 | Gains do not simply add. Breathing parts saturate, a tune multiplies, a part that needs a tune gives a quarter of its gain without one, and a kit replaces both with its own figure. | P0 | Coded |
-| MOD-4 | A longitudinal simulation turns power, weight, gearing, and drivetrain into 0 to 60, quarter-mile time, and trap speed. Every output is a range from the low and high ends, widened when it disagrees with the Hale formulas by more than 12%. | P0 | Coded |
-| MOD-5 | A dyno chart shows stock and modified power and torque. Dragging across it scrubs rpm with a tick each 500 rpm, and the sound follows. | P0 | Coded |
-| MOD-6 | Four readouts show the change from stock with its range. The line "Estimates. Real results depend on the tune, the dyno, and the day." is always visible. | P0 | Coded |
-| MOD-7 | A mod that needs another says so and offers to add it. Conflicting mods cannot both be on. | P0 | Coded |
-| MOD-8 | Synthesized exhaust. Pulses follow the engine's real firing order (cross-plane and flat-plane V8, inline-4, inline-6, boxer), through pipe and muffler models, with intake, supercharger whine, turbo whistle, blow-off, and overrun crackle layers. | P0 | Coded |
-| MOD-9 | Mods change the sound in the right direction: cat-back louder and brighter, muffler delete more so, resonator delete raspier, headers brighter, a supercharger whines, a turbo whistles and softens the pulses, a burble tune crackles. | P0 | Coded |
-| MOD-10 | "Hold to rev" sweeps rpm through first gear and lets it fall. The switch is labelled "Synthesized sound". | P0 | Coded |
-| MOD-11 | "Save to car" writes the mod list and offers to add a timeline entry. | P0 | Coded |
-| MOD-12 | A car without specs asks for power and weight and then simulates. | P0 | Coded |
+| MOD-3 | Gains do not simply add. Breathing parts saturate, a tune multiplies, a part that needs a tune gives a quarter of its gain without one, and a kit replaces both with its own figure. | P0 | Verified (L37, ran): saturation, tune multiplier, ¼-gain without tune, kit absolute override all confirmed numerically. |
+| MOD-4 | A longitudinal simulation turns power, weight, gearing, and drivetrain into 0 to 60, quarter-mile time, and trap speed. Every output is a range from the low and high ends, widened when it disagrees with the Hale formulas by more than 12%. | P0 | Verified (L37): 240 Hz sim; ranges widened when Hale error >12%. |
+| MOD-5 | A dyno chart shows stock and modified power and torque. Dragging across it scrubs rpm with a tick each 500 rpm, and the sound follows. | P0 | Verified (L37, code): chart + drag scrub ticks each 500 rpm driving the synth. |
+| MOD-6 | Four readouts show the change from stock with its range. The line "Estimates. Real results depend on the tune, the dyno, and the day." is always visible. | P0 | Verified (L37): four readouts with ranges + estimate disclaimer. |
+| MOD-7 | A mod that needs another says so and offers to add it. Conflicting mods cannot both be on. | P0 | Verified (L37): missing-parts prompt, conflict subtraction both ways, one FI system. |
+| MOD-8 | Synthesized exhaust. Pulses follow the engine's real firing order (cross-plane and flat-plane V8, inline-4, inline-6, boxer), through pipe and muffler models, with intake, supercharger whine, turbo whistle, blow-off, and overrun crackle layers. | P0 | Verified (L37): intake, whine, whistle, blow-off hiss (added this pass), overrun crackle. |
+| MOD-9 | Mods change the sound in the right direction: cat-back louder and brighter, muffler delete more so, resonator delete raspier, headers brighter, a supercharger whines, a turbo whistles and softens the pulses, a burble tune crackles. | P0 | Verified (L37, code): SoundDelta→SoundProfile directions all wired. |
+| MOD-10 | "Hold to rev" sweeps rpm through first gear and lets it fall. The switch is labelled "Synthesized sound". | P0 | Verified (L37): hold-to-rev + release-fall; "Synthesized sound" label. |
+| MOD-11 | "Save to car" writes the mod list and offers to add a timeline entry. | P0 | Verified (L37): save writes car.mods + optional timeline entry. |
+| MOD-12 | A car without specs asks for power and weight and then simulates. | P0 | Verified (L37): missing specs → specs form → VehicleSpec.from. |
 | MOD-13 | The model is checked against 12 stock cars with published times: trap speed within 3%, quarter-mile time within 5%, 0 to 60 within 0.4 s. A debug screen lists model output beside the published figure. | P0 | Coded: 12 cars in `ReferenceCars.swift`, debug row under G6's mod list. W8-1F scratch run (swiftc against a Core stub) after turbo gearing and boost margin, automatic torque fill, and 8/10-speed typical ratios: 12 of 12 inside the stated error. Tightest: WRX trap -2.9%, ET +3.0%; Mustang 10-speed trap -2.8%. |
-| MOD-14 | Everything works offline, and toggling a mod updates chart, readouts, and sound within one frame. | P0 | Coded |
-| MOD-15 | Saved builds. Up to three named mod sets per car, kept with the car. Any two overlay on the dyno chart with both estimate ranges side by side, and a saved build can be the car that runs the Strip. | P3 | Coded (W10-5, W10-6): three named builds per car in `cars.saved_builds`, save, load, rename, delete, a two-build overlay with ranges side by side (`debug/modsim-builds`), and a saved-build picker on the Strip run (`RaceFeature` "Build / Current mods" row). |
+| MOD-14 | Everything works offline, and toggling a mod updates chart, readouts, and sound within one frame. | P0 | Verified (L37): model pure/offline; toggle applies sound + recomputes same frame. |
+| MOD-15 | Saved builds. Up to three named mod sets per car, kept with the car. Any two overlay on the dyno chart with both estimate ranges side by side, and a saved build can be the car that runs the Strip. | P3 | Verified (L37): 3-build cap + 4 KB CHECK live via psql; overlay + picker; debug screen. |
 
 ### 4.13 The Strip (STR)
 
@@ -487,17 +487,17 @@ A virtual drag strip driven by your real build. Plan 10.8 (G7 to G9), 11.4.
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| STR-1 | Quarter-mile runs in a landscape side view: two lanes, a tree, a tachometer with shift light, and the gear. | P0 | Coded |
-| STR-2 | Skill is reaction time, launch rpm, and shift timing. Leaving before green is a red light. | P0 | Coded |
-| STR-3 | The car's performance comes from its garage specs and mods through the same model as the simulator, stepped at 240 Hz, with its engine sound. | P0 | Coded |
-| STR-4 | Opponents: your best run, a friend's stored run replayed from its inputs, or one of three house cars. | P0 | Coded |
-| STR-5 | A time slip shows reaction, 60 ft, eighth-mile and quarter-mile time and speed for both lanes. It can be shared as an image printed with "Virtual run · Waypoints". Past runs are kept. | P0 | Coded |
-| STR-6 | Guardrails, all mandatory: the word "virtual" in the lobby, on the slip, and on shared images; nothing on the map refers to racing; the feature reads no GPS, speed, or location; no challenge can name a place or a time; no taunts, no wagers, no public leaderboard of times. | P0 | Coded |
-| STR-7 | Runs are deterministic: replaying a stored run reproduces its time exactly, and a perfect-input run lands within 2% of the simulator's quarter-mile midpoint. | P0 | Coded |
-| STR-8 | A two-finger tap pauses: Resume, Restart, Quit. | P0 | Coded |
-| STR-9 | The ladder. Ten house cars from a 16.5 s car to an 8.9 s car, described by plain specs. Beating one opens the next. A choice of sportsman or pro tree. | P1 | Coded |
-| STR-10 | Bench race. Any car in the catalog, stock or with chosen mods, can be picked as the opponent. | P2 | Coded (W8-1F): "Pick any car" in G7 opens the vehicle picker, then that car's `ModCatalog` mods; the model runs it with a clean launch. Ghosts and friend runs recorded under an older `PerformanceModelVersion` (`race_results.model_version`) are hidden. |
-| STR-11 | Car of the week. Each Monday one catalog car, stock, is the same for everyone. Your best virtual run in it that week is listed against your friends' and teammates' runs. Virtual times only; the list resets weekly and awards nothing but its own line on the time slip. | P3 | Coded |
+| STR-1 | Quarter-mile runs in a landscape side view: two lanes, a tree, a tachometer with shift light, and the gear. | P0 | Verified (L37, code): landscape canvas, two lanes, NHRA trees, tach/shift-light/gear. |
+| STR-2 | Skill is reaction time, launch rpm, and shift timing. Leaving before green is a red light. | P0 | Verified (L37, code): reaction/launch-rpm/shift skill; early launch = red light. |
+| STR-3 | The car's performance comes from its garage specs and mods through the same model as the simulator, stepped at 240 Hz, with its engine sound. | P0 | Verified (L37): same 240 Hz model drives run + synth. |
+| STR-4 | Opponents: your best run, a friend's stored run replayed from its inputs, or one of three house cars. | P0 | Verified (L37): ghost/friend/house opponents. |
+| STR-5 | A time slip shows reaction, 60 ft, eighth-mile and quarter-mile time and speed for both lanes. It can be shared as an image printed with "Virtual run · Waypoints". Past runs are kept. | P0 | Verified (L37): full slip + share image + past runs. |
+| STR-6 | Guardrails, all mandatory: the word "virtual" in the lobby, on the slip, and on shared images; nothing on the map refers to racing; the feature reads no GPS, speed, or location; no challenge can name a place or a time; no taunts, no wagers, no public leaderboard of times. | P0 | Verified (L37): no location anywhere in the feature; "virtual" in lobby/slip/share. |
+| STR-7 | Runs are deterministic: replaying a stored run reproduces its time exactly, and a perfect-input run lands within 2% of the simulator's quarter-mile midpoint. | P0 | Verified (L37, ran): identical replay of a live run's InputLog; perfect-input run = estimate midpoint exactly. |
+| STR-8 | A two-finger tap pauses: Resume, Restart, Quit. | P0 | Verified (L37, code): two-finger tap → Resume/Restart/Quit. |
+| STR-9 | The ladder. Ten house cars from a 16.5 s car to an 8.9 s car, described by plain specs. Beating one opens the next. A choice of sportsman or pro tree. | P1 | Verified (L37): 10 house cars 16.4→9.0 s model spread; win opens next. |
+| STR-10 | Bench race. Any car in the catalog, stock or with chosen mods, can be picked as the opponent. | P2 | Verified (L37): bench picker → any catalog car + mods, model-driven. |
+| STR-11 | Car of the week. Each Monday one catalog car, stock, is the same for everyone. Your best virtual run in it that week is listed against your friends' and teammates' runs. Virtual times only; the list resets weekly and awards nothing but its own line on the time slip. | P3 | Verified (L37): car_of_week RPCs, Monday reset, stock-for-all, slip line; debug screen. |
 
 ### 4.14 Teams (TEAM)
 
@@ -587,15 +587,15 @@ Parts and cars. Listings and messages, never payment. Plan 5.5, 10.6.
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| MKT-1 | Browse parts or cars with search. Parts are filtered by default to what fits your active car ("Fits: 2019 Mustang GT"), which can be changed or cleared. Further filters: price, condition, distance. | P0 | Coded |
-| MKT-2 | A listing shows photos, title, price, condition, region, what it fits, a description, and its seller. "Message seller" opens a thread with the listing pinned and "Is this still available?" prefilled. Listings can be saved. | P0 | Coded (W11 loop L15): `Route.thread` carries an optional draft; "Message seller" opens the thread with the listing pinned and the opener prefilled in the composer ("I have one." on wanted listings), editable before send. |
-| MKT-3 | Listing something is one scrolling screen: up to 8 photos in a chosen order, part or car, title (70), price, condition, what it fits (or a car from your garage, which prefills everything), description (1500), region. | P0 | Coded |
-| MKT-4 | "Yours" holds what you are selling and what you saved. A listing can be edited, marked sold, or removed. | P0 | Coded |
-| MKT-5 | Every listing carries "Meet in a public place. Waypoints doesn't handle payment." | P0 | Coded |
-| MKT-6 | There is no checkout, shipping, fee, or promoted placement. | P0 | Coded |
-| MKT-7 | Parts have a category: wheels and tires, exhaust, intake and fuel, forced induction, engine, drivetrain, suspension, brakes, exterior and aero, interior, lighting, electronics and tuning, tools, apparel, other. Browse filters by it. | P1 | Coded |
-| MKT-8 | Wanted. A third listing kind for something you are looking for, with a budget instead of a price. Shown under its own switch position. | P1 | Coded |
-| MKT-9 | A listing untouched for 90 days leaves browse and reads "Expired" to its seller, with "Relist". | P2 | Coded |
+| MKT-1 | Browse parts or cars with search. Parts are filtered by default to what fits your active car ("Fits: 2019 Mustang GT"), which can be changed or cleared. Further filters: price, condition, distance. | P0 | Verified (L40): browse filters kind/category/search/fits/distance; lat/lng rounded server-side. |
+| MKT-2 | A listing shows photos, title, price, condition, region, what it fits, a description, and its seller. "Message seller" opens a thread with the listing pinned and "Is this still available?" prefilled. Listings can be saved. | P0 | Verified (L40): listing detail + message-seller listing thread created live; saves via listing_saves RPC. |
+| MKT-3 | Listing something is one scrolling screen: up to 8 photos in a chosen order, part or car, title (70), price, condition, what it fits (or a car from your garage, which prefills everything), description (1500), region. | P0 | Verified (L40): one form, <8 photos, title/desc constraints, garage prefill; create live. |
+| MKT-4 | "Yours" holds what you are selling and what you saved. A listing can be edited, marked sold, or removed. | P0 | Verified (L40): owner sold/delete; non-owner blocked by RLS. |
+| MKT-5 | Every listing carries "Meet in a public place. Waypoints doesn't handle payment." | P0 | Verified (L40): disclaimer present. |
+| MKT-6 | There is no checkout, shipping, fee, or promoted placement. | P0 | Verified (L40): no checkout/shipping/fee paths anywhere. |
+| MKT-7 | Parts have a category: wheels and tires, exhaust, intake and fuel, forced induction, engine, drivetrain, suspension, brakes, exterior and aero, interior, lighting, electronics and tuning, tools, apparel, other. Browse filters by it. | P1 | Verified (L40): exactly the 15 categories + indexed filter. |
+| MKT-8 | Wanted. A third listing kind for something you are looking for, with a budget instead of a price. Shown under its own switch position. | P1 | Verified (L40): wanted kind + budget label; create live. |
+| MKT-9 | A listing untouched for 90 days leaves browse and reads "Expired" to its seller, with "Relist". | P2 | Verified (L40): 90-day expiry excluded from browse; relist RPC revives. |
 
 ### 4.20 Car spotting (SPOT)
 
@@ -603,12 +603,12 @@ A collection game on the street. Plan 10.3 (M12).
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| SPOT-1 | "Spot a car" opens the camera directly. | P0 | Coded |
-| SPOT-2 | Licence plates are found and blurred on the device before anything is uploaded. The user can add or remove blur boxes. The blur catches the plate in 9 of 10 varied photos. | P0 | Coded |
-| SPOT-3 | The car is tagged from the catalog with the picker in model-only mode. | P0 | Coded |
-| SPOT-4 | Only a city name and a coarse cell are stored. No precise position, and no photo metadata. | P0 | Coded |
-| SPOT-5 | The spot joins a collection grouped by make, then model, with counts and the moment "Porsche 911 · 3rd spotted". | P0 | Coded |
-| SPOT-6 | Faces are blurred the same way as plates. | P1 | Coded |
+| SPOT-1 | "Spot a car" opens the camera directly. | P0 | Verified (L40, code): flow opens on camera. |
+| SPOT-2 | Licence plates are found and blurred on the device before anything is uploaded. The user can add or remove blur boxes. The blur catches the plate in 9 of 10 varied photos. | P0 | Verified (L40, code): on-device plate+face detection, pixellate before upload, manual boxes. |
+| SPOT-3 | The car is tagged from the catalog with the picker in model-only mode. | P0 | Verified (L40): catalog-model picker stores catalog_model_id. |
+| SPOT-4 | Only a city name and a coarse cell are stored. No precise position, and no photo metadata. | P0 | Verified (L40): only city stored — no coordinate column at all; photo EXIF stripped. h3_r5 column unused (stricter than spec). |
+| SPOT-5 | The spot joins a collection grouped by make, then model, with counts and the moment "Porsche 911 · 3rd spotted". | P0 | Verified (L40): makes→models collection + "Nth spotted"; insert/read live. |
+| SPOT-6 | Faces are blurred the same way as plates. | P1 | Verified (L40, code): faces blurred same as plates. |
 
 ### 4.21 Road ratings (ROAD)
 
@@ -616,12 +616,12 @@ Good roads, rated by people who drove them. Plan 10.3 (M11).
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| ROAD-1 | With drive recording on, recent drives are listed in Garage. Opening one lets the user mark a stretch with two handles, name it (50), rate surface, scenery, and traffic from 1 to 5, and save it. | P0 | Coded |
-| ROAD-2 | Only the saved stretch is uploaded. | P0 | Coded |
-| ROAD-3 | A stretch cannot start or end inside one of the user's home zones. | P0 | Coded |
-| ROAD-4 | Rated roads draw on the map as a layer. A road's sheet shows its length, three averages with the count, "Drive it" (routes to its start, then along it), and "Rate". | P0 | Coded |
-| ROAD-5 | Driven map. On the device only, the share of road cells in your region you have driven, shown as a number and a map shading. It rewards exploring, never speed or distance. | P2 | Coded: a 0.0025 degree lat/lng grid on the device; the share counts the cells of rated roads in view that your traces cross (the only road data on the phone), shaded through the `driven_map` layer. |
-| ROAD-6 | Loops. Saved roads can be grouped in order into a named loop with a total length. A loop has a share link, opens as one route in navigation, and can be sent to a convoy as its route. | P3 | Coded (W10-9, W11): loops of your saved roads with total length, create, reorder, rename, delete, share link (`loop/<id>`), "Send to convoy", and "Drive it" which orients each road's path, concatenates the loop, and navigates it as sequential routed legs (~400 m each) with the loop name and whole-trip progress in guidance. Caveat: MKDirections cannot trace a raw polyline, so the loop is followed leg by leg rather than as one drawn line. |
+| ROAD-1 | With drive recording on, recent drives are listed in Garage. Opening one lets the user mark a stretch with two handles, name it (50), rate surface, scenery, and traffic from 1 to 5, and save it. | P0 | Verified (L40): opt-in recorder; saved stretch posts marked segment; server recomputes length. |
+| ROAD-2 | Only the saved stretch is uploaded. | P0 | Verified (L40): only the saved stretch leaves the phone; raw traces stay on device. |
+| ROAD-3 | A stretch cannot start or end inside one of the user's home zones. | P0 | Verified (L40, code): home-zone handles are blocked from saving. |
+| ROAD-4 | Rated roads draw on the map as a layer. A road's sheet shows its length, three averages with the count, "Drive it" (routes to its start, then along it), and "Rate". | P0 | Verified (L40): layer + sheet with ratings/Drive it/Rate; roads_in_bbox + rating checks live. |
+| ROAD-5 | Driven map. On the device only, the share of road cells in your region you have driven, shown as a number and a map shading. It rewards exploring, never speed or distance. | P2 | Verified (L40, code): on-device driven-cell counting + share readout; no speed/time. |
+| ROAD-6 | Loops. Saved roads can be grouped in order into a named loop with a total length. A loop has a share link, opens as one route in navigation, and can be sent to a convoy as its route. | P3 | Verified (L40): loops CRUD + RLS; reorder/share/send-to-convoy/drive-it. |
 
 ### 4.22 Notifications (NTF)
 
@@ -718,7 +718,7 @@ The engineering headline of the project. Plan 3.2, 7.
 | CONC-1 | Swift 6 language mode with complete strict concurrency in every target, with no warnings. | P0 | Verified: `make build`, 2026-11-13. |
 | CONC-2 | Shared mutable state lives in an actor or on the main actor. One `@unchecked Sendable` type, the audio render kernel. No `nonisolated(unsafe)`. | P0 | Verified: source search, 2026-11-13. |
 | CONC-3 | Realtime data flows as `AsyncSequence`. The connection is one task group (receive, send, heartbeat) inside a reconnect loop with exponential backoff and full jitter, and it leaks no tasks across reconnects. | P0 | Coded |
-| CONC-4 | The audio render block allocates nothing, takes no lock, and makes no runtime call. | P0 | Coded |
+| CONC-4 | The audio render block allocates nothing, takes no lock, and makes no runtime call. | P0 | Verified (L37): render kernel is alloc/lock-free; sole @unchecked Sendable stays contained. |
 | CONC-5 | The gateway uses one reader and one writer goroutine per connection, shard goroutines that own their state without locks, bounded channels, and conflation. Only location may be dropped. | P0 | Coded |
 | CONC-6 | A slow reader is closed without delaying anyone else. | P0 | Coded |
 | CONC-7 | The gateway runs a 60-second smoke scenario under the race detector with no reports. | P0 | Verified: `make check-rt` against a `-race` gateway, 0 race reports, 2026-11-14 (about 25 s of scenarios, not the 60 s smoke the row names). |

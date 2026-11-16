@@ -116,6 +116,8 @@ public enum ModCatalog {
           src: "https://www.motortrend.com/how-to/cold-air-intake-dyno-test/"),
         m("intake_manifold", .intake, "Intake manifold", na, hp: 2...4, tune: true),
         m("throttle_body", .intake, "Big throttle body", hp: 0...1.5),
+        m("cam_performance", .intake, "Performance camshaft", na, hp: 5...12, tune: true, sound: .init(brightness: 0.2),
+          src: "https://www.hotrod.com/how-to/stage-three-camshaft"),
         m("intercooler", .intake, "Front-mount intercooler", boosted, hp: 1...4),
         m("charge_pipe", .intake, "Charge pipe", boosted, hp: 0...1),
         m("turbo_inlet", .intake, "Turbo inlet", boosted, hp: 1...2, sound: .init(whistle: true)),
@@ -146,6 +148,8 @@ public enum ModCatalog {
         m("e85_na", .fuel, "E85 (with tune)", na, hp: 3...5, requires: ["tune_s1_na"]),
         m("e85_turbo", .fuel, "E85 (with tune)", boosted, hp: 10...20, requires: ["tune_s1_turbo"]),
         m("e30_turbo", .fuel, "E30 blend", boosted, hp: 4...8, tune: true),
+        m("water_meth", .fuel, "Water-methanol injection", boosted, hp: 5...15, tune: true,
+          src: "https://snowperformance.net/pages/water-methanol-injection-explained"),
         m("fuel_pump", .fuel, "Fuel pump upgrade", hp: 0...0),
         m("injectors", .fuel, "Larger injectors", hp: 0...1, tune: true),
         // Forced induction (generic)

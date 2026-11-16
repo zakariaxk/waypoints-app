@@ -17,6 +17,7 @@ public actor PreviewStore {
     var buildCosts: [BuildEntryID: Int] = PreviewSeed.buildCosts
     var friendships: [Friendship]
     var blocks: Set<Pair> = []
+    var reported: Set<ContentRef> = []
     var reports: [ReportID: Report]
     var reportVotes: [Pair: Bool] = [:]
     var helpStore: [HelpRequestID: HelpRequest] = [:]
