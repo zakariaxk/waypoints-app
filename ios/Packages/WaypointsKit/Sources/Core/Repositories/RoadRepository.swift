@@ -9,6 +9,8 @@ public protocol RoadRepository: Sendable {
     @discardableResult func createRoad(name: String, path: [Coordinate]) async throws -> Road
     func rate(_ road: RoadID, _ rating: RoadRating) async throws
     func myRating(for road: RoadID) async throws -> RoadRating?
+    /// Every rating on the road, per user (SOC-11).
+    func ratings(for road: RoadID) async throws -> [(user: UserID, rating: RoadRating)]
 
     // Loops (ROAD-6), `road_loops`.
     func myLoops() async throws -> [RoadLoop]

@@ -47,6 +47,7 @@ struct Drive: Identifiable, Codable, Hashable, Sendable {
     var id: String
     var startedAt: Date
     var points: [Coordinate]
+    var endedAt: Date?
 }
 
 @MainActor
@@ -80,6 +81,7 @@ final class DriveRecorder {
         if current == nil { current = Drive(id: UUID().uuidString, startedAt: t, points: []) }
         if let p = current?.points.last, p.distance(to: c) < 15 { return }
         current?.points.append(c)
+        current?.endedAt = t
         lastAt = t
         if (current?.points.count ?? 0) % 20 == 0 { flush() }
     }
@@ -91,10 +93,22 @@ final class DriveRecorder {
 
     func drives() -> [Drive] { Self.load() }
 
+    /// NAV-17: a drive counts as in progress while its last sample is inside the split gap.
+    var isRecording: Bool {
+        lastAt.map { Date().timeIntervalSince($0) < 300 } ?? false
+    }
+
     /// Reads every saved trace; callable off the main actor (ROAD-5).
     nonisolated static func load() -> [Drive] {
         let files = (try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil)) ?? []
-        return files.compactMap { try? JSONDecoder().decode(Drive.self, from: Data(contentsOf: $0)) }.sorted { $0.startedAt > $1.startedAt }
+        return files.compactMap { url in
+            var d = try? JSONDecoder().decode(Drive.self, from: Data(contentsOf: url))
+            // Traces saved before endedAt existed fall back to the file's last write.
+            if d?.endedAt == nil {
+                d?.endedAt = (try? url.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate
+            }
+            return d
+        }.sorted { $0.startedAt > $1.startedAt }
     }
 
     func delete(_ d: Drive) {
@@ -221,11 +235,25 @@ struct RoadsLayer: MapLayerProvider {
 
 // MARK: M11 Road detail
 
+/// SOC-11: the sheet names up to three friends who rated it, each with their score —
+/// "Omar ★4, Priya ★5" — then "and 2 more".
+enum RoadFormat {
+    /// The overall score is the mean of the three axes, rounded.
+    static func score(_ r: RoadRating) -> Int { Int((Double(r.surface + r.scenery + r.traffic) / 3).rounded()) }
+
+    static func friendsRated(_ rated: [(Friend, Int)]) -> String {
+        let list = rated.prefix(3).map { "\($0.0.profile.displayName) ★\($0.1)" }.joined(separator: ", ")
+        let more = rated.count - min(rated.count, 3)
+        return more > 0 ? String(localized: "\(list) and \(more) more rated it", bundle: .module) : list
+    }
+}
+
 struct RoadDetail: View {
     let env: AppEnvironment
     let roadID: RoadID
     @State private var road: Road?
     @State private var rating = RoadRating(surface: 3, scenery: 3, traffic: 3)
+    @State private var friendRatings: [(Friend, Int)] = []
     @State private var ratingOpen = false
     @State private var done = 0
     @State private var error: String?
@@ -265,6 +293,10 @@ struct RoadDetail: View {
                 bar("Surface", r.ratings.surface, count: r.ratings.count)
                 bar("Scenery", r.ratings.scenery, count: r.ratings.count)
                 bar("Traffic", r.ratings.traffic, count: r.ratings.count)
+                if !friendRatings.isEmpty {
+                    Text(verbatim: RoadFormat.friendsRated(friendRatings))
+                        .typeStyle(.sub).foregroundStyle(Color.dust)
+                }
                 HStack(spacing: Space.s12) {
                     PrimaryButton("Drive it") { if let start = r.path.first { env.router.open(.navigate(to: start, name: r.name)) } }
                     SecondaryButton("Rate") { ratingOpen.toggle() }
@@ -320,6 +352,13 @@ struct RoadDetail: View {
             if hidden.contains(ContentRef(kind: .road, id: r.id.description))
                 || hidden.contains(ContentRef(kind: .user, id: r.authorID.description)) {
                 road = nil
+            } else {
+                // SOC-11: friends who rated it; reported raters stay hidden (SAFE-3).
+                let scores = Dictionary(uniqueKeysWithValues: (try? await env.roads.ratings(for: roadID)) ?? [])
+                friendRatings = ((try? await env.friends.friends()) ?? []).compactMap { f in
+                    guard let r = scores[f.id], !hidden.contains(ContentRef(kind: .user, id: f.id.description)) else { return nil }
+                    return (f, RoadFormat.score(r))
+                }
             }
         }
         failed = road == nil
@@ -373,10 +412,52 @@ struct DrivesSection: MapSheetSection {
     var order: Int { 60 }
     @MainActor func view(region: MapRegion) -> AnyView {
         AnyView(VStack(alignment: .leading, spacing: 0) {
+            ParkedRow(env: env)
             DrivenShare(env: env, region: region)
             DrivesView(env: env)
             LoopsList(env: env)
         })
+    }
+}
+
+/// NAV-17: where the last drive ended; one tap navigates back to the car. Hidden while a
+/// drive is in progress and when nothing has been recorded yet.
+struct ParkedRow: View {
+    let env: AppEnvironment
+    @State private var drive: Drive?
+    @State private var place = ""
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if let d = drive, let end = d.points.last {
+                SectionLabel("PARKED")
+                Button { env.router.open(.navigate(to: end, name: place.isEmpty ? nil : place)) } label: {
+                    Row(Text(verbatim: place.isEmpty ? String(localized: "Your last drive ended here", bundle: .module) : place),
+                        subtitle: Text("Ended \((d.endedAt ?? d.startedAt).formatted(.relative(presentation: .named)))", bundle: .module),
+                        trailing: { Disclosure() })
+                }
+                .buttonStyle(RowButtonStyle())
+            }
+        }
+        .onAppear {
+            guard !DriveRecorder.shared.isRecording else { return }
+            drive = DriveRecorder.shared.drives().first
+        }
+        .task(id: drive?.id) {
+            guard let end = drive?.points.last else { return }
+            place = await Self.locality(end)
+        }
+    }
+
+    /// City only: the end coordinate is reverse-geocoded once and only the locality is kept.
+    private static func locality(_ c: Coordinate) async -> String {
+        let geocoder = CLGeocoder()
+        return await withCheckedContinuation { cont in
+            geocoder.reverseGeocodeLocation(CLLocation(latitude: c.latitude, longitude: c.longitude)) { @Sendable marks, _ in
+                _ = geocoder
+                cont.resume(returning: marks?.first?.locality ?? "")
+            }
+        }
     }
 }
 

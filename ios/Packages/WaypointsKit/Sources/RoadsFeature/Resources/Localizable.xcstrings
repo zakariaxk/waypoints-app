@@ -1,6 +1,15 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ and %@ more rated it": {
+      "extractionState": "manual"
+    },
+    "%@ and %f more rated it": {
+      "extractionState": "manual"
+    },
+    "%@ and %lld more rated it": {
+      "extractionState": "manual"
+    },
     "%@ of %@ stretches of road here. Counted on this phone only.": {
       "extractionState": "manual",
       "localizations": {
@@ -89,6 +98,15 @@
         }
       }
     },
+    "%f and %@ more rated it": {
+      "extractionState": "manual"
+    },
+    "%f and %f more rated it": {
+      "extractionState": "manual"
+    },
+    "%f and %lld more rated it": {
+      "extractionState": "manual"
+    },
     "%f of %@ stretches of road here. Counted on this phone only.": {
       "extractionState": "manual",
       "localizations": {
@@ -176,6 +194,15 @@
           }
         }
       }
+    },
+    "%lld and %@ more rated it": {
+      "extractionState": "manual"
+    },
+    "%lld and %f more rated it": {
+      "extractionState": "manual"
+    },
+    "%lld and %lld more rated it": {
+      "extractionState": "manual"
     },
     "%lld of %@ stretches of road here. Counted on this phone only.": {
       "extractionState": "manual",
@@ -595,6 +622,15 @@
         }
       }
     },
+    "Ended %@": {
+      "extractionState": "manual"
+    },
+    "Ended %f": {
+      "extractionState": "manual"
+    },
+    "Ended %lld": {
+      "extractionState": "manual"
+    },
     "Every road you saved is in this loop.": {
       "extractionState": "manual",
       "localizations": {
@@ -847,6 +883,9 @@
           }
         }
       }
+    },
+    "PARKED": {
+      "extractionState": "manual"
     },
     "Post it": {
       "extractionState": "manual",
@@ -1199,6 +1238,9 @@
           }
         }
       }
+    },
+    "Your last drive ended here": {
+      "extractionState": "manual"
     },
     "Your saved roads": {
       "extractionState": "manual",

@@ -294,3 +294,69 @@ enum SpotShare {
         return renderer.uiImage
     }
 }
+
+// MARK: GAR-22 Share garage
+
+/// The card a garage shares as: a row of lead photos or painted silhouettes, the name, the count, handle.
+struct GarageCard: View {
+    let cars: [Car]
+    let photos: [CarID: UIImage]
+    let name: String
+    let count: Int
+    let handle: String?
+    let silhouette: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Space.s12) {
+            ZStack(alignment: .bottom) {
+                HStack(spacing: Space.s2) {
+                    ForEach(cars) { car in
+                        Group {
+                            if let photo = photos[car.id] {
+                                Image(uiImage: photo).resizable().scaledToFill()
+                            } else {
+                                ZStack { Color.concrete; SilhouetteIcon(silhouette, paint: car.paint).padding(Space.s24) }
+                            }
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .clipped()
+                    }
+                }
+                .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                Rectangle().fill(Color.sodium).frame(height: Size.paintBar)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: Radius.r20, style: .continuous))
+            VStack(alignment: .leading, spacing: Space.s4) {
+                Text(verbatim: name.isEmpty ? "Garage" : "\(name)'s garage").typeStyle(.title).foregroundStyle(Color.chalk)
+                Text("\(count) cars", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
+            }
+            HStack {
+                if let handle { Text(verbatim: "@\(handle)").typeStyle(.readoutS).foregroundStyle(Color.sodium) }
+                Spacer()
+                Text(verbatim: "Waypoints").typeStyle(.label).foregroundStyle(Color.dust)
+            }
+        }
+        .padding(Space.margin)
+        .frame(width: Size.row * 7)
+        .background(Color.asphalt)
+    }
+}
+
+@MainActor
+enum GarageShare {
+    /// Downloads the lead photos first: `ImageRenderer` draws one pass and does not wait for async images.
+    static func render(cars: [Car], photoURLs: [CarID: URL], name: String, count: Int, handle: String?,
+                       silhouette: String, scale: CGFloat) async -> UIImage? {
+        var photos: [CarID: UIImage] = [:]
+        for car in cars {
+            if let url = photoURLs[car.id], let loaded = try? await URLSession.shared.data(from: url) {
+                photos[car.id] = UIImage(data: loaded.0)
+            }
+        }
+        let renderer = ImageRenderer(content: GarageCard(cars: cars, photos: photos, name: name, count: count,
+                                                        handle: handle, silhouette: silhouette)
+            .environment(\.colorScheme, .dark))
+        renderer.scale = scale
+        return renderer.uiImage
+    }
+}

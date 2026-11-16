@@ -113,6 +113,9 @@ extension PreviewStore: RoadRepository {
             count: all.count)
     }
     public func myRating(for road: RoadID) async throws -> RoadRating? { roadRatings[Pair(road.raw, try me().raw)] }
+    public func ratings(for road: RoadID) async throws -> [(user: UserID, rating: RoadRating)] {
+        roadRatings.filter { $0.key.a == road.raw }.map { (UserID(raw: $0.key.b), $0.value) }
+    }
 }
 
 extension PreviewStore: GatewayService {

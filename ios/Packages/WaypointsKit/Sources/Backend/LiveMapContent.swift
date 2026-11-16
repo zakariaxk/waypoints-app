@@ -270,6 +270,15 @@ struct LiveRoads: RoadRepository {
             return rows.first.map { RoadRating(surface: $0.surface, scenery: $0.scenery, traffic: $0.traffic) }
         }
     }
+
+    func ratings(for road: RoadID) async throws -> [(user: UserID, rating: RoadRating)] {
+        try await ctx.run {
+            struct Row: Decodable { let userId: UUID; let surface: Int; let scenery: Int; let traffic: Int }
+            let rows: [Row] = try await ctx.table("road_ratings").select("user_id, surface, scenery, traffic")
+                .eq("road_id", value: road.key).limit(1000).execute().value
+            return rows.map { (UserID(raw: $0.userId), RoadRating(surface: $0.surface, scenery: $0.scenery, traffic: $0.traffic)) }
+        }
+    }
 }
 
 /// `spots`. City level only; there is no coordinate column to leak.

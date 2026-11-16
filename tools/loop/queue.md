@@ -106,6 +106,6 @@ Format: `- [ ] L## | REQ-IDS | files it owns | one-line task`
 - [x] L91 | static audit | repo-wide | Two-agent cross-ref audit of L69-L90 (all APIs/types/SQL verified by definition). Found + fixed: stray nested `#if DEBUG` in GuidesFeature/Guides.swift (compile error); posts.road_id missing column grant (new migration l91 + checks.sql fixture — PostgREST insert would 42501). Everything else confirmed correct.
 - [x] L92 | L10N-2 | all module catalogs + tools/l10n | 154 catalog keys lack `es` values (mostly this session's new strings); translate them matching the existing es style, regenerate.
 - [x] L93 | MOD-16 | ModSimFeature | "Share this build" card: car + mod list + estimated figures → share sheet (BuildCard/SpotCard pattern). New requirement row.
-- [ ] L94 | GAR-22 | GarageFeature | Garage lineup share card: all your cars' lead photos/silhouettes + handle → share sheet. New requirement row.
-- [ ] L95 | SOC-11 | RoadsFeature | Road sheet names friends who rated it + their rating. New requirement row.
-- [ ] L96 | NAV-17 | RoadsFeature | "Parked" map-sheet row: last drive's end + route back. New requirement row.
+- [x] L94 | GAR-22 | GarageFeature | Garage lineup share card: all your cars' lead photos/silhouettes + handle → share sheet. New requirement row.
+- [x] L95 | SOC-11 | RoadsFeature | Road sheet names friends who rated it + their rating. New requirement row.
+- [x] L96 | NAV-17 | RoadsFeature | "Parked" map-sheet row: last drive's end + route back. New requirement row.

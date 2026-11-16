@@ -1,6 +1,9 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@ cars": {
+      "extractionState": "manual"
+    },
     "%@ icon, earned": {
       "extractionState": "manual",
       "localizations": {
@@ -45,6 +48,9 @@
         }
       }
     },
+    "%f cars": {
+      "extractionState": "manual"
+    },
     "%f icon, earned": {
       "extractionState": "manual",
       "localizations": {
@@ -88,6 +94,9 @@
           }
         }
       }
+    },
+    "%lld cars": {
+      "extractionState": "manual"
     },
     "%lld icon, earned": {
       "extractionState": "manual",
@@ -781,6 +790,9 @@
           }
         }
       }
+    },
+    "Garage": {
+      "extractionState": "manual"
     },
     "Gear %@": {
       "extractionState": "manual",
@@ -1705,6 +1717,9 @@
           }
         }
       }
+    },
+    "Share garage": {
+      "extractionState": "manual"
     },
     "Share profile": {
       "extractionState": "manual",

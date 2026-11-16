@@ -148,7 +148,9 @@ struct ProfileScreen: View {
     @State private var showFriends = false
     @State private var activityUnread = 0
     @State private var busy = false
+    @State private var shared: SharedImage?
     @State private var toast: ToastMessage?
+    @Environment(\.displayScale) private var displayScale
 
     init(ctx: GarageContext, userID: UserID, isOwn: Bool = false) {
         self.ctx = ctx; self.userID = userID; self.isOwn = isOwn
@@ -231,6 +233,7 @@ struct ProfileScreen: View {
         }
         .sheet(isPresented: $editing) { EditProfile(ctx: ctx) { Task { await model.load() } } }
         .sheet(isPresented: $showFriends) { FriendsScreen(ctx: ctx) }
+        .sheet(item: $shared) { ShareSheet(items: [$0.image]).presentationDetents([.medium, .large]) }
         .task { await model.load() }
         .task { await model.watchCars() }
         .task(id: own) {
@@ -352,8 +355,29 @@ struct ProfileScreen: View {
         }
     }
 
+    /// GAR-22: renders the garage card and hands it to the share sheet.
+    private func shareGarage() {
+        guard let p = model.profile, !model.cars.isEmpty else { return }
+        let cars = Array(model.cars.prefix(5))
+        var urls: [CarID: URL] = [:]
+        for car in cars { urls[car.id] = ctx.url(.cars, model.photos[car.id]?.path) }
+        Task {
+            let image = await GarageShare.render(cars: cars, photoURLs: urls, name: p.displayName,
+                                                 count: model.cars.count, handle: p.handle,
+                                                 silhouette: p.markerIcon, scale: displayScale)
+            if let image { shared = SharedImage(image: image) }
+        }
+    }
+
     @ViewBuilder private var carsSection: some View {
-        SectionLabel("CARS")
+        HStack(spacing: 0) {
+            SectionLabel("CARS")
+            if own && !model.cars.isEmpty {
+                // GAR-22: share the whole garage as a card; only your own garage shares.
+                IconButton(Symbol.share, label: "Share garage") { shareGarage() }
+                    .padding(.trailing, Space.margin)
+            }
+        }
         if model.cars.isEmpty && own {
             VStack(alignment: .leading, spacing: Space.s12) {
                 Text("Your garage is empty.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)

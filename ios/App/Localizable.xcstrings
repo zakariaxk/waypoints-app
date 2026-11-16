@@ -331,6 +331,9 @@
         }
       }
     },
+    "%@ and %@ more rated it": {
+      "extractionState": "manual"
+    },
     "%@ and %f are going": {
       "extractionState": "manual",
       "localizations": {
@@ -353,6 +356,9 @@
         }
       }
     },
+    "%@ and %f more rated it": {
+      "extractionState": "manual"
+    },
     "%@ and %lld are going": {
       "extractionState": "manual",
       "localizations": {
@@ -374,6 +380,12 @@
           }
         }
       }
+    },
+    "%@ and %lld more rated it": {
+      "extractionState": "manual"
+    },
+    "%@ cars": {
+      "extractionState": "manual"
     },
     "%@ characters left": {
       "extractionState": "manual",
@@ -1563,6 +1575,9 @@
         }
       }
     },
+    "%f and %@ more rated it": {
+      "extractionState": "manual"
+    },
     "%f and %f are going": {
       "extractionState": "manual",
       "localizations": {
@@ -1585,6 +1600,9 @@
         }
       }
     },
+    "%f and %f more rated it": {
+      "extractionState": "manual"
+    },
     "%f and %lld are going": {
       "extractionState": "manual",
       "localizations": {
@@ -1606,6 +1624,12 @@
           }
         }
       }
+    },
+    "%f and %lld more rated it": {
+      "extractionState": "manual"
+    },
+    "%f cars": {
+      "extractionState": "manual"
     },
     "%f characters left": {
       "extractionState": "manual",
@@ -2795,6 +2819,9 @@
         }
       }
     },
+    "%lld and %@ more rated it": {
+      "extractionState": "manual"
+    },
     "%lld and %f are going": {
       "extractionState": "manual",
       "localizations": {
@@ -2817,6 +2844,9 @@
         }
       }
     },
+    "%lld and %f more rated it": {
+      "extractionState": "manual"
+    },
     "%lld and %lld are going": {
       "extractionState": "manual",
       "localizations": {
@@ -2838,6 +2868,12 @@
           }
         }
       }
+    },
+    "%lld and %lld more rated it": {
+      "extractionState": "manual"
+    },
+    "%lld cars": {
+      "extractionState": "manual"
     },
     "%lld characters left": {
       "extractionState": "manual",
@@ -8669,6 +8705,15 @@
         }
       }
     },
+    "Ended %@": {
+      "extractionState": "manual"
+    },
+    "Ended %f": {
+      "extractionState": "manual"
+    },
+    "Ended %lld": {
+      "extractionState": "manual"
+    },
     "Ends": {
       "extractionState": "manual",
       "localizations": {
@@ -13355,6 +13400,9 @@
         }
       }
     },
+    "PARKED": {
+      "extractionState": "manual"
+    },
     "PARTS": {
       "extractionState": "manual",
       "localizations": {
@@ -16126,6 +16174,9 @@
           }
         }
       }
+    },
+    "Share garage": {
+      "extractionState": "manual"
     },
     "Share invite": {
       "extractionState": "manual",
@@ -19624,6 +19675,9 @@
           }
         }
       }
+    },
+    "Your last drive ended here": {
+      "extractionState": "manual"
     },
     "Your marker": {
       "extractionState": "manual",
