@@ -2,13 +2,37 @@
   "sourceLanguage": "en",
   "strings": {
     "%@ needs %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ necesita %@"
+          }
+        }
+      }
     },
     "%@ needs %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ necesita %f"
+          }
+        }
+      }
     },
     "%@ needs %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ necesita %lld"
+          }
+        }
+      }
     },
     "%@ needs a tune": {
       "extractionState": "manual",
@@ -121,13 +145,37 @@
       }
     },
     "%f needs %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f necesita %@"
+          }
+        }
+      }
     },
     "%f needs %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f necesita %f"
+          }
+        }
+      }
     },
     "%f needs %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f necesita %lld"
+          }
+        }
+      }
     },
     "%f needs a tune": {
       "extractionState": "manual",
@@ -240,13 +288,37 @@
       }
     },
     "%lld needs %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld necesita %@"
+          }
+        }
+      }
     },
     "%lld needs %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld necesita %f"
+          }
+        }
+      }
     },
     "%lld needs %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld necesita %lld"
+          }
+        }
+      }
     },
     "%lld needs a tune": {
       "extractionState": "manual",

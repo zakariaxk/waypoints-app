@@ -200,13 +200,37 @@
       }
     },
     "+%@ min": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%@ min"
+          }
+        }
+      }
     },
     "+%f min": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%f min"
+          }
+        }
+      }
     },
     "+%lld min": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld min"
+          }
+        }
+      }
     },
     "Add a stop": {
       "extractionState": "manual",
@@ -220,13 +244,37 @@
       }
     },
     "Adds %@ minutes to the trip": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade %@ minutos al viaje"
+          }
+        }
+      }
     },
     "Adds %f minutes to the trip": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade %f minutos al viaje"
+          }
+        }
+      }
     },
     "Adds %lld minutes to the trip": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade %lld minutos al viaje"
+          }
+        }
+      }
     },
     "Best for your car": {
       "extractionState": "manual",

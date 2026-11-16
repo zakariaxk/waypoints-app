@@ -1570,6 +1570,25 @@ begin
   perform pg_temp.deny('l58 feed_hidden: anon denied', 'anon',
     format($s$select 1 from feed_hidden where user_id = %L$s$, a));
 
+  ---------------------------------------------------------------- repair_guides (L63, KNW-1)
+  perform pg_temp.allow('l63 repair_guides: signed-in user reads guides', b,
+    $s$select 1 from repair_guides limit 1$s$);
+  perform pg_temp.deny('l63 repair_guides: user cannot insert a guide', a,
+    $s$insert into repair_guides (task, make, difficulty, time_min_minutes, time_max_minutes, tools, parts, steps, sources)
+      values ('Oil change', 'Honda', 1, 10, 20, '[]', '[]', '["step"]', '["https://example.com"]')$s$);
+  perform pg_temp.deny('l63 repair_guides: user cannot update a guide', a,
+    $s$update repair_guides set task = 'x'$s$);
+  perform pg_temp.deny('l63 repair_guides: user cannot delete a guide', a,
+    $s$delete from repair_guides$s$);
+  perform pg_temp.deny('l63 repair_guides: anon cannot read guides', 'anon',
+    $s$select 1 from repair_guides$s$);
+  perform pg_temp.allow('l63 repair_guides: service role writes (pipeline)', 'service',
+    $s$insert into repair_guides (task, make, difficulty, time_min_minutes, time_max_minutes, tools, parts, steps, sources)
+      values ('Oil change', 'Honda', 1, 10, 20, '[]', '[]', '["step"]', '["https://example.com"]')$s$);
+  perform pg_temp.deny('l63 repair_guides: guide needs at least one source', 'service',
+    $s$insert into repair_guides (task, make, difficulty, time_min_minutes, time_max_minutes, tools, parts, steps, sources)
+      values ('Oil change', 'Honda', 1, 10, 20, '[]', '[]', '["step"]', '[]')$s$, '23514');
+
   ---------------------------------------------------------------- cascade
   delete from storage.objects where name like a || '/%';
   delete from auth.users where id = a::uuid;

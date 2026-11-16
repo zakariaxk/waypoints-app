@@ -264,6 +264,12 @@ struct CarScreen: View {
             if ctx.registry.canOpen(.race(car.id)) {
                 actionRow("Run the strip") { ctx.env.router.open(.race(car.id)) }
             }
+            if ctx.registry.canOpen(.shop(car.id)) {
+                actionRow("Open in shop") { ctx.env.router.open(.shop(car.id)) }
+            }
+            if ctx.registry.canOpen(.drive(car.id)) {
+                actionRow("Test drive") { ctx.env.router.open(.drive(car.id)) }
+            }
             if let entry = model.showdown {
                 Row(Text("In Showdown · \(entry.showdownClass.rawValue.capitalized)", bundle: .module),
                     trailing: { Text(verbatim: entry.rating.formatted(.number)).typeStyle(.readoutS) })
@@ -275,6 +281,9 @@ struct CarScreen: View {
                 Row(Text("Gearing and tires", bundle: .module), trailing: { Disclosure() })
             }
             .buttonStyle(RowButtonStyle())
+            if ctx.registry.canOpen(.guides) {
+                actionRow("Guides") { ctx.env.router.open(.guides) }
+            }
             actionRow("Edit car") { ctx.env.router.open(.vehiclePicker(forCar: car.id)) }
             if model.uploading { Text("Uploading photo", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust).padding(Space.margin) }
         }

@@ -1,5 +1,54 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : { },
-  "version" : "1.0"
+  "sourceLanguage": "en",
+  "strings": {
+    "3D view of %@": {
+      "extractionState": "manual"
+    },
+    "3D view of %f": {
+      "extractionState": "manual"
+    },
+    "3D view of %lld": {
+      "extractionState": "manual"
+    },
+    "AERO": {
+      "extractionState": "manual"
+    },
+    "Front splitter": {
+      "extractionState": "manual"
+    },
+    "Lowered": {
+      "extractionState": "manual"
+    },
+    "Mesh": {
+      "extractionState": "manual"
+    },
+    "PAINT": {
+      "extractionState": "manual"
+    },
+    "Rear wing": {
+      "extractionState": "manual"
+    },
+    "STANCE": {
+      "extractionState": "manual"
+    },
+    "Slammed": {
+      "extractionState": "manual"
+    },
+    "Spokes": {
+      "extractionState": "manual"
+    },
+    "Steelie": {
+      "extractionState": "manual"
+    },
+    "Stock": {
+      "extractionState": "manual"
+    },
+    "WHEELS": {
+      "extractionState": "manual"
+    },
+    "Your paint": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
 }

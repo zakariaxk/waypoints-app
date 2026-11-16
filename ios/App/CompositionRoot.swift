@@ -66,7 +66,8 @@ enum CompositionRoot {
             catalog: VehicleCatalog.makeLive(config: config),
             safety: SafetyKit.makeLive(config: config, auth: backend.auth, profiles: backend.profiles),
             router: router,
-            activity: backend.activity
+            activity: backend.activity,
+            guides: backend.guides
         )
     }
 

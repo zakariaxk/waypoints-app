@@ -686,12 +686,12 @@ How to actually fix and mod your car. Structured guides, not scraped forum text.
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| KNW-1 | A `repair_guides` row carries a task title, the cars it applies to (make, optional model or variant), ordered steps, a tools list, a parts list with cost ranges, a difficulty (1 to 5), a time range, tradeoffs, common mistakes, and at least one source URL. Readable by any signed-in user; written only by the pipeline and owner curations. | P1 | Open |
-| KNW-2 | A Guides browser inside the Garage tab lists guides for your cars first, then a search over every task. | P1 | Open |
-| KNW-3 | A guide page shows tools, parts with cost, steps with a per-step checkbox kept on the device, time and difficulty, tradeoffs, and mistakes, with its sources at the foot. | P1 | Open |
-| KNW-4 | A guide can link the mods its task installs, so "Simulate this" hands the part list to the mod simulator (MOD). | P2 | Open |
+| KNW-1 | A `repair_guides` row carries a task title, the cars it applies to (make, optional model or variant), ordered steps, a tools list, a parts list with cost ranges, a difficulty (1 to 5), a time range, tradeoffs, common mistakes, and at least one source URL. Readable by any signed-in user; written only by the pipeline and owner curations. | P1 | Verified (L63): `repair_guides` + `repair_guides_read` RLS (authenticated read, service-only write, source>=1 CHECK, suspended guard); check-db l63 rows PASS. |
+| KNW-2 | A Guides browser inside the Garage tab lists guides for your cars first, then a search over every task. | P1 | Coded (L64): "Guides" row on the car screen -> Route.guides; For-your-cars section + ilike task search. |
+| KNW-3 | A guide page shows tools, parts with cost, steps with a per-step checkbox kept on the device, time and difficulty, tradeoffs, and mistakes, with its sources at the foot. | P1 | Coded (L64): GuideDetailScreen — parts w/ cost ranges, tools, steps w/ UserDefaults-persisted checks, tradeoffs/mistakes, tappable sources. |
+| KNW-4 | A guide can link the mods its task installs, so "Simulate this" hands the part list to the mod simulator (MOD). | P2 | Coded (L64): linked_mod_ids on the seed guides; "Simulate this" routes to modSim (or lists the mod keys). |
 | KNW-5 | The scrape pipeline (offline tool, section 8.10 W13-C) turns forum/manual sources into draft guides: facts extracted, text rewritten, sources kept. Nothing is published to `repair_guides` without a source URL. | P1 | Verified (L65): `tools/guides` (stdlib only) fetches politely (robots + 1 r/s), extracts steps/tools/parts/torque specs into a draft guide JSON, `--emit-sql` writes a jsonb INSERT, `--dedupe` refuses existing (make, task); thin extractions emit TODO skeletons, never verbatim text — proven live on a real install guide + rollback INSERT. |
-| KNW-6 | Ships with at least 30 curated guides covering the seeded enthusiast platforms (oil/brakes/fluids, intake/exhaust/tune installs, suspension). | P1 | Open |
+| KNW-6 | Ships with at least 30 curated guides covering the seeded enthusiast platforms (oil/brakes/fluids, intake/exhaust/tune installs, suspension). | P1 | Verified (L63): 44 curated guides over 19 seed platforms w/ real part numbers, cost ranges, sources. |
 
 ### 4.27 3D garage and test drive (GME)
 
@@ -699,12 +699,12 @@ A stylized 3D shop and a small closed-loop test drive, native to the app. No lic
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| GME-1 | The shop renders a car in 3D (RealityKit) you can orbit, pan, and zoom. The body is generated from the car's catalog class and dimensions — stylized, never a real manufacturer's design. | P2 | Open |
-| GME-2 | Shop swaps render live: paint family/colour, wheels, suspension height (drives the car's `clearance` profile, GAR-12), and aero parts from the mods list. | P2 | Open |
-| GME-3 | A test drive (SceneKit) on a small authored closed-loop road — chase cam, touch throttle/brake/steering, SCNPhysicsVehicle suspension. | P2 | Open |
-| GME-4 | Your build drives the physics: power curve, weight, gearing, and drivetrain come from `VehicleSpec` plus the car's mod list (PerformanceModel), and the exhaust sound is the existing EngineAudio synth — mods audible as you drive. | P2 | Open |
-| GME-5 | Entry from a car page: "Open in shop" and "Test drive". One accent, dark scene (DES-8); every screen has loading/empty states. | P2 | Open |
-| GME-6 | 60 fps on an iPhone 15-class device; all 3D assets generated or permissively licensed and recorded with their source. | P2 | Open |
+| GME-1 | The shop renders a car in 3D (RealityKit) you can orbit, pan, and zoom. The body is generated from the car's catalog class and dimensions — stylized, never a real manufacturer's design. | P2 | Coded (L66): procedural wedge-mesh bodies in 5 classes from CarShape, ~2k tris, RealityView orbit controls; debug/shop. |
+| GME-2 | Shop swaps render live: paint family/colour, wheels, suspension height (drives the car's `clearance` profile, GAR-12), and aero parts from the mods list. | P2 | Coded (L66): 16 paint families + car colour, 3 wheel styles, 3-stop clearance slider, splitter/wing toggles render live. |
+| GME-3 | A test drive (SceneKit) on a small authored closed-loop road — chase cam, touch throttle/brake/steering, SCNPhysicsVehicle suspension. | P2 | Coded (L67): 15-point Catmull-Rom loop (~1.4 km) w/ kerbs, gantry, procedural trees; SCNPhysicsVehicle + speed-sensitive steering + momentary pedals; debug/drive. |
+| GME-4 | Your build drives the physics: power curve, weight, gearing, and drivetrain come from `VehicleSpec` plus the car's mod list (PerformanceModel), and the exhaust sound is the existing EngineAudio synth — mods audible as you drive. | P2 | Coded (L67): mass/gearing/driven wheels from VehicleSpec; torque via PerformanceModel.torque + auto box on redline; mods applied via modified() and SoundProfile into EngineSynth.set(rpm:load:). |
+| GME-5 | Entry from a car page: "Open in shop" and "Test drive". One accent, dark scene (DES-8); every screen has loading/empty states. | P2 | Coded (L66+L67+integration): "Open in shop" and "Test drive" rows on the car screen -> Route.shop/.drive full-screen; debug/shop + debug/drive; loading and failure states. |
+| GME-6 | 60 fps on an iPhone 15-class device; all 3D assets generated or permissively licensed and recorded with their source. | P2 | Coded: everything procedural — ~2k-tri bodies, <50k-tri scene, in-place material mutation, no frame-loop allocs; 60 fps on device unmeasured. |
 
 ---
 

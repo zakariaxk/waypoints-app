@@ -19,18 +19,20 @@ public enum Backend {
         public let progress: any ProgressRepository
         public let media: any MediaStore
         public let activity: any ActivityRepository
+        public let guides: any GuideRepository
 
         public init(auth: any AuthService, profiles: any ProfileRepository, garage: any GarageRepository,
                     friends: any FriendRepository, meets: any MeetRepository, reports: any ReportRepository,
                     teams: any TeamRepository, messages: any MessageRepository, posts: any PostRepository,
                     showdown: any ShowdownRepository, market: any MarketRepository, spots: any SpotRepository,
                     roads: any RoadRepository, progress: any ProgressRepository, media: any MediaStore,
-                    activity: any ActivityRepository) {
+                    activity: any ActivityRepository, guides: any GuideRepository) {
             self.auth = auth; self.profiles = profiles; self.garage = garage; self.friends = friends
             self.meets = meets; self.reports = reports; self.teams = teams; self.messages = messages
             self.posts = posts; self.showdown = showdown; self.market = market; self.spots = spots
             self.roads = roads; self.progress = progress; self.media = media
             self.activity = activity
+            self.guides = guides
         }
     }
 
@@ -57,7 +59,8 @@ public enum Backend {
             roads: LiveRoads(ctx: ctx),
             progress: LiveProgress(ctx: ctx),
             media: LiveMedia(ctx: ctx),
-            activity: LiveActivity(ctx: ctx, unread: Fanout())
+            activity: LiveActivity(ctx: ctx, unread: Fanout()),
+            guides: LiveGuides(ctx: ctx)
         )
     }
 
@@ -76,6 +79,6 @@ public enum Backend {
         return Services(auth: store, profiles: store, garage: store, friends: store, meets: store, reports: store,
                         teams: store, messages: store, posts: store, showdown: store, market: store, spots: store,
                         roads: store, progress: store, media: store,
-                        activity: PreviewActivity.shared)
+                        activity: PreviewActivity.shared, guides: store)
     }
 }

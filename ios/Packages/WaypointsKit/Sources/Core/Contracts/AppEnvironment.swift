@@ -24,6 +24,7 @@ public struct AppEnvironment: Sendable {
     public let safety: any SafetyService
     public let router: any Router
     public let activity: any ActivityRepository
+    public let guides: any GuideRepository
 
     public init(
         auth: any AuthService, profiles: any ProfileRepository, garage: any GarageRepository,
@@ -33,7 +34,8 @@ public struct AppEnvironment: Sendable {
         roads: any RoadRepository, progress: any ProgressRepository, media: any MediaStore,
         realtime: any RealtimeService, location: any LocationService, gateway: any GatewayService,
         catalog: any VehicleCatalogService, safety: any SafetyService, router: any Router,
-        activity: any ActivityRepository = PreviewActivity.shared
+        activity: any ActivityRepository = PreviewActivity.shared,
+        guides: any GuideRepository
     ) {
         self.auth = auth; self.profiles = profiles; self.garage = garage; self.friends = friends
         self.meets = meets; self.reports = reports; self.teams = teams; self.messages = messages
@@ -42,5 +44,6 @@ public struct AppEnvironment: Sendable {
         self.location = location; self.gateway = gateway; self.catalog = catalog; self.safety = safety
         self.router = router
         self.activity = activity
+        self.guides = guides
     }
 }

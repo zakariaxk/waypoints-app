@@ -926,13 +926,37 @@
       }
     },
     "Member since %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miembro desde %@"
+          }
+        }
+      }
     },
     "Member since %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miembro desde %f"
+          }
+        }
+      }
     },
     "Member since %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miembro desde %lld"
+          }
+        }
+      }
     },
     "Message": {
       "extractionState": "manual",

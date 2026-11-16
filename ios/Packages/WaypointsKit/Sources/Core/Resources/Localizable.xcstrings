@@ -57,7 +57,15 @@
       }
     },
     "Not interested": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No me interesa"
+          }
+        }
+      }
     },
     "Onboarding registered twice": {
       "extractionState": "manual",
@@ -102,6 +110,9 @@
           }
         }
       }
+    },
+    "Simulate this": {
+      "extractionState": "manual"
     },
     "Tab %@ registered twice": {
       "extractionState": "manual",

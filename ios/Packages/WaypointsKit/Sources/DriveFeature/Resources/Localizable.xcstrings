@@ -1,5 +1,24 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : { },
-  "version" : "1.0"
+  "sourceLanguage": "en",
+  "strings": {
+    "Brake": {
+      "extractionState": "manual"
+    },
+    "Close": {
+      "extractionState": "manual"
+    },
+    "Reset": {
+      "extractionState": "manual"
+    },
+    "Steering": {
+      "extractionState": "manual"
+    },
+    "Throttle": {
+      "extractionState": "manual"
+    },
+    "We couldn't put this car on the loop.": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
 }

@@ -1,7 +1,9 @@
 import Core
 import ConvoyFeature
+import DriveFeature
 import FeedFeature
 import GarageFeature
+import GuidesFeature
 import MapFeature
 import MarketFeature
 import MeetsFeature
@@ -15,6 +17,7 @@ import RaceFeature
 import ReportsFeature
 import RoadsFeature
 import SettingsFeature
+import Shop3DFeature
 import ShowdownFeature
 import SpotsFeature
 import TeamsFeature
@@ -33,6 +36,9 @@ public enum AppShell {
             FeedFeature.self, ShowdownFeature.self, GarageFeature.self, ModSimFeature.self,
             RaceFeature.self, MarketFeature.self, SpotsFeature.self, RoadsFeature.self,
             ProgressFeature.self, OnboardingFeature.self, SettingsFeature.self, PushKitBridge.self,
+            DriveFeature.self,
+            GuidesFeature.self,
+            Shop3DFeature.self,
         ]
         for module in modules where module.isAvailable {
             module.register(in: registry, env: env)

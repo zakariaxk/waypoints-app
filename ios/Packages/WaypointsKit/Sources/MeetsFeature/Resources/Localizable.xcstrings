@@ -475,31 +475,103 @@
       }
     },
     "Driving %@ · %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@ · %@"
+          }
+        }
+      }
     },
     "Driving %@ · %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@ · %f"
+          }
+        }
+      }
     },
     "Driving %@ · %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@ · %lld"
+          }
+        }
+      }
     },
     "Driving %f · %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %f · %@"
+          }
+        }
+      }
     },
     "Driving %f · %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %f · %f"
+          }
+        }
+      }
     },
     "Driving %f · %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %f · %lld"
+          }
+        }
+      }
     },
     "Driving %lld · %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %lld · %@"
+          }
+        }
+      }
     },
     "Driving %lld · %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %lld · %f"
+          }
+        }
+      }
     },
     "Driving %lld · %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %lld · %lld"
+          }
+        }
+      }
     },
     "Edit": {
       "extractionState": "manual",

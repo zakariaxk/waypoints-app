@@ -35,13 +35,37 @@
       }
     },
     "%@'s run · %@ s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %@ · %@ s"
+          }
+        }
+      }
     },
     "%@'s run · %f s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %@ · %f s"
+          }
+        }
+      }
     },
     "%@'s run · %lld s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %@ · %lld s"
+          }
+        }
+      }
     },
     "%f of 3 lit": {
       "extractionState": "manual",
@@ -77,13 +101,37 @@
       }
     },
     "%f's run · %@ s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %f · %@ s"
+          }
+        }
+      }
     },
     "%f's run · %f s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %f · %f s"
+          }
+        }
+      }
     },
     "%f's run · %lld s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %f · %lld s"
+          }
+        }
+      }
     },
     "%lld of 3 lit": {
       "extractionState": "manual",
@@ -119,13 +167,37 @@
       }
     },
     "%lld's run · %@ s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %lld · %@ s"
+          }
+        }
+      }
     },
     "%lld's run · %f s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %lld · %f s"
+          }
+        }
+      }
     },
     "%lld's run · %lld s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %lld · %lld s"
+          }
+        }
+      }
     },
     "All ten house cars are open.": {
       "extractionState": "manual",

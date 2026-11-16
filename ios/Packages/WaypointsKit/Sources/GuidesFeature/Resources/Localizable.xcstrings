@@ -1,5 +1,69 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : { },
-  "version" : "1.0"
+  "sourceLanguage": "en",
+  "strings": {
+    "Add a car to your garage and matching guides show up here, or search every task above.": {
+      "extractionState": "manual"
+    },
+    "COMMON MISTAKES": {
+      "extractionState": "manual"
+    },
+    "Couldn't load this guide.": {
+      "extractionState": "manual"
+    },
+    "Difficulty · easy": {
+      "extractionState": "manual"
+    },
+    "Difficulty · expert": {
+      "extractionState": "manual"
+    },
+    "Difficulty · hard": {
+      "extractionState": "manual"
+    },
+    "Difficulty · involved": {
+      "extractionState": "manual"
+    },
+    "Difficulty · moderate": {
+      "extractionState": "manual"
+    },
+    "FOR YOUR CARS": {
+      "extractionState": "manual"
+    },
+    "Guides": {
+      "extractionState": "manual"
+    },
+    "Linked mods": {
+      "extractionState": "manual"
+    },
+    "No guides match.": {
+      "extractionState": "manual"
+    },
+    "PARTS": {
+      "extractionState": "manual"
+    },
+    "RESULTS": {
+      "extractionState": "manual"
+    },
+    "SOURCES": {
+      "extractionState": "manual"
+    },
+    "STEPS": {
+      "extractionState": "manual"
+    },
+    "Search every task": {
+      "extractionState": "manual"
+    },
+    "Simulate this": {
+      "extractionState": "manual"
+    },
+    "TOOLS": {
+      "extractionState": "manual"
+    },
+    "TRADEOFFS": {
+      "extractionState": "manual"
+    },
+    "brake pads, downpipe, alignment": {
+      "extractionState": "manual"
+    }
+  },
+  "version": "1.0"
 }

@@ -13,7 +13,15 @@
       }
     },
     "%@ models": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ modelos"
+          }
+        }
+      }
     },
     "%@ new": {
       "extractionState": "manual",
@@ -38,7 +46,15 @@
       }
     },
     "%f models": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f modelos"
+          }
+        }
+      }
     },
     "%f new": {
       "extractionState": "manual",
@@ -63,7 +79,15 @@
       }
     },
     "%lld models": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld modelos"
+          }
+        }
+      }
     },
     "%lld new": {
       "extractionState": "manual",
@@ -758,6 +782,9 @@
         }
       }
     },
+    "Guides": {
+      "extractionState": "manual"
+    },
     "Handle": {
       "extractionState": "manual",
       "localizations": {
@@ -1076,6 +1103,9 @@
           }
         }
       }
+    },
+    "Open in shop": {
+      "extractionState": "manual"
     },
     "Optional": {
       "extractionState": "manual",
@@ -1571,6 +1601,9 @@
           }
         }
       }
+    },
+    "Test drive": {
+      "extractionState": "manual"
     },
     "That code isn't a Waypoints profile.": {
       "extractionState": "manual",

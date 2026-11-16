@@ -420,16 +420,48 @@
       }
     },
     "%@ models": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ modelos"
+          }
+        }
+      }
     },
     "%@ needs %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ necesita %@"
+          }
+        }
+      }
     },
     "%@ needs %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ necesita %f"
+          }
+        }
+      }
     },
     "%@ needs %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ necesita %lld"
+          }
+        }
+      }
     },
     "%@ needs a tune": {
       "extractionState": "manual",
@@ -993,13 +1025,37 @@
       }
     },
     "%@'s run · %@ s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %@ · %@ s"
+          }
+        }
+      }
     },
     "%@'s run · %f s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %@ · %f s"
+          }
+        }
+      }
     },
     "%@'s run · %lld s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %@ · %lld s"
+          }
+        }
+      }
     },
     "%@, locked": {
       "extractionState": "manual",
@@ -1354,16 +1410,48 @@
       }
     },
     "%f models": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f modelos"
+          }
+        }
+      }
     },
     "%f needs %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f necesita %@"
+          }
+        }
+      }
     },
     "%f needs %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f necesita %f"
+          }
+        }
+      }
     },
     "%f needs %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f necesita %lld"
+          }
+        }
+      }
     },
     "%f needs a tune": {
       "extractionState": "manual",
@@ -1927,13 +2015,37 @@
       }
     },
     "%f's run · %@ s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %f · %@ s"
+          }
+        }
+      }
     },
     "%f's run · %f s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %f · %f s"
+          }
+        }
+      }
     },
     "%f's run · %lld s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %f · %lld s"
+          }
+        }
+      }
     },
     "%f, locked": {
       "extractionState": "manual",
@@ -2288,16 +2400,48 @@
       }
     },
     "%lld models": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld modelos"
+          }
+        }
+      }
     },
     "%lld needs %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld necesita %@"
+          }
+        }
+      }
     },
     "%lld needs %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld necesita %f"
+          }
+        }
+      }
     },
     "%lld needs %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld necesita %lld"
+          }
+        }
+      }
     },
     "%lld needs a tune": {
       "extractionState": "manual",
@@ -2861,13 +3005,37 @@
       }
     },
     "%lld's run · %@ s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %lld · %@ s"
+          }
+        }
+      }
     },
     "%lld's run · %f s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %lld · %f s"
+          }
+        }
+      }
     },
     "%lld's run · %lld s": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Carrera de %lld · %lld s"
+          }
+        }
+      }
     },
     "%lld, locked": {
       "extractionState": "manual",
@@ -2903,13 +3071,37 @@
       }
     },
     "+%@ min": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%@ min"
+          }
+        }
+      }
     },
     "+%f min": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%f min"
+          }
+        }
+      }
     },
     "+%lld min": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+%lld min"
+          }
+        }
+      }
     },
     "1 friend out": {
       "extractionState": "manual",
@@ -2954,6 +3146,15 @@
           }
         }
       }
+    },
+    "3D view of %@": {
+      "extractionState": "manual"
+    },
+    "3D view of %f": {
+      "extractionState": "manual"
+    },
+    "3D view of %lld": {
+      "extractionState": "manual"
     },
     "6 characters": {
       "extractionState": "manual",
@@ -3042,6 +3243,9 @@
           }
         }
       }
+    },
+    "AERO": {
+      "extractionState": "manual"
     },
     "ALL": {
       "extractionState": "manual",
@@ -3229,6 +3433,9 @@
           }
         }
       }
+    },
+    "Add a car to your garage and matching guides show up here, or search every task above.": {
+      "extractionState": "manual"
     },
     "Add a comment": {
       "extractionState": "manual",
@@ -3484,13 +3691,37 @@
       }
     },
     "Adds %@ minutes to the trip": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade %@ minutos al viaje"
+          }
+        }
+      }
     },
     "Adds %f minutes to the trip": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade %f minutos al viaje"
+          }
+        }
+      }
     },
     "Adds %lld minutes to the trip": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade %lld minutos al viaje"
+          }
+        }
+      }
     },
     "Adjust to read power at an rpm": {
       "extractionState": "manual",
@@ -3801,31 +4032,103 @@
       }
     },
     "Asked %@ · ends %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %@ · termina %@"
+          }
+        }
+      }
     },
     "Asked %@ · ends %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %@ · termina %f"
+          }
+        }
+      }
     },
     "Asked %@ · ends %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %@ · termina %lld"
+          }
+        }
+      }
     },
     "Asked %f · ends %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %f · termina %@"
+          }
+        }
+      }
     },
     "Asked %f · ends %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %f · termina %f"
+          }
+        }
+      }
     },
     "Asked %f · ends %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %f · termina %lld"
+          }
+        }
+      }
     },
     "Asked %lld · ends %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %lld · termina %@"
+          }
+        }
+      }
     },
     "Asked %lld · ends %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %lld · termina %f"
+          }
+        }
+      }
     },
     "Asked %lld · ends %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %lld · termina %lld"
+          }
+        }
+      }
     },
     "Aspect": {
       "extractionState": "manual",
@@ -4245,6 +4548,9 @@
         }
       }
     },
+    "Brake": {
+      "extractionState": "manual"
+    },
     "Brakes": {
       "extractionState": "manual",
       "localizations": {
@@ -4618,6 +4924,9 @@
           }
         }
       }
+    },
+    "COMMON MISTAKES": {
+      "extractionState": "manual"
     },
     "CONVOY": {
       "extractionState": "manual",
@@ -5840,6 +6149,9 @@
         }
       }
     },
+    "Couldn't load this guide.": {
+      "extractionState": "manual"
+    },
     "Couldn't load this listing.": {
       "extractionState": "manual",
       "localizations": {
@@ -6786,6 +7098,21 @@
         }
       }
     },
+    "Difficulty · easy": {
+      "extractionState": "manual"
+    },
+    "Difficulty · expert": {
+      "extractionState": "manual"
+    },
+    "Difficulty · hard": {
+      "extractionState": "manual"
+    },
+    "Difficulty · involved": {
+      "extractionState": "manual"
+    },
+    "Difficulty · moderate": {
+      "extractionState": "manual"
+    },
     "Direct messages": {
       "extractionState": "manual",
       "localizations": {
@@ -7051,31 +7378,103 @@
       }
     },
     "Driving %@ · %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@ · %@"
+          }
+        }
+      }
     },
     "Driving %@ · %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@ · %f"
+          }
+        }
+      }
     },
     "Driving %@ · %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@ · %lld"
+          }
+        }
+      }
     },
     "Driving %f · %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %f · %@"
+          }
+        }
+      }
     },
     "Driving %f · %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %f · %f"
+          }
+        }
+      }
     },
     "Driving %f · %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %f · %lld"
+          }
+        }
+      }
     },
     "Driving %lld · %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %lld · %@"
+          }
+        }
+      }
     },
     "Driving %lld · %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %lld · %f"
+          }
+        }
+      }
     },
     "Driving %lld · %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %lld · %lld"
+          }
+        }
+      }
     },
     "Drop a regroup point": {
       "extractionState": "manual",
@@ -7715,6 +8114,9 @@
         }
       }
     },
+    "FOR YOUR CARS": {
+      "extractionState": "manual"
+    },
     "FRIENDS": {
       "extractionState": "manual",
       "localizations": {
@@ -8188,6 +8590,9 @@
         }
       }
     },
+    "Front splitter": {
+      "extractionState": "manual"
+    },
     "Front-mount intercooler": {
       "extractionState": "manual",
       "localizations": {
@@ -8473,6 +8878,9 @@
           }
         }
       }
+    },
+    "Guides": {
+      "extractionState": "manual"
     },
     "HOME ZONES": {
       "extractionState": "manual",
@@ -9640,6 +10048,9 @@
         }
       }
     },
+    "Linked mods": {
+      "extractionState": "manual"
+    },
     "List it": {
       "extractionState": "manual",
       "localizations": {
@@ -9892,6 +10303,9 @@
           }
         }
       }
+    },
+    "Lowered": {
+      "extractionState": "manual"
     },
     "MEETS": {
       "extractionState": "manual",
@@ -10235,13 +10649,37 @@
       }
     },
     "Member since %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miembro desde %@"
+          }
+        }
+      }
     },
     "Member since %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miembro desde %f"
+          }
+        }
+      }
     },
     "Member since %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Miembro desde %lld"
+          }
+        }
+      }
     },
     "Members": {
       "extractionState": "manual",
@@ -10275,6 +10713,9 @@
           }
         }
       }
+    },
+    "Mesh": {
+      "extractionState": "manual"
     },
     "Message": {
       "extractionState": "manual",
@@ -10880,6 +11321,9 @@
           }
         }
       }
+    },
+    "No guides match.": {
+      "extractionState": "manual"
     },
     "No limit": {
       "extractionState": "manual",
@@ -11564,13 +12008,37 @@
       }
     },
     "On the way: %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En camino: %@"
+          }
+        }
+      }
     },
     "On the way: %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En camino: %f"
+          }
+        }
+      }
     },
     "On the way: %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En camino: %lld"
+          }
+        }
+      }
     },
     "Onboarding registered twice": {
       "extractionState": "manual",
@@ -11626,6 +12094,9 @@
           }
         }
       }
+    },
+    "Open in shop": {
+      "extractionState": "manual"
     },
     "Open-source licences": {
       "extractionState": "manual",
@@ -11683,7 +12154,15 @@
       }
     },
     "Other owners used": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otros propietarios usaron"
+          }
+        }
+      }
     },
     "Out of fuel": {
       "extractionState": "manual",
@@ -11695,6 +12174,12 @@
           }
         }
       }
+    },
+    "PAINT": {
+      "extractionState": "manual"
+    },
+    "PARTS": {
+      "extractionState": "manual"
     },
     "PEOPLE'S CHOICE": {
       "extractionState": "manual",
@@ -12345,6 +12830,9 @@
         }
       }
     },
+    "RESULTS": {
+      "extractionState": "manual"
+    },
     "ROLES": {
       "extractionState": "manual",
       "localizations": {
@@ -12575,6 +13063,9 @@
           }
         }
       }
+    },
+    "Rear wing": {
+      "extractionState": "manual"
     },
     "Recent": {
       "extractionState": "manual",
@@ -13105,31 +13596,103 @@
       }
     },
     "Reported %@ · confirmed by %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %@ · confirmado por %@"
+          }
+        }
+      }
     },
     "Reported %@ · confirmed by %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %@ · confirmado por %f"
+          }
+        }
+      }
     },
     "Reported %@ · confirmed by %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %@ · confirmado por %lld"
+          }
+        }
+      }
     },
     "Reported %f · confirmed by %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %f · confirmado por %@"
+          }
+        }
+      }
     },
     "Reported %f · confirmed by %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %f · confirmado por %f"
+          }
+        }
+      }
     },
     "Reported %f · confirmed by %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %f · confirmado por %lld"
+          }
+        }
+      }
     },
     "Reported %lld · confirmed by %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %lld · confirmado por %@"
+          }
+        }
+      }
     },
     "Reported %lld · confirmed by %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %lld · confirmado por %f"
+          }
+        }
+      }
     },
     "Reported %lld · confirmed by %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %lld · confirmado por %lld"
+          }
+        }
+      }
     },
     "Reported. We review reports within 24 hours.": {
       "extractionState": "manual",
@@ -13174,6 +13737,9 @@
           }
         }
       }
+    },
+    "Reset": {
+      "extractionState": "manual"
     },
     "Resonator delete": {
       "extractionState": "manual",
@@ -13527,6 +14093,9 @@
         }
       }
     },
+    "SOURCES": {
+      "extractionState": "manual"
+    },
     "SPECS": {
       "extractionState": "manual",
       "localizations": {
@@ -13559,6 +14128,12 @@
           }
         }
       }
+    },
+    "STANCE": {
+      "extractionState": "manual"
+    },
+    "STEPS": {
+      "extractionState": "manual"
     },
     "STOCK SETUP": {
       "extractionState": "manual",
@@ -13889,6 +14464,9 @@
           }
         }
       }
+    },
+    "Search every task": {
+      "extractionState": "manual"
     },
     "Search for a place": {
       "extractionState": "manual",
@@ -14418,6 +14996,9 @@
         }
       }
     },
+    "Simulate this": {
+      "extractionState": "manual"
+    },
     "Skip": {
       "extractionState": "manual",
       "localizations": {
@@ -14439,6 +15020,9 @@
           }
         }
       }
+    },
+    "Slammed": {
+      "extractionState": "manual"
     },
     "Small": {
       "extractionState": "manual",
@@ -14527,6 +15111,9 @@
           }
         }
       }
+    },
+    "Spokes": {
+      "extractionState": "manual"
     },
     "Sportsman": {
       "extractionState": "manual",
@@ -14803,6 +15390,9 @@
         }
       }
     },
+    "Steelie": {
+      "extractionState": "manual"
+    },
     "Steep": {
       "extractionState": "manual",
       "localizations": {
@@ -14824,6 +15414,9 @@
           }
         }
       }
+    },
+    "Steering": {
+      "extractionState": "manual"
     },
     "Still there": {
       "extractionState": "manual",
@@ -15023,6 +15616,9 @@
         }
       }
     },
+    "TOOLS": {
+      "extractionState": "manual"
+    },
     "TOTAL LENGTH": {
       "extractionState": "manual",
       "localizations": {
@@ -15033,6 +15629,9 @@
           }
         }
       }
+    },
+    "TRADEOFFS": {
+      "extractionState": "manual"
     },
     "TREE": {
       "extractionState": "manual",
@@ -15220,6 +15819,9 @@
           }
         }
       }
+    },
+    "Test drive": {
+      "extractionState": "manual"
     },
     "Thanks. Counted.": {
       "extractionState": "manual",
@@ -16673,6 +17275,9 @@
         }
       }
     },
+    "WHEELS": {
+      "extractionState": "manual"
+    },
     "WHO SEES YOU": {
       "extractionState": "manual",
       "localizations": {
@@ -16815,6 +17420,9 @@
           }
         }
       }
+    },
+    "We couldn't put this car on the loop.": {
+      "extractionState": "manual"
     },
     "We don't have specs for this car. Enter power and weight to simulate it.": {
       "extractionState": "manual",
@@ -17564,6 +18172,9 @@
         }
       }
     },
+    "Your paint": {
+      "extractionState": "manual"
+    },
     "Your photo": {
       "extractionState": "manual",
       "localizations": {
@@ -17717,6 +18328,9 @@
           }
         }
       }
+    },
+    "brake pads, downpipe, alignment": {
+      "extractionState": "manual"
     },
     "build entries": {
       "extractionState": "manual",

@@ -156,31 +156,103 @@
       }
     },
     "Asked %@ · ends %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %@ · termina %@"
+          }
+        }
+      }
     },
     "Asked %@ · ends %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %@ · termina %f"
+          }
+        }
+      }
     },
     "Asked %@ · ends %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %@ · termina %lld"
+          }
+        }
+      }
     },
     "Asked %f · ends %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %f · termina %@"
+          }
+        }
+      }
     },
     "Asked %f · ends %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %f · termina %f"
+          }
+        }
+      }
     },
     "Asked %f · ends %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %f · termina %lld"
+          }
+        }
+      }
     },
     "Asked %lld · ends %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %lld · termina %@"
+          }
+        }
+      }
     },
     "Asked %lld · ends %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %lld · termina %f"
+          }
+        }
+      }
     },
     "Asked %lld · ends %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preguntado %lld · termina %lld"
+          }
+        }
+      }
     },
     "Closure": {
       "extractionState": "manual",
@@ -480,13 +552,37 @@
       }
     },
     "On the way: %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En camino: %@"
+          }
+        }
+      }
     },
     "On the way: %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En camino: %f"
+          }
+        }
+      }
     },
     "On the way: %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En camino: %lld"
+          }
+        }
+      }
     },
     "Optional": {
       "extractionState": "manual",
@@ -599,31 +695,103 @@
       }
     },
     "Reported %@ · confirmed by %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %@ · confirmado por %@"
+          }
+        }
+      }
     },
     "Reported %@ · confirmed by %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %@ · confirmado por %f"
+          }
+        }
+      }
     },
     "Reported %@ · confirmed by %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %@ · confirmado por %lld"
+          }
+        }
+      }
     },
     "Reported %f · confirmed by %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %f · confirmado por %@"
+          }
+        }
+      }
     },
     "Reported %f · confirmed by %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %f · confirmado por %f"
+          }
+        }
+      }
     },
     "Reported %f · confirmed by %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %f · confirmado por %lld"
+          }
+        }
+      }
     },
     "Reported %lld · confirmed by %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %lld · confirmado por %@"
+          }
+        }
+      }
     },
     "Reported %lld · confirmed by %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %lld · confirmado por %f"
+          }
+        }
+      }
     },
     "Reported %lld · confirmed by %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Denunciado %lld · confirmado por %lld"
+          }
+        }
+      }
     },
     "Rough road": {
       "extractionState": "manual",

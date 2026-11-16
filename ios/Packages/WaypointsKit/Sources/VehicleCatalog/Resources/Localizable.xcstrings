@@ -288,7 +288,15 @@
       }
     },
     "Other owners used": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Otros propietarios usaron"
+          }
+        }
+      }
     },
     "Paint name": {
       "extractionState": "manual",
