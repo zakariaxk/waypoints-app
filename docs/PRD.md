@@ -1039,6 +1039,9 @@ Thirteen extensions, each small enough for one session and each passing section 
 | **W10-9 Loops** | ROAD-6 | A migration, `Sources/RoadsFeature/**`, one `Route` case in `Core` |
 | ROAD-8 | A loop shares as a card: the joined road polylines drawn to scale, the loop name, road count, and the owner's handle, to the share sheet (like SPOT-7). | P3 | Coded (L84): LoopRoadsShape bounding-box scale + LoopCard/LoopShare in RoadsFeature; share IconButton in the LoopDetail trailing row. Statically reviewed. |
 | ROAD-9 | A rated road joins a loop in place: the road sheet offers "Add to a loop", listing your loops (appends it) and "New loop" (starts one carrying it). | P3 | Coded (L87): AddToLoop sheet — existing loops (Added/Full states) or New loop via LoopEditor pre-seeded with the road; toast confirms. Statically reviewed. |
+| ROAD-10 | A road sheet notes "You've driven this N×" from local drive traces that pass along the road (ROAD-5's driven map made personal). | P3 | Coded (L99): ≥2 trace points within 100 m of the sampled path, counted off-actor; dust sub line. Statically reviewed. |
+| ROAD-11 | A loop detail notes "You've driven this loop N×" — same local-trace rule as ROAD-10, against the loop's joined path. | P3 | New |
+| ROAD-12 | A saved drive shares as a card: its trace polyline, distance, and date — like ROAD-8's loop card. | P3 | New |
 | **W10-10 Your data** | ACC-12 | A migration (one RPC), `Sources/SettingsFeature/**` |
 | **W10-11 Spanish** | L10N-2 | Every `Localizable.xcstrings`, `tools/l10n/**` |
 
