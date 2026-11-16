@@ -10352,6 +10352,9 @@
         }
       }
     },
+    "No drivers on the map yet.": {
+      "extractionState": "manual"
+    },
     "No entries yet. Log the first thing you did to it.": {
       "extractionState": "manual",
       "localizations": {

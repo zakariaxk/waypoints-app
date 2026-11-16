@@ -11,6 +11,13 @@ public enum MapFeature: FeatureModule {
     public static func register(in registry: FeatureRegistry, env: AppEnvironment) {
         let model = MapModel(env: env, registry: registry)
         registry.registerTab(.map, onReselect: { model.recenter() }) { AnyView(MapScreen(model: model)) }
+        #if DEBUG
+        // `make shot` handles for the sheets no deep link reaches: M8, M10, and M7 on the
+        // first live entity.
+        registry.registerDebugScreen("layers") { AnyView(DebugLayers(model: model)) }
+        registry.registerDebugScreen("marker-picker") { AnyView(MarkerPicker(model: model)) }
+        registry.registerDebugScreen("driver-peek") { AnyView(DebugDriverPeek(model: model)) }
+        #endif
         model.start()
     }
 }
@@ -37,6 +44,7 @@ actor LiveEntityStore {
     private var infos: [RealtimeUID: EntityInfo] = [:]
     private var aggregates: [UInt64: CellAggregate] = [:]
     private var dirty = false
+    private var nextHeartbeat = Date.distantPast
 
     func apply(_ event: ServerEvent) {
         switch event {
@@ -61,12 +69,20 @@ actor LiveEntityStore {
     }
 
     /// Drops markers stale for 30 minutes (plan 9.8) and returns a snapshot when something changed.
+    /// While any marker is up, a snapshot goes out once a second too: staleness is recomputed
+    /// at draw time, so a quiet map still stops rings, dims, and ages labels (MAP-5).
     func take() -> (entities: [Entity], cells: [CellAggregate])? {
-        let cutoff = Date.now.addingTimeInterval(-30 * 60)
+        let now = Date.now
+        let cutoff = now.addingTimeInterval(-30 * 60)
         let before = entities.count
         entities = entities.filter { $0.value.fixAt > cutoff }
-        guard dirty || entities.count != before else { return nil }
+        var emit = dirty || entities.count != before
+        if !emit, !entities.isEmpty, now >= nextHeartbeat {
+            emit = true
+        }
+        guard emit else { return nil }
         dirty = false
+        nextHeartbeat = now.addingTimeInterval(1)
         return (Array(entities.values), Array(aggregates.values))
     }
 }
@@ -155,6 +171,9 @@ final class MapModel {
             for await state in await env.realtime.connectionState() {
                 self?.connection = state
                 if case .live = state { self?.showBanner = false } else {
+                    // Connecting state (MAP-13): the last snapshot renders at 50% until the
+                    // next batch arrives.
+                    self?.hasLiveBatch = false
                     Task {
                         try? await Task.sleep(for: .seconds(3))
                         if let self, !(self.connectionIsLive) { self.showBanner = true }
@@ -336,3 +355,33 @@ extension MapTint {
 extension Car {
     var paint: Color { colorHex.flatMap { Color(paintHex: $0) } ?? .dust }
 }
+
+#if DEBUG
+/// `waypoints://debug/layers`: the M8 sheet; "Icon and trail" still opens M10 (in a nested
+/// sheet, since the debug screen is itself a sheet).
+private struct DebugLayers: View {
+    let model: MapModel
+    @State private var picker = false
+    var body: some View {
+        LayersSheet(model: model) { picker = true }
+            .sheet(isPresented: $picker) { MarkerPicker(model: model) }
+    }
+}
+
+/// `waypoints://debug/driver-peek`: the M7 sheet for the first live entity (MAP-12 friend,
+/// MAP-4 stranger).
+private struct DebugDriverPeek: View {
+    let model: MapModel
+    var body: some View {
+        ScrollView {
+            if let e = model.entities.first {
+                DriverPeek(model: model, entity: e).padding(.top, Space.s16)
+            } else {
+                Text("No drivers on the map yet.", bundle: .module)
+                    .typeStyle(.sub).foregroundStyle(Color.dust).padding(Space.margin)
+            }
+        }
+        .background(Color.tarmac)
+    }
+}
+#endif

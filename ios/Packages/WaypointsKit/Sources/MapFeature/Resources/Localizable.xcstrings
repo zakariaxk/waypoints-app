@@ -760,6 +760,9 @@
         }
       }
     },
+    "No drivers on the map yet.": {
+      "extractionState": "manual"
+    },
     "No friends on the map yet.": {
       "extractionState": "manual",
       "localizations": {

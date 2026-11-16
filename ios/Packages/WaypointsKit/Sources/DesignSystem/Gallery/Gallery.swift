@@ -74,33 +74,7 @@ public struct Gallery: View {
                 .padding(Space.margin)
                 CarBadge("2019 Mustang GT", icon: "pony", paint: Color(rgb: 0x2B4C7E)).padding(.horizontal, Space.margin)
                 SectionLabel(verbatim: "MARKERS ON A DARK MAP")
-                ForEach([Size.Marker.stranger, Size.Marker.friend, Size.Marker.you], id: \.self) { size in
-                    HStack(spacing: Space.s16) {
-                        ForEach(MapGlyphs.free, id: \.self) { name in
-                            SilhouetteIcon(name, paint: Color(rgb: 0xB11226)).frame(width: size * 0.82, height: size * 0.82)
-                        }
-                    }
-                    .padding(.horizontal, Space.margin).padding(.vertical, Space.s4)
-                    .background(Color(rgb: 0x1B1D21))
-                }
-                HStack(spacing: Space.s16) {
-                    VehicleMarker(icon: "pony", paint: Color(rgb: 0x2B4C7E), role: .you, heading: 40)
-                    VehicleMarker(icon: "suv", paint: Color(rgb: 0xB11226), role: .friend(name: "Devon"), moving: true)
-                    VehicleMarker(icon: "hatch", paint: Color(rgb: 0xE5E5E5), role: .approximate)
-                    VehicleMarker(icon: "coupe", paint: .dust, role: .stranger)
-                    ClusterMarker(count: 12)
-                }
-                .padding(Space.margin)
-                HStack(spacing: Space.s8) {
-                    ForEach(["speed_bump", "steep_entrance", "pothole", "rough_road", "police", "hazard", "closure", "fuel_e85"], id: \.self) {
-                        ReportBadge(kind: $0)
-                    }
-                }
-                .padding(.horizontal, Space.margin)
-                HStack(spacing: Space.s12) {
-                    ForEach(["meet", "cruise", "hangout", "track_day", "show"], id: \.self) { MeetPin(kind: $0, time: "8:00") }
-                }
-                .padding(Space.margin)
+                MapIconGallery()
                 SectionLabel(verbatim: "FEEDBACK")
                 Banner(.offline)
                 Banner(.reconnecting)
@@ -116,7 +90,53 @@ public struct Gallery: View {
 }
 
 enum MapGlyphs {
-    static let free = ["coupe", "sedan", "hatch", "wagon", "roadster", "muscle", "pony", "supercar"]
+    /// The 16 silhouettes free from the start — keep in sync with `MapGlyph.freeVehicles` in
+    /// Core (DesignSystem cannot import Core).
+    static let free = ["coupe", "sedan", "hatch", "wagon", "roadster", "muscle", "pony", "supercar",
+                       "kei", "pickup", "suv", "van", "classic", "hot_rod", "sport_bike", "cruiser_bike"]
+}
+
+/// The "markers on a dark map" block: all 16 free silhouettes at the three marker sizes
+/// (ICN-1 is judged from this), the anatomy row, and the report and meet marks. Shown inside
+/// `Gallery` and on its own at `waypoints://debug/gallery-icons`.
+public struct MapIconGallery: View {
+    public init() {}
+
+    public var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach([Size.Marker.stranger, Size.Marker.friend, Size.Marker.you], id: \.self) { size in
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: max(size, 56)), spacing: Space.s8)], spacing: Space.s8) {
+                    ForEach(MapGlyphs.free, id: \.self) { name in
+                        VStack(spacing: Space.s2) {
+                            SilhouetteIcon(name, paint: Color(rgb: 0xB11226)).frame(width: size * 0.82, height: size * 0.82)
+                            Text(verbatim: name).typeStyle(.readoutS).foregroundStyle(Color.dust)
+                        }
+                        .frame(minHeight: size)
+                    }
+                }
+                .padding(.horizontal, Space.margin).padding(.vertical, Space.s8)
+                .background(Color(rgb: 0x1B1D21))
+            }
+            HStack(spacing: Space.s16) {
+                VehicleMarker(icon: "pony", paint: Color(rgb: 0x2B4C7E), role: .you, heading: 40)
+                VehicleMarker(icon: "suv", paint: Color(rgb: 0xB11226), role: .friend(name: "Devon"), moving: true)
+                VehicleMarker(icon: "hatch", paint: Color(rgb: 0xE5E5E5), role: .approximate)
+                VehicleMarker(icon: "coupe", paint: .dust, role: .stranger)
+                ClusterMarker(count: 12)
+            }
+            .padding(Space.margin)
+            HStack(spacing: Space.s8) {
+                ForEach(["speed_bump", "steep_entrance", "pothole", "rough_road", "police", "hazard", "closure", "fuel_e85"], id: \.self) {
+                    ReportBadge(kind: $0)
+                }
+            }
+            .padding(.horizontal, Space.margin)
+            HStack(spacing: Space.s12) {
+                ForEach(["meet", "cruise", "hangout", "track_day", "show"], id: \.self) { MeetPin(kind: $0, time: "8:00") }
+            }
+            .padding(Space.margin)
+        }
+    }
 }
 
 /// WCAG contrast for the text-on-surface pairs the app uses.

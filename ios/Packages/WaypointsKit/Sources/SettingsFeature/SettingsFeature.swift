@@ -39,6 +39,8 @@ public enum SettingsFeature: FeatureModule {
         registry.registerDebugScreen("settings-account") { AnyView(NavigationStack { AccountView(env: env) }) }
         registry.registerDebugScreen("settings-about") { AnyView(NavigationStack { AboutView() }) }
         registry.registerDebugScreen("settings-home-zone") { AnyView(NavigationStack { HomeZoneEditor { _ in } }) }
+        registry.registerDebugScreen("gallery") { AnyView(NavigationStack { Gallery() }) }
+        registry.registerDebugScreen("gallery-icons") { AnyView(ScrollView { MapIconGallery() }.background(Color.asphalt)) }
         #endif
     }
 }

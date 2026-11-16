@@ -39,4 +39,7 @@ supabase/.temp/
 
 # Agent local settings
 .claude/settings.local.json
+
+# Throwaway dev probe (never committed)
+server/cmd/wsprobe/
 tools/catalog/catalog
