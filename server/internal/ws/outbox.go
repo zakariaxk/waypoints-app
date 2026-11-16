@@ -28,11 +28,23 @@ type entity struct {
 	sentRel  wire.Relation
 }
 
+// tierRank orders what a source offers: precise beats approximate. The wire
+// enum numbers APPROX above PRECISE, so ranks cannot compare the enum itself.
+func tierRank(t wire.Tier) int {
+	switch t {
+	case wire.Tier_PRECISE:
+		return 2
+	case wire.Tier_APPROX:
+		return 1
+	}
+	return 0
+}
+
 // best is the highest-tier source, newest first on a tie.
 func (e *entity) best() srcState {
 	var b srcState
 	for _, s := range e.sources {
-		if b.u == nil || s.u.Tier > b.u.Tier || (s.u.Tier == b.u.Tier && s.u.At.After(b.u.At)) {
+		if b.u == nil || tierRank(s.u.Tier) > tierRank(b.u.Tier) || (s.u.Tier == b.u.Tier && s.u.At.After(b.u.At)) {
 			b = s
 		}
 	}
