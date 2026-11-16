@@ -61,7 +61,8 @@ actor LiveSafetyService: SafetyService {
         publish()
     }
 
-    private func request(_ method: String, _ path: String, query: [URLQueryItem] = [], body: Data? = nil) async throws -> Data {
+    private func request(_ method: String, _ path: String, query: [URLQueryItem] = [], body: Data? = nil,
+                         prefer: String = "return=minimal,resolution=ignore-duplicates") async throws -> Data {
         var components = URLComponents(url: rest.appending(path: path), resolvingAgainstBaseURL: false)!
         if !query.isEmpty { components.queryItems = query }
         var req = URLRequest(url: components.url!)
@@ -69,7 +70,7 @@ actor LiveSafetyService: SafetyService {
         req.setValue(anonKey, forHTTPHeaderField: "apikey")
         req.setValue("Bearer \(try await auth.accessToken())", forHTTPHeaderField: "Authorization")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.setValue("return=minimal,resolution=ignore-duplicates", forHTTPHeaderField: "Prefer")
+        req.setValue(prefer, forHTTPHeaderField: "Prefer")
         req.httpBody = body
         let data: Data, response: URLResponse
         do {
@@ -112,7 +113,9 @@ actor LiveSafetyService: SafetyService {
         let me = try await me()
         let body: [String: String?] = ["reporter_id": me.description, "target_kind": target.kind.rawValue,
                                        "target_id": target.id, "reason": reason.rawValue, "note": note]
-        _ = try await request("POST", "content_reports", body: try JSONEncoder().encode(body))
+        // content_reports has no SELECT for the reporter, so ON CONFLICT (ignore-duplicates)
+        // is denied; a report is a new row every time, never a duplicate.
+        _ = try await request("POST", "content_reports", body: try JSONEncoder().encode(body), prefer: "return=minimal")
     }
 
     func block(_ user: UserID) async throws {

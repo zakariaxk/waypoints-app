@@ -14,6 +14,12 @@ public enum OnboardingFeature: FeatureModule {
     @MainActor
     public static func register(in registry: FeatureRegistry, env: AppEnvironment) {
         registry.registerOnboarding { AnyView(OnboardingRoot(env: env)) }
+        #if DEBUG
+        // O3 and O4 sit past the terms gate, which `waypoints://debug/` links cannot reach
+        // without a tap; these let `make shot` see them (PRD 7.1).
+        registry.registerDebugScreen("onboarding-car") { AnyView(NavigationStack { CarStepView(env: env) {} }) }
+        registry.registerDebugScreen("onboarding-location") { AnyView(NavigationStack { LocationStepView(env: env) {} }) }
+        #endif
     }
 }
 
@@ -101,6 +107,9 @@ struct SignInView: View {
     @State private var showEmail = false
     @State private var nonce = ""
     @State private var failed = 0
+    /// SAFE-7: raised by the shell when the gateway reports a suspension, and by a suspended
+    /// sign-in. Observed, not read once, so it also shows if it flips while this view is up.
+    @AppStorage(AccountSuspension.defaultsKey) private var suspended = false
     @FocusState private var codeFocused: Bool
 
     var body: some View {
@@ -121,18 +130,19 @@ struct SignInView: View {
         }
         .background(Color.asphalt.ignoresSafeArea())
         .haptic(.fail, trigger: failed)
-        .onAppear {
-            // SAFE-7: the shell signed a suspended account out.
-            if UserDefaults.standard.bool(forKey: AccountSuspension.defaultsKey) {
-                UserDefaults.standard.removeObject(forKey: AccountSuspension.defaultsKey)
-                error = AccountSuspension.message
-            }
-        }
+        .onAppear { showSuspension() }
+        .onChange(of: suspended) { showSuspension() }
     }
 
     /// LINK-4: the site's legal pages on the shared link host (`AppConfig.siteHost`).
     private var termsURL: String { "https://\(AppConfig.siteHost)/terms" }
     private var privacyURL: String { "https://\(AppConfig.siteHost)/privacy" }
+
+    private func showSuspension() {
+        guard suspended else { return }
+        suspended = false
+        error = AccountSuspension.message
+    }
 
     private var buttons: some View {
         VStack(spacing: Space.s12) {

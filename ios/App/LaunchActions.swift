@@ -105,6 +105,10 @@ enum LaunchActions {
             }
             let session = try await Backend.debugSignIn(env.auth, email: email, password: devPassword)
             print("-wp-login: signed in as \(email) (\(session.userID))")
+        } catch WaypointsError.suspended {
+            // Mirror the shell's suspended-connection path so the sign-in screen shows the message.
+            UserDefaults.standard.set(true, forKey: AccountSuspension.defaultsKey)
+            print("-wp-login: sign-in as \(email) failed: suspended")
         } catch {
             print("-wp-login: sign-in as \(email) failed: \(error)")
         }

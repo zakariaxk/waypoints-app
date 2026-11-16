@@ -57,6 +57,12 @@ otp_length = 6
 otp_expiry = 3600
 max_frequency = "30s"
 
+# The app signs in with a 6-digit code (ACC-2); the default GoTrue template only
+# sends a link, so dev sign-in by email needs the token in the message.
+[auth.email.template.magic_link]
+subject = "Your Waypoints sign-in code"
+content_path = "./supabase/templates/magic_link.html"
+
 [auth.sms]
 enable_signup = false
 

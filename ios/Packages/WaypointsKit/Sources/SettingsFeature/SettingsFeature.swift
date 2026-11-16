@@ -38,6 +38,7 @@ public enum SettingsFeature: FeatureModule {
         registry.registerDebugScreen("settings-blocked") { AnyView(NavigationStack { BlockedView(env: env) }) }
         registry.registerDebugScreen("settings-account") { AnyView(NavigationStack { AccountView(env: env) }) }
         registry.registerDebugScreen("settings-about") { AnyView(NavigationStack { AboutView() }) }
+        registry.registerDebugScreen("settings-home-zone") { AnyView(NavigationStack { HomeZoneEditor { _ in } }) }
         #endif
     }
 }
@@ -698,5 +699,9 @@ private func applyLanguage(_ lang: String) {
 
 /// Read off the main actor: `UNNotificationSettings` is not Sendable, its status is.
 private nonisolated func notificationStatus() async -> UNAuthorizationStatus {
-    await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+    #if DEBUG
+    // simctl cannot deny notification permission; this stages the NTF-4 block for a shot.
+    if ProcessInfo.processInfo.arguments.contains("-wp-notifs-denied") { return .denied }
+    #endif
+    return await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
 }
