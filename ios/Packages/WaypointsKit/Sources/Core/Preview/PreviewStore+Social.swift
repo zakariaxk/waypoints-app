@@ -340,6 +340,10 @@ extension PreviewStore: MarketRepository {
     public func listings(by seller: UserID) async throws -> [Listing] {
         listings.values.filter { $0.sellerID == seller }.sorted { $0.createdAt > $1.createdAt }.map(decorated)
     }
+    public func activeListing(forCar car: CarID) async throws -> Listing? {
+        listings.values.filter { $0.carID == car && $0.status == .active && !$0.isExpired() && visible($0.sellerID) }
+            .sorted { $0.createdAt > $1.createdAt }.first.map(decorated)
+    }
     public func createListing(_ draft: ListingDraft) async throws -> Listing {
         let listing = Listing(sellerID: try me(), kind: draft.kind, title: draft.title, priceCents: draft.priceCents,
                               condition: draft.condition, description: draft.description, fits: draft.fits,

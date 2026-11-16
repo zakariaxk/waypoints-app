@@ -551,6 +551,9 @@
         }
       }
     },
+    "GARAGE": {
+      "extractionState": "manual"
+    },
     "Host meets": {
       "extractionState": "manual",
       "localizations": {

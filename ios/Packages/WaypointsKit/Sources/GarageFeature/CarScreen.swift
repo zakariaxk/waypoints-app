@@ -19,6 +19,8 @@ final class CarModel {
     var costs: [BuildEntryID: Int] = [:]
     var variant: CatalogVariant?
     var showdown: ShowdownEntry?
+    /// GAR-20: the car's active market listing, visible to owner and visitors alike.
+    var listing: Listing?
     var me: UserID?
     var uploading = false
     var failed = false
@@ -55,6 +57,7 @@ final class CarModel {
         costs = c.ownerID == me ? ((try? await env.garage.buildCosts(of: carID)) ?? [:]) : [:]
         if let v = c.catalogVariantID { variant = try? await env.catalog.variant(v) }
         showdown = try? await env.showdown.entry(for: carID)
+        listing = try? await env.market.activeListing(forCar: carID)
     }
 
     func addPhoto(_ item: PhotosPickerItem) async -> Bool {
@@ -99,6 +102,7 @@ struct CarScreen: View {
                     pager
                     titleBlock(car)
                     if let est = model.estimate { readouts(est, car: car) }
+                    listedRow
                     if model.own { ownActions(car) } else { otherActions(car) }
                     timeline
                     costSummary
@@ -265,6 +269,22 @@ struct CarScreen: View {
         Readout(Format.number((r.lowerBound + r.upperBound) / 2, fractionDigits: digits), unit: unit, label: label,
                 range: .init(low: r.lowerBound, high: r.upperBound, bounds: bounds))
             .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    /// GAR-20: the listed-for-sale line under the readouts; opens the market listing.
+    @ViewBuilder private var listedRow: some View {
+        if let listing = model.listing, ctx.registry.canOpen(.listing(listing.id)) {
+            Button { ctx.env.router.open(.listing(listing.id)) } label: {
+                Row(Text("Listed for", bundle: .module), trailing: {
+                    HStack(spacing: Space.s8) {
+                        Text(readout: GarageUnits.money(cents: listing.priceCents), token: .readoutS)
+                        Disclosure()
+                    }
+                })
+            }
+            .buttonStyle(RowButtonStyle())
+            .padding(.top, Space.s16)
+        }
     }
 
     @ViewBuilder private func ownActions(_ car: Car) -> some View {

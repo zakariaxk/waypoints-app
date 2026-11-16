@@ -70,6 +70,9 @@ struct GuideDetailScreen: View {
             Text(verbatim: "\(difficultyLabel(guide.difficulty)) · \(GuidesScreen.timeLabel(guide))")
                 .typeStyle(.sub).foregroundStyle(Color.dust)
                 .padding(.horizontal, Space.margin).padding(.top, Space.s4)
+            // KNW-8: one row per person; the same chip votes or unvotes.
+            Chip("Helpful · \(guide.votesCount)", isSelected: guide.votedByMe) { Task { await toggleVote(guide) } }
+                .padding(.horizontal, Space.margin).padding(.top, Space.s12)
 
             if !guide.parts.isEmpty {
                 SectionLabel("PARTS")
@@ -141,6 +144,20 @@ struct GuideDetailScreen: View {
             }, trailing: { Text(verbatim: "\(index + 1)").typeStyle(.readoutS) })
         }
         .buttonStyle(RowButtonStyle())
+    }
+
+    /// KNW-8: optimistic toggle; a failed write puts the chip back.
+    private func toggleVote(_ guide: Guide) async {
+        var next = guide
+        next.votedByMe.toggle()
+        next.votesCount += next.votedByMe ? 1 : -1
+        self.guide = next
+        do {
+            if next.votedByMe { try await ctx.env.guides.vote(guide.id) }
+            else { try await ctx.env.guides.unvote(guide.id) }
+        } catch {
+            self.guide = guide
+        }
     }
 
     private func toggle(_ guide: Guide, _ index: Int) {

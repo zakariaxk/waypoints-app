@@ -37,6 +37,15 @@
     "Guides": {
       "extractionState": "manual"
     },
+    "Helpful · %@": {
+      "extractionState": "manual"
+    },
+    "Helpful · %f": {
+      "extractionState": "manual"
+    },
+    "Helpful · %lld": {
+      "extractionState": "manual"
+    },
     "Linked mods": {
       "extractionState": "manual"
     },

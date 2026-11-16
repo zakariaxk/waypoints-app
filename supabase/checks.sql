@@ -126,6 +126,7 @@ declare
   v_b uuid;
   msg_b bigint;
   v_int int;
+  g_a uuid;
 begin
   ---------------------------------------------------------------- sign-up
   insert into auth.users (instance_id, id, aud, role, email, raw_app_meta_data, raw_user_meta_data)
@@ -1312,8 +1313,8 @@ begin
       'teams_owner_idx', 'messages_author_idx', 'report_votes_user_idx',
       'help_requests_requester_idx', 'device_tokens_apns_idx')));
   perform pg_temp.truth('w11h indexes: late-table FK indexes exist',
-    (select count(*) = 2 from pg_indexes where schemaname = 'public' and indexname in (
-      'car_of_week_runs_user_idx', 'message_reactions_user_idx')));
+    (select count(*) = 3 from pg_indexes where schemaname = 'public' and indexname in (
+      'car_of_week_runs_user_idx', 'message_reactions_user_idx', 'guide_votes_user_idx')));
 
   -- bounded set-returning RPCs: authenticated only, anon refused
   perform pg_temp.deny('w11h following_feed: not callable by anon', 'anon',
@@ -1601,6 +1602,27 @@ begin
   perform pg_temp.deny('l63 repair_guides: guide needs at least one source', 'service',
     $s$insert into repair_guides (task, make, difficulty, time_min_minutes, time_max_minutes, tools, parts, steps, sources)
       values ('Oil change', 'Honda', 1, 10, 20, '[]', '[]', '["step"]', '[]')$s$, '23514');
+
+  ---------------------------------------------------------------- guide_votes (L80, KNW-8)
+  select id into g_a from repair_guides limit 1;
+  perform pg_temp.allow('l80 guide_votes: user votes a guide helpful', b,
+    format($s$insert into guide_votes (guide_id, user_id) values (%L, %L)$s$, g_a, b), true);
+  perform pg_temp.truth('l80 guide_votes: trigger increments votes_count',
+    (select votes_count = 1 from repair_guides where id = g_a));
+  perform pg_temp.deny('l80 guide_votes: cannot vote as someone else', a,
+    format($s$insert into guide_votes (guide_id, user_id) values (%L, %L)$s$, g_a, b));
+  perform pg_temp.deny('l80 guide_votes: cannot vote twice', b,
+    format($s$insert into guide_votes (guide_id, user_id) values (%L, %L)$s$, g_a, b), '23505');
+  perform pg_temp.deny('l80 guide_votes: votes are private to the voter', a,
+    format($s$select 1 from guide_votes where user_id = %L$s$, b));
+  perform pg_temp.deny('l80 guide_votes: cannot delete another''s vote', a,
+    format($s$delete from guide_votes where guide_id = %L and user_id = %L$s$, g_a, b));
+  perform pg_temp.deny('l80 guide_votes: anon cannot vote', 'anon',
+    format($s$insert into guide_votes (guide_id, user_id) values (%L, %L)$s$, g_a, c));
+  perform pg_temp.allow('l80 guide_votes: user unvotes', b,
+    format($s$delete from guide_votes where guide_id = %L and user_id = %L$s$, g_a, b), true);
+  perform pg_temp.truth('l80 guide_votes: trigger decrements votes_count',
+    (select votes_count = 0 from repair_guides where id = g_a));
 
   ---------------------------------------------------------------- achievements (L75, ICN-8)
   -- `a` saved its loop in the W10-9 block above; the trigger awards on the first row.

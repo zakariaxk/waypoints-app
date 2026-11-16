@@ -86,7 +86,12 @@ struct GuidesScreen: View {
                 out.append(guide)
             }
         }
-        forYours = out.sorted { $0.task < $1.task }
+        forYours = out.sorted(by: Self.byVotes)
+    }
+
+    /// KNW-8: most helpful first, task A to Z to break ties.
+    static func byVotes(_ a: Guide, _ b: Guide) -> Bool {
+        a.votesCount != b.votesCount ? a.votesCount > b.votesCount : a.task < b.task
     }
 
     private func search() async {
@@ -94,6 +99,6 @@ struct GuidesScreen: View {
         // Debounce: a backend ilike per keystroke hammers the API while typing.
         try? await Task.sleep(for: .milliseconds(250))
         guard !Task.isCancelled else { return }
-        results = (try? await ctx.env.guides.search(query)) ?? []
+        results = ((try? await ctx.env.guides.search(query)) ?? []).sorted(by: Self.byVotes)
     }
 }

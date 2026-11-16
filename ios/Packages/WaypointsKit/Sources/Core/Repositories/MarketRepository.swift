@@ -5,6 +5,8 @@ public protocol MarketRepository: Sendable {
     func listings(_ filter: ListingFilter, after cursor: PageCursor?, limit: Int) async throws -> Page<Listing>
     func listing(_ id: ListingID) async throws -> Listing
     func listings(by seller: UserID) async throws -> [Listing]
+    /// GAR-20: the car's live listing, if one is up. Active means `status == .active` and not expired (MKT-9).
+    func activeListing(forCar car: CarID) async throws -> Listing?
     @discardableResult func createListing(_ draft: ListingDraft) async throws -> Listing
     @discardableResult func updateListing(_ listing: Listing) async throws -> Listing
     func setStatus(_ status: ListingStatus, for id: ListingID) async throws

@@ -937,6 +937,9 @@
         }
       }
     },
+    "Listed for": {
+      "extractionState": "manual"
+    },
     "Make primary car": {
       "extractionState": "manual",
       "localizations": {

@@ -15,7 +15,7 @@ extension PreviewStore: GuideRepository {
                   tradeoffs: "An H-pipe keeps the classic 5.0 tone; straight-through mufflers drone at cruise.",
                   mistakes: "Tailpipe tips that touch the bumper melt plastic and rattle.",
                   sources: [URL(string: "https://www.stangnet.com/mustang-forums/")!],
-                  linkedModIDs: ["catback", "h_pipe"]),
+                  linkedModIDs: ["catback", "h_pipe"], votesCount: 34),
             Guide(id: GuideID(raw: UUID(uuidString: "d0000000-0000-4000-8000-000000000002")!),
                   task: "Engine oil and filter change", make: "Ford", model: "Mustang", difficulty: 1,
                   timeMinMinutes: 40, timeMaxMinutes: 80,
@@ -24,7 +24,7 @@ extension PreviewStore: GuideRepository {
                           GuidePart(name: "Oil filter", estCostCentsLow: 800, estCostCentsHigh: 1500)],
                   steps: ["Warm the engine, lift the front.", "Drain the oil and swap the filter.",
                           "Refit the plug, fill, and check the level."],
-                  sources: [URL(string: "https://www.mustang6g.com/")!]),
+                  sources: [URL(string: "https://www.mustang6g.com/")!], votesCount: 61),
             Guide(id: GuideID(raw: UUID(uuidString: "d0000000-0000-4000-8000-000000000003")!),
                   task: "Cold air intake install", make: "Honda", model: "Civic Type R", difficulty: 2,
                   timeMinMinutes: 45, timeMaxMinutes: 90,
@@ -59,25 +59,42 @@ extension PreviewStore: GuideRepository {
         ]
     }
 
+    /// Applies the viewer's vote (KNW-8); a vote adds one to the seeded count.
+    func decorated(_ guide: Guide) -> Guide {
+        var g = guide
+        if let me = session?.userID, guideVotes.contains(Pair(g.id.raw, me.raw)) {
+            g.votedByMe = true; g.votesCount += 1
+        }
+        return g
+    }
+
     public func guidesForMake(_ make: String) async throws -> [Guide] {
         _ = try me()
-        return guideRows.filter { $0.make == make }.sorted { $0.task < $1.task }
+        return guideRows.filter { $0.make == make }.sorted { $0.task < $1.task }.map(decorated)
     }
 
     public func guides(forModel make: String, model: String) async throws -> [Guide] {
         _ = try me()
-        return guideRows.filter { $0.make == make && $0.model == model }.sorted { $0.task < $1.task }
+        return guideRows.filter { $0.make == make && $0.model == model }.sorted { $0.task < $1.task }.map(decorated)
     }
 
     public func search(_ query: String) async throws -> [Guide] {
         _ = try me()
         let q = query.lowercased()
-        return guideRows.filter { q.isEmpty || $0.task.lowercased().contains(q) }.sorted { $0.task < $1.task }
+        return guideRows.filter { q.isEmpty || $0.task.lowercased().contains(q) }.sorted { $0.task < $1.task }.map(decorated)
     }
 
     public func guide(_ id: GuideID) async throws -> Guide {
         _ = try me()
         guard let guide = guideRows.first(where: { $0.id == id }) else { throw WaypointsError.notFound }
-        return guide
+        return decorated(guide)
+    }
+
+    public func vote(_ id: GuideID) async throws {
+        _ = guideVotes.insert(Pair(id.raw, try me().raw))
+    }
+
+    public func unvote(_ id: GuideID) async throws {
+        _ = guideVotes.remove(Pair(id.raw, try me().raw))
     }
 }

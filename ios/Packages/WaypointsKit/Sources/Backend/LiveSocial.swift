@@ -729,6 +729,17 @@ struct LiveMarket: MarketRepository {
         return rows.map { $0.model(saved: s.contains($0.id)) }
     }
 
+    func activeListing(forCar car: CarID) async throws -> Listing? {
+        let rows: [ListingRow] = try await ctx.run {
+            try await ctx.table("listings").select(listingColumns).eq("car_id", value: car.key)
+                .eq("status", value: ListingStatus.active.rawValue)
+                .gte("updated_at", value: PostgresDate.timestamp(Date.now.addingTimeInterval(-Listing.expiresAfter)))
+                .order("created_at", ascending: false).limit(1).execute().value
+        }
+        guard let row = rows.first else { return nil }
+        return row.model(saved: await saved().contains(row.id))
+    }
+
     func createListing(_ draft: ListingDraft) async throws -> Listing {
         let me = try ctx.me()
         let write = ListingWrite(kind: draft.kind, title: draft.title, priceCents: draft.priceCents, condition: draft.condition,

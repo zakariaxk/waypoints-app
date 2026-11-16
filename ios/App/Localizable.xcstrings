@@ -8687,6 +8687,9 @@
         }
       }
     },
+    "GARAGE": {
+      "extractionState": "manual"
+    },
     "Garage": {
       "extractionState": "manual",
       "localizations": {
@@ -9063,6 +9066,15 @@
           }
         }
       }
+    },
+    "Helpful · %@": {
+      "extractionState": "manual"
+    },
+    "Helpful · %f": {
+      "extractionState": "manual"
+    },
+    "Helpful · %lld": {
+      "extractionState": "manual"
     },
     "Hidden": {
       "extractionState": "manual",
@@ -10133,6 +10145,9 @@
           }
         }
       }
+    },
+    "Listed for": {
+      "extractionState": "manual"
     },
     "Listing": {
       "extractionState": "manual",

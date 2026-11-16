@@ -635,6 +635,7 @@ struct TeamDetail: View {
                         Row(Text("Meets", bundle: .module), trailing: { Disclosure() })
                     }
                     .buttonStyle(RowButtonStyle())
+                    TeamGarage(model: model, teamID: teamID)
                     if perms.contains(.manageTeam) {
                         Button { editingTeam = true } label: { Row(Text("Edit team", bundle: .module), trailing: { Disclosure() }) }
                             .buttonStyle(RowButtonStyle())
@@ -1091,6 +1092,55 @@ struct TeamMeets: View {
                     && !model.reported.contains(ContentRef(kind: .user, id: $0.hostID.description))
             }
         }
+    }
+}
+
+/// TEAM-12: the members' public cars as a chip row; each chip opens the car.
+struct TeamGarage: View {
+    let model: TeamsModel
+    let teamID: TeamID
+    @State private var cars: [Car]?
+    @State private var owners: [UserID: Profile] = [:]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if let cars, !cars.isEmpty {
+                SectionLabel("GARAGE")
+                ScrollView(.horizontal) {
+                    HStack(spacing: Space.s8) {
+                        ForEach(cars) { chip($0) }
+                    }
+                    .padding(.horizontal, Space.margin)
+                    .padding(.bottom, Space.s8)
+                }
+                .scrollIndicators(.hidden)
+            }
+        }
+        .task { await load() }
+    }
+
+    private func chip(_ car: Car) -> some View {
+        let owner = owners[car.ownerID]
+        return Button { model.env.router.open(.car(car.id)) } label: {
+            VStack(alignment: .leading, spacing: Space.s2) {
+                Text(verbatim: owner?.displayName ?? "").typeStyle(.foot).foregroundStyle(Color.chalk).lineLimit(1)
+                CarBadge(car.shortLabel, icon: owner?.markerIcon ?? "coupe",
+                         paint: car.colorHex.flatMap { Color(paintHex: $0) } ?? .dust)
+            }
+            .padding(.horizontal, Space.s12)
+            .padding(.vertical, Space.s8)
+            .background(Color.concrete, in: RoundedRectangle(cornerRadius: Radius.r12))
+        }
+        .buttonStyle(PressScaleStyle())
+    }
+
+    private func load() async {
+        let members = ((try? await model.env.teams.members(of: teamID)) ?? [])
+            .filter { !model.reported.contains(ContentRef(kind: .user, id: $0.userID.description)) }
+        for p in (try? await model.env.profiles.profiles(members.map(\.userID))) ?? [] { owners[p.userID] = p }
+        var found: [Car] = []
+        for m in members { found.append(contentsOf: (try? await model.env.garage.cars(of: m.userID)) ?? []) }
+        cars = found
     }
 }
 

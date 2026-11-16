@@ -38,6 +38,7 @@ public actor PreviewStore {
     var readMarkers: [MessageTarget: MessageID] = [:]
     var posts: [PostID: Post]
     var likes: Set<Pair> = []
+    var guideVotes: Set<Pair> = []
     var hiddenPosts: Set<PostID> = []
     var comments: [PostComment] = []
     var follows: Set<Pair> = []
