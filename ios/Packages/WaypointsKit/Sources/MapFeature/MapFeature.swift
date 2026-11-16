@@ -112,6 +112,7 @@ final class MapModel {
     @ObservationIgnored private let store = LiveEntityStore()
     @ObservationIgnored private var tasks: [Task<Void, Never>] = []
     @ObservationIgnored private var layerTasks: [String: Task<Void, Never>] = [:]
+    @ObservationIgnored private var pathTasks: [String: Task<Void, Never>] = [:]
 
     var entities: [Entity] = []
     var cells: [CellAggregate] = []
@@ -125,6 +126,7 @@ final class MapModel {
     var blocked: Set<UserID> = []
     var region = MapRegion(center: Coordinate(latitude: 39.95, longitude: -75.16), latitudeDelta: 0.2, longitudeDelta: 0.2)
     var items: [String: [MapItem]] = [:]
+    var paths: [String: [MapPath]] = [:]
     var selection: Selection?
     var follow: FollowMode = .follow
     var recenterTick = 0
@@ -240,6 +242,12 @@ final class MapModel {
                     if let self, case let .item(p, id) = self.selection, p == provider.id, !list.contains(where: { $0.id == id }) {
                         self.selection = nil
                     }
+                }
+            }
+            pathTasks[provider.id]?.cancel()
+            pathTasks[provider.id] = Task { [weak self] in
+                for await list in provider.paths(in: r) {
+                    self?.paths[provider.id] = list
                 }
             }
         }

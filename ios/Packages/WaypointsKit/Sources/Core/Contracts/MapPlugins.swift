@@ -5,7 +5,23 @@ import SwiftUI
 public protocol MapLayerProvider: Sendable {
     var id: String { get }
     func items(in region: MapRegion) -> AsyncStream<[MapItem]>      // re-called when the camera settles
+    func paths(in region: MapRegion) -> AsyncStream<[MapPath]>      // drawn under the markers
     @MainActor func detail(for item: MapItem) -> AnyView?           // shown in the map sheet on selection
+}
+
+extension MapLayerProvider {
+    public func paths(in region: MapRegion) -> AsyncStream<[MapPath]> { AsyncStream { $0.finish() } }
+}
+
+/// A line a layer draws under its markers (CNV-5: the convoy's shared route).
+public struct MapPath: Identifiable, Sendable {
+    public let id: String
+    public var coordinates: [Coordinate]
+    public var tint: MapTint
+
+    public init(id: String, coordinates: [Coordinate], tint: MapTint) {
+        self.id = id; self.coordinates = coordinates; self.tint = tint
+    }
 }
 
 public struct MapItem: Identifiable, Sendable {

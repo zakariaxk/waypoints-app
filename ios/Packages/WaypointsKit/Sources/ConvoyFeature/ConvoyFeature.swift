@@ -20,6 +20,14 @@ public enum ConvoyFeature: FeatureModule {
         }
         #if DEBUG
         registry.registerDebugScreen("convoy-regroup") { AnyView(RegroupSheet(store: store)) }
+        // `waypoints://debug/convoy-live`: joins the preview convoy so the map behind this
+        // half-sheet draws the shared route line and the leader tick (CNV-5).
+        registry.registerDebugScreen("convoy-live") {
+            AnyView(ScrollView { ConvoySectionView(store: store) }
+                .background(Color.tarmac)
+                .presentationDetents([.medium])
+                .task { if store.state == nil { try? await store.join(code: "R70RUN") } })
+        }
         #endif
         store.start()
     }
@@ -279,14 +287,44 @@ struct ConvoyLayer: MapLayerProvider {
     func items(in region: MapRegion) -> AsyncStream<[MapItem]> {
         AsyncStream { c in
             Task { @MainActor in
-                var items: [MapItem] = []
-                if let d = store.state?.destination {
-                    items.append(MapItem(id: "dest", coordinate: d.coordinate, glyph: "pin", tint: .sodium, title: d.name, priority: 9))
+                var last = ""
+                while !Task.isCancelled {
+                    var items: [MapItem] = []
+                    if let s = store.state {
+                        if let d = s.destination {
+                            items.append(MapItem(id: "dest", coordinate: d.coordinate, glyph: "pin", tint: .sodium, title: d.name, priority: 9))
+                        }
+                        if let r = s.regroup {
+                            items.append(MapItem(id: "regroup", coordinate: r.coordinate, glyph: "pin", tint: .go, title: "Regroup", priority: 10))
+                        }
+                        // CNV-5: the sodium tick on the leader's marker.
+                        if let leader = store.leaderPosition {
+                            items.append(MapItem(id: "leader", coordinate: leader, glyph: "leader", tint: .sodium,
+                                                 title: String(localized: "Leader", bundle: .module), priority: 8))
+                        }
+                    }
+                    let signature = items.map { "\($0.id)\($0.coordinate.latitude)\($0.coordinate.longitude)" }.joined()
+                    if signature != last { c.yield(items); last = signature }
+                    try? await Task.sleep(for: .seconds(1))
                 }
-                if let r = store.state?.regroup {
-                    items.append(MapItem(id: "regroup", coordinate: r.coordinate, glyph: "pin", tint: .go, title: "Regroup", priority: 10))
+                c.finish()
+            }
+        }
+    }
+    /// CNV-5: the shared route as a line under the markers.
+    func paths(in region: MapRegion) -> AsyncStream<[MapPath]> {
+        AsyncStream { c in
+            Task { @MainActor in
+                var last = Data()
+                while !Task.isCancelled {
+                    let data = store.state?.routePolyline ?? Data()
+                    if data != last {
+                        last = data
+                        let coordinates = decodePolyline(data)
+                        c.yield(coordinates.count > 1 ? [MapPath(id: "route", coordinates: coordinates, tint: .sodium)] : [])
+                    }
+                    try? await Task.sleep(for: .seconds(1))
                 }
-                c.yield(items)
                 c.finish()
             }
         }
@@ -297,6 +335,31 @@ struct ConvoyLayer: MapLayerProvider {
             PrimaryButton("Directions") { store.env.router.open(.navigate(to: item.coordinate, name: item.title)) }
         }.padding(.horizontal, Space.margin))
     }
+}
+
+/// Google encoded polyline, precision 5 — the shape a shared convoy route arrives as (MEET-13).
+func decodePolyline(_ data: Data) -> [Coordinate] {
+    let bytes = [UInt8](data)
+    var out: [Coordinate] = []
+    var lat = 0, lng = 0, i = 0
+    func chunk() -> Int? {
+        var shift = 0, result = 0
+        while i < bytes.count {
+            let b = Int(bytes[i]) - 63
+            i += 1
+            result |= (b & 0x1f) << shift
+            shift += 5
+            if b < 0x20 { return result }
+        }
+        return nil
+    }
+    while i < bytes.count {
+        guard let dLat = chunk(), let dLng = chunk() else { break }
+        lat += (dLat & 1) != 0 ? ~(dLat >> 1) : (dLat >> 1)
+        lng += (dLng & 1) != 0 ? ~(dLng >> 1) : (dLng >> 1)
+        out.append(Coordinate(latitude: Double(lat) / 1e5, longitude: Double(lng) / 1e5))
+    }
+    return out
 }
 
 struct ConvoySection: MapSheetSection {
@@ -381,7 +444,7 @@ struct ConvoySectionView: View {
                         if let fix = m.fixAt, Date.now.timeIntervalSince(fix) > 60 {
                             Text("Lost signal", bundle: .module).typeStyle(.foot)
                         } else if let g = store.gap(m) {
-                            Text(verbatim: "+\(Int(g).formatted(.number)) s").typeStyle(.readoutS)
+                            Text(readout: "+\(Int(g).formatted(.number)) s", token: .readoutS)
                                 .accessibilityLabel(Text("\(Int(g).formatted(.number)) seconds behind", bundle: .module))
                         }
                     })

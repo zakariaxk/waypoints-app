@@ -19,8 +19,7 @@ public struct Gallery: View {
                 SectionLabel(verbatim: "CONTRAST")
                 ForEach(Contrast.pairs, id: \.label) { pair in
                     Row(Text(verbatim: pair.label), trailing: {
-                        Text(verbatim: "\(Format.number(pair.ratio, fractionDigits: 1)):1 \(pair.ratio >= pair.minimum ? "pass" : "FAIL")")
-                            .typeStyle(.readoutS)
+                        Text(readout: "\(Format.number(pair.ratio, fractionDigits: 1)):1 \(pair.ratio >= pair.minimum ? "pass" : "FAIL")", token: .readoutS)
                             .foregroundStyle(pair.ratio >= pair.minimum ? Color.go : Color.brake)
                     })
                 }
@@ -89,6 +88,13 @@ public struct Gallery: View {
     }
 }
 
+private extension Array {
+    /// Splits into rows of `n`, for the icon gallery's fixed grid.
+    func chunks(of n: Int) -> [ArraySlice<Element>] {
+        stride(from: 0, to: count, by: n).map { self[$0..<Swift.min($0 + n, count)] }
+    }
+}
+
 enum MapGlyphs {
     /// The 16 silhouettes free from the start — keep in sync with `MapGlyph.freeVehicles` in
     /// Core (DesignSystem cannot import Core).
@@ -105,14 +111,13 @@ public struct MapIconGallery: View {
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach([Size.Marker.stranger, Size.Marker.friend, Size.Marker.you], id: \.self) { size in
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: max(size, 56)), spacing: Space.s8)], spacing: Space.s8) {
-                    ForEach(MapGlyphs.free, id: \.self) { name in
-                        VStack(spacing: Space.s2) {
-                            SilhouetteIcon(name, paint: Color(rgb: 0xB11226)).frame(width: size * 0.82, height: size * 0.82)
-                            Text(verbatim: name).typeStyle(.readoutS).foregroundStyle(Color.dust)
-                        }
-                        .frame(minHeight: size)
+                // Fixed rows, not LazyVGrid: a grid in a debug sheet sizes past the proposed
+                // width and centers the overflow off-screen.
+                ForEach(MapGlyphs.free.chunks(of: 5), id: \.self) { row in
+                    HStack(spacing: Space.s8) {
+                        ForEach(row, id: \.self) { cell($0, size: size) }
                     }
+                    .padding(.bottom, Space.s8)
                 }
                 .padding(.horizontal, Space.margin).padding(.vertical, Space.s8)
                 .background(Color(rgb: 0x1B1D21))
@@ -136,6 +141,15 @@ public struct MapIconGallery: View {
             }
             .padding(Space.margin)
         }
+    }
+
+    private func cell(_ name: String, size: CGFloat) -> some View {
+        VStack(spacing: Space.s2) {
+            SilhouetteIcon(name, paint: Color(rgb: 0xB11226)).frame(width: size * 0.82, height: size * 0.82)
+            Text(verbatim: name).typeStyle(.readoutS).foregroundStyle(Color.dust)
+                .lineLimit(1).minimumScaleFactor(0.5)
+        }
+        .frame(minWidth: size, maxWidth: .infinity, minHeight: size)
     }
 }
 

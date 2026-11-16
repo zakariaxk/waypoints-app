@@ -237,6 +237,7 @@ extension PreviewStore: GatewayService {
         return ConvoyState(id: ConvoyID(raw: "preview-\(code.lowercased())"), leaderUID: 2, memberUIDs: [2, 3, uid],
                            destination: ConvoyDestination(coordinate: PreviewSeed.meets[1].coordinate,
                                                           name: PreviewSeed.meets[1].placeName),
+                           routePolyline: Data("wjxrF~t}hMwQo}@bBo}@c[_X?gpAnd@?".utf8),
                            regroup: ConvoyRegroup(coordinate: PreviewSeed.meets[0].coordinate, setAt: .now))
     }
     public func setConvoyDestination(_ id: ConvoyID, _ destination: ConvoyDestination) async throws { _ = try me() }

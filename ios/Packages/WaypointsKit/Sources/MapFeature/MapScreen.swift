@@ -111,6 +111,10 @@ struct MapScreen: View {
                 }
                 ForEach(model.registry.mapLayers, id: \.id) { provider in
                     if model.isOn(provider.id) {
+                        ForEach(model.paths[provider.id] ?? []) { path in
+                            MapPolyline(coordinates: path.coordinates.map(\.cl))
+                                .stroke(path.tint.color, style: StrokeStyle(lineWidth: Space.s4, lineCap: .round, lineJoin: .round))
+                        }
                         ForEach(model.items[provider.id] ?? []) { item in
                             Annotation(item.title ?? "", coordinate: item.coordinate.cl, anchor: .center) {
                                 Button { model.selection = .item(provider: provider.id, id: item.id) } label: {
@@ -427,6 +431,10 @@ struct MapItemView: View {
                 RoundedRectangle(cornerRadius: Radius.r6).fill(item.tint.color.opacity(Opacity.inactive))
                     .frame(width: Space.s12, height: Space.s12)
                     .allowsHitTesting(false)
+            } else if item.glyph.name == "leader" {
+                // CNV-5: the convoy leader's sodium tick.
+                Image.symbol(Symbol.report).foregroundStyle(Color.sodium)
+                    .frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget).contentShape(Rectangle()).mapShadow()
             } else if item.glyph.name == "pin" {
                 MeetGlyph(kind: "meet", paint: item.tint.color).frame(width: Size.Marker.reportGlyph, height: Size.Marker.reportGlyph)
                     .frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget).contentShape(Rectangle()).mapShadow()

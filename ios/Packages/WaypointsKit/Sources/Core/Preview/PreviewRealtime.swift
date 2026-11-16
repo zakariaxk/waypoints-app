@@ -80,7 +80,10 @@ public actor PreviewRealtimeService: RealtimeService {
     public func send(_ sample: LocationSample) async {}
     public func joinConvoy(_ id: ConvoyID) async {
         guard convoy?.id != id else { return }
-        convoy = ConvoyState(id: id, leaderUID: 0, memberUIDs: [])
+        convoy = ConvoyState(id: id, leaderUID: 2, memberUIDs: [2, 3],
+                             destination: ConvoyDestination(coordinate: PreviewSeed.meets[1].coordinate,
+                                                            name: PreviewSeed.meets[1].placeName),
+                             routePolyline: Data("wjxrF~t}hMwQo}@bBo}@c[_X?gpAnd@?".utf8))
         convoyBroadcast.send(convoy)
     }
     public func leaveConvoy() async {
