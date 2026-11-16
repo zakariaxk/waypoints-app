@@ -443,12 +443,12 @@ struct ListingScreen: View {
                         Task {
                             do {
                                 let t = try await env.messages.openThread(with: l.sellerID, listing: l.id)
+                                var draft: String?
                                 if (try? await env.messages.messages(in: .thread(t.id), before: nil, limit: 1))?.isEmpty ?? true {
-                                    let opener = l.kind == .wanted ? String(localized: "I have one.", bundle: .module)
+                                    draft = l.kind == .wanted ? String(localized: "I have one.", bundle: .module)
                                         : String(localized: "Is this still available?", bundle: .module)
-                                    _ = try? await env.messages.send(opener, attachmentPath: nil, to: .thread(t.id))
                                 }
-                                env.router.open(.thread(t.id))
+                                env.router.open(.thread(t.id, draft: draft))
                             } catch {
                                 toast = ToastMessage(Text(verbatim: message(for: error, fallback: String(localized: "Couldn't open the conversation. Check your connection and try again.", bundle: .module))))
                             }

@@ -14,8 +14,8 @@ public enum MessagingFeature: FeatureModule {
             return AnyView(ChatView(env: env, target: .channel(id)))
         }
         registry.registerRoute(.thread, presentation: .push(tab: .teams)) { route in
-            guard case let .thread(id) = route else { return nil }
-            return AnyView(ChatView(env: env, target: .thread(id)))
+            guard case let .thread(id, draft) = route else { return nil }
+            return AnyView(ChatView(env: env, target: .thread(id), draft: draft))
         }
     }
 }
@@ -261,7 +261,11 @@ struct ChatView: View {
     @State private var zoomPath: String?
     @State private var mutePrompt: MutePrompt?
 
-    init(env: AppEnvironment, target: MessageTarget) { _model = State(initialValue: ChatModel(env: env, target: target)) }
+    /// `draft` prefills the composer (MKT-2 Message seller); the field stays editable.
+    init(env: AppEnvironment, target: MessageTarget, draft: String? = nil) {
+        _model = State(initialValue: ChatModel(env: env, target: target))
+        _draft = State(initialValue: draft ?? "")
+    }
 
     private var placeholder: LocalizedStringKey {
         if model.offline { return "Offline" }
