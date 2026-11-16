@@ -81,3 +81,13 @@ python3 tools/l10n/extract.py   # regenerate String Catalogs
 ```
 
 `README.md` lists every debug screen and launch argument.
+
+## The loop
+
+`tools/loop/` is the iteration engine that keeps agents working the queue:
+
+- `tools/loop/queue.md` — the work list, one line per item: `- [ ] L## | REQ-IDS | files | task`. Markers: `[ ]` open, `[~]` running, `[x]` done, `[!]` failed, `[-]` blocked on the owner.
+- `tools/loop/loop.sh` — the orchestrator. Pops the first open item, renders `tools/loop/prompt.md`, and runs a headless `devin -p` session that implements, builds, commits, and pushes. Repeats until the queue is empty or `tools/loop/STOP` exists. Needs `devin auth login` once; `ITEM_TIMEOUT` needs `gtimeout` (coreutils). Logs land in `.build/loop/`.
+- A driving agent session is an equally valid orchestrator: work the queue top-down, delegate each item to a subagent, integrate, `make build`, push, mark the row.
+
+Rules: the orchestrator owns `queue.md`; workers never edit it. Failed items stay marked `[!]` — re-open them as `[ ]` once the cause is fixed. New gaps discovered during any run get a queue row, not a drive-by fix in an unrelated item.

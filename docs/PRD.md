@@ -1109,3 +1109,4 @@ Findings go to W8-INT as a list.
 |---|---|
 | 2026-11-13 | First version. Written from the owner's original brief, `docs/PLAN.md`, and an audit of commit `80823e1`. Adds the requirements marked New, the harness in section 7, and waves 6 to 9. Sets the order of authority in section 0.1. |
 | 2026-11-14 | Version 1.2 added at the owner's request: priority P3, wave 10 (section 8.8), and thirteen requirements marked New (ACC-12, NAV-16, MEET-15, CNV-12, GAR-17, GAR-18, MOD-15, STR-11, TEAM-11, MSG-11, ROAD-6, SAFE-12, L10N-2). Four came off the backlog in section 12. Also this day: `AGENTS.md` replaced `CLAUDE.md` as the agent instructions, and the pull-request ruleset on `main` was deleted (owner's rule: straight to `main`). |
+| 2026-11-15 | The loop: `tools/loop/` (queue, prompt, `loop.sh` orchestrator) drives headless agent sessions through the remaining Partial rows; AGENTS.md "The loop" section is the protocol. |
