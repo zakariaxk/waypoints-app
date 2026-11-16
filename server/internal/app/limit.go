@@ -7,9 +7,10 @@ import (
 
 // Limiter is a per-key sliding-window rate limiter for in-process abuse
 // control. It is deliberately simple: one mutex, a map of key to recent
-// timestamps, and an opportunistic sweep so the map cannot grow without
-// bound. Limits are per node; where a limit must hold across nodes the
-// database enforces it instead (see reports and help requests).
+// timestamps, and a sweep at most once a minute so keys idle longer than the
+// window are evicted and the map cannot grow without bound. Limits are per
+// node; where a limit must hold across nodes the database enforces it instead
+// (see reports and help requests).
 type Limiter struct {
 	mu        sync.Mutex
 	n         int
@@ -28,7 +29,7 @@ func (l *Limiter) Allow(key string) bool {
 	now := time.Now()
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	if len(l.hits) > 4096 && now.Sub(l.lastSweep) > time.Minute {
+	if now.Sub(l.lastSweep) > time.Minute {
 		l.sweep(now)
 	}
 	h := l.hits[key][:0]

@@ -5,7 +5,8 @@
 // Every notification also becomes a row in public.notifications, the Activity list (NTF-6).
 // Only events about you are sent; there are no marketing pushes (NTF-7).
 //
-// Without APNs configuration it logs what it would have sent.
+// Without APNs configuration it still records the Activity rows but sends
+// nothing; that is logged once at startup, not per notification.
 package push
 
 import (
@@ -110,8 +111,10 @@ func Register(a *app.App) {
 		if k, err := loadKey(a.Config.APNsKeyPath); err == nil {
 			s.key = k
 		} else {
-			s.log.Warn("apns key unusable; notifications are logged only", "err", err)
+			s.log.Warn("apns key unusable; notifications are recorded only", "err", err)
 		}
+	} else {
+		s.log.Warn("apns not configured; notifications are recorded only")
 	}
 	a.Mux.HandleFunc("POST /internal/notify", s.handleNotify)
 	app.Provide(a, s)
@@ -169,6 +172,9 @@ func (s *Service) Send(ctx context.Context, userIDs []string, n Note) {
 			return
 		}
 	}
+	if s.key == nil {
+		return // APNs unconfigured; logged once at startup.
+	}
 	rows, err := pool.Query(ctx, `select d.apns_token, d.environment::text from public.device_tokens d
 		left join public.notification_prefs p on p.user_id = d.user_id
 		where d.user_id = any($1::uuid[])
@@ -220,10 +226,6 @@ func (s *Service) record(ctx context.Context, userIDs []string, n Note) []string
 }
 
 func (s *Service) deliver(ctx context.Context, token, env string, n Note) {
-	if s.key == nil {
-		s.log.Info("push (apns not configured)", "kind", n.Kind, "title", n.Title, "body", n.Body)
-		return
-	}
 	jwtTok, err := s.providerToken()
 	if err != nil {
 		s.failed.Inc()

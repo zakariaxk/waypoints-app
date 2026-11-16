@@ -509,12 +509,34 @@ func (s *Service) invite(w http.ResponseWriter, r *http.Request, cl auth.Claims)
 		api.Error(w, http.StatusNotFound, "not found")
 		return
 	}
-	if s.push != nil {
+	// Only accepted friends, never across a block (the POST /v1/eta check).
+	ids := b.UserIDs
+	if pool := s.store.Pool(); pool != nil {
+		rows, err := pool.Query(r.Context(), `select u::text from unnest($2::uuid[]) u
+			where exists (select 1 from public.friendships f where f.status = 'accepted'
+				and least(f.requester_id, f.addressee_id) = least(u, $1::uuid)
+				and greatest(f.requester_id, f.addressee_id) = greatest(u, $1::uuid))
+			and not exists (select 1 from public.blocks k where (k.blocker_id = u and k.blocked_id = $1::uuid)
+				or (k.blocker_id = $1::uuid and k.blocked_id = u))`, cl.UserID, b.UserIDs)
+		if err != nil {
+			api.Error(w, http.StatusBadRequest, "user_ids")
+			return
+		}
+		ids = ids[:0]
+		for rows.Next() {
+			var id string
+			if rows.Scan(&id) == nil {
+				ids = append(ids, id)
+			}
+		}
+		rows.Close()
+	}
+	if len(ids) > 0 && s.push != nil {
 		name := "A friend"
 		if p, err := s.store.Profile(r.Context(), cl.UserID); err == nil && p.DisplayName != "" {
 			name = p.DisplayName
 		}
-		go s.push.Send(context.WithoutCancel(r.Context()), b.UserIDs, push.Note{Kind: push.ConvoyInvites, Title: "Convoy invite",
+		go s.push.Send(context.WithoutCancel(r.Context()), ids, push.Note{Kind: push.ConvoyInvites, Title: "Convoy invite",
 			Body: name + " invited you to " + c.Name + ".", URL: "waypoints://invite/convoy/" + c.JoinCode,
 			ActorID: cl.UserID, Dedupe: "convoy_invite:" + c.ID + ":" + cl.UserID})
 	}
