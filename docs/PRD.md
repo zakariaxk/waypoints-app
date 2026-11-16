@@ -279,7 +279,7 @@ Privacy is the product's first advantage. It is enforced on the server. Plan 2.5
 | PRV-9 | Postgres stores one H3 resolution 7 cell per user and no track history. The only database write caused by location is the batched presence-cell flush. | P0 | Coded |
 | PRV-10 | Settings show a live preview of exactly what Friends, Teams, and Drivers nearby receive right now. | P0 | Coded |
 | PRV-11 | A convoy is always precise while active. The join screen says so, and joining while ghost asks first. | P0 | Coded |
-| PRV-12 | Background sharing is off until the user turns on "Keep sharing when the app is closed", after an explanation. It stops after 5 minutes parked. | P0 | Partial (W9-H review): sharing stops after 5 minutes parked, but the background session is also held under When-In-Use, so the "Keep sharing" switch does not gate it, and the parked stop also ends a paused background navigation or convoy. Needs a navigation/convoy signal in `LocationService`. |
+| PRV-12 | Background sharing is off until the user turns on "Keep sharing when the app is closed", after an explanation. It stops after 5 minutes parked. | P0 | Partial (W9-H review): sharing stops after 5 minutes parked, but the background session was also held under When-In-Use, so the "Keep sharing" switch did not gate it; fixed in W11 loop L03 — `LocationService.setActive(.navigation/.convoy)` lets active guidance or a convoy hold the session, and the 5-minute parked stop only runs when keep-sharing alone holds it. |
 | PRV-13 | Blocking stops location in both directions at once. | P0 | Coded (W11 loop L04): relations and blocks load at connect and the gateway re-reads them every 45 s (`sweepRelations`), diffing subscriptions and swapping the outbox block set; a mid-session block or unfriend applies within one sweep per side. Convoy fan-out honours blocks at publish. |
 | PRV-14 | A privacy change takes effect for every viewer within one gateway tick. A failed save reverts the control and says "Couldn't save. Try again." | P0 | Coded |
 | PRV-15 | Drive recording is opt-in and stays on the device. | P0 | Coded |
@@ -351,7 +351,7 @@ The map is useful with nobody online. Plan 5.3, 10.3 (M5, M6).
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
 | RPT-1 | Eight kinds: speed bump, steep entrance, pothole, rough road, police, hazard, closure, E85 fuel. | P0 | Coded |
-| RPT-2 | Posting takes two taps: add, then the kind. An optional note (120). A toast offers Undo; the author can remove a report for 5 minutes. | P0 | Partial (W9-H review): Undo toast after posting; the report detail has no author "remove within 5 minutes" action. |
+| RPT-2 | Posting takes two taps: add, then the kind. An optional note (120). A toast offers Undo; the author can remove a report for 5 minutes. | P0 | Coded (W11 loop L08): report detail shows an author-only Remove inside the 5-minute window (existing `undoReport` / `DELETE /v1/reports/{id}` enforces both server-side) and hides it after. |
 | RPT-3 | Lifetimes: police 45 minutes, hazard 2 hours, closure 24 hours, each extended by "Still there"; pothole and rough road 90 days; speed bump, steep entrance, and E85 permanent. | P0 | Coded |
 | RPT-4 | A report within 30 m of an existing one of the same kind counts as a confirmation, not a duplicate. | P0 | Coded |
 | RPT-5 | Anyone can vote "Still there" or "Gone". Two Gone votes with no later Still there remove it. | P0 | Coded |
@@ -412,8 +412,8 @@ Drive together and stay together. Plan 6, 7.6, 10.3 (M9).
 | CNV-6 | Regroup. When the last member has been more than 3 minutes behind the leader for 60 s, the leader is asked "The group has split. Set a regroup point?" Accepting drops a pin at the nearest fuel or parking point on the route within 3 km, or the leader's position, and every member sees "Regroup at <place>" with Directions. | P0 | Coded |
 | CNV-7 | The leader can change the destination and end the convoy (with a confirmation naming the driver count). Others see "Convoy ended." | P0 | Coded (W11 loop L09): the leader gets a destination row with a Change/Set action driving `setConvoyDestination` through a search sheet; members get the new `ConvoyState` over the existing event. |
 | CNV-8 | A member who loses signal reads "Lost signal" and ages like any marker. | P0 | Coded |
-| CNV-9 | Precise positions flow only while a member is in the convoy and stop the moment they leave. | P0 | Partial (W9-H review): leaving stops precise sharing on every device connected to the same node; not across nodes. |
-| CNV-10 | A convoy survives a gateway restart or a move to another node. | P0 | Partial (W9-H review): survives a restart; members connected to different nodes do not see each other (convoy fan-out has no bus path). |
+| CNV-9 | Precise positions flow only while a member is in the convoy and stop the moment they leave. | P0 | Coded (W11 loop L10): a `gone` op on `c.<id>` reaches every node serving the convoy and drops the member's convoy outflow on all of their connections. |
+| CNV-10 | A convoy survives a gateway restart or a move to another node. | P0 | Coded (W11 loop L10): convoy traffic rides `c.<convoy_id>` on the bus (`pos`/`gone`/`state` ops); members on different nodes see positions and membership changes; restart/move still heals through the Postgres mirror. |
 | CNV-11 | Every convoy has voice. "Talk" opens the voice sheet for the convoy's own room; you join muted; the room ends with the convoy. This replaces the plan's team-only Talk button. | P1 | Coded |
 | CNV-12 | Regroup. Any member can drop a regroup point (a place search or "here"). Every member sees it on the convoy line with one tap to route there; it clears when the host taps "Rolling" or the convoy ends. No speed, gap times, or ordering by position are shown. | P3 | Coded (W10-3): any member drops a regroup point by search or "here"; the leader's "Rolling" clears it (`DELETE /v1/convoys/{id}/regroup`). Gap times in the member list stay, as CNV-4 requires them. |
 
@@ -425,10 +425,10 @@ A person plus their garage. Plan 5.1, 10.8 (G1, G2, G10, G11).
 |---|---|---|---|
 | SOC-1 | Find people by handle. Send, accept, decline, and remove friend requests. | P0 | Coded |
 | SOC-2 | Friendship is mutual and is what location sharing is built on. Following is one-way and affects only the feed. | P0 | Coded |
-| SOC-3 | Your profile is the top of the Garage tab: avatar, name, bio, home region, and counts of friends, followers, and cars spotted. | P0 | Partial (W9-H review): followers count missing (no repository call). |
+| SOC-3 | Your profile is the top of the Garage tab: avatar, name, bio, home region, and counts of friends, followers, and cars spotted. | P0 | Coded (W11 loop L11): own profile shows a following count via `PostRepository.followingCount` (follows RLS exposes only rows the caller makes, so following is the readable semantic). |
 | SOC-4 | Someone else's profile offers Add friend (then Requested, then Friends), Follow, and Message, with Share profile, Block, and Report in the overflow. | P0 | Coded |
 | SOC-5 | A profile shows its cars as cards and its posts as a three-column grid. | P0 | Coded |
-| SOC-6 | Edit profile: avatar with circular crop, name, handle, bio, home region. | P0 | Partial (W9-H review): no circular crop or preview of the picked photo. |
+| SOC-6 | Edit profile: avatar with circular crop, name, handle, bio, home region. | P0 | Coded (W11 loop L12): the picked avatar previews centre-cropped in the circle it will render in (no reposition). |
 | SOC-7 | "Invite a friend" shares a link to your profile. | P0 | Coded |
 | SOC-8 | A blocked or blocking profile reads "This profile isn't available." | P0 | Coded |
 | SOC-9 | Meet-in-person adding. "My code" shows a QR code of your profile link; "Scan" in Friends reads one and opens the profile. A team's invite shows a QR code too. | P1 | Coded |
@@ -448,10 +448,10 @@ Every car, chosen without clutter. Plan 5.2, 10.8 (G3 to G5), 11.1.
 | GAR-7 | A catalog snapshot ships inside the app and the picker never waits on the network. A newer catalog is checked for at most daily and swapped in on the next launch. | P0 | Coded: the `ios` make target builds the snapshot into `ios/App/Resources/` when missing. |
 | GAR-8 | Curated specs for at least 150 enthusiast model-generations: trim names, power, torque, curb weight, redline, gear ratios. Every row has a source URL. | P0 | Coded: `overrides.csv`, 621 rows over 71 models and 173 model-engine generations (248 trim-engine pairs), each with the Car and Driver spec page or Wikipedia article it was read from. 610 rows have torque, 483 curb weight, 491 gear ratios, 11 redline. |
 | GAR-9 | A car's page shows its photos, name, four readouts with ranges (est. hp, est. torque, 0 to 60, quarter mile), its build timeline, and a specs table marking each value "stock" or "edited". | P0 | Coded |
-| GAR-10 | A garage holds several cars in a chosen order. The primary car sets your marker's paint colour and your car label. | P0 | Partial (W9-H review): primary car can be set from the car's overflow; no reorder UI. |
+| GAR-10 | A garage holds several cars in a chosen order. The primary car sets your marker's paint colour and your car label. | P0 | Coded (W11 loop L13): own car cards reorder by drag (`sort` column, `reorderCars`), with Move up/down accessibility actions. |
 | GAR-11 | Timeline entries carry a date, a title (60), details (500), one photo, and optionally a linked mod, which adds that mod to the car. | P0 | Coded |
 | GAR-12 | Each car has a clearance profile (stock, lowered, slammed) that drives NAV-3. | P0 | Coded |
-| GAR-13 | Every spec can be overridden by the owner. | P0 | Partial (W9-H review): hp, weight, torque, and redline only, and only when the catalog has no specs. |
+| GAR-13 | Every spec can be overridden by the owner. | P0 | Coded (W11 loop L14): hp, torque, weight (locale unit), and redline override even when the catalog has specs; blank or catalog-equal clears the override. |
 | GAR-14 | Someone else's car shows its owner and "Message about this car". | P0 | Coded |
 | GAR-15 | Share build. A car's overflow renders a card (lead photo, name, the four estimates marked "est.", handle) to the share sheet. | P1 | Coded |
 | GAR-16 | Service log. A timeline entry can be marked as service with an odometer reading and an optional reminder date, delivered as a local notification. | P2 | Coded |
@@ -644,7 +644,7 @@ Required by App Review for any app with user content, and by the kind of place t
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| SAFE-1 | Every person, post, comment, message, listing, meet, map report, spot, road, car, and team can be reported, with a reason (spam, harassment, nudity, dangerous driving, scam, something else) and an optional note. | P0 | Partial (W9-H review): reportable from every surface except convoy member rows and voice participants; the comment Report action opens the shell sheet while the comments sheet is up, which is expected not to present (unconfirmed). |
+| SAFE-1 | Every person, post, comment, message, listing, meet, map report, spot, road, car, and team can be reported, with a reason (spam, harassment, nudity, dangerous driving, scam, something else) and an optional note. | P0 | Partial (W11 loop L16): nearly every surface; voice participants report via the voice-strip context menu and the comment Report action now presents a nested sheet (the shell-sheet-over-sheet bug was real). Left: convoy member rows. |
 | SAFE-2 | A person can be blocked from their profile, from the map, and from any message. Their content, markers, and messages disappear for the blocker at once, in both directions. Blocked people are listed in settings with Unblock. | P0 | Coded |
 | SAFE-3 | A reported item disappears for the person who reported it. | P0 | Coded |
 | SAFE-4 | A text filter with a bundled word list runs on messages, comments, captions, titles, names, and handles before they are sent. | P0 | Coded |

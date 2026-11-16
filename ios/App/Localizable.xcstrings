@@ -5667,6 +5667,9 @@
         }
       }
     },
+    "Couldn't remove the report. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't save it. Check your connection and try again.": {
       "extractionState": "manual",
       "localizations": {
@@ -6459,6 +6462,9 @@
         }
       }
     },
+    "Drag to reorder.": {
+      "extractionState": "manual"
+    },
     "Drag to reorder. The first photo is the cover.": {
       "extractionState": "manual",
       "localizations": {
@@ -6734,6 +6740,9 @@
         }
       }
     },
+    "Edit specs": {
+      "extractionState": "manual"
+    },
     "Edit team": {
       "extractionState": "manual",
       "localizations": {
@@ -6887,6 +6896,9 @@
           }
         }
       }
+    },
+    "Enter each spec as a number.": {
+      "extractionState": "manual"
     },
     "Enter specs": {
       "extractionState": "manual",
@@ -7856,6 +7868,9 @@
         }
       }
     },
+    "Glyphs": {
+      "extractionState": "manual"
+    },
     "Go": {
       "extractionState": "manual",
       "localizations": {
@@ -8625,6 +8640,9 @@
           }
         }
       }
+    },
+    "It's removed for everyone.": {
+      "extractionState": "manual"
     },
     "Its photos and timeline are deleted too.": {
       "extractionState": "manual",
@@ -12207,6 +12225,9 @@
         }
       }
     },
+    "Remove report": {
+      "extractionState": "manual"
+    },
     "Remove stop": {
       "extractionState": "manual",
       "localizations": {
@@ -12963,6 +12984,9 @@
           }
         }
       }
+    },
+    "Save specs": {
+      "extractionState": "manual"
     },
     "Save to car": {
       "extractionState": "manual",
@@ -16710,6 +16734,9 @@
           }
         }
       }
+    },
+    "Your numbers replace the catalog's. Leave a field blank to use the catalog value.": {
+      "extractionState": "manual"
     },
     "Your photo": {
       "extractionState": "manual",

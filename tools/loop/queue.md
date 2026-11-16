@@ -9,20 +9,20 @@ Format: `- [ ] L## | REQ-IDS | files it owns | one-line task`
 
 - [x] L01 | ACC-6 | OnboardingFeature, Core | Re-show the terms gate when the terms version changes; replace hard-coded `waypoints.app` Terms links with `LINK_HOST`.
 - [x] L02 | ACC-9 | Backend, AppShell, SettingsFeature | Sign-out clears `UserDefaults` flags and on-phone home zones along with the session it already clears.
-- [ ] L03 | PRV-12 | Core/Services, SafetyKit, ConvoyFeature, NavigationFeature | "Keep sharing when the app is closed" gates the background session (it is held under When-In-Use today); a paused background navigation or active convoy keeps location without ending it. Add the navigation/convoy signal to `LocationService`.
+- [~] L03 | PRV-12 | Core/Services, SafetyKit, ConvoyFeature, NavigationFeature | "Keep sharing when the app is closed" gates the background session (it is held under When-In-Use today); a paused background navigation or active convoy keeps location without ending it. Add the navigation/convoy signal to `LocationService`.
 - [x] L04 | PRV-13 | server/ | Mid-session blocks and unfriends take effect without reconnect: refresh each connection's relation set on a short interval or on a relation-change bus event; verify with a check-rt scenario.
 - [x] L05 | MAP-7 | Core (CellAggregate), MapFeature | Give `CellAggregate` a coordinate, draw cell-count markers zoomed out, show "Zoom in to see drivers."
 - [x] L06 | NAV-5 | NavigationFeature | Guidance shows the following maneuver on a second line when it is within 300 m.
 - [x] L07 | NAV-6 | NavigationFeature | Spoken guidance uses our own templates (plan distance thresholds 800 m / 200 m / at-maneuver, locale units, duck audio) instead of reading MapKit step strings; mute persists.
-- [ ] L08 | RPT-2 | ReportsFeature, MapFeature, SafetyKit | Report detail lets its author remove it within 5 minutes of posting.
+- [~] L08 | RPT-2 | ReportsFeature, MapFeature, SafetyKit | Report detail lets its author remove it within 5 minutes of posting.
 - [x] L09 | CNV-7 | ConvoyFeature | Leader can change the destination from the UI; `setConvoyDestination` gets a caller with the confirmation flow others see.
-- [ ] L10 | CNV-9, CNV-10 | server/ | Convoy fan-out travels the bus so members on different nodes see each other and precise sharing stops for leavers across nodes; restart-safe state as today.
-- [ ] L11 | SOC-3 | Core, Backend, GarageFeature | Followers count on own profile: repository call + display next to friends and cars spotted.
-- [ ] L12 | SOC-6 | GarageFeature, SettingsFeature | Avatar picker shows a circular crop preview before saving.
-- [ ] L13 | GAR-10 | GarageFeature | Garage car reorder UI (drag) persisting display order.
-- [ ] L14 | GAR-13 | GarageFeature, Core | Spec overrides allowed even when the catalog has specs (hp, weight, torque, redline).
+- [~] L10 | CNV-9, CNV-10 | server/ | Convoy fan-out travels the bus so members on different nodes see each other and precise sharing stops for leavers across nodes; restart-safe state as today.
+- [~] L11 | SOC-3 | Core, Backend, GarageFeature | Followers count on own profile: repository call + display next to friends and cars spotted.
+- [~] L12 | SOC-6 | GarageFeature, SettingsFeature | Avatar picker shows a circular crop preview before saving.
+- [~] L13 | GAR-10 | GarageFeature | Garage car reorder UI (drag) persisting display order.
+- [~] L14 | GAR-13 | GarageFeature, Core | Spec overrides allowed even when the catalog has specs (hp, weight, torque, redline).
 - [x] L15 | MKT-2 | MarketFeature, MessagingFeature | "Message seller" prefills "Is this still available?" in the composer instead of sending it.
-- [ ] L16 | SAFE-1 | ConvoyFeature, VoiceFeature, FeedFeature | Report action on convoy member rows and voice participants; verify the comment-sheet Report actually presents (sheet-over-sheet fix if needed).
+- [~] L16 | SAFE-1 | ConvoyFeature, VoiceFeature, FeedFeature | Report action on convoy member rows and voice participants; verify the comment-sheet Report actually presents (sheet-over-sheet fix if needed).
 - [x] L17 | DES-7 | DesignSystem | Fix `Readout` decimal-point spacing ("12. 5" -> "12.5"); draw the report glyphs and meet pins from plan 9.8 instead of SF Symbols (no third-party art: draw in code or use permissively licensed icons with source noted).
 - [x] L18 | CMP-7 | Core/Preview (seed art) | Drawn car body picked by body style/class, not hash; part listings get part art, not a car.
 - [x] L19 | server/ | Gateway gaps from hardening review: convoy invite endpoint validates friendship before pushing; rate-limiter maps get idle eviction; APNs unconfigured path logs once at startup, not per push.
@@ -30,6 +30,8 @@ Format: `- [ ] L## | REQ-IDS | files it owns | one-line task`
 - [x] L21 | Store shots | scripts/shots, Core/Preview | STORE-1: pin the map camera deterministically for the 6.5" map shot (friend in view); STORE-2: the route shot reliably shows ETAs and Go (extend readiness wait or drive the state directly).
 - [ ] L22 | PRD | docs/PRD.md audit: every row that the code has moved past (e.g. MOD-15 strip picker now exists; MSG-11/SAFE-12 Coded) gets its status fixed; add a Verified sweep note where `make shot` evidence exists.
 - [x] L23 | l10n | tools/l10n/es.json | Regenerate es.json from the module catalogs (it is stale since the %lld/%f variant keys and tuple extraction); or remove it and note catalogs are canonical. Keep whatever the file's docstring says it is for consistent.
+- [ ] L16b | SAFE-1 | ConvoyFeature | Report action on convoy member rows (deferred from L16 to avoid a file collision; voice participants already done).
+- [ ] L24a | DES-7 | MeetsFeature, ReportsFeature, Help, MapScreen, ActivityScreen | Swap the remaining non-marker SF Symbols to GlyphArt (L17 leftovers): MeetsFeature.swift:105+167, ReportsFeature.swift:122, Help.swift:117, MapScreen.swift:401+411, ActivityScreen.swift:110; `MapAction.symbol` needs a glyph-keyed enum, not a String.
 - [ ] L24 | A11Y | DesignSystem, all feature modules | VoiceOver/Dynamic Type audit pass: every interactive control has a label, readouts announce values, text scales at AX5 without clipping in the three worst screens (guidance, meet sheet, standings).
 - [-] L25 | LINK-2, LINK-4, CMP-5 | blocked-owner | Needs the link host decision (PRD 9.1 step 6).
 - [-] L26 | PERF-1..3,6,7 | blocked-owner | Needs the Linux reference host (PRD 9.1 step 7).

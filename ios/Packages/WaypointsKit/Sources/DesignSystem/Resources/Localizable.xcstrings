@@ -914,6 +914,9 @@
         }
       }
     },
+    "Glyphs": {
+      "extractionState": "manual"
+    },
     "Handle": {
       "extractionState": "manual",
       "localizations": {
