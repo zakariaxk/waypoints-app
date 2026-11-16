@@ -104,3 +104,5 @@ Format: `- [ ] L## | REQ-IDS | files it owns | one-line task`
 - [x] L89 | CNV-15 | ConvoyFeature | "Roll again" after convoy end: create new convoy + re-invite resolved member userIDs. New requirement row.
 - [x] L90 | KNW-9 | GarageFeature | "Guides" row on the car page opening .guides (owner). Done: already shipped in ownActions (canOpen-gated actionRow); no diff needed.
 - [x] L91 | static audit | repo-wide | Two-agent cross-ref audit of L69-L90 (all APIs/types/SQL verified by definition). Found + fixed: stray nested `#if DEBUG` in GuidesFeature/Guides.swift (compile error); posts.road_id missing column grant (new migration l91 + checks.sql fixture — PostgREST insert would 42501). Everything else confirmed correct.
+- [ ] L92 | L10N-2 | all module catalogs + tools/l10n | 154 catalog keys lack `es` values (mostly this session's new strings); translate them matching the existing es style, regenerate.
+- [ ] L93 | MOD-16 | ModSimFeature | "Share this build" card: car + mod list + estimated figures → share sheet (BuildCard/SpotCard pattern). New requirement row.

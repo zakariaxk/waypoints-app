@@ -1028,6 +1028,7 @@ Thirteen extensions, each small enough for one session and each passing section 
 | **W10-3 Regroup** | CNV-12 | `proto/**` and generated types, `server/internal/convoy/**`, `Sources/ConvoyFeature/**` |
 | **W10-4 Builder's tools** | GAR-17, GAR-18 | A migration (one nullable column), `Sources/GarageFeature/**`, `Sources/PerformanceModel/**` (gearing math only) |
 | **W10-5 Saved builds** | MOD-15 | A migration, `Sources/ModSimFeature/**`, one hook in `Sources/RaceFeature/**` |
+| MOD-16 | A simulated build shares as a card: the car, its installed-and-simulated mods, and the estimated figures, to the share sheet (like GAR-15's BuildCard). | P3 | New |
 | **W10-6 Car of the week** | STR-11 | A migration (a weekly pick by scheduled function, like SHOW-7), `Sources/RaceFeature/**` |
 | **W10-7 Team standings** | TEAM-11 | A migration (a view over Showdown votes), `Sources/TeamsFeature/**` |
 | **W10-8 Reactions and mute** | MSG-11, SAFE-12 | A migration, `server/internal/push/**` (skip muted), `Sources/MessagingFeature/**`, `Sources/TeamsFeature/**` (mute rows only) |
@@ -1180,3 +1181,4 @@ Findings go to W8-INT as a list.
 | 2026-11-16 | Fourth static wave: new requirements MKT-11 (price-drop tells savers), CNV-14 (convoy aims at a saved loop), ROAD-8 (loop share card). Queue L82-L84. |
 | 2026-11-16 | Fifth static wave: new requirements GAR-21 (service due), SOC-10 (friends going), ROAD-9 (add a road to a loop). Queue L85-L87. |
 | 2026-11-16 | Sixth static wave: new requirements MKT-12 (share a listing), CNV-15 (roll again), KNW-9 (guides link on a car). Queue L88-L90. |
+| 2026-11-16 | L91 two-agent audit caught two bugs (#if imbalance, posts.road_id grant) fixed in place; everything else verified by definition. Seventh wave: L10N-2 catch-up (154 keys missing es) and MOD-16 (share a sim build). Queue L92-L93. |
