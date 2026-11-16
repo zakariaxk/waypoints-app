@@ -220,9 +220,11 @@ struct PostReport: View {
 struct ReportDetail: View {
     let env: AppEnvironment
     let reportID: ReportID
+    @Environment(\.dismiss) private var dismiss
     @State private var report: Report?
     @State private var voted = false
     @State private var missing = false
+    @State private var removable = false
     @State private var error: String?
 
     var body: some View {
@@ -248,6 +250,19 @@ struct ReportDetail: View {
                         SecondaryButton("Gone") { vote(false) }
                     }
                 }
+                if removable {
+                    DestructiveButton("Remove report", confirmTitle: "Remove report",
+                                      consequence: "It's removed for everyone.") {
+                        Task {
+                            do {
+                                try await env.gateway.undoReport(reportID)
+                                dismiss()
+                            } catch {
+                                self.error = String(localized: "Couldn't remove the report. Check your connection and try again.", bundle: .module)
+                            }
+                        }
+                    }
+                }
                 if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
             } else if missing {
                 Text("This report isn't available. It may have been removed.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
@@ -259,6 +274,15 @@ struct ReportDetail: View {
         .task {
             do { report = try await env.reports.report(reportID) } catch { missing = true }
             voted = (try? await env.reports.myVote(on: reportID)) != nil
+            // RPT-2: the author can remove their own report for 5 minutes after posting.
+            if let r = report, r.authorID == (await env.auth.currentSession()?.userID) {
+                let left = r.createdAt.addingTimeInterval(5 * 60).timeIntervalSinceNow
+                removable = left > 0
+                if left > 0 {
+                    try? await Task.sleep(for: .seconds(left))
+                    removable = false
+                }
+            }
         }
     }
 

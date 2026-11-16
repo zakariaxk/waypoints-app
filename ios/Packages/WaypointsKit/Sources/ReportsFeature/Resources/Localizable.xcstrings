@@ -265,6 +265,9 @@
         }
       }
     },
+    "Couldn't remove the report. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't send that. Check your connection and try again.": {
       "extractionState": "manual",
       "localizations": {
@@ -352,6 +355,9 @@
           }
         }
       }
+    },
+    "It's removed for everyone.": {
+      "extractionState": "manual"
     },
     "Jump start": {
       "extractionState": "manual",
@@ -495,6 +501,9 @@
           }
         }
       }
+    },
+    "Remove report": {
+      "extractionState": "manual"
     },
     "Report": {
       "extractionState": "manual",
