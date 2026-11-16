@@ -2,6 +2,7 @@ package ws
 
 import (
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"waypoints/server/internal/hub"
@@ -43,7 +44,7 @@ func (e *entity) best() srcState {
 // out once per tick. The reliable lane is a bounded channel of encoded frames.
 type Outbox struct {
 	viewer  uint64
-	blocked map[uint64]struct{} // read-only after construction
+	blocked atomic.Pointer[map[uint64]struct{}] // swapped whole by the relations sweep
 
 	mu      sync.Mutex
 	ents    map[uint64]*entity
@@ -58,13 +59,8 @@ type Outbox struct {
 }
 
 func newOutbox(viewer uint64, blocked []uint64, overflow func()) *Outbox {
-	b := make(map[uint64]struct{}, len(blocked))
-	for _, u := range blocked {
-		b[u] = struct{}{}
-	}
-	return &Outbox{
+	o := &Outbox{
 		viewer:   viewer,
-		blocked:  b,
 		ents:     map[uint64]*entity{},
 		pending:  map[uint64]srcState{},
 		gone:     map[uint64]struct{}{},
@@ -73,13 +69,24 @@ func newOutbox(viewer uint64, blocked []uint64, overflow func()) *Outbox {
 		reliable: make(chan []byte, ReliableQueue),
 		overflow: overflow,
 	}
+	o.SetBlocked(blocked)
+	return o
 }
 
 func (o *Outbox) ViewerUID() uint64 { return o.viewer }
 
 func (o *Outbox) Blocks(uid uint64) bool {
-	_, ok := o.blocked[uid]
+	_, ok := (*o.blocked.Load())[uid]
 	return ok
+}
+
+// SetBlocked replaces the block set (connect, then every relations sweep).
+func (o *Outbox) SetBlocked(uids []uint64) {
+	b := make(map[uint64]struct{}, len(uids))
+	for _, u := range uids {
+		b[u] = struct{}{}
+	}
+	o.blocked.Store(&b)
 }
 
 func (o *Outbox) markDirty() {

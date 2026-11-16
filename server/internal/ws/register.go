@@ -140,6 +140,7 @@ func Register(a *app.App) {
 	_, _ = s.bus.Subscribe(MapEventSubject, func(m bus.Msg) { s.fanMapEvent(m.Data) })
 	a.Mux.HandleFunc("GET /v1/rt", s.serve)
 	a.Go("ws-suspensions", s.sweepSuspended)
+	a.Go("ws-relations", s.sweepRelations)
 	a.OnStop("ws", func(ctx context.Context) error { s.closeAll(ctx); return nil })
 	app.Provide(a, s)
 }
@@ -308,7 +309,7 @@ func (s *Server) serve(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.CloseNow() // the socket is hijacked: nothing else closes it when the client just drops
 	ws.SetReadLimit(maxFrameBytes)
-	c := &conn{s: s, ws: ws, log: s.a.Log.With("pkg", "ws")}
+	c := &conn{s: s, ws: ws, log: s.a.Log.With("pkg", "ws"), rels: map[uint64]wire.Relation{}}
 	// The request context is cancelled the moment shutdown begins, which would drop the
 	// socket before closeAll can say why.
 	c.run(context.WithoutCancel(r.Context()))
@@ -363,6 +364,11 @@ type conn struct {
 	// pubMu serialises a policy change with a location publish, so a cell publish
 	// decided under the old policy never lands after the leave the new one sent.
 	pubMu sync.Mutex
+
+	// relMu serialises relation reloads (connect and the relations sweep) with
+	// the unsubscribe at close, so a refresh can never subscribe after cleanup ran.
+	relMu sync.Mutex
+	rels  map[uint64]wire.Relation // u.<uid> topics subscribed; nil once closing
 
 	mu        sync.Mutex // guards the fields below (reader goroutine and bus callbacks)
 	settings  store.Settings
@@ -491,16 +497,7 @@ func (c *conn) run(ctx context.Context) {
 	}}}
 	c.enqueue(welcome)
 
-	friends := map[uint64]struct{}{}
-	for _, f := range rels.Friends {
-		friends[f] = struct{}{}
-		c.s.hub.Subscribe(hub.UserTopic(f), c.out, wire.Relation_FRIEND)
-	}
-	for _, t := range rels.Teammates {
-		if _, ok := friends[t]; !ok {
-			c.s.hub.Subscribe(hub.UserTopic(t), c.out, wire.Relation_TEAMMATE)
-		}
-	}
+	c.applyRelations(rels)
 	c.updatePolicy(time.Now())
 
 	unsubACL, _ := c.s.bus.Subscribe(privacy.ACLSubject(c.uid), func(m bus.Msg) {
@@ -518,14 +515,12 @@ func (c *conn) run(ctx context.Context) {
 		if unsubACL != nil {
 			unsubACL()
 		}
-		for _, f := range rels.Friends {
-			c.s.hub.Unsubscribe(hub.UserTopic(f), c.out)
+		c.relMu.Lock()
+		for uid := range c.rels {
+			c.s.hub.Unsubscribe(hub.UserTopic(uid), c.out)
 		}
-		for _, t := range rels.Teammates {
-			if _, ok := friends[t]; !ok {
-				c.s.hub.Unsubscribe(hub.UserTopic(t), c.out)
-			}
-		}
+		c.rels = nil
+		c.relMu.Unlock()
 		c.mu.Lock()
 		cells, aggs, pubCell, pubAgg, convoy := c.cells, c.aggs, c.pubCell, c.pubAgg, c.convoy
 		c.mu.Unlock()
@@ -818,6 +813,40 @@ func (c *conn) updatePolicy(now time.Time) {
 			c.s.hub.LeaveAgg(pubAgg, c.uid)
 		}
 	}
+}
+
+// applyRelations diffs a freshly loaded relation set against the u.<uid>
+// topics this connection subscribes to (PRV-13). It runs at connect and on
+// every relations sweep, so a mid-session block or unfriend applies without
+// reconnecting: dropped relations are unsubscribed (the shard sends gone),
+// new ones get the topic's snapshot, and the outbox block set is swapped.
+func (c *conn) applyRelations(r store.Relations) {
+	want := make(map[uint64]wire.Relation, len(r.Friends)+len(r.Teammates))
+	for _, f := range r.Friends {
+		want[f] = wire.Relation_FRIEND
+	}
+	for _, t := range r.Teammates {
+		if _, ok := want[t]; !ok {
+			want[t] = wire.Relation_TEAMMATE
+		}
+	}
+	c.relMu.Lock()
+	defer c.relMu.Unlock()
+	if c.rels == nil { // closing: cleanup already unsubscribed
+		return
+	}
+	c.out.SetBlocked(r.Blocked)
+	for uid, rel := range want {
+		if old, ok := c.rels[uid]; !ok || old != rel {
+			c.s.hub.Subscribe(hub.UserTopic(uid), c.out, rel)
+		}
+	}
+	for uid := range c.rels {
+		if _, ok := want[uid]; !ok {
+			c.s.hub.Unsubscribe(hub.UserTopic(uid), c.out)
+		}
+	}
+	c.rels = want
 }
 
 func (c *conn) onLocation(l *wire.LocationUpdate, now time.Time) {

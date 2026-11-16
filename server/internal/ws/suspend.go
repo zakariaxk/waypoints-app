@@ -62,3 +62,43 @@ func (s *Server) closeSuspended(ctx context.Context) {
 		go c.closeWith(wire.Error_UNAUTHORIZED, "suspended", closeUnauthorized)
 	}
 }
+
+// relationsSweep is how often open connections re-load friends, teammates and
+// blocks (PRV-13). Clients write those tables directly, so without a sweep a
+// block or unfriend applied only at the next connect.
+const relationsSweep = 45 * time.Second
+
+// sweepRelations refreshes every connection's relation set, one store read per
+// distinct user per sweep.
+func (s *Server) sweepRelations(ctx context.Context) {
+	t := time.NewTicker(relationsSweep)
+	defer t.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
+		}
+		s.refreshRelations(ctx)
+	}
+}
+
+func (s *Server) refreshRelations(ctx context.Context) {
+	s.mu.RLock()
+	byUser := make(map[string][]*conn, len(s.conns))
+	for c := range s.conns {
+		byUser[c.userID] = append(byUser[c.userID], c)
+	}
+	s.mu.RUnlock()
+	for id, cs := range byUser {
+		qctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+		rels, err := s.store.Relations(qctx, id)
+		cancel()
+		if err != nil {
+			continue // keep the previous set; the next sweep retries
+		}
+		for _, c := range cs {
+			c.applyRelations(rels)
+		}
+	}
+}
