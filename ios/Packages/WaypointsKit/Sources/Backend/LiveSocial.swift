@@ -531,6 +531,16 @@ struct LivePosts: PostRepository {
         }
         return !rows.isEmpty
     }
+
+    func followingCount() async throws -> Int {
+        let me = try ctx.me()
+        struct Row: Decodable { let followeeId: UUID }
+        let rows: [Row] = try await ctx.run {
+            try await ctx.table("follows").select("followee_id").eq("follower_id", value: me.key)
+                .limit(1000).execute().value
+        }
+        return rows.count
+    }
 }
 
 // MARK: Showdown

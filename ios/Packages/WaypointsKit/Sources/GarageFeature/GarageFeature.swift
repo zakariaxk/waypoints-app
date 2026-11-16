@@ -84,6 +84,7 @@ final class ProfileModel {
     var spots: [Spot] = []
     var earned: [String] = []
     var friendCount = 0
+    var followingCount = 0
     var friendship: Friendship?
     var following = false
     var requests = 0
@@ -113,6 +114,7 @@ final class ProfileModel {
         if userID == me {
             friendCount = (try? await env.friends.friends().count) ?? 0
             requests = (try? await env.friends.incomingRequests().count) ?? 0
+            followingCount = (try? await env.posts.followingCount()) ?? 0
         } else {
             friendship = try? await env.friends.friendship(with: userID)
             following = (try? await env.posts.isFollowing(userID)) ?? false
@@ -236,6 +238,7 @@ struct ProfileScreen: View {
             if let region = p.homeRegion { Text(verbatim: region).typeStyle(.sub).foregroundStyle(Color.dust) }
             HStack(spacing: Space.s24) {
                 if own { count(model.friendCount, "friends") }
+                if own { count(model.followingCount, "following") }
                 count(model.cars.count, "cars")
                 count(Set(model.spots.map(\.catalogModelID)).count, "spotted")
             }
@@ -305,6 +308,39 @@ struct ProfileScreen: View {
         .padding(.top, Space.s16)
     }
 
+    /// GAR-10: the owner drags cards into order; `reorderCars` persists `cars.sort`.
+    private var reorderable: Bool { own && model.cars.count > 1 }
+
+    private func moveCar(from i: Int, to j: Int) {
+        model.cars.move(fromOffsets: IndexSet(integer: i), toOffset: j)
+        let ids = model.cars.map(\.id)
+        Task {
+            do { try await ctx.env.garage.reorderCars(ids) } catch { toast = ToastMessage(Text(GarageCopy.failed)) }
+        }
+    }
+
+    @ViewBuilder private func carCard(_ i: Int, _ car: Car) -> some View {
+        let card = Button { ctx.env.router.open(.car(car.id)) } label: {
+            CarCard(ctx: ctx, car: car, photo: model.photos[car.id])
+        }
+        .buttonStyle(PressScaleStyle())
+        if reorderable {
+            card
+                .draggable(String(i))
+                .dropDestination(for: String.self) { dropped, _ in
+                    guard let from = dropped.first.flatMap(Int.init), model.cars.indices.contains(from), from != i else { return false }
+                    moveCar(from: from, to: from < i ? i + 1 : i)
+                    return true
+                }
+                .accessibilityActions {
+                    if i > 0 { Button("Move up") { moveCar(from: i, to: i - 1) } }
+                    if i < model.cars.count - 1 { Button("Move down") { moveCar(from: i, to: i + 1) } }
+                }
+        } else {
+            card
+        }
+    }
+
     @ViewBuilder private var carsSection: some View {
         SectionLabel("CARS")
         if model.cars.isEmpty && own {
@@ -315,12 +351,15 @@ struct ProfileScreen: View {
             .padding(.horizontal, Space.margin)
         }
         VStack(spacing: Space.s24) {
-            ForEach(model.cars) { car in
-                Button { ctx.env.router.open(.car(car.id)) } label: { CarCard(ctx: ctx, car: car, photo: model.photos[car.id]) }
-                    .buttonStyle(PressScaleStyle())
+            ForEach(Array(model.cars.enumerated()), id: \.element.id) { i, car in
+                carCard(i, car)
             }
         }
         .padding(.horizontal, Space.margin)
+        if reorderable {
+            Text("Drag to reorder.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
+                .padding(.horizontal, Space.margin).padding(.top, Space.s8)
+        }
         if own && !model.cars.isEmpty {
             SecondaryButton("Add a car") { ctx.env.router.open(.vehiclePicker(forCar: nil)) }
                 .padding(.horizontal, Space.margin).padding(.top, Space.s16)

@@ -70,6 +70,7 @@ struct CarScreen: View {
     @State private var enterClass: ShowdownClass = .street
     @State private var askShowdown = false
     @State private var confirmDelete = false
+    @State private var editSpecs = false
     @State private var shared: SharedImage?
     @State private var toast: ToastMessage?
     @Environment(\.dismiss) private var dismiss
@@ -145,6 +146,11 @@ struct CarScreen: View {
         .sheet(isPresented: $addEntry) {
             if let car = model.car {
                 TimelineEntrySheet(ctx: ctx, car: car, variant: model.variant) { Task { await model.load() } }
+            }
+        }
+        .sheet(isPresented: $editSpecs) {
+            if let car = model.car {
+                SpecSheet(ctx: ctx, car: car, variant: model.variant) { model.car = $0 }
             }
         }
         .confirmationDialog("Enter Showdown", isPresented: $askShowdown) {
@@ -379,6 +385,10 @@ struct CarScreen: View {
                 .accessibilityElement(children: .combine)
             }
             if model.own {
+                Button { editSpecs = true } label: {
+                    Row(Text("Edit specs", bundle: .module), trailing: { Disclosure() })
+                }
+                .buttonStyle(RowButtonStyle())
                 Menu {
                     ForEach(Clearance.allCases, id: \.self) { c in
                         Button(c.rawValue.capitalized) {
@@ -548,6 +558,7 @@ struct EditProfile: View {
     @State private var bio = ""
     @State private var region = ""
     @State private var photo: PhotosPickerItem?
+    @State private var picked: UIImage?
     @State private var pick = false
     @State private var error: String?
     @State private var saving = false
@@ -562,11 +573,27 @@ struct EditProfile: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Space.s16) {
                     Button { pick = true } label: {
-                        Avatar(name: name, url: ctx.url(.avatars, original?.avatarPath), size: .s96)
-                            .overlay(alignment: .bottomTrailing) { Image.symbol(Symbol.camera).foregroundStyle(Color.sodium) }
+                        // SOC-6: the picked photo previews in the circle it will be cropped to.
+                        Group {
+                            if let picked {
+                                Image(uiImage: picked).resizable().scaledToFill()
+                                    .frame(width: Avatar.Diameter.s96.rawValue, height: Avatar.Diameter.s96.rawValue)
+                                    .clipShape(Circle())
+                            } else {
+                                Avatar(name: name, url: ctx.url(.avatars, original?.avatarPath), size: .s96)
+                            }
+                        }
+                        .overlay(alignment: .bottomTrailing) { Image.symbol(Symbol.camera).foregroundStyle(Color.sodium) }
                     }
                     .buttonStyle(PressScaleStyle())
                     .photosPicker(isPresented: $pick, selection: $photo, matching: .images)
+                    .onChange(of: photo) {
+                        if let photo {
+                            Task {
+                                picked = (try? await photo.loadTransferable(type: Data.self)).flatMap { UIImage(data: $0) }
+                            }
+                        }
+                    }
                     Field("Name", text: $name, limit: 30)
                     Field("Handle", text: $handle, limit: 20).textInputAutocapitalization(.never)
                     Field("Bio", text: $bio, limit: 160, axis: .vertical)
@@ -746,6 +773,81 @@ struct FriendsScreen: View {
         Task {
             do { try await ctx.env.friends.remove(id) } catch { toast = ToastMessage(Text(GarageCopy.failed)) }
             await load()
+        }
+    }
+}
+
+// MARK: GAR-13 Spec overrides
+
+/// The owner's numbers replace the catalog's (GAR-13). A blank field falls back to the
+/// catalog value; a value equal to the catalog's stores no override.
+struct SpecSheet: View {
+    let ctx: GarageContext
+    let car: Car
+    let variant: CatalogVariant?
+    let onSave: (Car) -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var hp = ""
+    @State private var torque = ""
+    @State private var weight = ""
+    @State private var redline = ""
+    @State private var error: String?
+    @State private var saving = false
+
+    private static var metric: Bool { Locale.current.measurementSystem == .metric }
+
+    private func parse(_ s: String) -> Int? { s.isEmpty ? nil : Int(s) }
+
+    var body: some View {
+        Sheet(Text("Edit specs", bundle: .module)) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: Space.s16) {
+                    Text("Your numbers replace the catalog's. Leave a field blank to use the catalog value.", bundle: .module)
+                        .typeStyle(.body).foregroundStyle(Color.dust)
+                    Field("Horsepower", text: $hp).keyboardType(.numberPad)
+                    Field("Torque (lb-ft)", text: $torque).keyboardType(.numberPad)
+                    Field(Self.metric ? "Weight (kg)" : "Weight (lb)", text: $weight).keyboardType(.numberPad)
+                    Field("Redline (rpm)", text: $redline).keyboardType(.numberPad)
+                    if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
+                    PrimaryButton("Save specs", isLoading: saving) { save() }
+                }
+                .padding(Space.margin)
+            }
+        }
+        .presentationDetents([.large])
+        .onAppear {
+            let o = car.specOverrides
+            hp = (o.hp ?? variant?.hp).map(String.init) ?? ""
+            torque = (o.torqueLbFt ?? variant?.torqueLbFt).map(String.init) ?? ""
+            weight = (o.weightLb ?? variant?.weightLb).map { Self.metric ? String(Int((Double($0) / 2.20462).rounded())) : String($0) } ?? ""
+            redline = (o.redline ?? variant?.redline).map(String.init) ?? ""
+        }
+    }
+
+    private func save() {
+        guard !saving else { return }
+        guard [hp, torque, weight, redline].allSatisfy({ $0.isEmpty || (Int($0) ?? 0) > 0 }) else {
+            error = String(localized: "Enter each spec as a number.", bundle: .module)
+            return
+        }
+        saving = true
+        Task {
+            var updated = car
+            let h = parse(hp), t = parse(torque), r = parse(redline)
+            // Stored in pounds; entered in the locale's unit (SET-3).
+            let w = parse(weight).map { Self.metric ? Int((Double($0) * 2.20462).rounded()) : $0 }
+            updated.specOverrides.hp = h == variant?.hp ? nil : h
+            updated.specOverrides.torqueLbFt = t == variant?.torqueLbFt ? nil : t
+            updated.specOverrides.weightLb = w == variant?.weightLb ? nil : w
+            updated.specOverrides.redline = r == variant?.redline ? nil : r
+            do {
+                let saved = try await ctx.env.garage.updateCar(updated)
+                onSave(saved)
+                dismiss()
+            } catch {
+                self.error = GarageCopy.failed
+                saving = false
+            }
         }
     }
 }

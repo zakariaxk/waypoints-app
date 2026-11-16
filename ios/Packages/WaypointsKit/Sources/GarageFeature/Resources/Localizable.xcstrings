@@ -452,6 +452,9 @@
         }
       }
     },
+    "Drag to reorder.": {
+      "extractionState": "manual"
+    },
     "Drivetrain": {
       "extractionState": "manual",
       "localizations": {
@@ -485,6 +488,9 @@
         }
       }
     },
+    "Edit specs": {
+      "extractionState": "manual"
+    },
     "Engine": {
       "extractionState": "manual",
       "localizations": {
@@ -517,6 +523,9 @@
           }
         }
       }
+    },
+    "Enter each spec as a number.": {
+      "extractionState": "manual"
     },
     "Enter the cost as a number, like 349.99.": {
       "extractionState": "manual",
@@ -716,6 +725,9 @@
         }
       }
     },
+    "Horsepower": {
+      "extractionState": "manual"
+    },
     "ICONS": {
       "extractionState": "manual",
       "localizations": {
@@ -869,6 +881,12 @@
           }
         }
       }
+    },
+    "Move down": {
+      "extractionState": "manual"
+    },
+    "Move up": {
+      "extractionState": "manual"
     },
     "My code": {
       "extractionState": "manual",
@@ -1277,6 +1295,9 @@
         }
       }
     },
+    "Save specs": {
+      "extractionState": "manual"
+    },
     "Scan": {
       "extractionState": "manual",
       "localizations": {
@@ -1552,6 +1573,9 @@
         }
       }
     },
+    "Torque (lb-ft)": {
+      "extractionState": "manual"
+    },
     "Total": {
       "extractionState": "manual",
       "localizations": {
@@ -1706,6 +1730,12 @@
         }
       }
     },
+    "Weight (kg)": {
+      "extractionState": "manual"
+    },
+    "Weight (lb)": {
+      "extractionState": "manual"
+    },
     "What did you do?": {
       "extractionState": "manual",
       "localizations": {
@@ -1760,6 +1790,9 @@
           }
         }
       }
+    },
+    "Your numbers replace the catalog's. Leave a field blank to use the catalog value.": {
+      "extractionState": "manual"
     },
     "edited": {
       "extractionState": "manual",

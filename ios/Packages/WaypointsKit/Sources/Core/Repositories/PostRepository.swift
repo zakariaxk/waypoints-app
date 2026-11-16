@@ -22,4 +22,7 @@ public protocol PostRepository: Sendable {
     func follow(_ user: UserID) async throws
     func unfollow(_ user: UserID) async throws
     func isFollowing(_ user: UserID) async throws -> Bool
+    /// People the signed-in user follows. `follows` reads are limited to the follower's own
+    /// rows, so a count of one's followers is not available to the client.
+    func followingCount() async throws -> Int
 }

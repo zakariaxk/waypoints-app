@@ -249,6 +249,7 @@ extension PreviewStore: PostRepository {
     public func follow(_ user: UserID) async throws { follows.insert(Pair(try me().raw, user.raw)) }
     public func unfollow(_ user: UserID) async throws { follows.remove(Pair(try me().raw, user.raw)) }
     public func isFollowing(_ user: UserID) async throws -> Bool { follows.contains(Pair(try me().raw, user.raw)) }
+    public func followingCount() async throws -> Int { let id = try me().raw; return follows.filter { $0.a == id }.count }
 }
 
 extension PreviewStore: ShowdownRepository {
