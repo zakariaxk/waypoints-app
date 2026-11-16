@@ -56,6 +56,9 @@
         }
       }
     },
+    "Change": {
+      "extractionState": "manual"
+    },
     "Code": {
       "extractionState": "manual",
       "localizations": {
@@ -88,6 +91,9 @@
           }
         }
       }
+    },
+    "Couldn't change the destination. Check your connection and try again.": {
+      "extractionState": "manual"
     },
     "Couldn't clear the regroup point. Check your connection and try again.": {
       "extractionState": "manual",
@@ -473,6 +479,12 @@
           }
         }
       }
+    },
+    "Set a destination": {
+      "extractionState": "manual"
+    },
+    "Set destination": {
+      "extractionState": "manual"
     },
     "Set regroup point": {
       "extractionState": "manual",

@@ -190,6 +190,13 @@ final class ConvoyStore {
         ending = false
     }
 
+    /// The leader changes the shared destination (CNV-7); the gateway's ConvoyState carries it to members.
+    func setDestination(_ d: ConvoyDestination) async throws {
+        guard let id = state?.id else { return }
+        try await env.gateway.setConvoyDestination(id, d)
+        state?.destination = d
+    }
+
     /// Every convoy has its own voice room (CNV-11); VoiceFeature joins it muted.
     func talk() {
         guard let id = state?.id else { return }
@@ -290,6 +297,7 @@ struct ConvoySectionView: View {
     let store: ConvoyStore
     @State private var confirmEnd = false
     @State private var dropping = false
+    @State private var changingDestination = false
 
     var body: some View {
         if let s = store.state {
@@ -335,6 +343,19 @@ struct ConvoySectionView: View {
                     QuietButton("Drop a regroup point") { dropping = true }
                         .padding(.horizontal, Space.margin)
                 }
+                if let d = s.destination {
+                    HStack {
+                        Text("Heading to \(d.name)", bundle: .module).typeStyle(.body).foregroundStyle(Color.chalk)
+                        Spacer()
+                        if store.isLeader {
+                            QuietButton("Change") { changingDestination = true }
+                        }
+                    }
+                    .padding(.horizontal, Space.margin).padding(.vertical, Space.s8)
+                } else if store.isLeader {
+                    QuietButton("Set a destination") { changingDestination = true }
+                        .padding(.horizontal, Space.margin)
+                }
                 SectionLabel("CONVOY")
                 ForEach(store.members.sorted { (store.gap($0) ?? 0) < (store.gap($1) ?? 0) }) { m in
                     Row(Text(verbatim: m.name), leading: {
@@ -356,6 +377,7 @@ struct ConvoySectionView: View {
                 Button("End convoy", role: .destructive) { Task { await store.end() } }
             }
             .sheet(isPresented: $dropping) { RegroupSheet(store: store) }
+            .sheet(isPresented: $changingDestination) { DestinationSheet(store: store) }
         } else if store.ended {
             Text("Convoy ended.", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -540,6 +562,62 @@ struct RegroupSheet: View {
             MKLocalSearch(request: request).start { response, _ in
                 let c = response?.mapItems.first?.placemark.coordinate
                 done.resume(returning: c.map { Coordinate(latitude: $0.latitude, longitude: $0.longitude) })
+            }
+        }
+    }
+}
+
+/// The leader picks a new shared destination by place search (CNV-7); same search flow as starting a convoy.
+struct DestinationSheet: View {
+    let store: ConvoyStore
+    @Environment(\.dismiss) private var dismiss
+    @State private var place = ""
+    @State private var working = false
+    @State private var error: String?
+
+    var body: some View {
+        Sheet(Text("Destination", bundle: .module)) {
+            VStack(alignment: .leading, spacing: Space.s16) {
+                Field("Place", text: $place, prompt: "Search for a place")
+                    .onSubmit { set() }
+                PrimaryButton("Set destination", isLoading: working) { set() }
+                    .disabled(place.isEmpty)
+                if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
+            }
+            .padding(Space.margin)
+        }
+        .presentationDetents([.medium])
+    }
+
+    private func set() {
+        guard !working, !place.isEmpty else { return }
+        working = true
+        error = nil
+        Task {
+            defer { working = false }
+            guard let found = await find() else {
+                error = String(localized: "No place found. Try another search.", bundle: .module)
+                return
+            }
+            do {
+                try await store.setDestination(found)
+                dismiss()
+            } catch {
+                self.error = String(localized: "Couldn't change the destination. Check your connection and try again.", bundle: .module)
+            }
+        }
+    }
+
+    /// First local search hit for the typed place, near the driver.
+    private func find() async -> ConvoyDestination? {
+        let request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = place
+        if let me = store.me { request.region = MKCoordinateRegion(center: me.cl, latitudinalMeters: 50_000, longitudinalMeters: 50_000) }
+        return await withCheckedContinuation { done in
+            MKLocalSearch(request: request).start { response, _ in
+                let item = response?.mapItems.first
+                let c = item?.placemark.coordinate
+                done.resume(returning: c.map { ConvoyDestination(coordinate: Coordinate(latitude: $0.latitude, longitude: $0.longitude), name: item?.name ?? "") })
             }
         }
     }
