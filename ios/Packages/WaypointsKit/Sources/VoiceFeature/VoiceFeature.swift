@@ -157,6 +157,23 @@ final class VoiceSession {
         }
     }
 
+    /// SAFE-1: participants are reportable. A channel identity is the user id; a convoy
+    /// identity is the realtime uid, resolved through the profile (server/internal/voice).
+    func report(_ s: Speaker) async {
+        let user: UserID?
+        switch current {
+        case .channel:
+            user = UserID(string: s.id)
+        case .convoy:
+            guard let uid = RealtimeUID(s.id) else { return }
+            user = (try? await env.profiles.profile(uid: uid))?.userID
+        case nil:
+            user = nil
+        }
+        guard let user else { return }
+        env.router.open(.reportContent(.user(user)))
+    }
+
     func toggleMute() async {
         guard let room else { return }
         if muted {
@@ -259,6 +276,11 @@ struct VoiceSheet: View {
                     }
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel(s.speaking ? Text("\(s.name), speaking", bundle: .module) : Text(verbatim: s.name))
+                    .contextMenu {
+                        if s.id != "me" {
+                            Button("Report") { Task { await session.report(s) } }
+                        }
+                    }
                 }
             }
             Spacer(minLength: 0)

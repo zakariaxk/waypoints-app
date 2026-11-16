@@ -15,10 +15,10 @@ public enum FeedFeature: FeatureModule {
         registry.registerTab(.feed) { AnyView(FeedHome(env: env, registry: registry, uploader: uploader)) }
         registry.registerRoute(.post, presentation: .push(tab: .feed)) { route in
             guard case let .post(id) = route else { return nil }
-            return AnyView(SinglePost(env: env, postID: id))
+            return AnyView(SinglePost(env: env, registry: registry, postID: id))
         }
         #if DEBUG
-        registry.registerDebugScreen("comments") { AnyView(DebugComments(env: env)) }
+        registry.registerDebugScreen("comments") { AnyView(DebugComments(env: env, registry: registry)) }
         #endif
     }
 }
@@ -232,7 +232,7 @@ struct FeedHome: View {
             if let extra = registry.feedModes.first(where: { $0.id == mode }) {
                 extra.view().padding(.top, Size.row)
             } else {
-                Pager(model: model, followingOnly: mode == "following", switchToForYou: { mode = "foryou" }, post: { posting = true })
+                Pager(model: model, registry: registry, followingOnly: mode == "following", switchToForYou: { mode = "foryou" }, post: { posting = true })
                     .id(mode)
             }
             SegmentedSwitch(selection: $mode, options: options).fixedSize()
@@ -267,6 +267,7 @@ struct FeedHome: View {
 
 struct Pager: View {
     @Bindable var model: FeedModel
+    let registry: FeatureRegistry
     let followingOnly: Bool
     let switchToForYou: () -> Void
     let post: () -> Void
@@ -329,7 +330,7 @@ struct Pager: View {
         }
         .connectionBanner(model.offline ? .offline : nil)
         .toast($toast)
-        .sheet(item: $commentsFor) { p in Comments(env: model.env, post: p) }
+        .sheet(item: $commentsFor) { p in Comments(env: model.env, registry: registry, post: p) }
         .confirmationDialog("", isPresented: Binding(get: { overflow != nil }, set: { if !$0 { overflow = nil } })) {
             if let p = overflow {
                 if p.authorID == model.me {
@@ -570,6 +571,7 @@ struct PhotoPage: View {
 
 struct SinglePost: View {
     let env: AppEnvironment
+    let registry: FeatureRegistry
     let postID: PostID
     @State private var model: FeedModel
     @State private var pool = PlayerPool()
@@ -579,8 +581,8 @@ struct SinglePost: View {
     @State private var toast: ToastMessage?
     @Environment(\.dismiss) private var dismiss
 
-    init(env: AppEnvironment, postID: PostID) {
-        self.env = env; self.postID = postID
+    init(env: AppEnvironment, registry: FeatureRegistry, postID: PostID) {
+        self.env = env; self.registry = registry; self.postID = postID
         _model = State(initialValue: FeedModel(env: env))
     }
 
@@ -604,7 +606,7 @@ struct SinglePost: View {
         }
         .background(Color.asphalt.ignoresSafeArea())
         .toast($toast)
-        .sheet(item: $comments) { Comments(env: env, post: $0) }
+        .sheet(item: $comments) { Comments(env: env, registry: registry, post: $0) }
         .confirmationDialog("", isPresented: $overflow) {
             if let p = model.posts.first {
                 if p.authorID == model.me {
@@ -651,8 +653,12 @@ struct SinglePost: View {
 
 struct Comments: View {
     let env: AppEnvironment
+    let registry: FeatureRegistry
     let post: Post
     @State private var comments: [PostComment] = []
+    /// SAFE-1: the shell's route sheet can't present over this sheet, so the report
+    /// sheet presents inside it, resolved through the registry like the shell does.
+    @State private var reporting: ContentRef?
     @State private var authors: [UserID: Profile] = [:]
     @State private var draft = ""
     @State private var me: UserID?
@@ -675,7 +681,7 @@ struct Comments: View {
                                 leading: { Avatar(name: a?.displayName ?? "", url: a?.avatarPath.map { env.media.publicURL(bucket: .avatars, path: $0) }, size: .s28) })
                                 .contextMenu {
                                     if c.authorID != me {
-                                        Button("Report") { env.router.open(.reportContent(ContentRef(kind: .comment, id: c.id.description))) }
+                                        Button("Report") { reporting = ContentRef(kind: .comment, id: c.id.description) }
                                         Button("Block", role: .destructive) {
                                             Task {
                                                 do {
@@ -740,6 +746,9 @@ struct Comments: View {
             }
         }
         .presentationDetents([.medium, .large])
+        .sheet(isPresented: Binding(get: { reporting != nil }, set: { if !$0 { reporting = nil } })) {
+            if let reporting, let view = registry.view(for: .reportContent(reporting)) { view }
+        }
         .task { me = await env.auth.currentSession()?.userID; await load() }
     }
 
@@ -758,11 +767,12 @@ struct Comments: View {
 /// `waypoints://debug/comments`: F2 over the first For you post.
 private struct DebugComments: View {
     let env: AppEnvironment
+    let registry: FeatureRegistry
     @State private var post: Post?
 
     var body: some View {
         Group {
-            if let post { Comments(env: env, post: post) } else { Color.tarmac.ignoresSafeArea() }
+            if let post { Comments(env: env, registry: registry, post: post) } else { Color.tarmac.ignoresSafeArea() }
         }
         .task { post = (try? await env.posts.forYou(after: nil, limit: 1))?.items.first }
     }

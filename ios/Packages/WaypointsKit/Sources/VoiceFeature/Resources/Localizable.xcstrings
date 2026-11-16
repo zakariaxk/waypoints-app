@@ -144,6 +144,9 @@
         }
       }
     },
+    "Report": {
+      "extractionState": "manual"
+    },
     "Speaking": {
       "extractionState": "manual",
       "localizations": {
