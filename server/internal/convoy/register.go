@@ -2,6 +2,12 @@
 // mirrors it to Postgres (table convoys) on every change so any node can load
 // it, and serves the convoy endpoints of section 6. Members receive each
 // other's precise positions through package ws while they are members.
+//
+// Multi-node (section 7.6): every node that has a convoy in its registry
+// subscribes to c.<id> on the bus. Package ws publishes a member's precise
+// updates ("pos") and leaves ("gone") there; changes to the convoy itself
+// ride the same subject as "state" carrying the mirrored record, so every
+// node's registry, member set, and connected members stay in step.
 package convoy
 
 import (
@@ -18,7 +24,9 @@ import (
 	"waypoints/server/internal/api"
 	"waypoints/server/internal/app"
 	"waypoints/server/internal/auth"
+	"waypoints/server/internal/bus"
 	"waypoints/server/internal/geo"
+	"waypoints/server/internal/hub"
 	"waypoints/server/internal/push"
 	"waypoints/server/internal/store"
 	"waypoints/server/internal/wire"
@@ -77,10 +85,14 @@ type Service struct {
 	store *store.Store
 	ws    *ws.Server
 	push  *push.Service
+	bus   bus.Bus // nil in single-node mode
+	node  string
 
 	mu     sync.Mutex
 	byID   map[string]*Convoy
 	byCode map[string]string
+	unsub  map[string]func()    // c.<id> bus subscriptions for registry entries
+	infos  map[uint64]*hub.Info // remote publishers' marker identities, deduplicated
 	voice  VoiceRooms
 }
 
@@ -105,6 +117,12 @@ func Register(a *app.App) {
 		ws:     app.MustLookup[*ws.Server](a),
 		byID:   map[string]*Convoy{},
 		byCode: map[string]string{},
+		unsub:  map[string]func(){},
+		infos:  map[uint64]*hub.Info{},
+	}
+	if b := bus.From(a); !b.Local() {
+		s.bus = b
+		s.node = a.Config.Node
 	}
 	s.push, _ = app.Lookup[*push.Service](a)
 	v := app.MustLookup[*auth.Verifier](a)
@@ -172,6 +190,25 @@ func (s *Service) Leave(id string, uid uint64) {
 	}
 }
 
+// watch subscribes this node to c.<id> while the convoy is in the registry.
+// Call it under s.mu wherever a convoy enters byID.
+func (s *Service) watch(id string) {
+	if s.bus == nil || s.unsub[id] != nil {
+		return
+	}
+	if un, err := s.bus.Subscribe(ws.ConvoySubject(id), func(m bus.Msg) { s.ingest(id, m.Data) }); err == nil {
+		s.unsub[id] = un
+	}
+}
+
+// unwatch drops the c.<id> subscription. Call it under s.mu.
+func (s *Service) unwatch(id string) {
+	if un := s.unsub[id]; un != nil {
+		un()
+		delete(s.unsub, id)
+	}
+}
+
 func (s *Service) get(ctx context.Context, id string) *Convoy {
 	s.mu.Lock()
 	c := s.byID[id]
@@ -202,6 +239,7 @@ func (s *Service) load(ctx context.Context, where, arg string) *Convoy {
 	}
 	s.byID[c.ID] = &c
 	s.byCode[c.JoinCode] = c.ID
+	s.watch(c.ID)
 	return &c
 }
 
@@ -216,6 +254,7 @@ func (s *Service) changed(ctx context.Context, c *Convoy) {
 	if ended {
 		delete(s.byID, c.ID)
 		delete(s.byCode, c.JoinCode)
+		s.unwatch(c.ID)
 	}
 	s.mu.Unlock()
 	if ended && v != nil {
@@ -233,6 +272,81 @@ func (s *Service) changed(ctx context.Context, c *Convoy) {
 		if ended {
 			s.ws.DropFromConvoy(c.ID, m)
 		}
+	}
+	if s.bus != nil {
+		if b, err := json.Marshal(ws.ConvoyBusMsg{Node: s.node, Op: "state", State: raw}); err == nil {
+			_ = s.bus.Publish(ws.ConvoySubject(c.ID), b)
+		}
+	}
+}
+
+// ingest handles one c.<id> bus message for a convoy in this node's registry.
+func (s *Service) ingest(id string, data []byte) {
+	var m ws.ConvoyBusMsg
+	if json.Unmarshal(data, &m) != nil || m.Node == s.node {
+		return
+	}
+	switch m.Op {
+	case "pos":
+		u := m.Update
+		if u == nil {
+			return
+		}
+		// One *hub.Info per remote publisher while unchanged: outboxes version
+		// identity by pointer, like the hub bridge does.
+		s.mu.Lock()
+		info := s.infos[m.UID]
+		if u.Info != nil && (info == nil || *info != *u.Info) {
+			info = u.Info
+			s.infos[m.UID] = info
+		}
+		s.mu.Unlock()
+		s.ws.DeliverConvoy(id, &hub.Update{UID: m.UID, LatE7: u.LatE7, LngE7: u.LngE7, Heading: u.Heading,
+			Tier: wire.Tier_PRECISE, At: time.UnixMilli(u.AtMs), OriginMs: u.OriginMs, Info: info, Remote: true})
+	case "gone":
+		s.ws.DropConvoyMember(id, m.UID)
+	case "state":
+		s.applyRemote(id, m.State)
+	}
+}
+
+// applyRemote folds a "state" message into the registry so this node agrees on
+// membership (CNV-9): members dropped elsewhere are detached here too, local
+// members get the fresh ConvoyState, and an ended convoy leaves the registry.
+func (s *Service) applyRemote(id string, raw json.RawMessage) {
+	var c Convoy
+	if json.Unmarshal(raw, &c) != nil || c.ID != id {
+		return
+	}
+	s.mu.Lock()
+	old := s.byID[id]
+	if c.Ended {
+		delete(s.byID, id)
+		delete(s.byCode, c.JoinCode)
+		s.unwatch(id)
+	} else {
+		s.byID[id] = &c
+		s.byCode[c.JoinCode] = id
+		s.watch(id)
+	}
+	var removed []uint64
+	if old != nil {
+		for _, uid := range old.MemberUIDs {
+			if !c.has(uid) {
+				removed = append(removed, uid)
+			}
+		}
+	}
+	s.mu.Unlock()
+	frame := &wire.ServerFrame{Body: &wire.ServerFrame_Convoy{Convoy: c.wire()}}
+	for _, m := range c.MemberUIDs {
+		s.ws.SendToUID(m, frame)
+		if c.Ended {
+			s.ws.DropFromConvoy(id, m)
+		}
+	}
+	for _, uid := range removed {
+		s.ws.DropFromConvoy(id, uid)
 	}
 }
 
@@ -304,6 +418,7 @@ func (s *Service) create(w http.ResponseWriter, r *http.Request, cl auth.Claims)
 	s.mu.Lock()
 	s.byID[c.ID] = c
 	s.byCode[c.JoinCode] = c.ID
+	s.watch(c.ID)
 	s.mu.Unlock()
 	s.changed(r.Context(), c)
 	api.JSON(w, http.StatusCreated, map[string]string{"id": c.ID, "join_code": c.JoinCode})

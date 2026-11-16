@@ -75,6 +75,7 @@ type Server struct {
 	store    *store.Store
 	auth     *auth.Verifier
 	bus      bus.Bus
+	multi    bool // the bus reaches other nodes (NATS), so convoy fan-out publishes to it
 	tick     time.Duration
 	bench    bool
 	maxConns int
@@ -107,6 +108,7 @@ func Register(a *app.App) {
 		store:    app.MustLookup[*store.Store](a),
 		auth:     app.MustLookup[*auth.Verifier](a),
 		bus:      bus.From(a),
+		multi:    !bus.From(a).Local(),
 		tick:     *tickFlag,
 		bench:    auth.Bench(),
 		maxConns: a.Config.MaxConns,
@@ -920,6 +922,7 @@ func (c *conn) onLocation(l *wire.LocationUpdate, now time.Time) {
 			}
 		}
 		c.s.mu.RUnlock()
+		c.s.publishConvoyPos(convoy, precise)
 	}
 }
 
@@ -1030,8 +1033,11 @@ func (c *conn) leaveConvoy(id string) {
 	c.s.mu.Unlock()
 	for _, m := range others {
 		m.out.Gone(topic, c.uid)
-		c.out.Gone(topic, m.uid)
 	}
+	// The leaver's own view drops the convoy source for members on every node,
+	// and other nodes' members drop the leaver (CNV-9).
+	c.out.DropSource(topic)
+	c.s.publishConvoyGone(id, c.uid)
 }
 
 // UIDString formats a wire uid for logs.

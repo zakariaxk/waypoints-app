@@ -145,6 +145,30 @@ func (o *Outbox) Gone(src hub.Topic, uid uint64) {
 	o.markDirty()
 }
 
+// DropSource removes src as a source of every entity (the viewer left the
+// convoy). Members on other nodes are unnamed here: dropping the topic takes
+// them all with it, gone or downgraded exactly like a per-uid Gone.
+func (o *Outbox) DropSource(src hub.Topic) {
+	o.mu.Lock()
+	for uid, e := range o.ents {
+		if _, ok := e.sources[src]; !ok {
+			continue
+		}
+		delete(e.sources, src)
+		if len(e.sources) == 0 {
+			delete(o.ents, uid)
+			delete(o.pending, uid)
+			if e.visible {
+				o.gone[uid] = struct{}{}
+			}
+		} else {
+			o.pending[uid] = e.best()
+		}
+	}
+	o.mu.Unlock()
+	o.markDirty()
+}
+
 func (o *Outbox) Aggregate(_ hub.Topic, h3 uint64, count uint32) {
 	o.mu.Lock()
 	o.aggs[h3] = count
