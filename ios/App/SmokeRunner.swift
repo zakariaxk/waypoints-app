@@ -221,7 +221,9 @@ enum SmokeRunner {
 
         // Media
         await s.check("media.upload+publicURL+delete") {
-            let stored = try await env.media.upload(Data("smoke".utf8), contentType: "image/jpeg", to: .avatars) { _ in }
+            // LiveMedia decodes image/* payloads before upload, so a real image is needed (1×1 PNG).
+            let png = try need(Data(base64Encoded: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4z8AAAAMBAQDJ/pLvAAAAAElFTkSuQmCC"))
+            let stored = try await env.media.upload(png, contentType: "image/png", to: .avatars) { _ in }
             _ = env.media.publicURL(bucket: stored.bucket, path: stored.path)
             try await env.media.delete(stored)
         }
@@ -275,7 +277,9 @@ enum SmokeRunner {
             try await env.gateway.endConvoy(invite.id)
         }
         s.skip("gateway.inviteToConvoy", "sends a push")
-        await s.check("gateway.voiceToken(channel)") { _ = try await env.gateway.voiceToken(for: try need(channels.first).id) }
+        await s.check("gateway.voiceToken(channel)", skipWhen: Smoke.isUnavailable) {
+            _ = try await env.gateway.voiceToken(for: try need(channels.first).id)
+        }
         s.skip("gateway.voiceToken(convoy)", "needs a live convoy")
 
         // Realtime
@@ -323,14 +327,27 @@ private enum SmokeError: Error, CustomStringConvertible {
 private struct Smoke {
     var passed = 0, failed = 0, skipped = 0
 
-    mutating func check(_ name: String, _ body: () async throws -> Void) async {
+    /// "503 …" from the gateway: the method answered but its service is not configured
+    /// on this stack (LiveKit keys are an owner-supplied deploy step; REL-5).
+    static func isUnavailable(_ error: Error) -> String? {
+        if case WaypointsError.server(let message) = error, message.hasPrefix("503") { return "service not configured" }
+        return nil
+    }
+
+    mutating func check(_ name: String, skipWhen skip: (Error) -> String? = { _ in nil },
+                        _ body: () async throws -> Void) async {
         do {
             try await body()
             passed += 1
             print("SMOKE PASS \(name)")
         } catch {
-            failed += 1
-            print("SMOKE FAIL \(name): \(error)")
+            if let reason = skip(error) {
+                skipped += 1
+                print("SMOKE SKIP \(name) (\(reason))")
+            } else {
+                failed += 1
+                print("SMOKE FAIL \(name): \(error)")
+            }
         }
     }
 

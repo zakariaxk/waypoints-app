@@ -200,6 +200,7 @@ Audited 2026-11-13 by building, by inventory of files and endpoints, and by sear
 - The app has never run against a backend. There is no `server/.env`, `ios/App/Config.xcconfig` is the local example, and the `supabase` CLI and `nats-server` are not installed on the owner's machine. Docker is running.
 - No screen has been looked at. Roughly twenty thousand lines of first-pass code compile and are unproven.
 - Benchmark II has scripts and no recorded results. Benchmark III has not been attempted.
+- 2026-11-15 (L30, L31): the two stale bullets above predate the local stack. `make dev` now brings Supabase up seeded, writes `server/.env` and `ios/App/Config.xcconfig`, and runs the gateway on 127.0.0.1:8080; `make check-db` passes 519/519 and `-wp-smoke` in the simulator against it prints 98 PASS, 0 FAIL, 58 SKIP.
 
 So the first job is not more features. It is making what exists run, and proving it (wave 6).
 
@@ -745,7 +746,7 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 | REL-2 | Offline, the app opens, shows what it last had, and says so in one banner. | P0 | Coded |
 | REL-3 | A failed submit keeps everything the user typed and says why under the button. | P0 | Coded |
 | REL-4 | Losing and regaining the network recovers the realtime connection without user action. | P0 | Coded |
-| REL-5 | A feature whose service is not configured (voice without LiveKit keys, push without an APNs key) hides or explains itself. It does not error. | P0 | Coded |
+| REL-5 | A feature whose service is not configured (voice without LiveKit keys, push without an APNs key) hides or explains itself. It does not error. | P0 | Partial: service layer verified on the unconfigured local stack by `-wp-smoke` (L31, 2026-11-15) — `voiceToken` answers an explained 503 "voice unavailable", no error; `postHelp` succeeds with APNs unconfigured (push recorded only). Screen-level "hides" is per-screen proof in the L32–L40 area items. |
 
 ### 5.6 Security (SEC)
 
