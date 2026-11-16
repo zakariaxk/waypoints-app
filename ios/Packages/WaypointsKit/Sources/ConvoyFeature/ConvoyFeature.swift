@@ -49,6 +49,7 @@ final class ConvoyStore {
         didSet {
             guard (state != nil) != (oldValue != nil) else { return }
             let active = state != nil
+            if active { lastRolled = nil }
             Task { await env.location.setActive(.convoy, active) }
         }
     }
@@ -61,6 +62,9 @@ final class ConvoyStore {
     var regroupPlace: String?
     /// Set when the leader ended the convoy for everyone else; "Convoy ended." (CNV-7).
     var ended = false
+    /// CNV-15: the convoy this driver just ended, kept for the toast's lifetime so "Roll again"
+    /// can start a new one with the same drivers.
+    var lastRolled: (name: String, destination: ConvoyDestination?, memberUIDs: [RealtimeUID])?
     var error: String?
     @ObservationIgnored private var ending = false
     @ObservationIgnored private var started = false
@@ -190,18 +194,42 @@ final class ConvoyStore {
     }
 
     func end() async {
-        guard let id = state?.id else { return }
+        guard let s = state else { return }
         ending = true
         error = nil
+        let rolled = (name: name, destination: s.destination, memberUIDs: s.memberUIDs)
         do {
-            try await env.gateway.endConvoy(id)
+            try await env.gateway.endConvoy(s.id)
             await leave()
+            lastRolled = rolled
         } catch WaypointsError.notFound {
             await leave()
+            lastRolled = rolled
         } catch {
             self.error = String(localized: "Couldn't end the convoy. Check your connection and try again.", bundle: .module)
         }
         ending = false
+    }
+
+    /// CNV-15: the leader's one tap back on the road — a new convoy to the same destination
+    /// with the same drivers invited; each still has to accept.
+    func rollAgain() async {
+        guard let rolled = lastRolled else { return }
+        lastRolled = nil
+        error = nil
+        var users: [UserID] = []
+        for uid in rolled.memberUIDs where uid != myUID {
+            if let user = try? await env.profiles.profile(uid: uid)?.userID { users.append(user) }
+        }
+        do {
+            var name = rolled.name
+            if name.isEmpty, let p = try? await env.profiles.myProfile() { name = "\(p.displayName)'s convoy" }
+            try await create(name: name, destination: rolled.destination)
+            if let id = state?.id, !users.isEmpty { try? await env.gateway.inviteToConvoy(id, users: users) }
+            if let code { env.router.open(.joinConvoy(code: code)) }
+        } catch {
+            self.error = String(localized: "Couldn't start the convoy. Check your connection and try again.", bundle: .module)
+        }
     }
 
     /// The leader changes the shared destination (CNV-7); the gateway's ConvoyState carries it to members.
@@ -462,16 +490,24 @@ struct ConvoySectionView: View {
             }
             .sheet(isPresented: $dropping) { RegroupSheet(store: store) }
             .sheet(isPresented: $changingDestination) { DestinationSheet(store: store) }
-        } else if store.ended {
-            Text("Convoy ended.", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, Space.margin)
-                .padding(.vertical, Space.s8)
-                .background(Color.sodiumDim)
-                .task {
-                    try? await Task.sleep(for: .seconds(Timing.toast))
-                    store.ended = false
+        } else if store.ended || store.lastRolled != nil {
+            HStack {
+                Text("Convoy ended.", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
+                Spacer()
+                // CNV-15: only the driver who ended it gets the one-tap redo.
+                if store.lastRolled != nil {
+                    QuietButton("Roll again") { Task { await store.rollAgain() } }
                 }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, Space.margin)
+            .padding(.vertical, Space.s8)
+            .background(Color.sodiumDim)
+            .task {
+                try? await Task.sleep(for: .seconds(Timing.toast))
+                store.ended = false
+                store.lastRolled = nil
+            }
         }
     }
 }

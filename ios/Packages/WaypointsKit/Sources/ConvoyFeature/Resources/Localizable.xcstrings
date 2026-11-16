@@ -199,6 +199,9 @@
         }
       }
     },
+    "Couldn't start the convoy. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Destination": {
       "extractionState": "manual",
       "localizations": {
@@ -520,6 +523,9 @@
           }
         }
       }
+    },
+    "Roll again": {
+      "extractionState": "manual"
     },
     "Rolling": {
       "extractionState": "manual",

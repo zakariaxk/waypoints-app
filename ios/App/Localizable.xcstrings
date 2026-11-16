@@ -14091,6 +14091,9 @@
         }
       }
     },
+    "Roll again": {
+      "extractionState": "manual"
+    },
     "Roll out": {
       "extractionState": "manual",
       "localizations": {

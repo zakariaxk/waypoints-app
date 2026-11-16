@@ -1422,6 +1422,9 @@
         }
       }
     },
+    "Share": {
+      "extractionState": "manual"
+    },
     "Sold": {
       "extractionState": "manual",
       "localizations": {

@@ -405,7 +405,7 @@ Drive together and stay together. Plan 6, 7.6, 10.3 (M9).
 | CNV-12 | Regroup. Any member can drop a regroup point (a place search or "here"). Every member sees it on the convoy line with one tap to route there; it clears when the host taps "Rolling" or the convoy ends. No speed, gap times, or ordering by position are shown. | P3 | Verified (L35): member PUT regroup 204, leader DELETE 204, member DELETE 403. |
 | CNV-13 | The convoy invite shows the join code as a QR code, like the profile and team codes (SOC-9). | P3 | Coded (L76): invite sheet renders QRCodeView over the joinConvoy share URL — same payload as ShareLink. Statically reviewed. |
 | CNV-14 | Starting a convoy can aim it at a saved loop: the create sheet offers the user's loops, picking one sets the destination to the loop's end with the loop's name. | P3 | Coded (L83): loop chips under the destination field; end resolved by the same road-order/reversal rule as LoopDetail's joined path. Statically reviewed. |
-| CNV-15 | Roll again. When a convoy ends, the person who led it gets one tap to start a new one with the same drivers (each still has to accept the invite). | P3 | New |
+| CNV-15 | Roll again. When a convoy ends, the person who led it gets one tap to start a new one with the same drivers (each still has to accept the invite). | P3 | Coded (L89): `lastRolled` captured in `end()` (leader-only by construction); ended banner gains "Roll again" → new convoy, same destination, members re-invited via profile(uid:). Statically reviewed. |
 
 ### 4.10 Friends, follows, and profiles (SOC)
 
@@ -543,7 +543,7 @@ Talk while driving, hands off. Plan 10.7 (T3).
 | VOX-6 | Voice continues in the background and under navigation prompts. | P0 | Coded |
 
 | MKT-11 | A listing's price dropping tells everyone who saved it: an activity row "A saved listing dropped to $X" opening the listing. | P3 | Coded (L82): `listings_price_drop_notify` trigger → `record_notification` per saver (seller skipped via actor check); `price_drop` kind + tag icon; checks.sql rows. Statically reviewed; check-db deferred. |
-| MKT-12 | A listing shares its link: the share button on the listing hands the `waypoints://listing/<id>` (or universal) link to the share sheet, like the profile and convoy links. | P3 | New |
+| MKT-12 | A listing shares its link: the share button on the listing hands the `waypoints://listing/<id>` (or universal) link to the share sheet, like the profile and convoy links. | P3 | Coded (L88): ShareLink over `Route.listing.shareURL` in the listing's bottom bar, all viewers. Statically reviewed. |
 
 ### 4.17 Feed (FEED)
 
@@ -694,7 +694,7 @@ How to actually fix and mod your car. Structured guides, not scraped forum text.
 | KNW-6 | Ships with at least 30 curated guides covering the seeded enthusiast platforms (oil/brakes/fluids, intake/exhaust/tune installs, suspension). | P1 | Verified (L63): 44 curated guides over 19 seed platforms w/ real part numbers, cost ranges, sources. |
 | KNW-7 | Log it. When every step of a guide is checked, the guide page offers "Add to build log": a timeline entry on the car being worked on carrying the guide's title, today's date, and the guide's linked mods. | P3 | Coded (L72): all-checked-steps → "Add to build log" → context car > single make/model match > picker → addBuildEntry (title ≤60, first linked mod). Statically reviewed; build deferred. |
 | KNW-8 | Helpful votes. A guide shows a count of people who found it useful; tapping the same control votes or unvotes. The browser sorts matching guides by votes first. One row per person, changeable, no down-votes. | P3 | Coded (L80): guide_votes (post_likes mirror) + votes_count trigger column; Helpful chip toggle, browser sorts by votes. checks.sql rows. Statically reviewed; check-db deferred. |
-| KNW-9 | A car page links to its guides: the owner sees a "Guides" row that opens the guide browser (whose For your cars section already matches this car's make/model). | P3 | New |
+| KNW-9 | A car page links to its guides: the owner sees a "Guides" row that opens the guide browser (whose For your cars section already matches this car's make/model). | P3 | Verified (L90): already shipped — `ownActions` has a canOpen-gated "Guides" row opening `.guides`; the browser's For-your-cars section matches the car's make. No change needed. |
 
 ### 4.27 3D garage and test drive (GME)
 

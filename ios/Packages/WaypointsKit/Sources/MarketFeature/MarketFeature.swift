@@ -503,6 +503,16 @@ struct ListingScreen: View {
                         act { if l.savedByMe { try await env.market.unsave(l.id) } else { try await env.market.save(l.id) } }
                     }
                 }
+                if let url = Route.listing(l.id).shareURL {
+                    ShareLink(item: url) {
+                        Image.symbol(Symbol.share)
+                            .imageScale(.large)
+                            .foregroundStyle(Color.chalk)
+                            .frame(width: Size.hitTarget, height: Size.hitTarget)
+                            .contentShape(Circle())
+                    }
+                    .accessibilityLabel(Text("Share", bundle: .module))
+                }
             }
         }
         .padding(.horizontal, Space.margin)
