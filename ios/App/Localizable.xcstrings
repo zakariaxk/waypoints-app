@@ -5015,6 +5015,9 @@
         }
       }
     },
+    "Couldn't change the destination. Check your connection and try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't change your marker. Check your connection and try again.": {
       "extractionState": "manual",
       "localizations": {
@@ -13360,6 +13363,12 @@
         }
       }
     },
+    "Set a destination": {
+      "extractionState": "manual"
+    },
+    "Set destination": {
+      "extractionState": "manual"
+    },
     "Set regroup point": {
       "extractionState": "manual",
       "localizations": {
@@ -16790,6 +16799,28 @@
         }
       }
     },
+    "a mile": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "una milla"
+          }
+        }
+      }
+    },
+    "a quarter of a mile": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "un cuarto de milla"
+          }
+        }
+      }
+    },
     "approximate": {
       "extractionState": "manual",
       "localizations": {
@@ -16797,6 +16828,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "aproximada"
+          }
+        }
+      }
+    },
+    "arrive at your destination": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "llega a tu destino"
+          }
+        }
+      }
+    },
+    "bear left": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mantente a la izquierda"
+          }
+        }
+      }
+    },
+    "bear right": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mantente a la derecha"
           }
         }
       }
@@ -16834,6 +16898,17 @@
         }
       }
     },
+    "continue": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "continúa"
+          }
+        }
+      }
+    },
     "east": {
       "extractionState": "manual",
       "localizations": {
@@ -16863,6 +16938,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "hp est."
+          }
+        }
+      }
+    },
+    "half a mile": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "media milla"
           }
         }
       }
@@ -16918,6 +17004,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "minúsculas-con-guiones"
+          }
+        }
+      }
+    },
+    "make a U-turn": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "haz un cambio de sentido"
           }
         }
       }
@@ -17138,6 +17235,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "equipo"
+          }
+        }
+      }
+    },
+    "three quarters of a mile": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tres cuartos de milla"
+          }
+        }
+      }
+    },
+    "turn left": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gira a la izquierda"
+          }
+        }
+      }
+    },
+    "turn right": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gira a la derecha"
           }
         }
       }
