@@ -71,17 +71,27 @@ struct TabShell: View {
             Color.clear.sheet(item: $router.debugScreen) { presented in
                 registry.debugScreens[presented.name]?() ?? AnyView(EmptyView())
             }
-            .onAppear {
-                // A `waypoints://debug/<screen>` link can set the item before this host
-                // exists; the presentation only fires on a change, so re-set it next
-                // turn once the host is on screen.
-                if let pending = router.debugScreen {
-                    router.debugScreen = nil
-                    Task { router.debugScreen = PresentedDebugScreen(name: pending.name) }
-                }
-            }
             #else
             Color.clear
+            #endif
+        }
+        .onAppear {
+            // A link opened before this host exists (universal link during launch, or a
+            // `waypoints://debug/<screen>` arg) sets the item early; the presentation
+            // only fires on a change, so re-set any pending items once on screen.
+            if let pending = router.sheet {
+                router.sheet = nil
+                Task { router.sheet = pending }
+            }
+            if let pending = router.fullScreen {
+                router.fullScreen = nil
+                Task { router.fullScreen = pending }
+            }
+            #if DEBUG
+            if let pending = router.debugScreen {
+                router.debugScreen = nil
+                Task { router.debugScreen = pending }
+            }
             #endif
         }
     }
