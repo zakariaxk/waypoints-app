@@ -1186,3 +1186,4 @@ Findings go to W8-INT as a list.
 | 2026-11-16 | Sixth static wave: new requirements MKT-12 (share a listing), CNV-15 (roll again), KNW-9 (guides link on a car). Queue L88-L90. |
 | 2026-11-16 | L91 two-agent audit caught two bugs (#if imbalance, posts.road_id grant) fixed in place; everything else verified by definition. Seventh wave: L10N-2 catch-up (154 keys missing es) and MOD-16 (share a sim build). Queue L92-L93. |
 | 2026-11-16 | Eighth static wave: new requirements GAR-22 (garage lineup card), SOC-11 (friends' road ratings), NAV-17 (parked card). Queue L94-L96. |
+| 2026-11-16 | Ninth static wave: new requirements MKT-13 (more from seller), KNW-10 (guide share card), ROAD-10 (times driven). Queue L97-L99. |
