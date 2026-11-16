@@ -89,6 +89,15 @@ struct MapScreen: View {
                     }
                     .annotationTitles(.hidden)
                 }
+                if model.showsCells {
+                    ForEach(model.cells, id: \.h3) { cell in
+                        Annotation("", coordinate: cell.coordinate.cl, anchor: .center) {
+                            Button { focus(cell.coordinate, zoom: 4) } label: { ClusterMarker(count: cell.count) }
+                                .buttonStyle(PressScaleStyle())
+                        }
+                        .annotationTitles(.hidden)
+                    }
+                }
                 ForEach(model.registry.mapLayers, id: \.id) { provider in
                     if model.isOn(provider.id) {
                         ForEach(model.items[provider.id] ?? []) { item in
@@ -162,7 +171,7 @@ struct MapScreen: View {
                 .buttonStyle(PressScaleStyle())
                 .accessibilityLabel(Text("Search", bundle: .module))
             }
-            if model.aggregateCount > 0 && model.entities.isEmpty {
+            if model.showsCells {
                 Text("Zoom in to see drivers.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.chalk)
                     .padding(.horizontal, Space.s12).padding(.vertical, Space.s4)
                     .overMapMaterial(in: RoundedRectangle(cornerRadius: Radius.r6))

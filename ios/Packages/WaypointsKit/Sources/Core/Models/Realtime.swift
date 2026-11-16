@@ -44,7 +44,12 @@ public struct EntityUpdate: Hashable, Sendable {
 public struct CellAggregate: Hashable, Sendable {
     public var h3: UInt64
     public var count: Int
-    public init(h3: UInt64, count: Int) { self.h3 = h3; self.count = count }
+    /// The cell's centre, decoded from the H3 index (the wire carries no coordinate).
+    public var coordinate: Coordinate
+    public init(h3: UInt64, count: Int) {
+        self.h3 = h3; self.count = count
+        coordinate = H3Cell.center(h3)
+    }
 }
 
 public struct MapEvent: Hashable, Sendable {

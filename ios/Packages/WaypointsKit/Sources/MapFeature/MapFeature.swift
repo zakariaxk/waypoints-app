@@ -35,7 +35,7 @@ struct Entity: Identifiable, Hashable, Sendable {
 actor LiveEntityStore {
     private var entities: [RealtimeUID: Entity] = [:]
     private var infos: [RealtimeUID: EntityInfo] = [:]
-    private var aggregates: [UInt64: Int] = [:]
+    private var aggregates: [UInt64: CellAggregate] = [:]
     private var dirty = false
 
     func apply(_ event: ServerEvent) {
@@ -53,7 +53,7 @@ actor LiveEntityStore {
             for uid in uids { entities[uid] = nil }
             dirty = true
         case let .aggregates(cells):
-            for c in cells { aggregates[c.h3] = c.count }
+            for c in cells { aggregates[c.h3] = c.count > 0 ? c : nil }
             dirty = true
         case .mapEvent, .convoy:
             break
@@ -61,13 +61,13 @@ actor LiveEntityStore {
     }
 
     /// Drops markers stale for 30 minutes (plan 9.8) and returns a snapshot when something changed.
-    func take() -> (entities: [Entity], aggregateCount: Int)? {
+    func take() -> (entities: [Entity], cells: [CellAggregate])? {
         let cutoff = Date.now.addingTimeInterval(-30 * 60)
         let before = entities.count
         entities = entities.filter { $0.value.fixAt > cutoff }
         guard dirty || entities.count != before else { return nil }
         dirty = false
-        return (Array(entities.values), aggregates.values.reduce(0, +))
+        return (Array(entities.values), Array(aggregates.values))
     }
 }
 
@@ -98,7 +98,7 @@ final class MapModel {
     @ObservationIgnored private var layerTasks: [String: Task<Void, Never>] = [:]
 
     var entities: [Entity] = []
-    var aggregateCount = 0
+    var cells: [CellAggregate] = []
     var friends: [Friend] = []
     var me: LocationSample?
     var profile: Profile?
@@ -143,7 +143,7 @@ final class MapModel {
                 try? await Task.sleep(for: .milliseconds(100))
                 if let snap = await store.take() {
                     self?.entities = snap.entities
-                    self?.aggregateCount = snap.aggregateCount
+                    self?.cells = snap.cells
                     self?.hasLiveBatch = true
                     if let self, case let .entity(uid) = self.selection, !snap.entities.contains(where: { $0.uid == uid }) {
                         self.selection = nil
@@ -242,6 +242,15 @@ final class MapModel {
     var friendsOut: [Friend] {
         let uids = Set(entities.map(\.uid))
         return friends.filter { uids.contains($0.profile.uid) && !blocked.contains($0.profile.userID) }
+    }
+
+    /// True while the gateway feeds res-5 cell counts instead of entities: it switches when
+    /// the viewport's res-7 covering exceeds 64 cells, ~5.2 km² each (MAP-7, plan 7.3).
+    var showsCells: Bool {
+        guard !cells.isEmpty else { return false }
+        let latKm = region.latitudeDelta * 111
+        let lngKm = region.longitudeDelta * 111 * abs(cos(region.center.latitude * .pi / 180))
+        return latKm * lngKm > 64 * 5.2
     }
 
     var groups: [EntityGroup] {
