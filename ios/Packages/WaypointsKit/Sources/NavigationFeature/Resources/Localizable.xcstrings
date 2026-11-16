@@ -892,6 +892,94 @@
         }
       }
     },
+    "a mile": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "una milla"
+          }
+        }
+      }
+    },
+    "a quarter of a mile": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "un cuarto de milla"
+          }
+        }
+      }
+    },
+    "arrive at your destination": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "llega a tu destino"
+          }
+        }
+      }
+    },
+    "bear left": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mantente a la izquierda"
+          }
+        }
+      }
+    },
+    "bear right": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mantente a la derecha"
+          }
+        }
+      }
+    },
+    "continue": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "continúa"
+          }
+        }
+      }
+    },
+    "half a mile": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "media milla"
+          }
+        }
+      }
+    },
+    "make a U-turn": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "haz un cambio de sentido"
+          }
+        }
+      }
+    },
     "min": {
       "extractionState": "manual",
       "localizations": {
@@ -899,6 +987,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "min"
+          }
+        }
+      }
+    },
+    "three quarters of a mile": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tres cuartos de milla"
+          }
+        }
+      }
+    },
+    "turn left": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gira a la izquierda"
+          }
+        }
+      }
+    },
+    "turn right": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "gira a la derecha"
           }
         }
       }

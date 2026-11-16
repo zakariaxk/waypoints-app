@@ -431,18 +431,22 @@ final class NavigationModel {
             }
         }
 
-        // Voice at 800 m, 200 m, and the maneuver.
+        // Voice at 800 m, 200 m, and the maneuver, in our own phrases (NAV-6).
         let steps = r.route.steps
-        if !arrived, steps.indices.contains(stepIndex + 1) {
-            let text = steps[stepIndex + 1].instructions
-            if !text.isEmpty, let mark = [25.0, 200.0, 800.0].first(where: { toManeuver <= $0 }) {
-                let key = "\(stepIndex)-\(Int(mark))"
-                if !spoken.contains(key) {
-                    for m in [800.0, 200.0, 25.0] where m >= mark { spoken.insert("\(stepIndex)-\(Int(m))") }
-                    if mark == 25 { say(text, key: key) } else {
-                        let phrase: String = text.prefix(1).lowercased() + text.dropFirst()
-                        say(String(localized: "In \(Self.distance(toManeuver, spoken: true)), \(phrase)", bundle: .module), key: key)
+        if !arrived, steps.indices.contains(stepIndex + 1),
+           let mark = [25.0, 200.0, 800.0].first(where: { toManeuver <= $0 }) {
+            let key = "\(stepIndex)-\(Int(mark))"
+            if !spoken.contains(key) {
+                for m in [800.0, 200.0, 25.0] where m >= mark { spoken.insert("\(stepIndex)-\(Int(m))") }
+                let phrase = Self.phrase(from: steps[stepIndex], into: steps[stepIndex + 1],
+                                         arrival: stepIndex + 1 == steps.count - 1)
+                if mark == 25 {
+                    // The last step is the arrival itself; the "You've arrived" line covers it.
+                    if stepIndex + 1 < steps.count - 1 {
+                        say(phrase.prefix(1).uppercased() + phrase.dropFirst(), key: key)
                     }
+                } else {
+                    say(String(localized: "In \(Self.distance(toManeuver, spoken: true)), \(phrase)", bundle: .module), key: key)
                 }
             }
         }
@@ -492,6 +496,55 @@ final class NavigationModel {
         voice.speak(AVSpeechUtterance(string: text))
     }
 
+    /// The maneuver into `next`, phrased by our own template (NAV-6). MapKit exposes no
+    /// structured maneuver type, so the turn is read from the geometry — the heading at the
+    /// end of `current` against the heading at the start of `next` — and the only display
+    /// text kept is `next`'s road clause ("onto Main Street"); where MapKit phrases it
+    /// differently the prompt just omits the road.
+    private static func phrase(from current: MKRoute.Step, into next: MKRoute.Step, arrival: Bool) -> String {
+        if arrival { return String(localized: "arrive at your destination", bundle: .module) }
+        let turn = (heading(of: next.polyline, atEnd: false) - heading(of: current.polyline, atEnd: true) + 540)
+            .truncatingRemainder(dividingBy: 360) - 180
+        let verb: String
+        switch turn {
+        case ..<(-150): verb = String(localized: "make a U-turn", bundle: .module)
+        case ..<(-50): verb = String(localized: "turn left", bundle: .module)
+        case ..<(-20): verb = String(localized: "bear left", bundle: .module)
+        case ..<20: verb = String(localized: "continue", bundle: .module)
+        case ..<50: verb = String(localized: "bear right", bundle: .module)
+        case ..<150: verb = String(localized: "turn right", bundle: .module)
+        default: verb = String(localized: "make a U-turn", bundle: .module)
+        }
+        for connector in [" onto ", " toward "] {
+            if let clause = next.instructions.range(of: connector, options: .caseInsensitive) {
+                return "\(verb) \(next.instructions[clause.lowerBound...].trimmingCharacters(in: .whitespaces))"
+            }
+        }
+        return verb
+    }
+
+    /// Compass heading (°) along the first (or last) ~25 m of a step's polyline.
+    private static func heading(of line: MKPolyline, atEnd end: Bool) -> Double {
+        let pts = line.points()
+        var coords = (0..<line.pointCount).map { pts[$0].coordinate }
+        if end { coords.reverse() }
+        guard coords.count >= 2 else { return 0 }
+        var far = coords[1]
+        var walked = 0.0
+        for i in 1..<coords.count {
+            walked += CLLocation(latitude: coords[i - 1].latitude, longitude: coords[i - 1].longitude)
+                .distance(from: CLLocation(latitude: coords[i].latitude, longitude: coords[i].longitude))
+            far = coords[i]
+            if walked >= 25 { break }
+        }
+        let dLon = (far.longitude - coords[0].longitude) * .pi / 180
+        let la1 = coords[0].latitude * .pi / 180, la2 = far.latitude * .pi / 180
+        let y = sin(dLon) * cos(la2)
+        let x = cos(la1) * sin(la2) - sin(la1) * cos(la2) * cos(dLon)
+        let deg = atan2(y, x) * 180 / .pi
+        return deg < 0 ? deg + 360 : deg
+    }
+
     static func kindName(_ k: ReportKind) -> String {
         switch k {
         case .speedBump: String(localized: "Speed bump", bundle: .module)
@@ -515,7 +568,17 @@ final class NavigationModel {
             if feet < 1000 {
                 value = Measurement(value: (feet / 50).rounded() * 50, unit: .feet); digits = 0
             } else {
-                value = Measurement(value: meters, unit: UnitLength.meters).converted(to: .miles); digits = 1
+                let miles = Measurement(value: meters, unit: UnitLength.meters).converted(to: .miles).value
+                if spoken, miles < 1 {
+                    // Voice says fractions ("half a mile"), not "0.5 miles".
+                    switch Int((miles * 4).rounded()) {
+                    case 1: return String(localized: "a quarter of a mile", bundle: .module)
+                    case 2: return String(localized: "half a mile", bundle: .module)
+                    case 3: return String(localized: "three quarters of a mile", bundle: .module)
+                    default: return String(localized: "a mile", bundle: .module)
+                    }
+                }
+                value = Measurement(value: miles, unit: .miles); digits = 1
             }
         } else if meters < 1000 {
             value = Measurement(value: (meters / 10).rounded() * 10, unit: .meters); digits = 0
@@ -766,6 +829,9 @@ struct GuidanceView: View {
     private var banner: some View {
         let steps = model.current?.route.steps ?? []
         let next = steps.indices.contains(model.stepIndex + 1) ? steps[model.stepIndex + 1] : steps.last
+        // The maneuver after next, when it follows within 300 m of the next (NAV-5).
+        let following = steps.indices.contains(model.stepIndex + 2) && steps[model.stepIndex + 1].distance <= 300
+            ? steps[model.stepIndex + 2] : nil
         return HStack(spacing: Space.s12) {
             Image(systemName: arrow(next?.instructions ?? "")).font(TypeToken.readoutL.font).fontWeight(.bold)
                 .foregroundStyle(Color.sodium).frame(width: Size.hitTarget).accessibilityHidden(true)
@@ -778,6 +844,13 @@ struct GuidanceView: View {
                     Text(verbatim: model.offRoute && !model.online ? String(localized: "Offline. Follow the route line.", bundle: .module)
                          : model.rerouting ? String(localized: "Rerouting", bundle: .module) : (next?.instructions ?? "")).typeStyle(.bodyStrong)
                         .foregroundStyle(Color.chalk).fixedSize(horizontal: false, vertical: true)
+                    if let following {
+                        HStack(spacing: Space.s8) {
+                            Image(systemName: arrow(following.instructions)).font(TypeToken.sub.font)
+                                .foregroundStyle(Color.dust).accessibilityHidden(true)
+                            Text(verbatim: following.instructions).typeStyle(.sub).foregroundStyle(Color.dust).lineLimit(1)
+                        }
+                    }
                 }
             }
             Spacer()
