@@ -27,9 +27,7 @@ public enum GarageFeature: FeatureModule {
             return AnyView(PickerSheet(ctx: ctx, editing: carID))
         }
         #if DEBUG
-        #if DEBUG
         registry.registerDebugScreen("gearing") { AnyView(DebugGearing(ctx: ctx)) }
-        #endif
         #endif
     }
 }

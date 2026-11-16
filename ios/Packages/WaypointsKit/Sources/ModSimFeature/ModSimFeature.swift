@@ -16,9 +16,7 @@ public enum ModSimFeature: FeatureModule {
             return AnyView(ModSimView(env: env, carID: id))
         }
         #if DEBUG
-        #if DEBUG
         registry.registerDebugScreen("modsim-builds") { AnyView(DebugBuilds(env: env)) }
-        #endif
         #endif
     }
 }

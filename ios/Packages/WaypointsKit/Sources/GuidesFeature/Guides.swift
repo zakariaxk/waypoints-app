@@ -23,7 +23,6 @@ public enum GuidesFeature: FeatureModule {
         #if DEBUG
         registry.registerDebugScreen("guide") { AnyView(DebugGuide(ctx: ctx)) }
         #endif
-        #endif
     }
 }
 
