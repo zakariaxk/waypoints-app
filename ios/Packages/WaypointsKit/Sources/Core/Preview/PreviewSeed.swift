@@ -107,6 +107,14 @@ public enum PreviewSeed {
             nickname: "Weekday car", colorFamily: "white", colorHex: "#F2F2F0", paintName: "Championship White", sort: 1),
     ]
 
+    /// `MapGlyph` vehicle name per seed car; PreviewMedia draws this body profile.
+    /// Needed for non-primary cars, whose owner's `markerIcon` describes a different car.
+    static let bodies: [CarID: String] = [
+        car(1): "pony", car(2): "sedan", car(3): "coupe", car(4): "coupe", car(5): "sedan",
+        car(6): "muscle", car(7): "coupe", car(8): "pickup", car(9): "roadster", car(10): "hatch",
+        car(11): "coupe", car(12): "hatch",
+    ]
+
     public static let carPhotos: [CarPhoto] = cars.enumerated().map { index, car in
         CarPhoto(id: CarPhotoID(raw: uuid(index + 1, 3)), carID: car.id,
                  path: "\(car.ownerID)/\(car.id)/1.jpg", width: 2048, height: 1365)
