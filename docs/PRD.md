@@ -383,7 +383,7 @@ Anyone drops a meet on the map in three fields, from a full show to "Wawa and ch
 | MEET-13 | Roll out. A cruise can carry a destination or a saved road. At start time its host sees "Roll out", which starts a convoy named for the meet with that route and invites everyone Going. | P1 | Verified (L35): cruise destination/road_id stored; rollOut creates the convoy and invites Going (convoy side = CNV rows). |
 | MEET-14 | People's choice. During a show or meet, each person checked in can pick one car from those brought. When it ends, the meet shows the winner and the car's timeline gains a line. | P2 | Verified (L35): votes gated to checked-in users on Going cars; sweep set winner_car_id and wrote the timeline line. |
 | MEET-15 | Capacity. A host can cap a meet at a number of cars. Going past the cap joins a waitlist in order; when someone drops, the first waiting person becomes Going and is told once. E2 shows "12 of 20 cars" and "Waitlist · 3". | P3 | Verified (L35): capacity → waitlist → ordered promotion, one notification, sweep consumes the promotion row. |
-| MEET-16 | Anyone Going can start a convoy to the meet: one tap on the meet detail names the convoy for the meet, sets its destination to the meet coordinate, and invites the other Going RSVPs. MEET-13 covers the host's timed roll-out on cruises; this covers every other kind and every other attendee. | P3 | New |
+| MEET-16 | Anyone Going can start a convoy to the meet: one tap on the meet detail names the convoy for the meet, sets its destination to the meet coordinate, and invites the other Going RSVPs. MEET-13 covers the host's timed roll-out on cruises; this covers every other kind and every other attendee. | P3 | Coded (L71): "Start a convoy" on MeetDetail for Going attendees when roll-out isn't theirs; mirrors rollOut (create + join + invite Going RSVPs + joinConvoy route). Statically reviewed; build deferred (disk constraint). |
 
 ### 4.9 Convoys (CNV)
 
@@ -582,7 +582,7 @@ Parts and cars. Listings and messages, never payment. Plan 5.5, 10.6.
 | MKT-7 | Parts have a category: wheels and tires, exhaust, intake and fuel, forced induction, engine, drivetrain, suspension, brakes, exterior and aero, interior, lighting, electronics and tuning, tools, apparel, other. Browse filters by it. | P1 | Verified (L40): exactly the 15 categories + indexed filter. |
 | MKT-8 | Wanted. A third listing kind for something you are looking for, with a budget instead of a price. Shown under its own switch position. | P1 | Verified (L40): wanted kind + budget label; create live. |
 | MKT-9 | A listing untouched for 90 days leaves browse and reads "Expired" to its seller, with "Relist". | P2 | Verified (L40): 90-day expiry excluded from browse; relist RPC revives. |
-| MKT-10 | Browse shows which listings are new since you last looked at that kind: a "New" mark on those rows, and a count line ("12 new since Tuesday") when the section has them. The last-seen stamp is on the device only. | P3 | New |
+| MKT-10 | Browse shows which listings are new since you last looked at that kind: a "New" mark on those rows, and a count line ("12 new since Tuesday") when the section has them. The last-seen stamp is on the device only. | P3 | Coded (L73): per-kind UserDefaults stamp; "New" tag on cards/rows + "%lld new since %@" count line; first browse marks nothing. Statically reviewed; build deferred. |
 
 ### 4.20 Car spotting (SPOT)
 
@@ -679,7 +679,7 @@ How to actually fix and mod your car. Structured guides, not scraped forum text.
 | KNW-4 | A guide can link the mods its task installs, so "Simulate this" hands the part list to the mod simulator (MOD). | P2 | Coded (L64): linked_mod_ids on the seed guides; "Simulate this" routes to modSim (or lists the mod keys). |
 | KNW-5 | The scrape pipeline (offline tool, section 8.10 W13-C) turns forum/manual sources into draft guides: facts extracted, text rewritten, sources kept. Nothing is published to `repair_guides` without a source URL. | P1 | Verified (L65): `tools/guides` (stdlib only) fetches politely (robots + 1 r/s), extracts steps/tools/parts/torque specs into a draft guide JSON, `--emit-sql` writes a jsonb INSERT, `--dedupe` refuses existing (make, task); thin extractions emit TODO skeletons, never verbatim text — proven live on a real install guide + rollback INSERT. |
 | KNW-6 | Ships with at least 30 curated guides covering the seeded enthusiast platforms (oil/brakes/fluids, intake/exhaust/tune installs, suspension). | P1 | Verified (L63): 44 curated guides over 19 seed platforms w/ real part numbers, cost ranges, sources. |
-| KNW-7 | Log it. When every step of a guide is checked, the guide page offers "Add to build log": a timeline entry on the car being worked on carrying the guide's title, today's date, and the guide's linked mods. | P3 | New |
+| KNW-7 | Log it. When every step of a guide is checked, the guide page offers "Add to build log": a timeline entry on the car being worked on carrying the guide's title, today's date, and the guide's linked mods. | P3 | Coded (L72): all-checked-steps → "Add to build log" → context car > single make/model match > picker → addBuildEntry (title ≤60, first linked mod). Statically reviewed; build deferred. |
 
 ### 4.27 3D garage and test drive (GME)
 

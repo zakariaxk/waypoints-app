@@ -33,6 +33,16 @@ enum Units {
     static var name: String { metric ? "km" : "mi" }
 }
 
+/// MKT-10: the newest listing the user has seen per kind, in defaults on this device only.
+enum NewSince {
+    static func stamp(for kind: ListingKind) -> Date? {
+        UserDefaults.standard.object(forKey: "market.seen.\(kind.rawValue)") as? Date
+    }
+    static func mark(_ date: Date, for kind: ListingKind) {
+        UserDefaults.standard.set(date, forKey: "market.seen.\(kind.rawValue)")
+    }
+}
+
 /// The phone's last known position, rounded to 0.1 degree before it is used anywhere (MKT-1).
 enum Coarse {
     static func here() -> Coordinate? {
@@ -114,6 +124,21 @@ struct Browse: View {
     @State private var here: Coordinate?
     /// SAFE-3: listings and sellers the user has reported stay hidden for them.
     @State private var reported: Set<ContentRef> = []
+    /// The kind's stamp as it was before the current results loaded; nil marks nothing (MKT-10).
+    @State private var lastSeen: Date?
+
+    private func isNew(_ l: Listing) -> Bool {
+        guard let lastSeen else { return false }
+        return l.createdAt > lastSeen
+    }
+
+    private var newCount: Int { listings.count(where: isNew) }
+
+    /// The same tag look as the compose sheet's Cover mark.
+    private var newMark: some View {
+        Text("New", bundle: .module).typeStyle(.label).foregroundStyle(Color.sodium)
+            .padding(Space.s4).background(Color.asphalt, in: RoundedRectangle(cornerRadius: Radius.r6))
+    }
 
     private var filter: ListingFilter {
         ListingFilter(kind: kind, query: query.isEmpty ? nil : query,
@@ -172,6 +197,10 @@ struct Browse: View {
                     } else {
                         EmptyState("Nothing for sale near you yet.", actionTitle: "List something") { listing = true }
                     }
+                }
+                if newCount > 0, let lastSeen {
+                    Text("\(newCount) new since \(lastSeen.formatted(.dateTime.weekday(.wide)))", bundle: .module)
+                        .typeStyle(.foot).foregroundStyle(Color.sodium)
                 }
                 if kind == .part {
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: Space.s12), GridItem(.flexible())], spacing: Space.s16) {
@@ -257,6 +286,7 @@ struct Browse: View {
     private func load(more: Bool) async {
         if more && loading { return }
         let asked = filter
+        let prior = more ? lastSeen : NewSince.stamp(for: asked.kind ?? .part)
         loading = true
         do {
             if !more { reported = (try? await env.safety.reportedTargets()) ?? [] }
@@ -270,6 +300,10 @@ struct Browse: View {
                 && !hidden.contains(ContentRef(kind: .user, id: $0.sellerID.description)) }
             next = page.next
             failed = false
+            if !more {
+                lastSeen = prior
+                if let newest = page.items.map(\.createdAt).max() { NewSince.mark(newest, for: kind) }
+            }
         } catch {
             loading = false
             guard asked == filter, !more, !(error is CancellationError) else { return }
@@ -286,6 +320,7 @@ struct Browse: View {
             VStack(alignment: .leading, spacing: Space.s4) {
                 MediaView(url: photo(l), aspectRatio: 1, cornerRadius: Radius.r12, label: Text(verbatim: l.title))
                     .allowsHitTesting(false)
+                    .overlay(alignment: .topLeading) { if isNew(l) { newMark.padding(Space.s4) } }
                     .padding(.bottom, Space.s4)
                 Text(verbatim: l.title).typeStyle(.sub).foregroundStyle(Color.chalk).multilineTextAlignment(.leading).lineLimit(2)
                 Text(readout: Price.text(l.priceCents), token: .readoutM).foregroundStyle(Color.chalk)
@@ -299,7 +334,12 @@ struct Browse: View {
 
     private func wantedRow(_ l: Listing) -> some View {
         Button { env.router.open(.listing(l.id)) } label: {
-            Row(Text(verbatim: l.title), subtitle: Text("Budget \(Price.text(l.priceCents)) · \(l.region)", bundle: .module), trailing: { Disclosure() })
+            Row(Text(verbatim: l.title), subtitle: Text("Budget \(Price.text(l.priceCents)) · \(l.region)", bundle: .module), trailing: {
+                HStack(spacing: Space.s8) {
+                    if isNew(l) { newMark }
+                    Disclosure()
+                }
+            })
                 .padding(.horizontal, -Space.margin)
         }
         .buttonStyle(RowButtonStyle())
@@ -310,6 +350,7 @@ struct Browse: View {
             VStack(alignment: .leading, spacing: Space.s4) {
                 MediaView(url: photo(l), aspectRatio: 16.0 / 9.0, cornerRadius: Radius.r12, label: Text(verbatim: l.title))
                     .allowsHitTesting(false)
+                    .overlay(alignment: .topLeading) { if isNew(l) { newMark.padding(Space.s4) } }
                     .padding(.bottom, Space.s4)
                 Text(verbatim: l.title).typeStyle(.bodyStrong).foregroundStyle(Color.chalk).multilineTextAlignment(.leading)
                 Text(readout: Price.text(l.priceCents), token: .readoutM).foregroundStyle(Color.chalk)

@@ -1387,6 +1387,9 @@
         }
       }
     },
+    "Start a convoy": {
+      "extractionState": "manual"
+    },
     "Start a meet": {
       "extractionState": "manual",
       "localizations": {

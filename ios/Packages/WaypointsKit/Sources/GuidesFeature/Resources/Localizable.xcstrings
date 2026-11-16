@@ -4,10 +4,16 @@
     "Add a car to your garage and matching guides show up here, or search every task above.": {
       "extractionState": "manual"
     },
+    "Add to build log": {
+      "extractionState": "manual"
+    },
     "COMMON MISTAKES": {
       "extractionState": "manual"
     },
     "Couldn't load this guide.": {
+      "extractionState": "manual"
+    },
+    "Couldn't log it. Try again.": {
       "extractionState": "manual"
     },
     "Difficulty · easy": {
@@ -32,6 +38,12 @@
       "extractionState": "manual"
     },
     "Linked mods": {
+      "extractionState": "manual"
+    },
+    "Log to which car?": {
+      "extractionState": "manual"
+    },
+    "Logged": {
       "extractionState": "manual"
     },
     "No guides match.": {
@@ -59,6 +71,9 @@
       "extractionState": "manual"
     },
     "TRADEOFFS": {
+      "extractionState": "manual"
+    },
+    "Waypoints guide · ": {
       "extractionState": "manual"
     },
     "brake pads, downpipe, alignment": {

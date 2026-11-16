@@ -936,6 +936,9 @@
         }
       }
     },
+    "That loop has no route yet. Add a road first.": {
+      "extractionState": "manual"
+    },
     "The loop is removed. Its roads stay.": {
       "extractionState": "manual",
       "localizations": {

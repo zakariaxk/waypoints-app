@@ -2,24 +2,33 @@ import Core
 import DesignSystem
 import SwiftUI
 
-/// KNW-3/4: one guide — tools, parts with cost, checkable steps kept on the device,
-/// tradeoffs and mistakes, sources at the foot, and "Simulate this" when the task installs mods.
+/// KNW-3/4/7: one guide — tools, parts with cost, checkable steps kept on the device,
+/// tradeoffs and mistakes, sources at the foot, "Simulate this" when the task installs mods,
+/// and "Add to build log" once every step is checked.
 struct GuideDetailScreen: View {
     let ctx: GuidesContext
     let guideID: GuideID?
+    /// A car the screen was opened for (KNW-7 logs to it without asking); nil picks below.
+    private let contextCarID: CarID?
     /// The viewer's first car, for the mod-sim route; nil falls back to a mod list sheet.
     @State private var carID: CarID?
+    @State private var cars: [Car] = []
     @State private var guide: Guide?
     @State private var failed = false
     @State private var done: Set<Int> = []
     @State private var showMods = false
+    @State private var pickerCars: [Car] = []
+    @State private var showPicker = false
+    @State private var logging = false
+    @State private var logged = false
+    @State private var logFailed = false
 
     init(ctx: GuidesContext, guideID: GuideID, carID: CarID? = nil) {
-        self.ctx = ctx; self.guideID = guideID
+        self.ctx = ctx; self.guideID = guideID; self.contextCarID = carID
         _carID = State(initialValue: carID)
     }
     init(ctx: GuidesContext, guide: Guide, carID: CarID? = nil) {
-        self.ctx = ctx; self.guideID = nil
+        self.ctx = ctx; self.guideID = nil; self.contextCarID = carID
         _carID = State(initialValue: carID)
         _guide = State(initialValue: guide)
         _done = State(initialValue: Self.loadSteps(guide.id))
@@ -43,6 +52,14 @@ struct GuideDetailScreen: View {
                     .navigationTitle(Text("Linked mods", bundle: .module))
             }
             .presentationDetents([.medium])
+        }
+        .confirmationDialog(String(localized: "Log to which car?", bundle: .module),
+                            isPresented: $showPicker, titleVisibility: .visible) {
+            ForEach(pickerCars) { car in
+                Button(car.nickname ?? car.shortLabel) {
+                    if let guide { Task { await log(guide, to: car.id) } }
+                }
+            }
         }
     }
 
@@ -71,6 +88,21 @@ struct GuideDetailScreen: View {
             SectionLabel("STEPS")
             ForEach(Array(guide.steps.enumerated()), id: \.offset) { index, step in
                 stepRow(guide, index, step)
+            }
+            // KNW-7: every step checked offers one tap onto the car's build timeline.
+            if !guide.steps.isEmpty && Set(guide.steps.indices).isSubset(of: done) {
+                if logged {
+                    PrimaryButton("Logged") {}.disabled(true)
+                        .padding(.horizontal, Space.margin).padding(.top, Space.s24)
+                } else {
+                    PrimaryButton("Add to build log", isLoading: logging) { logTapped(guide) }
+                        .padding(.horizontal, Space.margin).padding(.top, Space.s24)
+                    if logFailed {
+                        Text("Couldn't log it. Try again.", bundle: .module)
+                            .typeStyle(.sub).foregroundStyle(Color.brake)
+                            .padding(.horizontal, Space.margin).padding(.top, Space.s8)
+                    }
+                }
             }
             if let tradeoffs = guide.tradeoffs {
                 SectionLabel("TRADEOFFS")
@@ -121,6 +153,32 @@ struct GuideDetailScreen: View {
         Set(UserDefaults.standard.array(forKey: stepsKey(id)) as? [Int] ?? [])
     }
 
+    /// KNW-7: the car the guide applies to when exactly one matches, the car the screen was
+    /// opened for, or a small picker when the match is ambiguous.
+    private func logTapped(_ guide: Guide) {
+        let matches = cars.filter { $0.make == guide.make }
+            .filter { guide.model.map { $0.model.localizedCaseInsensitiveContains($1) } ?? true }
+        if let contextCarID { Task { await log(guide, to: contextCarID) } }
+        else if matches.count == 1 { Task { await log(guide, to: matches[0].id) } }
+        else {
+            pickerCars = matches.isEmpty ? cars : matches
+            showPicker = true
+        }
+    }
+
+    /// KNW-7: one timeline entry — the guide's task, today, and its first linked mod.
+    private func log(_ guide: Guide, to target: CarID) async {
+        guard !logging else { return }
+        logging = true; logFailed = false
+        do {
+            try await ctx.env.garage.addBuildEntry(BuildEntry(
+                carID: target, happenedOn: .now, title: String(guide.task.prefix(60)),
+                body: "Waypoints guide · " + guide.vehicleLabel, modID: guide.linkedModIDs.first))
+            logged = true
+        } catch { logFailed = true }
+        logging = false
+    }
+
     private func difficultyLabel(_ d: Int) -> String {
         switch d {
         case 1: String(localized: "Difficulty · easy", bundle: .module)
@@ -141,8 +199,9 @@ struct GuideDetailScreen: View {
     private func load() async {
         // Routes reach this screen with no car; resolve the viewer's first so
         // "Simulate this" can open the mod sim instead of the raw mod list.
-        if carID == nil, let me = await ctx.env.auth.currentSession()?.userID {
-            carID = (try? await ctx.env.garage.cars(of: me))?.first?.id
+        if let me = await ctx.env.auth.currentSession()?.userID {
+            cars = (try? await ctx.env.garage.cars(of: me)) ?? []
+            if carID == nil { carID = cars.first?.id }
         }
         guard guide == nil, let guideID else { return }
         do { guide = try await ctx.env.guides.guide(guideID); done = Self.loadSteps(guideID); failed = false }

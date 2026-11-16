@@ -381,6 +381,10 @@ struct MeetDetail: View {
                     SecondaryButton("Directions") { env.router.open(.navigate(to: m.coordinate, name: m.placeName)) }
                 } else {
                     PrimaryButton("Directions") { env.router.open(.navigate(to: m.coordinate, name: m.placeName)) }
+                    if canStartConvoy(m) {
+                        SecondaryButton("Start a convoy", isLoading: rolling) { startConvoy(m) }
+                        if let rollError { Text(verbatim: rollError).typeStyle(.foot).foregroundStyle(Color.brake) }
+                    }
                 }
                 capacity(m)
                 going
@@ -642,6 +646,31 @@ struct MeetDetail: View {
                 let invite = try await env.gateway.createConvoy(name: String(m.title.prefix(40)),
                                                                 destination: m.destination ?? roadEnd,
                                                                 routePolyline: road.map { Polyline.encode($0.path) })
+                await env.realtime.joinConvoy(invite.id)
+                let going = rsvps.filter { $0.status == .going && $0.userID != me }.map(\.userID)
+                if !going.isEmpty { try? await env.gateway.inviteToConvoy(invite.id, users: going) }
+                done += 1
+                env.router.open(.joinConvoy(code: invite.joinCode))
+            } catch {
+                rollError = String(localized: "Couldn't start the convoy. Check your connection and try again.", bundle: .module)
+            }
+            rolling = false
+        }
+    }
+
+    /// MEET-16: anyone Going sees "Start a convoy" on meets where Roll out isn't theirs (non-hosts, non-cruise kinds).
+    private func canStartConvoy(_ m: Meet) -> Bool {
+        mine == .going && m.cancelledAt == nil && !canRollOut(m)
+    }
+
+    /// Convoy named for the meet, headed to the meet's coordinate, inviting the other Going RSVPs.
+    private func startConvoy(_ m: Meet) {
+        rolling = true
+        rollError = nil
+        Task {
+            do {
+                let invite = try await env.gateway.createConvoy(name: String(m.title.prefix(40)),
+                                                                destination: ConvoyDestination(coordinate: m.coordinate, name: m.placeName))
                 await env.realtime.joinConvoy(invite.id)
                 let going = rsvps.filter { $0.status == .going && $0.userID != me }.map(\.userID)
                 if !going.isEmpty { try? await env.gateway.inviteToConvoy(invite.id, users: going) }

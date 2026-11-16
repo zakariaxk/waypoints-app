@@ -485,6 +485,15 @@
         }
       }
     },
+    "%@ new since %@": {
+      "extractionState": "manual"
+    },
+    "%@ new since %f": {
+      "extractionState": "manual"
+    },
+    "%@ new since %lld": {
+      "extractionState": "manual"
+    },
     "%@ of %@ cars": {
       "extractionState": "manual",
       "localizations": {
@@ -1475,6 +1484,15 @@
         }
       }
     },
+    "%f new since %@": {
+      "extractionState": "manual"
+    },
+    "%f new since %f": {
+      "extractionState": "manual"
+    },
+    "%f new since %lld": {
+      "extractionState": "manual"
+    },
     "%f of %@ cars": {
       "extractionState": "manual",
       "localizations": {
@@ -2464,6 +2482,23 @@
           }
         }
       }
+    },
+    "%lld new since %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nuevos desde el %@"
+          }
+        }
+      }
+    },
+    "%lld new since %f": {
+      "extractionState": "manual"
+    },
+    "%lld new since %lld": {
+      "extractionState": "manual"
     },
     "%lld of %@ cars": {
       "extractionState": "manual",
@@ -3623,6 +3658,9 @@
           }
         }
       }
+    },
+    "Add to build log": {
+      "extractionState": "manual"
     },
     "Add to collection": {
       "extractionState": "manual",
@@ -6316,6 +6354,9 @@
           }
         }
       }
+    },
+    "Couldn't log it. Try again.": {
+      "extractionState": "manual"
     },
     "Couldn't open the conversation. Check your connection and try again.": {
       "extractionState": "manual",
@@ -10215,6 +10256,12 @@
           }
         }
       }
+    },
+    "Log to which car?": {
+      "extractionState": "manual"
+    },
+    "Logged": {
+      "extractionState": "manual"
     },
     "Long-tube headers": {
       "extractionState": "manual",
@@ -15944,6 +15991,9 @@
         }
       }
     },
+    "That loop has no route yet. Add a road first.": {
+      "extractionState": "manual"
+    },
     "That message can't be sent.": {
       "extractionState": "manual",
       "localizations": {
@@ -17409,6 +17459,9 @@
           }
         }
       }
+    },
+    "Waypoints guide · ": {
+      "extractionState": "manual"
     },
     "Waypoints is for drivers 17 and up.": {
       "extractionState": "manual",
