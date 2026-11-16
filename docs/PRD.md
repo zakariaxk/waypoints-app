@@ -329,6 +329,7 @@ Waze-grade guidance built on MapKit, with the one thing nobody else has: routes 
 | NAV-14 | Directions is offered wherever a place appears: a friend, a meet, a road, a regroup point, a help request. | P0 | Coded |
 | NAV-15 | Share ETA. While navigating, the user can send chosen friends one notice with the destination name and arrival time. No position is shared. Navigating to a meet you are Going to shows you as "on the way" in its list. | P2 | Coded (W8-1F): "Share ETA" in M4 guidance sends chosen friends one push and Activity row through `POST /v1/eta` (friends only, no position); starting guidance to a meet you are Going to sets `meet_rsvps.on_the_way_until`, shown as "On the way" in E2's Who's going. |
 | NAV-16 | Stop on the way. During route preview or guidance, "Add a stop" searches fuel, EV charging, and food along the route with MapKit, shows the detour in minutes for each, and inserts the chosen one as a waypoint. One stop at a time. | P3 | Coded (W10-1): "Add a stop" in route preview and guidance; fuel, EV charging, or food searched at three points ahead on the route; detour minutes for the four nearest; one stop with "Remove stop". Seen in preview (`debug/stops`); the live MapKit search is not yet run. |
+| NAV-17 | Parked. The map sheet shows where your last drive ended with one tap to navigate back to the car. | P3 | Coded (L96): Drive.endedAt + isRecording; PARKED row atop the drives section → `.navigate` to the last point; locality via CLGeocoder. Statically reviewed. |
 
 ### 4.6 Community reports (RPT)
 
@@ -1026,7 +1027,6 @@ Thirteen extensions, each small enough for one session and each passing section 
 | Package | Covers | Owns |
 |---|---|---|
 | **W10-1 Stops** | NAV-16 | `Sources/NavigationFeature/**` |
-| NAV-17 | Parked. The map sheet shows where your last drive ended with one tap to navigate back to the car. | P3 | Coded (L96): Drive.endedAt + isRecording; PARKED row atop the drives section → `.navigate` to the last point; locality via CLGeocoder. Statically reviewed. |
 | **W10-2 Capacity** | MEET-15 | A migration, `server/internal/api/meets.go`, `Sources/MeetsFeature/**` |
 | **W10-3 Regroup** | CNV-12 | `proto/**` and generated types, `server/internal/convoy/**`, `Sources/ConvoyFeature/**` |
 | **W10-4 Builder's tools** | GAR-17, GAR-18 | A migration (one nullable column), `Sources/GarageFeature/**`, `Sources/PerformanceModel/**` (gearing math only) |
