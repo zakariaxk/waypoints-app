@@ -203,6 +203,13 @@ final class ConvoyStore {
         state?.destination = d
     }
 
+    /// SAFE-1: every member is reportable. Member uids are realtime uids, resolved
+    /// through the profile the way VoiceFeature resolves its participants.
+    func report(_ m: Member) async {
+        guard m.uid != myUID, let user = (try? await env.profiles.profile(uid: m.uid))?.userID else { return }
+        env.router.open(.reportContent(.user(user)))
+    }
+
     /// Every convoy has its own voice room (CNV-11); VoiceFeature joins it muted.
     func talk() {
         guard let id = state?.id else { return }
@@ -377,6 +384,11 @@ struct ConvoySectionView: View {
                             Text(verbatim: "+\(Int(g).formatted(.number)) s").typeStyle(.readoutS)
                         }
                     })
+                    .contextMenu {
+                        if m.uid != store.myUID {
+                            Button("Report") { Task { await store.report(m) } }
+                        }
+                    }
                 }
             }
             .confirmationDialog("End the convoy for all \(s.memberUIDs.count) drivers?", isPresented: $confirmEnd) {
