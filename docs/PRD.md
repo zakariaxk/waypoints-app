@@ -383,6 +383,7 @@ Anyone drops a meet on the map in three fields, from a full show to "Wawa and ch
 | MEET-13 | Roll out. A cruise can carry a destination or a saved road. At start time its host sees "Roll out", which starts a convoy named for the meet with that route and invites everyone Going. | P1 | Verified (L35): cruise destination/road_id stored; rollOut creates the convoy and invites Going (convoy side = CNV rows). |
 | MEET-14 | People's choice. During a show or meet, each person checked in can pick one car from those brought. When it ends, the meet shows the winner and the car's timeline gains a line. | P2 | Verified (L35): votes gated to checked-in users on Going cars; sweep set winner_car_id and wrote the timeline line. |
 | MEET-15 | Capacity. A host can cap a meet at a number of cars. Going past the cap joins a waitlist in order; when someone drops, the first waiting person becomes Going and is told once. E2 shows "12 of 20 cars" and "Waitlist · 3". | P3 | Verified (L35): capacity → waitlist → ordered promotion, one notification, sweep consumes the promotion row. |
+| MEET-16 | Anyone Going can start a convoy to the meet: one tap on the meet detail names the convoy for the meet, sets its destination to the meet coordinate, and invites the other Going RSVPs. MEET-13 covers the host's timed roll-out on cruises; this covers every other kind and every other attendee. | P3 | New |
 
 ### 4.9 Convoys (CNV)
 
@@ -581,6 +582,7 @@ Parts and cars. Listings and messages, never payment. Plan 5.5, 10.6.
 | MKT-7 | Parts have a category: wheels and tires, exhaust, intake and fuel, forced induction, engine, drivetrain, suspension, brakes, exterior and aero, interior, lighting, electronics and tuning, tools, apparel, other. Browse filters by it. | P1 | Verified (L40): exactly the 15 categories + indexed filter. |
 | MKT-8 | Wanted. A third listing kind for something you are looking for, with a budget instead of a price. Shown under its own switch position. | P1 | Verified (L40): wanted kind + budget label; create live. |
 | MKT-9 | A listing untouched for 90 days leaves browse and reads "Expired" to its seller, with "Relist". | P2 | Verified (L40): 90-day expiry excluded from browse; relist RPC revives. |
+| MKT-10 | Browse shows which listings are new since you last looked at that kind: a "New" mark on those rows, and a count line ("12 new since Tuesday") when the section has them. The last-seen stamp is on the device only. | P3 | New |
 
 ### 4.20 Car spotting (SPOT)
 
@@ -677,6 +679,7 @@ How to actually fix and mod your car. Structured guides, not scraped forum text.
 | KNW-4 | A guide can link the mods its task installs, so "Simulate this" hands the part list to the mod simulator (MOD). | P2 | Coded (L64): linked_mod_ids on the seed guides; "Simulate this" routes to modSim (or lists the mod keys). |
 | KNW-5 | The scrape pipeline (offline tool, section 8.10 W13-C) turns forum/manual sources into draft guides: facts extracted, text rewritten, sources kept. Nothing is published to `repair_guides` without a source URL. | P1 | Verified (L65): `tools/guides` (stdlib only) fetches politely (robots + 1 r/s), extracts steps/tools/parts/torque specs into a draft guide JSON, `--emit-sql` writes a jsonb INSERT, `--dedupe` refuses existing (make, task); thin extractions emit TODO skeletons, never verbatim text — proven live on a real install guide + rollback INSERT. |
 | KNW-6 | Ships with at least 30 curated guides covering the seeded enthusiast platforms (oil/brakes/fluids, intake/exhaust/tune installs, suspension). | P1 | Verified (L63): 44 curated guides over 19 seed platforms w/ real part numbers, cost ranges, sources. |
+| KNW-7 | Log it. When every step of a guide is checked, the guide page offers "Add to build log": a timeline entry on the car being worked on carrying the guide's title, today's date, and the guide's linked mods. | P3 | New |
 
 ### 4.27 3D garage and test drive (GME)
 
@@ -1154,3 +1157,5 @@ Findings go to W8-INT as a list.
 | 2026-11-15 | Wave 12 added (section 8.9): the ship-readiness loop, queue rows L30 to L52 — live-stack verification per area, the remaining screen reads, the l10n interpolation bugs, store-shot fixes, gateway leftovers, publishing `site/`, and release-build checks. SAFE-1 corrected to Coded (convoy member rows landed in L16b). |
 | 2026-11-15 | Wave 13 (section 8.10, queue L63–L67): repair-guide knowledge base (KNW-1 to KNW-6), the 3D car shop (GME-1, GME-2, GME-5), and the closed-loop test drive (GME-3, GME-4, GME-6). Requirement table adds KNW and GME areas. |
 | 2026-11-15 | L51 wave audit: every open queue row L30–L62 worked to done or marked owner-blocked; section 3 re-audited on the live stack (535 checks, 8/8 realtime scenarios, 16 store shots, all debug screens). Gaps that are real remain in the rows they belong to. |
+| 2026-11-16 | L69 audit leftovers fixed (static pass). Three new requirements: MEET-16 (attendee-started convoy to a meet), KNW-7 (guide completion logs to the build timeline), MKT-10 (new-since-you-looked market marks). Queue rows L70–L73.
+| 2026-11-16 | L69 audit leftovers fixed (static pass). Three new requirements: MEET-16 (attendee-started convoy to a meet), KNW-7 (guide completion logs to the build timeline), MKT-10 (new-since-you-looked market marks). Queue rows L70-L73.
