@@ -119,7 +119,7 @@ struct ReportsSectionView: View {
 struct ReportAction: MapAction {
     var id: String { "report" }
     var title: String { String(localized: "Report a hazard", bundle: .module) }
-    var symbol: String { "exclamationmark.triangle" }
+    var symbol: String { "report.hazard" }
     var order: Int { 10 }
     @MainActor func perform(at coordinate: Coordinate, router: any Router) { router.open(.createReport(coordinate)) }
 }

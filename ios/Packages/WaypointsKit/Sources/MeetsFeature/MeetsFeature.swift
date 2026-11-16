@@ -102,7 +102,7 @@ struct MeetsSectionView: View {
 struct StartMeetAction: MapAction {
     var id: String { "startMeet" }
     var title: String { String(localized: "Start a meet", bundle: .module) }
-    var symbol: String { "car.2" }
+    var symbol: String { "meet.meet" }
     var order: Int { 20 }
     @MainActor func perform(at coordinate: Coordinate, router: any Router) { router.open(.createMeet(coordinate)) }
 }
@@ -164,7 +164,7 @@ struct CreateMeet: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Space.s16) {
                     Map(position: $position, interactionModes: [.pan, .zoom]) {}
-                        .overlay { Image(systemName: "mappin").font(.title).foregroundStyle(Color.sodium).offset(y: -Space.s12).accessibilityHidden(true) }
+                        .overlay { MeetGlyph(kind: kind.rawValue).frame(width: Space.s24, height: Space.s24).offset(y: -Space.s12) }
                         .onMapCameraChange(frequency: .onEnd) { ctx in center = ctx.region.center; resolvePlace() }
                         .frame(height: Size.row * 3)
                         .clipShape(RoundedRectangle(cornerRadius: Radius.r20))
@@ -680,7 +680,7 @@ struct MeetDetail: View {
         if let winner {
             Button { env.router.open(.car(winner.id)) } label: {
                 HStack(spacing: Space.s8) {
-                    Image(systemName: "trophy.fill").foregroundStyle(Color.sodium).accessibilityHidden(true)
+                    MeetGlyph(kind: "show").frame(width: Space.s16, height: Space.s16)
                     Text("People's choice: \(winner.shortLabel)", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
                 }
             }

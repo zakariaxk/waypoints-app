@@ -81,10 +81,16 @@ private struct ActivityRow: View {
 
     var body: some View {
         Row(Text(verbatim: item.title), subtitle: subtitle, leading: {
-            Image.symbol(symbol)
-                .foregroundStyle(item.isUnread ? Color.sodium : Color.dust)
-                .frame(width: Size.hitTarget, height: Size.hitTarget)
-                .background(Color.concrete, in: Circle())
+            Group {
+                if item.kind == .convoyInvite {
+                    MeetGlyph(kind: "meet", paint: item.isUnread ? .sodium : .dust).padding(Space.s12)
+                } else {
+                    Image.symbol(symbol)
+                        .foregroundStyle(item.isUnread ? Color.sodium : Color.dust)
+                }
+            }
+            .frame(width: Size.hitTarget, height: Size.hitTarget)
+            .background(Color.concrete, in: Circle())
         }, trailing: {
             VStack(alignment: .trailing, spacing: Space.s4) {
                 Text(verbatim: item.createdAt.formatted(.relative(presentation: .numeric, unitsStyle: .abbreviated))).typeStyle(.foot)

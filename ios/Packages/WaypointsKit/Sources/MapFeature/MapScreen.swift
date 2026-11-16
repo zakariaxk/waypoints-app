@@ -195,7 +195,7 @@ struct MapScreen: View {
                     Menu {
                         ForEach(model.registry.mapActions, id: \.id) { action in
                             Button { action.perform(at: model.region.center, router: model.env.router) } label: {
-                                Label(action.title, systemImage: action.symbol)
+                                Label { Text(verbatim: action.title) } icon: { AddMenuIcon(action.symbol) }
                             }
                         }
                     } label: {
@@ -407,7 +407,7 @@ struct MapItemView: View {
                 MeetPin(kind: String(item.glyph.name.dropFirst("meet.".count)), time: item.title,
                         live: item.tint == .go)
             } else if item.glyph.name == "road" {
-                Image(systemName: "road.lanes").font(.title3.weight(.semibold)).foregroundStyle(item.tint.color)
+                MeetGlyph(kind: "cruise", paint: item.tint.color).frame(width: Size.Marker.reportGlyph, height: Size.Marker.reportGlyph)
                     .frame(width: Size.hitTarget, height: Size.hitTarget)
                     .background(Color.tarmac, in: Circle())
                     .mapShadow()
@@ -417,7 +417,7 @@ struct MapItemView: View {
                     .frame(width: Space.s12, height: Space.s12)
                     .allowsHitTesting(false)
             } else if item.glyph.name == "pin" {
-                Image(systemName: "mappin.circle.fill").font(.largeTitle).foregroundStyle(item.tint.color)
+                MeetGlyph(kind: "meet", paint: item.tint.color).frame(width: Size.Marker.reportGlyph, height: Size.Marker.reportGlyph)
                     .frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget).contentShape(Rectangle()).mapShadow()
             } else {
                 SilhouetteIcon(item.glyph.name, paint: item.tint.color).frame(width: Size.Marker.friend, height: Size.Marker.friend)
@@ -427,6 +427,24 @@ struct MapItemView: View {
         .motion(.sheet, value: selected)
         .accessibilityLabel(Text(verbatim: item.title ?? item.glyph.name))
         .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
+    }
+}
+
+/// Add-menu icon: `MapAction.symbol` names keyed `meet.<kind>` or `report.<kind>` draw the
+/// plan-9.8 glyphs; anything else is still an SF Symbol name.
+private struct AddMenuIcon: View {
+    let symbol: String
+    init(_ symbol: String) { self.symbol = symbol }
+    var body: some View {
+        if symbol.hasPrefix("meet.") {
+            MeetGlyph(kind: String(symbol.dropFirst("meet.".count)))
+                .frame(width: Size.Marker.reportGlyph, height: Size.Marker.reportGlyph)
+        } else if symbol.hasPrefix("report.") {
+            ReportGlyph(kind: String(symbol.dropFirst("report.".count)))
+                .frame(width: Size.Marker.reportGlyph, height: Size.Marker.reportGlyph)
+        } else {
+            Image.symbol(symbol)
+        }
     }
 }
 

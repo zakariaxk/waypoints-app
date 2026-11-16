@@ -114,7 +114,7 @@ struct HelpSectionView: View {
 struct HelpAction: MapAction {
     var id: String { "help" }
     var title: String { String(localized: "Ask for a hand", bundle: .module) }
-    var symbol: String { "hand.raised" }
+    var symbol: String { "report.help" }
     var order: Int { 15 }
     @MainActor func perform(at coordinate: Coordinate, router: any Router) { router.open(.askForHelp(coordinate)) }
 }
