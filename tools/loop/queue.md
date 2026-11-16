@@ -97,3 +97,6 @@ Format: `- [ ] L## | REQ-IDS | files it owns | one-line task`
 - [x] L82 | MKT-11 | supabase migration + checks.sql, Core ActivityKind | notifications trigger on listings price_cents decrease → activity row for each saver; new kind + label. New requirement row.
 - [x] L83 | CNV-14 | ConvoyFeature | Convoy create sheet offers the user's saved loops; picking one sets destination = loop end + loop name. New requirement row.
 - [x] L84 | ROAD-8 | RoadsFeature | Loop share card: joined polylines drawn to scale + name/count/handle, to the share sheet (SPOT-7 pattern). New requirement row.
+- [ ] L85 | GAR-21 | GarageFeature | Service-due mark: service entry remind_on <= today → "Service due" on the car page + timeline; owner clears by editing/done. New requirement row.
+- [ ] L86 | SOC-10 | MeetsFeature | "N friends going": meet list rows + meet page name up to three friends with Going RSVPs. New requirement row.
+- [ ] L87 | ROAD-9 | RoadsFeature | "Add to a loop" on the road sheet: pick an existing loop (appends) or start a new one carrying the road. New requirement row.
