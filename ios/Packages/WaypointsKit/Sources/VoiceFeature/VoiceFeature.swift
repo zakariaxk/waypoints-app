@@ -275,7 +275,8 @@ struct VoiceSheet: View {
                         Text(verbatim: s.name).typeStyle(.foot).foregroundStyle(Color.chalk).lineLimit(1)
                     }
                     .accessibilityElement(children: .ignore)
-                    .accessibilityLabel(s.speaking ? Text("\(s.name), speaking", bundle: .module) : Text(verbatim: s.name))
+                    .accessibilityLabel(s.speaking ? Text("\(s.name), speaking", bundle: .module)
+                                        : s.muted ? Text("\(s.name), muted", bundle: .module) : Text(verbatim: s.name))
                     .contextMenu {
                         if s.id != "me" {
                             Button("Report") { Task { await session.report(s) } }

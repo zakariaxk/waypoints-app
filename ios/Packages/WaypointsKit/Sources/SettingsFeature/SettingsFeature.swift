@@ -324,6 +324,7 @@ struct PrivacyView: View {
             }
         }
         .frame(maxWidth: .infinity)
+        .accessibilityHidden(true)
     }
 }
 
@@ -362,6 +363,8 @@ struct NotificationsView: View {
                     }), in: 5...50, step: 5) {
                         Text(verbatim: SettingsUnits.radius(km: privacy.notifyRadiusKm)).typeStyle(.readoutS)
                     }
+                    .accessibilityLabel(Text("Radius", bundle: .module))
+                    .accessibilityValue(Text(verbatim: SettingsUnits.radius(km: privacy.notifyRadiusKm)))
                 })
             }
             toggle("Friend requests", pref(\.friendRequests))

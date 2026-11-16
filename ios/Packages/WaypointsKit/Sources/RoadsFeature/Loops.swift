@@ -299,10 +299,13 @@ struct LoopEditor: View {
                             Text(verbatim: "\(i + 1). \(r.name)").typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             IconButton("chevron.up", label: "Move up") { picked.swapAt(i, i - 1) }
+                                .accessibilityLabel(Text("Move \(r.name) up", bundle: .module))
                                 .disabled(i == 0)
                             IconButton("chevron.down", label: "Move down") { picked.swapAt(i, i + 1) }
+                                .accessibilityLabel(Text("Move \(r.name) down", bundle: .module))
                                 .disabled(i == picked.count - 1)
                             IconButton(Symbol.delete, label: "Remove from loop") { picked.remove(at: i) }
+                                .accessibilityLabel(Text("Remove \(r.name) from the loop", bundle: .module))
                         }
                     }
                     let total = Units.length(picked.reduce(0) { $0 + $1.lengthMeters })

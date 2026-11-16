@@ -27,6 +27,7 @@ struct StandingsView: View {
                                      env: model.env, size: Size.hitTarget)
                         }, trailing: {
                             Text(verbatim: s.score.formatted(.number)).typeStyle(.readoutS).foregroundStyle(Color.chalk)
+                                .accessibilityLabel(Text("\(s.score.formatted(.number)) votes", bundle: .module))
                         })
                     }
                 } else if failed {

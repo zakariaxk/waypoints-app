@@ -457,6 +457,9 @@ struct ChatView: View {
                                     .background(c.mine ? Color.sodiumDim : Color.concrete, in: Capsule())
                             }
                             .buttonStyle(PressScaleStyle())
+                            .accessibilityLabel(Text(reactionName(c.reaction), bundle: .module))
+                            .accessibilityValue(Text(verbatim: c.count.formatted(.number)))
+                            .accessibilityAddTraits(c.mine ? .isSelected : [])
                         }
                     }
                     .padding(.top, Space.s2)

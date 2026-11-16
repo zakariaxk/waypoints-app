@@ -189,6 +189,7 @@ struct ProfileScreen: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     IconButton("person.badge.plus", label: "Friend requests") { showFriends = true }
+                        .accessibilityValue(model.requests > 0 ? Text("\(model.requests) new", bundle: .module) : Text(verbatim: ""))
                         .overlay(alignment: .topTrailing) {
                             if model.requests > 0 {
                                 Text(verbatim: "\(model.requests)").typeStyle(.readoutS).foregroundStyle(Color.chalk)

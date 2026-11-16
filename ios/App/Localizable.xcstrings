@@ -430,6 +430,9 @@
         }
       }
     },
+    "%@ new": {
+      "extractionState": "manual"
+    },
     "%@ of %@ cars": {
       "extractionState": "manual",
       "localizations": {
@@ -507,6 +510,18 @@
         }
       }
     },
+    "%@ of 5": {
+      "extractionState": "manual"
+    },
+    "%@ of 5 · %@ ratings": {
+      "extractionState": "manual"
+    },
+    "%@ of 5 · %f ratings": {
+      "extractionState": "manual"
+    },
+    "%@ of 5 · %lld ratings": {
+      "extractionState": "manual"
+    },
     "%@ on the way": {
       "extractionState": "manual",
       "localizations": {
@@ -517,6 +532,9 @@
           }
         }
       }
+    },
+    "%@ rating": {
+      "extractionState": "manual"
     },
     "%@ reported": {
       "extractionState": "manual",
@@ -650,6 +668,9 @@
         }
       }
     },
+    "%@ seconds behind": {
+      "extractionState": "manual"
+    },
     "%@ to %@": {
       "extractionState": "manual",
       "localizations": {
@@ -693,6 +714,9 @@
           }
         }
       }
+    },
+    "%@ votes": {
+      "extractionState": "manual"
     },
     "%@%@": {
       "extractionState": "manual",
@@ -902,6 +926,9 @@
           }
         }
       }
+    },
+    "%@, muted": {
+      "extractionState": "manual"
     },
     "%@, speaking": {
       "extractionState": "manual",
@@ -1244,6 +1271,9 @@
         }
       }
     },
+    "%f new": {
+      "extractionState": "manual"
+    },
     "%f of %@ cars": {
       "extractionState": "manual",
       "localizations": {
@@ -1321,6 +1351,18 @@
         }
       }
     },
+    "%f of 5": {
+      "extractionState": "manual"
+    },
+    "%f of 5 · %@ ratings": {
+      "extractionState": "manual"
+    },
+    "%f of 5 · %f ratings": {
+      "extractionState": "manual"
+    },
+    "%f of 5 · %lld ratings": {
+      "extractionState": "manual"
+    },
     "%f on the way": {
       "extractionState": "manual",
       "localizations": {
@@ -1331,6 +1373,9 @@
           }
         }
       }
+    },
+    "%f rating": {
+      "extractionState": "manual"
     },
     "%f reported": {
       "extractionState": "manual",
@@ -1464,6 +1509,9 @@
         }
       }
     },
+    "%f seconds behind": {
+      "extractionState": "manual"
+    },
     "%f to %@": {
       "extractionState": "manual",
       "localizations": {
@@ -1507,6 +1555,9 @@
           }
         }
       }
+    },
+    "%f votes": {
+      "extractionState": "manual"
     },
     "%f%@": {
       "extractionState": "manual",
@@ -1716,6 +1767,9 @@
           }
         }
       }
+    },
+    "%f, muted": {
+      "extractionState": "manual"
     },
     "%f, speaking": {
       "extractionState": "manual",
@@ -2058,6 +2112,9 @@
         }
       }
     },
+    "%lld new": {
+      "extractionState": "manual"
+    },
     "%lld of %@ cars": {
       "extractionState": "manual",
       "localizations": {
@@ -2135,6 +2192,18 @@
         }
       }
     },
+    "%lld of 5": {
+      "extractionState": "manual"
+    },
+    "%lld of 5 · %@ ratings": {
+      "extractionState": "manual"
+    },
+    "%lld of 5 · %f ratings": {
+      "extractionState": "manual"
+    },
+    "%lld of 5 · %lld ratings": {
+      "extractionState": "manual"
+    },
     "%lld on the way": {
       "extractionState": "manual",
       "localizations": {
@@ -2145,6 +2214,9 @@
           }
         }
       }
+    },
+    "%lld rating": {
+      "extractionState": "manual"
     },
     "%lld reported": {
       "extractionState": "manual",
@@ -2278,6 +2350,9 @@
         }
       }
     },
+    "%lld seconds behind": {
+      "extractionState": "manual"
+    },
     "%lld to %@": {
       "extractionState": "manual",
       "localizations": {
@@ -2321,6 +2396,9 @@
           }
         }
       }
+    },
+    "%lld votes": {
+      "extractionState": "manual"
     },
     "%lld%@": {
       "extractionState": "manual",
@@ -2530,6 +2608,9 @@
           }
         }
       }
+    },
+    "%lld, muted": {
+      "extractionState": "manual"
     },
     "%lld, speaking": {
       "extractionState": "manual",
@@ -6809,6 +6890,9 @@
         }
       }
     },
+    "End of the stretch": {
+      "extractionState": "manual"
+    },
     "End the convoy for all %@ drivers?": {
       "extractionState": "manual",
       "localizations": {
@@ -9931,6 +10015,24 @@
         }
       }
     },
+    "Move %@ down": {
+      "extractionState": "manual"
+    },
+    "Move %@ up": {
+      "extractionState": "manual"
+    },
+    "Move %f down": {
+      "extractionState": "manual"
+    },
+    "Move %f up": {
+      "extractionState": "manual"
+    },
+    "Move %lld down": {
+      "extractionState": "manual"
+    },
+    "Move %lld up": {
+      "extractionState": "manual"
+    },
     "Move down": {
       "extractionState": "manual",
       "localizations": {
@@ -12159,6 +12261,9 @@
         }
       }
     },
+    "Remove %@ from the loop": {
+      "extractionState": "manual"
+    },
     "Remove %f as a friend?": {
       "extractionState": "manual",
       "localizations": {
@@ -12170,6 +12275,9 @@
         }
       }
     },
+    "Remove %f from the loop": {
+      "extractionState": "manual"
+    },
     "Remove %lld as a friend?": {
       "extractionState": "manual",
       "localizations": {
@@ -12180,6 +12288,9 @@
           }
         }
       }
+    },
+    "Remove %lld from the loop": {
+      "extractionState": "manual"
     },
     "Remove friend": {
       "extractionState": "manual",
@@ -13953,6 +14064,9 @@
           }
         }
       }
+    },
+    "Start of the stretch": {
+      "extractionState": "manual"
     },
     "Start team": {
       "extractionState": "manual",

@@ -300,6 +300,8 @@ struct RoadDetail: View {
                 Spacer()
                 Text(verbatim: count == 0 ? String(localized: "No ratings", bundle: .module)
                      : "\(Format.number(value, fractionDigits: 1)) · \(count.formatted(.number))").typeStyle(.readoutS).foregroundStyle(Color.dust)
+                    .accessibilityLabel(count == 0 ? Text("No ratings", bundle: .module)
+                        : Text("\(Format.number(value, fractionDigits: 1)) of 5 · \(count.formatted(.number)) ratings", bundle: .module))
             }
             GeometryReader { g in
                 ZStack(alignment: .leading) {
@@ -324,6 +326,8 @@ struct RatingSteppers: View {
     private func stepper(_ t: LocalizedStringKey, _ v: Binding<Int>) -> some View {
         Row(Text(t), trailing: {
             Stepper(value: v, in: 1...5) { Text(verbatim: "\(v.wrappedValue)").typeStyle(.readoutM) }
+                .accessibilityLabel(Text(t, bundle: .module))
+                .accessibilityValue(Text("\(v.wrappedValue) of 5", bundle: .module))
         })
     }
 }
@@ -409,8 +413,10 @@ struct SaveStretch: View {
                     .environment(\.colorScheme, .dark)
                     Text("Start", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     Slider(value: $from, in: 0...max(0, to - 0.02)).tint(.sodium)
+                        .accessibilityLabel(Text("Start of the stretch", bundle: .module))
                     Text("End", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     Slider(value: $to, in: min(1, from + 0.02)...1).tint(.sodium)
+                        .accessibilityLabel(Text("End of the stretch", bundle: .module))
                     Field("Name", text: $name, prompt: "Like 'Route 9 through the pines'", limit: 50)
                     RatingSteppers(rating: $rating)
                     if endsAtHome {

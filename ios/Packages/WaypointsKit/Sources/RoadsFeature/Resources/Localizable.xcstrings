@@ -34,6 +34,18 @@
         }
       }
     },
+    "%@ of 5": {
+      "extractionState": "manual"
+    },
+    "%@ of 5 · %@ ratings": {
+      "extractionState": "manual"
+    },
+    "%@ of 5 · %f ratings": {
+      "extractionState": "manual"
+    },
+    "%@ of 5 · %lld ratings": {
+      "extractionState": "manual"
+    },
     "%f of %@ stretches of road here. Counted on this phone only.": {
       "extractionState": "manual",
       "localizations": {
@@ -67,6 +79,18 @@
         }
       }
     },
+    "%f of 5": {
+      "extractionState": "manual"
+    },
+    "%f of 5 · %@ ratings": {
+      "extractionState": "manual"
+    },
+    "%f of 5 · %f ratings": {
+      "extractionState": "manual"
+    },
+    "%f of 5 · %lld ratings": {
+      "extractionState": "manual"
+    },
     "%lld of %@ stretches of road here. Counted on this phone only.": {
       "extractionState": "manual",
       "localizations": {
@@ -99,6 +123,18 @@
           }
         }
       }
+    },
+    "%lld of 5": {
+      "extractionState": "manual"
+    },
+    "%lld of 5 · %@ ratings": {
+      "extractionState": "manual"
+    },
+    "%lld of 5 · %f ratings": {
+      "extractionState": "manual"
+    },
+    "%lld of 5 · %lld ratings": {
+      "extractionState": "manual"
     },
     "A road can't start or end in one of your home zones. Move the handles.": {
       "extractionState": "manual",
@@ -353,6 +389,9 @@
         }
       }
     },
+    "End of the stretch": {
+      "extractionState": "manual"
+    },
     "Every road you saved is in this loop.": {
       "extractionState": "manual",
       "localizations": {
@@ -440,6 +479,24 @@
           }
         }
       }
+    },
+    "Move %@ down": {
+      "extractionState": "manual"
+    },
+    "Move %@ up": {
+      "extractionState": "manual"
+    },
+    "Move %f down": {
+      "extractionState": "manual"
+    },
+    "Move %f up": {
+      "extractionState": "manual"
+    },
+    "Move %lld down": {
+      "extractionState": "manual"
+    },
+    "Move %lld up": {
+      "extractionState": "manual"
     },
     "Move down": {
       "extractionState": "manual",
@@ -539,6 +596,15 @@
           }
         }
       }
+    },
+    "Remove %@ from the loop": {
+      "extractionState": "manual"
+    },
+    "Remove %f from the loop": {
+      "extractionState": "manual"
+    },
+    "Remove %lld from the loop": {
+      "extractionState": "manual"
     },
     "Remove from loop": {
       "extractionState": "manual",
@@ -660,6 +726,9 @@
           }
         }
       }
+    },
+    "Start of the stretch": {
+      "extractionState": "manual"
     },
     "Surface": {
       "extractionState": "manual",

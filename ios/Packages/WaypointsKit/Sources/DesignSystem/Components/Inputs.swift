@@ -139,6 +139,8 @@ public struct SegmentedSwitch<Value: Hashable>: View {
                 .accessibilityAddTraits(isSelected ? .isSelected : [])
             }
         }
+        // One row of up to three options can't wrap; stop before the largest sizes overflow it.
+        .dynamicTypeSize(.xSmall ... .accessibility3)
         .haptic(.tick, trigger: selection)
     }
 }

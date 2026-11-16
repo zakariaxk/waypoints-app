@@ -98,7 +98,7 @@ struct ReportsSectionView: View {
                     Button { env.router.open(.report(r.id)) } label: {
                         Row(Text(verbatim: ReportText.name(r.kind)),
                             subtitle: Text("Confirmed by \(r.confirmations)", bundle: .module),
-                            leading: { ReportBadge(kind: r.kind.rawValue) },
+                            leading: { ReportBadge(kind: r.kind.rawValue).accessibilityHidden(true) },
                             trailing: { Text(verbatim: r.createdAt.formatted(.relative(presentation: .numeric, unitsStyle: .narrow))).typeStyle(.readoutS) })
                     }
                     .buttonStyle(RowButtonStyle())
@@ -170,7 +170,7 @@ struct PostReport: View {
                     ForEach(ReportKind.allCases, id: \.self) { kind in
                         Button { post(kind) } label: {
                             VStack(spacing: Space.s4) {
-                                ReportBadge(kind: kind.rawValue)
+                                ReportBadge(kind: kind.rawValue).accessibilityHidden(true)
                                 Text(verbatim: ReportText.name(kind)).typeStyle(.foot).foregroundStyle(Color.chalk)
                                     .multilineTextAlignment(.center)
                             }
@@ -231,7 +231,7 @@ struct ReportDetail: View {
         VStack(alignment: .leading, spacing: Space.s12) {
             if let r = report {
                 HStack(spacing: Space.s12) {
-                    ReportBadge(kind: r.kind.rawValue)
+                    ReportBadge(kind: r.kind.rawValue).accessibilityHidden(true)
                     Text(verbatim: ReportText.name(r.kind)).typeStyle(.title).foregroundStyle(Color.chalk)
                     Spacer()
                     Menu {

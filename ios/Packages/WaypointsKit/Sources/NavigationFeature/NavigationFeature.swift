@@ -817,6 +817,9 @@ struct GuidanceView: View {
                 .padding(.bottom, Space.s12)
                 bottomBar
             }
+            // Glanceable while driving: the banner and bottom bar must stay compact, so text
+            // scaling stops at the third accessibility size instead of covering the map.
+            .dynamicTypeSize(.xSmall ... .accessibility3)
         }
         .haptic(.warn, trigger: model.hazardAhead?.id) { _, new in new != nil }
         .task(id: model.arrived) {

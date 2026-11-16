@@ -12,6 +12,9 @@
         }
       }
     },
+    "%@ seconds behind": {
+      "extractionState": "manual"
+    },
     "%f drivers": {
       "extractionState": "manual",
       "localizations": {
@@ -23,6 +26,9 @@
         }
       }
     },
+    "%f seconds behind": {
+      "extractionState": "manual"
+    },
     "%lld drivers": {
       "extractionState": "manual",
       "localizations": {
@@ -33,6 +39,9 @@
           }
         }
       }
+    },
+    "%lld seconds behind": {
+      "extractionState": "manual"
     },
     "6 characters": {
       "extractionState": "manual",

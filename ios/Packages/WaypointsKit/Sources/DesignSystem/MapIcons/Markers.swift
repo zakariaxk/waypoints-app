@@ -82,7 +82,9 @@ public struct VehicleMarker: View {
         .onChange(of: reduceMotion) { startPulse() }
         .accessibilityElement()
         .accessibilityLabel(accessibility)
-        .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
+        // Interactive annotations wrap this in a Button, which supplies the trait. Standalone
+        // uses (your position, detail headers, route previews) are not buttons.
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     /// The live ring is the only map loop; Reduce Motion stops it (plan 9.5).
@@ -184,7 +186,6 @@ public struct ReportBadge: View {
         .mapShadow()
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(kind == "help" ? Text("A driver needs a hand", bundle: .module) : Text(verbatim: MapIconSet.title(kind)))
-        .accessibilityAddTraits(.isButton)
     }
 }
 
@@ -212,7 +213,6 @@ public struct MeetPin: View {
         .mapShadow()
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibility)
-        .accessibilityAddTraits(.isButton)
     }
 
     private var accessibility: Text {

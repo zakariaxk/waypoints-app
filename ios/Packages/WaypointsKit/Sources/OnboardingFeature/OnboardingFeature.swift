@@ -397,7 +397,7 @@ struct LocationStepView: View {
 
     private func sample(_ marker: some View, _ label: LocalizedStringKey) -> some View {
         VStack(spacing: Space.s4) {
-            marker
+            marker.accessibilityHidden(true)
             Text(label, bundle: .module).typeStyle(.foot).foregroundStyle(Color.chalk)
         }
     }

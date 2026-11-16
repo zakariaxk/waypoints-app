@@ -382,6 +382,7 @@ struct ConvoySectionView: View {
                             Text("Lost signal", bundle: .module).typeStyle(.foot)
                         } else if let g = store.gap(m) {
                             Text(verbatim: "+\(Int(g).formatted(.number)) s").typeStyle(.readoutS)
+                                .accessibilityLabel(Text("\(Int(g).formatted(.number)) seconds behind", bundle: .module))
                         }
                     })
                     .contextMenu {

@@ -240,6 +240,8 @@ struct FeedHome: View {
                 .overlay(alignment: .trailing) {
                     IconButton(Symbol.add, label: "Post", style: .overMap) { posting = true }
                 }
+                // The mode switch sits on top; read it before the pager's post content.
+                .accessibilitySortPriority(1)
             .padding(.horizontal, Space.s12)
             .padding(.top, Space.s8)
             if uploader.progress != nil {
@@ -953,6 +955,7 @@ struct PostVideo: View {
                             .frame(maxHeight: Size.row * 6).clipShape(RoundedRectangle(cornerRadius: Radius.r12))
                         Text("Cover frame", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                         Slider(value: $cover, in: 0...max(min(duration, 30), 0.1)).tint(.sodium)
+                            .accessibilityLabel(Text("Cover frame", bundle: .module))
                             .onChange(of: cover) { Task { await makePoster() } }
                         if duration > 30 {
                             Text("Only the first 30 seconds are posted.", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)

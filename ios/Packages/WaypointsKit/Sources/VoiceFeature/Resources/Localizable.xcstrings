@@ -1,6 +1,9 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "%@, muted": {
+      "extractionState": "manual"
+    },
     "%@, speaking": {
       "extractionState": "manual",
       "localizations": {
@@ -12,6 +15,9 @@
         }
       }
     },
+    "%f, muted": {
+      "extractionState": "manual"
+    },
     "%f, speaking": {
       "extractionState": "manual",
       "localizations": {
@@ -22,6 +28,9 @@
           }
         }
       }
+    },
+    "%lld, muted": {
+      "extractionState": "manual"
     },
     "%lld, speaking": {
       "extractionState": "manual",

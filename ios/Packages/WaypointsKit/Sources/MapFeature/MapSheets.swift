@@ -210,6 +210,7 @@ struct MarkerPicker: View {
 
     private func cell(_ name: String) -> some View {
         let open = unlocked(name)
+        let isCurrent = tab == 0 ? model.profile?.markerIcon == name : model.profile?.markerTrail == name
         return Button {
             if open {
                 guard !working else { return }
@@ -252,6 +253,7 @@ struct MarkerPicker: View {
         }
         .buttonStyle(PressScaleStyle())
         .accessibilityLabel(open ? Text(verbatim: MapIconSet.title(name)) : Text("\(MapIconSet.title(name)), locked", bundle: .module))
+        .accessibilityAddTraits(open && isCurrent ? .isSelected : [])
     }
 }
 

@@ -12,6 +12,9 @@
         }
       }
     },
+    "%@ new": {
+      "extractionState": "manual"
+    },
     "%f icon, earned": {
       "extractionState": "manual",
       "localizations": {
@@ -23,6 +26,9 @@
         }
       }
     },
+    "%f new": {
+      "extractionState": "manual"
+    },
     "%lld icon, earned": {
       "extractionState": "manual",
       "localizations": {
@@ -33,6 +39,9 @@
           }
         }
       }
+    },
+    "%lld new": {
+      "extractionState": "manual"
     },
     "Accept": {
       "extractionState": "manual",

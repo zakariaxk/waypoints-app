@@ -34,6 +34,9 @@
         }
       }
     },
+    "%@ votes": {
+      "extractionState": "manual"
+    },
     "%f in voice": {
       "extractionState": "manual",
       "localizations": {
@@ -67,6 +70,9 @@
         }
       }
     },
+    "%f votes": {
+      "extractionState": "manual"
+    },
     "%lld in voice": {
       "extractionState": "manual",
       "localizations": {
@@ -99,6 +105,9 @@
           }
         }
       }
+    },
+    "%lld votes": {
+      "extractionState": "manual"
     },
     "2–5 letters": {
       "extractionState": "manual",

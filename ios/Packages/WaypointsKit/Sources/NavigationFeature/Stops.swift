@@ -175,6 +175,7 @@ struct StopsSheet: View {
                             } label: {
                                 Row(Text(verbatim: s.name), trailing: {
                                     Text("+\(Int((s.detour / 60).rounded())) min", bundle: .module).typeStyle(.readoutS)
+                                        .accessibilityLabel(Text("Adds \(Int((s.detour / 60).rounded())) minutes to the trip", bundle: .module))
                                 })
                             }
                             .buttonStyle(RowButtonStyle())

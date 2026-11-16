@@ -100,6 +100,15 @@
         }
       }
     },
+    "%@ rating": {
+      "extractionState": "manual"
+    },
+    "%f rating": {
+      "extractionState": "manual"
+    },
+    "%lld rating": {
+      "extractionState": "manual"
+    },
     "ALL": {
       "extractionState": "manual",
       "localizations": {

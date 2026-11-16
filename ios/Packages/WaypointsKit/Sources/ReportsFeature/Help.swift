@@ -87,7 +87,7 @@ struct HelpSectionView: View {
                     Button { env.router.open(.help(r.id)) } label: {
                         Row(Text(verbatim: HelpText.who(r)),
                             subtitle: Text(verbatim: HelpText.name(r.kind)),
-                            leading: { ReportBadge(kind: "help") },
+                            leading: { ReportBadge(kind: "help").accessibilityHidden(true) },
                             trailing: {
                                 if r.responderCount > 0 {
                                     Text("\(r.responderCount) coming", bundle: .module).typeStyle(.readoutS)
