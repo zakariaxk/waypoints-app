@@ -404,6 +404,7 @@ Drive together and stay together. Plan 6, 7.6, 10.3 (M9).
 | CNV-11 | Every convoy has voice. "Talk" opens the voice sheet for the convoy's own room; you join muted; the room ends with the convoy. This replaces the plan's team-only Talk button. | P1 | Coded (L35): member-gated token, `cv_<id>` room, join muted, cleanup on leave/end. Not live-verifiable without LiveKit Cloud env keys. |
 | CNV-12 | Regroup. Any member can drop a regroup point (a place search or "here"). Every member sees it on the convoy line with one tap to route there; it clears when the host taps "Rolling" or the convoy ends. No speed, gap times, or ordering by position are shown. | P3 | Verified (L35): member PUT regroup 204, leader DELETE 204, member DELETE 403. |
 | CNV-13 | The convoy invite shows the join code as a QR code, like the profile and team codes (SOC-9). | P3 | Coded (L76): invite sheet renders QRCodeView over the joinConvoy share URL — same payload as ShareLink. Statically reviewed. |
+| CNV-14 | Starting a convoy can aim it at a saved loop: the create sheet offers the user's loops, picking one sets the destination to the loop's end with the loop's name. | P3 | New |
 
 ### 4.10 Friends, follows, and profiles (SOC)
 
@@ -537,6 +538,8 @@ Talk while driving, hands off. Plan 10.7 (T3).
 | VOX-4 | A speaking participant is ringed. Controls: mute, audio route, Leave. | P0 | Coded |
 | VOX-5 | Connecting, reconnecting (up to 15 s, then "Voice disconnected."), microphone denied, and free minutes exhausted each have their own state. | P0 | Coded |
 | VOX-6 | Voice continues in the background and under navigation prompts. | P0 | Coded |
+
+| MKT-11 | A listing's price dropping tells everyone who saved it: an activity row "A saved listing dropped to $X" opening the listing. | P3 | New |
 
 ### 4.17 Feed (FEED)
 
@@ -1024,6 +1027,7 @@ Thirteen extensions, each small enough for one session and each passing section 
 | **W10-7 Team standings** | TEAM-11 | A migration (a view over Showdown votes), `Sources/TeamsFeature/**` |
 | **W10-8 Reactions and mute** | MSG-11, SAFE-12 | A migration, `server/internal/push/**` (skip muted), `Sources/MessagingFeature/**`, `Sources/TeamsFeature/**` (mute rows only) |
 | **W10-9 Loops** | ROAD-6 | A migration, `Sources/RoadsFeature/**`, one `Route` case in `Core` |
+| ROAD-8 | A loop shares as a card: the joined road polylines drawn to scale, the loop name, road count, and the owner's handle, to the share sheet (like SPOT-7). | P3 | New |
 | **W10-10 Your data** | ACC-12 | A migration (one RPC), `Sources/SettingsFeature/**` |
 | **W10-11 Spanish** | L10N-2 | Every `Localizable.xcstrings`, `tools/l10n/**` |
 
@@ -1167,3 +1171,4 @@ Findings go to W8-INT as a list.
 | 2026-11-16 | L69 audit leftovers fixed (static pass). Three new requirements: MEET-16 (attendee-started convoy to a meet), KNW-7 (guide completion logs to the build timeline), MKT-10 (new-since-you-looked market marks). Queue rows L70–L73. |
 | 2026-11-16 | Second static wave: SAFE-3 finished (L70), then FEED-12, ICN-8 (L74/L75). New requirements: CNV-13 (convoy join QR), SPOT-7 (collection share card), GAR-19 (planned build entries). Queue L76-L78. |
 | 2026-11-16 | Third static wave: OBS-2 closed (MetricsCollector + debug view existed; stale gap note removed). New requirements: TEAM-12 (team garage), KNW-8 (guide helpful votes), GAR-20 (listed-for-sale on a car). Queue L79-L81. |
+| 2026-11-16 | Fourth static wave: new requirements MKT-11 (price-drop tells savers), CNV-14 (convoy aims at a saved loop), ROAD-8 (loop share card). Queue L82-L84. |
