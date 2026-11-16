@@ -110,5 +110,5 @@ Format: `- [ ] L## | REQ-IDS | files it owns | one-line task`
 - [x] L95 | SOC-11 | RoadsFeature | Road sheet names friends who rated it + their rating. New requirement row.
 - [x] L96 | NAV-17 | RoadsFeature | "Parked" map-sheet row: last drive's end + route back. New requirement row.
 - [ ] L97 | MKT-13 | MarketFeature | "More from this seller" on the listing page: seller's other active listings as tappable rows. New requirement row.
-- [ ] | KNW-10 | GuidesFeature | Guide share card: title, task count, author, votes → share sheet (SimCard/GarageCard pattern). New requirement row.
+- [ ] L98 | KNW-10 | GuidesFeature | Guide share card: title, task count, author, votes → share sheet (SimCard/GarageCard pattern). New requirement row.
 - [ ] L99 | ROAD-10 | RoadsFeature | "You've driven this N×" on the road sheet from local DriveRecorder traces. New requirement row.
