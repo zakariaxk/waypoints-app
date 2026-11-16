@@ -358,6 +358,9 @@ public enum Route: Hashable, Sendable {
     case joinTeam(code: String), joinConvoy(code: String)     // invite deep links (X3)
     case activity                                             // NTF-6 Activity list (W7-2)
     case askForHelp(Coordinate), help(HelpRequestID)           // help requests (PRD HELP), ReportsFeature
+    case loop(LoopID), road(RoadID)                            // roads (ROAD-6; FEED-12's road chip)
+    case compose(road: RoadID)                                 // FEED-12: composer with a road attached (FeedFeature)
+    case guides, guide(GuideID)                                // KNW-2/3, GuidesFeature
 }
 public protocol Router: Sendable { @MainActor func open(_ route: Route) }
 ```
