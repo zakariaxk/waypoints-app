@@ -106,10 +106,20 @@ final class ProfileModel {
             offline = (error as? WaypointsError) == .offline
             return
         }
-        cars = (try? await env.garage.cars(of: userID)) ?? []
+        // SAFE-3: a person the user reported is gone for them, as is their reported content.
+        let hidden = (try? await env.safety.reportedTargets()) ?? []
+        if userID != me, hidden.contains(ContentRef(kind: .user, id: userID.description)) {
+            profile = nil
+            failed = true
+            return
+        }
+        cars = ((try? await env.garage.cars(of: userID)) ?? [])
+            .filter { !hidden.contains(ContentRef(kind: .car, id: $0.id.description)) }
         for car in cars { photos[car.id] = try? await env.garage.photos(of: car.id).first }
-        posts = (try? await env.posts.posts(by: userID)) ?? []
-        spots = (try? await env.spots.spots(by: userID)) ?? []
+        posts = ((try? await env.posts.posts(by: userID)) ?? [])
+            .filter { !hidden.contains(ContentRef(kind: .post, id: $0.id.description)) }
+        spots = ((try? await env.spots.spots(by: userID)) ?? [])
+            .filter { !hidden.contains(ContentRef(kind: .spot, id: $0.id.raw.uuidString)) }
         earned = EarnedIcons.names((try? await env.progress.achievements(of: userID)) ?? [])
         if userID == me {
             friendCount = (try? await env.friends.friends().count) ?? 0

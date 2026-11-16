@@ -36,6 +36,14 @@ final class CarModel {
         let env = ctx.env
         me = await env.auth.currentSession()?.userID
         guard let c = try? await env.garage.car(carID) else { failed = car == nil; return }
+        // SAFE-3: a car or owner the user reported is gone for them.
+        let hidden = (try? await env.safety.reportedTargets()) ?? []
+        if hidden.contains(ContentRef(kind: .car, id: c.id.description))
+            || hidden.contains(ContentRef(kind: .user, id: c.ownerID.description)) {
+            car = nil
+            failed = true
+            return
+        }
         failed = false
         car = c
         owner = try? await env.profiles.profile(c.ownerID)

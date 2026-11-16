@@ -308,6 +308,8 @@ struct SearchView: View {
     @State private var search = SearchModel()
     @State private var upcoming: [Meet] = []
     @State private var savedRoads: [Road] = []
+    /// SAFE-3: people and meets the user reported stay hidden from results too.
+    @State private var reported: Set<ContentRef> = []
     @FocusState private var focused: Bool
     @AppStorage("map.recents") private var recentsRaw = ""
 
@@ -386,7 +388,13 @@ struct SearchView: View {
         }
         .onAppear { focused = true; search.configure(region: model.region); search.watchNetwork() }
         .onDisappear { search.stopWatching() }
-        .task { upcoming = (try? await model.env.meets.meets(in: model.region)) ?? [] }
+        .task {
+            reported = (try? await model.env.safety.reportedTargets()) ?? []
+            upcoming = ((try? await model.env.meets.meets(in: model.region)) ?? []).filter {
+                !reported.contains(ContentRef(kind: .meet, id: $0.id.description))
+                    && !reported.contains(ContentRef(kind: .user, id: $0.hostID.description))
+            }
+        }
         .task {
             guard let me = await model.env.auth.currentSession()?.userID else { return }
             savedRoads = (try? await model.env.roads.roads(by: me)) ?? []
@@ -397,7 +405,7 @@ struct SearchView: View {
             guard !Task.isCancelled else { return }
             let found = (try? await model.env.profiles.search(search.query, limit: 5)) ?? []
             guard !Task.isCancelled else { return }
-            search.people = found
+            search.people = found.filter { !reported.contains(ContentRef(kind: .user, id: $0.userID.description)) }
         }
     }
 

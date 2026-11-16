@@ -43,7 +43,13 @@ struct HelpLayer: MapLayerProvider {
         AsyncStream { c in
             let task = Task {
                 let requests = (try? await env.gateway.helpRequests(in: region)) ?? []
-                c.yield(requests.map { r in
+                // SAFE-3: requests and requesters the user reported stay hidden for them;
+                // their own request always stays so they can watch its status.
+                let hidden = (try? await env.safety.reportedTargets()) ?? []
+                c.yield(requests.filter { r in
+                    r.isMine || (!hidden.contains(ContentRef.help(r.id))
+                        && !r.requesterID.map({ hidden.contains(.user($0)) }).contains(true))
+                }.map { r in
                     MapItem(id: r.id.description, coordinate: r.coordinate, glyph: .help, tint: .brake,
                             title: HelpText.who(r), priority: 10)
                 })
@@ -101,7 +107,14 @@ struct HelpSectionView: View {
             }
         }
         .task(id: "\(region.hashValue)-\(reload)") {
-            if let list = try? await env.gateway.helpRequests(in: region) { requests = list }
+            if let list = try? await env.gateway.helpRequests(in: region) {
+                // SAFE-3: same hide as the layer; your own request stays.
+                let hidden = (try? await env.safety.reportedTargets()) ?? []
+                requests = list.filter { r in
+                    r.isMine || (!hidden.contains(ContentRef.help(r.id))
+                        && !r.requesterID.map({ hidden.contains(.user($0)) }).contains(true))
+                }
+            }
         }
         .task {
             for await event in await env.realtime.events() {
@@ -361,6 +374,15 @@ struct HelpDetail: View {
         do {
             request = try await env.gateway.helpRequest(requestID)
             error = nil
+            // SAFE-3: a request the user reported is gone for them; their own stays.
+            if let r = request, !r.isMine {
+                let hidden = (try? await env.safety.reportedTargets()) ?? []
+                if hidden.contains(ContentRef.help(r.id))
+                    || r.requesterID.map({ hidden.contains(.user($0)) }) == true {
+                    request = nil
+                    gone = true
+                }
+            }
         } catch WaypointsError.notFound {
             request = nil
             gone = true

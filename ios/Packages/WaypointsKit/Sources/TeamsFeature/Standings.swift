@@ -48,7 +48,8 @@ struct StandingsView: View {
     private func load() async {
         failed = false
         let found = try? await model.env.teams.standings(including: nil)
-        if let found { list = found }
+        // SAFE-3: teams the user reported stay hidden for them.
+        if let found { list = found.filter { !model.reported.contains(ContentRef(kind: .team, id: $0.id.description)) } }
         failed = found == nil && list == nil
     }
 }

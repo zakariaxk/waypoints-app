@@ -664,6 +664,13 @@ struct SinglePost: View {
         failed = false
         model.me = await env.auth.currentSession()?.userID
         guard let p = try? await env.posts.post(postID) else { failed = true; return }
+        // SAFE-3: a post or author the user reported is gone for them.
+        let hidden = (try? await env.safety.reportedTargets()) ?? []
+        if hidden.contains(ContentRef(kind: .post, id: p.id.description))
+            || hidden.contains(ContentRef(kind: .user, id: p.authorID.description)) {
+            failed = true
+            return
+        }
         model.posts = [p]
         if let a = try? await env.profiles.profile(p.authorID) { model.authors[a.userID] = a }
         if let id = p.carID { model.cars[id] = try? await env.garage.car(id) }
@@ -780,7 +787,12 @@ struct Comments: View {
 
     private func load() async {
         if let list = try? await env.posts.comments(on: post.id) {
-            comments = list
+            // SAFE-3: comments and authors the user reported stay hidden for them.
+            let hidden = (try? await env.safety.reportedTargets()) ?? []
+            comments = list.filter {
+                !hidden.contains(ContentRef(kind: .comment, id: $0.id.description))
+                    && !hidden.contains(ContentRef(kind: .user, id: $0.authorID.description))
+            }
         } else if error == nil {
             error = String(localized: "Couldn't load comments. Check your connection and try again.", bundle: .module)
         }

@@ -241,7 +241,14 @@ struct MeetPostsStrip: View {
                 }
             }
         }
-        .task(id: meetID) { posts = (try? await env.posts.postsFromMeet(meetID)) ?? [] }
+        .task(id: meetID) {
+            // SAFE-3: posts and authors the user reported stay hidden for them.
+            let hidden = (try? await env.safety.reportedTargets()) ?? []
+            posts = ((try? await env.posts.postsFromMeet(meetID)) ?? []).filter {
+                !hidden.contains(ContentRef(kind: .post, id: $0.id.description))
+                    && !hidden.contains(ContentRef(kind: .user, id: $0.authorID.description))
+            }
+        }
     }
 }
 

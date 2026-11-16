@@ -50,7 +50,11 @@ struct MeetsLayer: MapLayerProvider {
         AsyncStream { c in
             let task = Task {
                 let meets = (try? await env.meets.meets(in: region)) ?? []
-                c.yield(meets.filter { $0.cancelledAt == nil }.map { m in
+                // SAFE-3: meets and hosts the user reported stay hidden for them.
+                let hidden = (try? await env.safety.reportedTargets()) ?? []
+                c.yield(meets.filter { $0.cancelledAt == nil
+                    && !hidden.contains(ContentRef(kind: .meet, id: $0.id.description))
+                    && !hidden.contains(ContentRef(kind: .user, id: $0.hostID.description)) }.map { m in
                     MapItem(id: m.id.description, coordinate: m.coordinate, glyph: .meet(m.kind),
                             tint: m.isHappening() ? .go : .sodium,
                             title: m.startsAt.formatted(date: .omitted, time: .shortened), priority: 5)
@@ -94,7 +98,13 @@ struct MeetsSectionView: View {
                 }
             }
         }
-        .task(id: region) { meets = ((try? await env.meets.meets(in: region)) ?? []).filter { $0.cancelledAt == nil } }
+        .task(id: region) {
+            let hidden = (try? await env.safety.reportedTargets()) ?? []
+            // SAFE-3: meets and hosts the user reported stay hidden for them.
+            meets = ((try? await env.meets.meets(in: region)) ?? []).filter { $0.cancelledAt == nil
+                && !hidden.contains(ContentRef(kind: .meet, id: $0.id.description))
+                && !hidden.contains(ContentRef(kind: .user, id: $0.hostID.description)) }
+        }
         .task { for await s in await env.location.samples() { here = s.coordinate; break } }
     }
 }
@@ -648,9 +658,18 @@ struct MeetDetail: View {
         me = await env.auth.currentSession()?.userID
         failed = false
         guard let m = try? await env.meets.meet(meetID) else { failed = meet == nil; return }
+        // SAFE-3: a meet or host the user reported is gone for them, as are reported RSVPs.
+        let hidden = (try? await env.safety.reportedTargets()) ?? []
+        if hidden.contains(ContentRef(kind: .meet, id: m.id.description))
+            || hidden.contains(ContentRef(kind: .user, id: m.hostID.description)) {
+            meet = nil
+            failed = true
+            return
+        }
         meet = m
         host = try? await env.profiles.profile(m.hostID)
-        rsvps = (try? await env.meets.rsvps(for: meetID)) ?? []
+        rsvps = ((try? await env.meets.rsvps(for: meetID)) ?? [])
+            .filter { !hidden.contains(ContentRef(kind: .user, id: $0.userID.description)) }
         mine = (try? await env.meets.myRSVP(for: meetID))?.status
         await MeetReminder.sync(m, going: mine == .going)
         if let me { cars = (try? await env.garage.cars(of: me)) ?? [] }

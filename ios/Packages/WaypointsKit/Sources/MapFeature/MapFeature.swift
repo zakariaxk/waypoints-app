@@ -126,6 +126,8 @@ final class MapModel {
     var authorization: LocationAuthorization = .notDetermined
     var connection: ConnectionState = .connecting
     var blocked: Set<UserID> = []
+    /// SAFE-3: people the user has reported, treated like blocked on the map.
+    var reportedUsers: Set<UserID> = []
     var region = MapRegion(center: Coordinate(latitude: 39.95, longitude: -75.16), latitudeDelta: 0.2, longitudeDelta: 0.2)
     var items: [String: [MapItem]] = [:]
     var paths: [String: [MapPath]] = [:]
@@ -201,6 +203,11 @@ final class MapModel {
             for await set in await env.safety.blockedChanges() { self?.blocked = set }
         })
         tasks.append(Task { [weak self] in
+            self?.reportedUsers = Set(((try? await env.safety.reportedTargets()) ?? [])
+                .filter { $0.kind == .user }
+                .compactMap { UserID(string: $0.id) })
+        })
+        tasks.append(Task { [weak self] in
             for await p in await env.profiles.myProfileChanges() {
                 self?.profile = p
                 if let id = p.primaryCarID { self?.primaryCar = try? await env.garage.car(id) }
@@ -260,7 +267,7 @@ final class MapModel {
 
     var visibleEntities: [Entity] {
         entities.filter { e in
-            if let f = friend(uid: e.uid), blocked.contains(f.profile.userID) { return false }
+            if let f = friend(uid: e.uid), blocked.contains(f.profile.userID) || reportedUsers.contains(f.profile.userID) { return false }
             switch e.info?.relation {
             case .nearby: return isOn("nearby")
             default: return isOn("friends")
@@ -270,7 +277,7 @@ final class MapModel {
 
     var friendsOut: [Friend] {
         let uids = Set(entities.map(\.uid))
-        return friends.filter { uids.contains($0.profile.uid) && !blocked.contains($0.profile.userID) }
+        return friends.filter { uids.contains($0.profile.uid) && !blocked.contains($0.profile.userID) && !reportedUsers.contains($0.profile.userID) }
     }
 
     /// True while the gateway feeds res-5 cell counts instead of entities: it switches when

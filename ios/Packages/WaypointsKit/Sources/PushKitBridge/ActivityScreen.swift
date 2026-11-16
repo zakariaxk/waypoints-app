@@ -19,7 +19,10 @@ final class ActivityModel {
 
     func load() async {
         do {
-            items = try await env.activity.recent(limit: 100)
+            let list = try await env.activity.recent(limit: 100)
+            // SAFE-3: activity from people the user reported stays hidden for them.
+            let hidden = (try? await env.safety.reportedTargets()) ?? []
+            items = list.filter { $0.actorID.map { !hidden.contains(.user($0)) } ?? true }
             phase = .loaded
             if items.contains(where: \.isUnread) { try? await env.activity.markAllRead() }
         } catch {

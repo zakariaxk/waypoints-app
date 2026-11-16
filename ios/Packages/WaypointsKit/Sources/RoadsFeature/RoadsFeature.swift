@@ -196,8 +196,12 @@ struct RoadsLayer: MapLayerProvider {
         AsyncStream { c in
             let task = Task {
                 let roads = (try? await env.roads.roads(in: region)) ?? []
+                // SAFE-3: roads and authors the user reported stay hidden for them.
+                let hidden = (try? await env.safety.reportedTargets()) ?? []
                 c.yield(roads.compactMap { r in
-                    guard !r.path.isEmpty else { return nil }
+                    guard !r.path.isEmpty,
+                          !hidden.contains(ContentRef(kind: .road, id: r.id.description)),
+                          !hidden.contains(ContentRef(kind: .user, id: r.authorID.description)) else { return nil }
                     return MapItem(id: r.id.description, coordinate: r.path[r.path.count / 2], glyph: "road", tint: .sodium, title: r.name, priority: 1)
                 })
                 c.finish()
@@ -292,6 +296,14 @@ struct RoadDetail: View {
         failed = false
         me = await env.auth.currentSession()?.userID
         road = try? await env.roads.road(roadID)
+        // SAFE-3: a road or author the user reported is gone for them.
+        if let r = road {
+            let hidden = (try? await env.safety.reportedTargets()) ?? []
+            if hidden.contains(ContentRef(kind: .road, id: r.id.description))
+                || hidden.contains(ContentRef(kind: .user, id: r.authorID.description)) {
+                road = nil
+            }
+        }
         failed = road == nil
         if let mine = try? await env.roads.myRating(for: roadID) { rating = mine }
     }

@@ -52,6 +52,8 @@ final class ChatModel {
     var reactions: [MessageID: [ReactionCount]] = [:]
     /// SAFE-12: the caller's active mutes.
     var mutes: Set<MuteTarget> = []
+    /// SAFE-3: messages and authors the user has reported stay hidden for them.
+    var reported: Set<ContentRef> = []
     /// The other party of a DM thread, for muting the person.
     var threadOther: UserID?
 
@@ -59,6 +61,7 @@ final class ChatModel {
 
     func load() async {
         me = await env.auth.currentSession()?.userID
+        reported = (try? await env.safety.reportedTargets()) ?? []
         switch target {
         case let .channel(id):
             if let c = try? await env.teams.channel(id) {
@@ -76,13 +79,14 @@ final class ChatModel {
                 let other = t.other(than: me)
                 threadOther = other
                 if let p = try? await env.profiles.profile(other) { profiles[other] = p; title = p.displayName }
-                if let l = t.listingID { listing = try? await env.market.listing(l) }
+                if let l = t.listingID, let found = try? await env.market.listing(l),
+                   !reported.contains(ContentRef(kind: .listing, id: found.id.description)) { listing = found }
             }
         }
         guard let page = try? await env.messages.messages(in: target, before: nil, limit: 50) else { loadFailed = true; return }
         loadFailed = false
         reachedStart = page.count < 50
-        items = page.reversed().map { ChatItem(id: "m\($0.id.raw)", message: $0, state: .sent) }
+        items = page.reversed().filter { !hidden($0) }.map { ChatItem(id: "m\($0.id.raw)", message: $0, state: .sent) }
             + items.filter { i in i.state != .sent || !page.contains { $0.id == i.message.id } }
         await resolveAuthors()
         await loadReactions(page)
@@ -144,8 +148,15 @@ final class ChatModel {
         }
     }
 
+    /// SAFE-3: a message or its author is in the reported set.
+    private func hidden(_ m: Message) -> Bool {
+        reported.contains(ContentRef(kind: .message, id: String(m.id.raw)))
+            || reported.contains(ContentRef(kind: .user, id: m.authorID.description))
+    }
+
     func listen() async {
         for await m in await env.messages.live(target) {
+            if hidden(m) { continue }
             if let i = items.firstIndex(where: { $0.message.id == m.id }) {
                 items[i].message = m
             } else if let i = items.firstIndex(where: { $0.state == .sending && $0.message.body == m.body && $0.message.authorID == m.authorID }) {
@@ -176,7 +187,7 @@ final class ChatModel {
         loadingOlder = true
         guard let page = try? await env.messages.messages(in: target, before: first, limit: 50) else { loadingOlder = false; return }
         reachedStart = page.count < 50
-        items.insert(contentsOf: page.reversed().map { ChatItem(id: "m\($0.id.raw)", message: $0, state: .sent) }, at: 0)
+        items.insert(contentsOf: page.reversed().filter { !hidden($0) }.map { ChatItem(id: "m\($0.id.raw)", message: $0, state: .sent) }, at: 0)
         loadingOlder = false
         if !page.isEmpty { restore = "m\(first.raw)" }
         await resolveAuthors()

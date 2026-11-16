@@ -219,9 +219,18 @@ struct LoopDetail: View {
         failed = false
         me = await env.auth.currentSession()?.userID
         guard let l = try? await env.roads.loop(loopID) else { failed = loop == nil; return }
+        // SAFE-3: a loop whose owner the user reported is gone for them, as are reported roads.
+        let hidden = (try? await env.safety.reportedTargets()) ?? []
+        if hidden.contains(ContentRef(kind: .user, id: l.ownerID.description)) {
+            loop = nil
+            failed = true
+            return
+        }
         var list: [Road] = []
         for id in l.roadIDs {
-            if let r = try? await env.roads.road(id) { list.append(r) }
+            if let r = try? await env.roads.road(id),
+               !hidden.contains(ContentRef(kind: .road, id: r.id.description)),
+               !hidden.contains(ContentRef(kind: .user, id: r.authorID.description)) { list.append(r) }
         }
         loop = l
         roads = list

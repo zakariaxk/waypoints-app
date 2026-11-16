@@ -172,13 +172,25 @@ struct ShowdownView: View {
         }
     }
 
+    /// SAFE-3: a contender whose car or owner the user reported.
+    private func hidden(_ c: ShowdownContender, in reported: Set<ContentRef>) -> Bool {
+        reported.contains(ContentRef(kind: .car, id: c.car.id.description))
+            || reported.contains(ContentRef(kind: .user, id: c.owner.userID.description))
+    }
+
     private func next() async {
         let asked = cls
         loading = true
         winner = nil
         movement = nil
+        let reported = (try? await env.safety.reportedTargets()) ?? []
         do {
-            let found = try await env.showdown.nextPair(in: asked)
+            var found: ShowdownPair?
+            // Skip pairs with a reported car or owner; a few tries, then the class reads as done.
+            for _ in 0..<5 {
+                let p = try await env.showdown.nextPair(in: asked)
+                if !hidden(p.left, in: reported), !hidden(p.right, in: reported) { found = p; break }
+            }
             guard asked == cls else { return }
             pair = found
             failed = false
@@ -241,7 +253,12 @@ struct RankingsView: View {
             me = await env.auth.currentSession()?.userID
             let found = try? await env.showdown.rankings(in: cls, period: period, limit: 50)
             guard !Task.isCancelled else { return }
-            list = found ?? []
+            // SAFE-3: cars and owners the user reported stay hidden for them.
+            let hidden = (try? await env.safety.reportedTargets()) ?? []
+            list = (found ?? []).filter {
+                !hidden.contains(ContentRef(kind: .car, id: $0.car.id.description))
+                    && !hidden.contains(ContentRef(kind: .user, id: $0.owner.userID.description))
+            }
             failed = found == nil
             loading = false
         }

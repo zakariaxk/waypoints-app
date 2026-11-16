@@ -112,6 +112,8 @@ struct Browse: View {
     /// Distance in the locale's unit (5, 25, 50, 100), nil for any (MKT-1).
     @State private var within: Int?
     @State private var here: Coordinate?
+    /// SAFE-3: listings and sellers the user has reported stay hidden for them.
+    @State private var reported: Set<ContentRef> = []
 
     private var filter: ListingFilter {
         ListingFilter(kind: kind, query: query.isEmpty ? nil : query,
@@ -257,11 +259,15 @@ struct Browse: View {
         let asked = filter
         loading = true
         do {
+            if !more { reported = (try? await env.safety.reportedTargets()) ?? [] }
+            let hidden = reported
             let page = try await env.market.listings(asked, after: more ? next : nil, limit: 20)
             loading = false
             guard asked == filter else { return }
             let seen = Set(listings.map(\.id))
-            listings = (more ? listings : []) + page.items.filter { !seen.contains($0.id) }
+            listings = (more ? listings : []) + page.items.filter { !seen.contains($0.id)
+                && !hidden.contains(ContentRef(kind: .listing, id: $0.id.description))
+                && !hidden.contains(ContentRef(kind: .user, id: $0.sellerID.description)) }
             next = page.next
             failed = false
         } catch {
@@ -486,6 +492,14 @@ struct ListingScreen: View {
     private func load() async {
         me = await env.auth.currentSession()?.userID
         if let l = try? await env.market.listing(id) {
+            // SAFE-3: a listing or seller the user reported is gone for them.
+            let hidden = (try? await env.safety.reportedTargets()) ?? []
+            if hidden.contains(ContentRef(kind: .listing, id: l.id.description))
+                || hidden.contains(ContentRef(kind: .user, id: l.sellerID.description)) {
+                listing = nil
+                failed = true
+                return
+            }
             listing = l
             failed = false
             seller = try? await env.profiles.profile(l.sellerID)
@@ -791,7 +805,10 @@ struct Yours: View {
     private func load() async {
         do {
             if let me = await env.auth.currentSession()?.userID { selling = try await env.market.listings(by: me) }
+            let hidden = (try? await env.safety.reportedTargets()) ?? []
             saved = try await env.market.savedListings()
+                .filter { !hidden.contains(ContentRef(kind: .listing, id: $0.id.description))
+                    && !hidden.contains(ContentRef(kind: .user, id: $0.sellerID.description)) }
         } catch {
             if self.error == nil {
                 self.error = String(localized: "Couldn't load your listings. Check your connection and try again.", bundle: .module)

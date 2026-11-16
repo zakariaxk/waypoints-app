@@ -45,6 +45,8 @@ final class TeamsModel {
     var allChannelUnread: [ChannelID: Int] = [:]
     private var channelTeam: [ChannelID: TeamID] = [:]
     var me: UserID?
+    /// SAFE-3: teams and people the user has reported stay hidden for them.
+    var reported: Set<ContentRef> = []
     var loaded = false
     var failed = false
     var error: String?
@@ -60,10 +62,13 @@ final class TeamsModel {
 
     func load() async {
         me = await env.auth.currentSession()?.userID
+        reported = (try? await env.safety.reportedTargets()) ?? []
         let mine = try? await env.teams.myTeams()
         failed = mine == nil && teams.isEmpty
-        if let mine { teams = mine }
-        if let found = try? await env.messages.threads() { threads = found }
+        if let mine { teams = mine.filter { !reported.contains(ContentRef(kind: .team, id: $0.id.description)) } }
+        if let found = try? await env.messages.threads(), let me {
+            threads = found.filter { !reported.contains(ContentRef(kind: .user, id: $0.other(than: me).description)) }
+        }
         await refreshMutes()
         friends = Set(((try? await env.friends.friends()) ?? []).map(\.id))
         if let me {
@@ -129,6 +134,8 @@ final class TeamsModel {
         if upcoming == nil, let me {
             upcoming = (try? await env.meets.upcomingMeets(for: me))?.first { $0.teamID == id }
         }
+        if let m = upcoming, reported.contains(ContentRef(kind: .meet, id: m.id.description))
+            || reported.contains(ContentRef(kind: .user, id: m.hostID.description)) { upcoming = nil }
         await loadOccupants()
     }
 
@@ -494,7 +501,8 @@ struct FindOrStart: View {
             // The "Start" pane has no search box; typing its name field shouldn't query.
             guard mode == 0 else { return }
             try? await Task.sleep(for: .milliseconds(250))
-            results = (try? await model.env.teams.publicTeams(matching: code)) ?? []
+            results = ((try? await model.env.teams.publicTeams(matching: code)) ?? [])
+                .filter { !model.reported.contains(ContentRef(kind: .team, id: $0.id.description)) }
         }
     }
 
@@ -1078,7 +1086,10 @@ struct TeamMeets: View {
             if list.isEmpty, let me = model.me {
                 list = ((try? await model.env.meets.upcomingMeets(for: me)) ?? []).filter { $0.teamID == teamID }
             }
-            meets = list
+            meets = list.filter {
+                !model.reported.contains(ContentRef(kind: .meet, id: $0.id.description))
+                    && !model.reported.contains(ContentRef(kind: .user, id: $0.hostID.description))
+            }
         }
     }
 }
@@ -1201,6 +1212,7 @@ struct MembersView: View {
 
     private func load() async {
         members = (try? await model.env.teams.members(of: teamID)) ?? []
+            .filter { !model.reported.contains(ContentRef(kind: .user, id: $0.userID.description)) }
         for p in (try? await model.env.profiles.profiles(members.map(\.userID))) ?? [] { profiles[p.userID] = p }
     }
 }

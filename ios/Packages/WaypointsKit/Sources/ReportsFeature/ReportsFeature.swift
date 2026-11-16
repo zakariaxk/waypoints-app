@@ -62,7 +62,12 @@ struct ReportsLayer: MapLayerProvider {
         AsyncStream { c in
             let task = Task {
                 let reports = (try? await env.reports.reports(in: region)) ?? []
-                c.yield(reports.map { r in
+                // SAFE-3: reports and authors the user reported stay hidden for them.
+                let hidden = (try? await env.safety.reportedTargets()) ?? []
+                c.yield(reports.filter {
+                    !hidden.contains(ContentRef(kind: .report, id: $0.id.description))
+                        && !hidden.contains(ContentRef(kind: .user, id: $0.authorID.description))
+                }.map { r in
                     MapItem(id: r.id.description, coordinate: r.coordinate, glyph: .report(r.kind), tint: .sodium,
                             title: ReportText.name(r.kind), priority: r.kind.affectsClearance ? 2 : 3)
                 })
@@ -106,7 +111,14 @@ struct ReportsSectionView: View {
             }
         }
         .task(id: "\(region.hashValue)-\(reload)") {
-            if let list = try? await env.reports.reports(in: region) { reports = list }
+            if let list = try? await env.reports.reports(in: region) {
+                // SAFE-3: reports and authors the user reported stay hidden for them.
+                let hidden = (try? await env.safety.reportedTargets()) ?? []
+                reports = list.filter {
+                    !hidden.contains(ContentRef(kind: .report, id: $0.id.description))
+                        && !hidden.contains(ContentRef(kind: .user, id: $0.authorID.description))
+                }
+            }
         }
         .task {
             for await event in await env.realtime.events() {
@@ -273,6 +285,14 @@ struct ReportDetail: View {
         .padding(.horizontal, Space.margin)
         .task {
             do { report = try await env.reports.report(reportID) } catch { missing = true }
+            // SAFE-3: a report the user filed a content report on is gone for them.
+            let hidden = (try? await env.safety.reportedTargets()) ?? []
+            if let r = report, hidden.contains(ContentRef(kind: .report, id: r.id.description))
+                || hidden.contains(ContentRef(kind: .user, id: r.authorID.description)) {
+                report = nil
+                missing = true
+                return
+            }
             voted = (try? await env.reports.myVote(on: reportID)) != nil
             // RPT-2: the author can remove their own report for 5 minutes after posting.
             if let r = report, r.authorID == (await env.auth.currentSession()?.userID) {
