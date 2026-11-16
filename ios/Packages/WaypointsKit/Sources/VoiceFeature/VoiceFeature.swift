@@ -136,8 +136,8 @@ final class VoiceSession {
         var list: [Speaker] = []
         let local = room.localParticipant
         list.append(Speaker(id: "me", name: String(localized: "You", bundle: .module), speaking: local.isSpeaking, muted: muted))
-        for (_, p) in room.remoteParticipants {
-            list.append(Speaker(id: p.identity?.stringValue ?? UUID().uuidString, name: p.name ?? "Driver",
+        for (sid, p) in room.remoteParticipants {
+            list.append(Speaker(id: p.identity?.stringValue ?? sid.stringValue, name: p.name ?? "Driver",
                                 speaking: p.isSpeaking, muted: !p.isMicrophoneEnabled()))
         }
         speakers = list

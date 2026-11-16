@@ -75,6 +75,7 @@ func (s *Service) runWaitlist(ctx context.Context) {
 			}
 		}
 		rows.Close()
+		if err := rows.Err(); err != nil { s.log.Warn("rows iteration", "err", err) }
 	}
 }
 
@@ -113,6 +114,7 @@ func (s *Service) runCheckins(ctx context.Context) {
 			}
 		}
 		rows.Close()
+		if err := rows.Err(); err != nil { s.log.Warn("rows iteration", "err", err) }
 		for _, h := range hits {
 			if _, err := pool.Exec(ctx, `insert into public.meet_checkins (meet_id, user_id) values ($1, $2) on conflict do nothing`, h.meet, h.user); err != nil {
 				s.log.Warn("meet checkin insert", "err", err)
@@ -183,6 +185,7 @@ func (s *Service) runSeries(ctx context.Context) {
 			}
 		}
 		rows.Close()
+		if err := rows.Err(); err != nil { s.log.Warn("rows iteration", "err", err) }
 		for _, e := range due {
 			s.spawnNext(ctx, pool, e.m, e.tz)
 		}
@@ -228,6 +231,7 @@ func (s *Service) spawnNext(ctx context.Context, pool *pgxpool.Pool, old meetJSO
 		}
 	}
 	rows.Close()
+	if err := rows.Err(); err != nil { s.log.Warn("rows iteration", "err", err) }
 	go s.push.Send(context.WithoutCancel(ctx), ids, push.Note{Kind: push.MeetReminders, Title: m.Title,
 		Body: "The next one is " + start.In(loc).Format("Mon Jan 2, 3:04 PM") + ".", URL: "waypoints://meet/" + m.ID,
 		ActorID: m.HostID, Dedupe: "meet-next:" + m.ID})
@@ -378,9 +382,13 @@ func (s *Service) createMeet(w http.ResponseWriter, r *http.Request, c auth.Clai
 		return
 	}
 	var today int
-	_ = pool.QueryRow(ctx, `select count(*) from public.meets where host_id = $1 and created_at > now() - interval '1 day'
+	if err := pool.QueryRow(ctx, `select count(*) from public.meets where host_id = $1 and created_at > now() - interval '1 day'
 		and (series_id is null or not exists (select 1 from public.meets p where p.series_id = meets.series_id and p.starts_at < meets.starts_at))`,
-		c.UserID).Scan(&today)
+		c.UserID).Scan(&today); err != nil {
+		// Fail closed: a failed count must not bypass the daily cap.
+		Error(w, http.StatusInternalServerError, "database error")
+		return
+	}
 	if today >= 3 {
 		Error(w, http.StatusTooManyRequests, "daily meet limit")
 		return
@@ -484,7 +492,13 @@ func (s *Service) cancelMeet(w http.ResponseWriter, r *http.Request, c auth.Clai
 	var b struct {
 		Scope string `json:"scope"`
 	}
-	_ = Decode(r, &b) // the body is optional
+	// The body is optional, but a malformed one must not silently cancel the meet.
+	if r.Body != nil && r.ContentLength != 0 {
+		if err := Decode(r, &b); err != nil {
+			Error(w, http.StatusBadRequest, "bad request")
+			return
+		}
+	}
 	following := b.Scope == "following" || r.URL.Query().Get("scope") == "following"
 	pool, m, ok := s.hostMeet(w, r, c)
 	if !ok {

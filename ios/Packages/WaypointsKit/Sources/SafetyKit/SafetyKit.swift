@@ -59,8 +59,11 @@ actor LiveSafetyService: SafetyService {
             reported = []
         }
         owner = user
-        try? await load()
-        publish()
+        // Publish only real state: a failed load leaves blocked/reported empty, and
+        // yielding that would unhide content the user asked not to see.
+        if user == nil || (try? await load()) != nil {
+            publish()
+        }
     }
 
     private func request(_ method: String, _ path: String, query: [URLQueryItem] = [], body: Data? = nil,
@@ -161,10 +164,10 @@ actor LiveSafetyService: SafetyService {
     }
 
     func blockedChanges() async -> AsyncStream<Set<UserID>> {
-        try? await load()
+        let ok = (try? await load()) != nil
         let id = UUID()
         let (stream, continuation) = AsyncStream.makeStream(of: Set<UserID>.self, bufferingPolicy: .bufferingNewest(1))
-        continuation.yield(blocked)
+        if ok { continuation.yield(blocked) }
         continuations[id] = continuation
         continuation.onTermination = { [weak self] _ in Task { await self?.drop(id) } }
         return stream

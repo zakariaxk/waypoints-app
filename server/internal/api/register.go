@@ -262,14 +262,19 @@ func (s *Service) confirm(ctx context.Context, pool *pgxpool.Pool, id, userID, k
 	if d, ok := lifetimes[kind]; ok {
 		ext = time.Now().Add(d)
 	}
-	_, err := pool.Exec(ctx, `insert into public.report_votes (report_id, user_id, still_there, created_at)
-		values ($1, $2, true, now()) on conflict (report_id, user_id) do update set still_there = true, created_at = now()`, id, userID)
-	if err != nil {
+	// Only a real vote change counts: repeat "still there" taps must not inflate the
+	// number (the DO UPDATE WHERE makes a same-value re-vote return no row).
+	var changed bool
+	err := pool.QueryRow(ctx, `insert into public.report_votes (report_id, user_id, still_there, created_at)
+		values ($1, $2, true, now()) on conflict (report_id, user_id)
+		do update set still_there = true, created_at = now() where not report_votes.still_there
+		returning true`, id, userID).Scan(&changed)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return reportJSON{}, err
 	}
-	return scanReport(pool.QueryRow(ctx, `update public.reports set confirmations = confirmations + 1,
+	return scanReport(pool.QueryRow(ctx, `update public.reports set confirmations = confirmations + $3::int,
 		expires_at = case when permanent then expires_at else greatest(expires_at, $2::timestamptz) end
-		where id = $1 returning `+reportCols, id, ext))
+		where id = $1 returning `+reportCols, id, ext, changed))
 }
 
 func (s *Service) voteReport(w http.ResponseWriter, r *http.Request, c auth.Claims) {
@@ -313,9 +318,13 @@ func (s *Service) voteReport(w http.ResponseWriter, r *http.Request, c auth.Clai
 	}
 	// Two "Gone" votes with no later "Still there" remove the report (section 5.3).
 	var gone int
-	_ = pool.QueryRow(ctx, `select count(*) from public.report_votes v where v.report_id = $1 and not v.still_there
+	if err := pool.QueryRow(ctx, `select count(*) from public.report_votes v where v.report_id = $1 and not v.still_there
 		and v.created_at > coalesce((select max(created_at) from public.report_votes where report_id = $1 and still_there),
-		                            '-infinity'::timestamptz)`, id).Scan(&gone)
+		                            '-infinity'::timestamptz)`, id).Scan(&gone); err != nil {
+		// A failed count reads as zero; keep the report rather than guessing it gone.
+		gone = 0
+		s.log.Warn("gone vote count", "err", err)
+	}
 	if gone >= 2 {
 		if _, err := pool.Exec(ctx, `delete from public.reports where id = $1`, id); err == nil {
 			s.publishReport(rep, wire.MapEvent_REMOVE)

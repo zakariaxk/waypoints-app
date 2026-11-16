@@ -90,7 +90,7 @@ final class CarRig {
         speedMps = speed
 
         // Auto box: where the road speed puts the engine in the current gear.
-        let ratio = spec.gearRatios[gear] * spec.finalDrive
+        var ratio = spec.gearRatios[gear] * spec.finalDrive
         let wheelRpm = speed / spec.tireRadiusM * ratio * 60 / (2 * .pi)
         rpm = min(max(wheelRpm, 900), spec.redline * 1.02)
         if shiftTimer > 0 {
@@ -102,6 +102,8 @@ final class CarRig {
             gear -= 1
             shiftTimer = shiftTime
         }
+        // Recompute after a possible shift so this frame's force uses the new gear.
+        ratio = spec.gearRatios[gear] * spec.finalDrive
 
         // Engine: lb-ft → N m, through the box, onto the driven wheels.
         let shifting = shiftTimer > 0

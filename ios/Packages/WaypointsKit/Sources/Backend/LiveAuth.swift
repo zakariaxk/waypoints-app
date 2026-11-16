@@ -39,17 +39,26 @@ actor LiveAuth: AuthService {
             await publish(nil)
         default:
             if let session {
-                if let made = await makeSession(session) {
-                    await publish(made)
-                } else {
-                    try? await ctx.client.auth.signOut(scope: .local)
-                    await publish(nil)
+                do {
+                    if let made = try await makeSession(session) {
+                        await publish(made)
+                    } else {
+                        try? await ctx.client.auth.signOut(scope: .local)
+                        await publish(nil)
+                    }
+                    loaded = true
+                } catch {
+                    // The profile lookup failed (offline/flaky PostgREST): publish
+                    // nothing rather than guessing — a nil here reads as signed out.
+                    // Keep `loaded` false so the initial-session race stays open
+                    // until an event produces a definitive state.
                 }
             } else if event == .initialSession {
                 await publish(nil)
+                loaded = true
             }
         }
-        loaded = true
+        if event == .signedOut || event == .userDeleted { loaded = true }
     }
 
     private func publish(_ session: AuthSession?) async {
@@ -59,11 +68,11 @@ actor LiveAuth: AuthService {
     }
 
     /// `nil` when the account is suspended.
-    private func makeSession(_ session: Session) async -> AuthSession? {
+    private func makeSession(_ session: Session) async throws -> AuthSession? {
         let id = session.user.id
         var needsOnboarding = !onboarded.contains(id)
         if needsOnboarding {
-            let flags = await Self.accountFlags(ctx: ctx, id: id)
+            let flags = try await Self.accountFlags(ctx: ctx, id: id)
             if flags.suspended { return nil }
             if flags.acceptedTerms {
                 onboarded.insert(id)
@@ -143,13 +152,14 @@ actor LiveAuth: AuthService {
     /// A fresh sign-in always re-reads the profile, so a suspension since the last session shows.
     private func finishSignIn(_ session: Session) async throws -> AuthSession {
         onboarded.remove(session.user.id)
-        loaded = true
-        guard let made = await makeSession(session) else {
+        guard let made = try await makeSession(session) else {
             try? await ctx.client.auth.signOut(scope: .local)
             await publish(nil)
+            loaded = true
             throw WaypointsError.suspended
         }
         await publish(made)
+        loaded = true
         return made
     }
 
@@ -192,6 +202,12 @@ actor LiveAuth: AuthService {
                 let names = files.filter { $0.id != nil }.map { "\(me.key)/\($0.name)" }
                 guard !names.isEmpty else { break }
                 _ = try await ctx.run { try await api.remove(paths: names) }
+                // A remove that quietly deleted nothing returns the same page on the
+                // next list and would loop forever; abort so the user can retry.
+                let again = try await ctx.run { try await api.list(path: me.key) }
+                if again.map(\.name) == files.map(\.name) {
+                    throw WaypointsError.invalid("storage cleanup")
+                }
             }
         }
         try await Self.deleteAccountRow(ctx: ctx)
@@ -244,17 +260,22 @@ actor LiveAuth: AuthService {
             .eq("user_id", value: user).eq("apns_token", value: token).execute()
     }
 
-    private nonisolated static func accountFlags(ctx: BackendContext, id: UUID) async -> (acceptedTerms: Bool, suspended: Bool) {
+    private nonisolated static func accountFlags(ctx: BackendContext, id: UUID) async throws -> (acceptedTerms: Bool, suspended: Bool) {
         struct Flags: Decodable, Sendable { let acceptedTermsAt: Date?; let suspendedAt: Date? }
         struct TermsRow: Decodable, Sendable { let acceptedTermsAt: Date? }
-        if let row: Flags = try? await ctx.table("profiles").select("accepted_terms_at,suspended_at")
-            .eq("user_id", value: id).single().execute().value {
+        do {
+            let row: Flags = try await ctx.table("profiles").select("accepted_terms_at,suspended_at")
+                .eq("user_id", value: id).single().execute().value
             return (row.acceptedTermsAt.map { $0 >= Terms.effectiveAt } ?? false, row.suspendedAt != nil)
+        } catch {
+            // A database without the W7-1 migration has no `suspended_at` column yet.
+            if let row: TermsRow? = try? await ctx.table("profiles").select("accepted_terms_at")
+                .eq("user_id", value: id).single().execute().value {
+                return (row.acceptedTermsAt.map { $0 >= Terms.effectiveAt } ?? false, false)
+            }
+            // Both reads failed: report the error, never "not suspended" by accident.
+            throw error
         }
-        // A database without the W7-1 migration has no `suspended_at` column yet.
-        let row: TermsRow? = try? await ctx.table("profiles").select("accepted_terms_at")
-            .eq("user_id", value: id).single().execute().value
-        return (row?.acceptedTermsAt.map { $0 >= Terms.effectiveAt } ?? false, false)
     }
 
     private nonisolated static func deleteAccountRow(ctx: BackendContext) async throws {
@@ -301,6 +322,13 @@ private final class AppleCredentialRequest: NSObject, ASAuthorizationControllerD
         return await withCheckedContinuation { continuation in
             self.continuation = continuation
             controller.performRequests()
+            // performRequests() is not guaranteed to ever call a delegate method (a
+            // failed presentation can end the flow silently); unstick the
+            // continuation after a generous wait. finish() is idempotent.
+            Task { [weak self] in
+                try? await Task.sleep(for: .seconds(60))
+                self?.finish(nil)
+            }
         }
     }
 

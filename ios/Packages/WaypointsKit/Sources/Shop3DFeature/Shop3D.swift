@@ -37,8 +37,8 @@ private struct ShopRoute: View {
         }
         .task {
             guard let c = try? await env.garage.car(carID) else { return }
-            car = c
             shapeClass = (try? await env.profiles.profile(c.ownerID).markerIcon) ?? "coupe"
+            car = c
         }
     }
 }
@@ -62,8 +62,8 @@ private struct DebugShop: View {
         .task {
             guard let me = await env.auth.currentSession()?.userID else { return }
             guard let first = (try? await env.garage.cars(of: me))?.first else { return }
-            car = first
             shapeClass = (try? await env.profiles.profile(me).markerIcon) ?? "coupe"
+            car = first
         }
     }
 }

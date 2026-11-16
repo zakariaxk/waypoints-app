@@ -110,8 +110,10 @@ private struct RangeBar: View {
     var body: some View {
         GeometryReader { proxy in
             let span = max(range.bounds.upperBound - range.bounds.lowerBound, .ulpOfOne)
-            let start = (range.low - range.bounds.lowerBound) / span
-            let end = (range.high - range.bounds.lowerBound) / span
+            // Estimates can run past `bounds` (a 1400 hp build on a 0...1200 axis): clamp or
+            // the capsule widens past the track and the offset pushes it off-screen.
+            let start = min(max((range.low - range.bounds.lowerBound) / span, 0), 1)
+            let end = min(max((range.high - range.bounds.lowerBound) / span, 0), 1)
             ZStack(alignment: .leading) {
                 Capsule().fill(Color.curb)
                 Capsule()

@@ -151,17 +151,21 @@ struct ShowdownView: View {
         thud += 1
         withMotion(.win, reduceMotion: reduceMotion) { winner = c.car.id }
         Task {
-            let before = (try? await env.showdown.rankings(in: cls, period: .allTime, limit: 100))?.firstIndex { $0.car.id == c.car.id }
+            // Snapshot the class: a chip tap mid-flight would otherwise rank the wrong one.
+            let votedClass = cls
+            let before = (try? await env.showdown.rankings(in: votedClass, period: .allTime, limit: 100))?.firstIndex { $0.car.id == c.car.id }
             do {
                 try await env.showdown.vote(winner: c.car.id, loser: loser.car.id)
             } catch {
                 toast = ToastMessage(Text("Couldn't save your pick. Try again.", bundle: .module))
             }
-            let after = (try? await env.showdown.rankings(in: cls, period: .allTime, limit: 100))?.firstIndex { $0.car.id == c.car.id }
-            if let after {
-                let moved = (before ?? 100) - after
-                movement = moved > 0 ? String(localized: "▲ \(moved) in \(cls.rawValue.capitalized)", bundle: .module)
-                    : String(localized: "#\(after + 1) in \(cls.rawValue.capitalized)", bundle: .module)
+            let after = (try? await env.showdown.rankings(in: votedClass, period: .allTime, limit: 100))?.firstIndex { $0.car.id == c.car.id }
+            if let after, cls == votedClass {
+                // Unranked before isn't "moved up by 100": only show a delta when it was ranked.
+                let moved = before.map { $0 - after }
+                movement = moved != nil && moved! > 0
+                    ? String(localized: "▲ \(moved!) in \(votedClass.rawValue.capitalized)", bundle: .module)
+                    : String(localized: "#\(after + 1) in \(votedClass.rawValue.capitalized)", bundle: .module)
             }
             try? await Task.sleep(for: .seconds(Timing.winHold))
             if winner == c.car.id { await next() }

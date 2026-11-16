@@ -93,7 +93,10 @@ final class DriveRecorder {
         return files.compactMap { try? JSONDecoder().decode(Drive.self, from: Data(contentsOf: $0)) }.sorted { $0.startedAt > $1.startedAt }
     }
 
-    func delete(_ d: Drive) { try? FileManager.default.removeItem(at: folder.appending(path: "\(d.id).json")) }
+    func delete(_ d: Drive) {
+        if current?.id == d.id { current = nil; lastAt = nil }
+        try? FileManager.default.removeItem(at: folder.appending(path: "\(d.id).json"))
+    }
 }
 
 // MARK: ROAD-5 Driven map

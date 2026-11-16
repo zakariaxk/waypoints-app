@@ -327,22 +327,30 @@ func (s *Service) applyRemote(id string, raw json.RawMessage) {
 	}
 	s.mu.Lock()
 	old := s.byID[id]
+	var removed []uint64
 	if c.Ended {
 		delete(s.byID, id)
 		delete(s.byCode, c.JoinCode)
 		s.unwatch(id)
-	} else {
-		s.byID[id] = &c
+		if old != nil {
+			old.Ended = true // flag handler-held pointers too
+		}
+	} else if old != nil {
+		// Copy into the registered pointer: HTTP handlers may hold it, and
+		// replacing the map entry would strand their mutations on stale state.
+		prior := old.MemberUIDs
+		*old = c
 		s.byCode[c.JoinCode] = id
 		s.watch(id)
-	}
-	var removed []uint64
-	if old != nil {
-		for _, uid := range old.MemberUIDs {
+		for _, uid := range prior {
 			if !c.has(uid) {
 				removed = append(removed, uid)
 			}
 		}
+	} else {
+		s.byID[id] = &c
+		s.byCode[c.JoinCode] = id
+		s.watch(id)
 	}
 	s.mu.Unlock()
 	frame := &wire.ServerFrame{Body: &wire.ServerFrame_Convoy{Convoy: c.wire()}}
@@ -385,7 +393,10 @@ func validJoinCode(code string) bool {
 func randomCode(n int) string {
 	var b strings.Builder
 	for range n {
-		i, _ := rand.Int(rand.Reader, big.NewInt(int64(len(codeAlphabet))))
+		i, err := rand.Int(rand.Reader, big.NewInt(int64(len(codeAlphabet))))
+		if err != nil {
+			continue // crypto/rand failure: never index with a nil big.Int
+		}
 		b.WriteByte(codeAlphabet[i.Int64()])
 	}
 	return b.String()
@@ -654,6 +665,7 @@ func (s *Service) invite(w http.ResponseWriter, r *http.Request, cl auth.Claims)
 			}
 		}
 		rows.Close()
+		if err := rows.Err(); err != nil { slog.Warn("rows iteration", "err", err) }
 	}
 	if len(ids) > 0 && s.push != nil {
 		name := "A friend"

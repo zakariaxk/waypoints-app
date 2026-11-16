@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/url"
 	"regexp"
 	"sort"
 	"strconv"
@@ -143,8 +144,13 @@ func loadTestCars(ctx context.Context, f *fetcher) ([]testCar, error) {
 	}
 	sort.Ints(years)
 	var out []testCar
+	base, _ := url.Parse(epaTestCarPage)
 	for _, y := range years {
 		u := links[y]
+		// Page hrefs are usually root-relative; resolve them against the page URL.
+		if rel, err := url.Parse(u); err == nil {
+			u = base.ResolveReference(rel).String()
+		}
 		name := fmt.Sprintf("epa/testcar-%d%s", y, u[strings.LastIndex(u, "."):])
 		b, err := f.get(ctx, u, name)
 		if err != nil {

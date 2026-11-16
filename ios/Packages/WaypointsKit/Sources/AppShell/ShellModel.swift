@@ -69,9 +69,14 @@ public final class ShellModel {
             case let session? where session.needsOnboarding: .onboarding
             default: .signedIn
             }
+            // Clearing account state is a sign-out side effect: run it only on a real
+            // signedIn → signedOut transition. A nil initial session (cold start, or the
+            // profile fetch in LiveAuth still in flight) must never wipe local account
+            // state like drive traces and home zones.
+            let wasSignedIn = phase == .signedIn
             phase = next
             router.setSignedIn(next == .signedIn)
-            if next == .signedOut { await clearAccountState() }
+            if next == .signedOut, wasSignedIn { await clearAccountState() }
         }
     }
 
@@ -86,7 +91,7 @@ public final class ShellModel {
             defaults.removeObject(forKey: key)
         }
         for key in defaults.dictionaryRepresentation().keys
-        where key.hasPrefix("meet.remind.") || key.hasPrefix("gearing.") {
+        where key.hasPrefix("meet.remind.") || key.hasPrefix("gearing.") || key.hasPrefix("guide.steps.") {
             defaults.removeObject(forKey: key)
         }
         // RoadsFeature records drive traces as JSON here; they are the account's movement history.

@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"io"
 	"log/slog"
 	"math"
 	"net/http"
@@ -193,6 +194,7 @@ func (s *Service) Send(ctx context.Context, userIDs []string, n Note) {
 		}
 	}
 	rows.Close()
+	if err := rows.Err(); err != nil { s.log.Warn("rows iteration", "err", err) }
 	for _, d := range devs {
 		s.deliver(ctx, d.token, d.env, n)
 	}
@@ -253,13 +255,22 @@ func (s *Service) deliver(ctx context.Context, token, env string, n Note) {
 		s.failed.Inc()
 		return
 	}
+	var body struct {
+		Reason string `json:"reason"`
+	}
+	_ = json.NewDecoder(io.LimitReader(resp.Body, 4<<10)).Decode(&body)
 	resp.Body.Close()
 	if resp.StatusCode == http.StatusOK {
 		s.sent.Inc()
 		return
 	}
 	s.failed.Inc()
-	if resp.StatusCode == http.StatusGone || resp.StatusCode == http.StatusBadRequest {
+	// Dead tokens only: Unregistered (410) or BadDeviceToken (400). Other 400s —
+	// BadTopic, MessageTooLarge, PayloadEmpty — are our bug, not the device's, and
+	// deleting the token on them would wipe a valid registration.
+	dead := resp.StatusCode == http.StatusGone ||
+		(resp.StatusCode == http.StatusBadRequest && (body.Reason == "BadDeviceToken" || body.Reason == "DeviceTokenNotForTopic"))
+	if dead {
 		if pool := s.store.Pool(); pool != nil {
 			if _, err := pool.Exec(ctx, `delete from public.device_tokens where apns_token = $1`, token); err != nil {
 				s.log.Warn("device token delete", "err", err)
@@ -297,6 +308,7 @@ func (s *Service) MeetNearby(ctx context.Context, hostID, meetID, title string, 
 		}
 	}
 	rows.Close()
+	if err := rows.Err(); err != nil { s.log.Warn("rows iteration", "err", err) }
 	ids = s.underDailyCap(ctx, ids)
 	s.Send(ctx, ids, Note{Kind: MeetsNearby, Title: "Meet nearby", Body: title, URL: "waypoints://meet/" + meetID,
 		ActorID: hostID, Dedupe: "meet_nearby:" + meetID})
@@ -324,6 +336,7 @@ func (s *Service) underDailyCap(ctx context.Context, ids []string) []string {
 		}
 	}
 	rows.Close()
+	if err := rows.Err(); err != nil { s.log.Warn("rows iteration", "err", err) }
 	out := ids[:0:0]
 	for _, id := range ids {
 		if !capped[id] {
@@ -351,6 +364,7 @@ func (s *Service) MeetChanged(ctx context.Context, meetID, title, body string) {
 		}
 	}
 	rows.Close()
+	if err := rows.Err(); err != nil { s.log.Warn("rows iteration", "err", err) }
 	s.Send(ctx, ids, Note{Kind: MeetReminders, Title: title, Body: body, URL: "waypoints://meet/" + meetID})
 }
 

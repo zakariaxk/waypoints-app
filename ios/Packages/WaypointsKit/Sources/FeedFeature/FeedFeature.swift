@@ -332,6 +332,9 @@ struct Pager: View {
                 .scrollPosition(id: $current)
                 .ignoresSafeArea()
                 .onChange(of: current) { pool.play(current ?? 0) }
+                // Players are keyed by row index: a refresh replaces the posts underneath
+                // them, so the pool must drop the old items or index 0 plays a stale video.
+                .onChange(of: model.posts.first?.id) { pool.reset() }
                 .onAppear { pool.play(current ?? 0) }
                 .onDisappear { pool.pauseAll() }
                 }
@@ -339,7 +342,13 @@ struct Pager: View {
         }
         .connectionBanner(model.offline ? .offline : nil)
         .toast($toast)
-        .sheet(item: $commentsFor) { p in Comments(env: model.env, registry: registry, post: p) }
+        .sheet(item: $commentsFor) { p in
+            Comments(env: model.env, registry: registry, post: p) { delta in
+                if let i = model.posts.firstIndex(where: { $0.id == p.id }) {
+                    model.posts[i].commentCount = max(0, model.posts[i].commentCount + delta)
+                }
+            }
+        }
         .confirmationDialog("", isPresented: Binding(get: { overflow != nil }, set: { if !$0 { overflow = nil } })) {
             if let p = overflow {
                 if p.authorID == model.me {
@@ -668,6 +677,8 @@ struct Comments: View {
     let env: AppEnvironment
     let registry: FeatureRegistry
     let post: Post
+    /// +1 after a post, −1 after a delete, so the rail count behind the sheet stays honest.
+    var onDelta: ((Int) -> Void)? = nil
     @State private var comments: [PostComment] = []
     /// SAFE-1: the shell's route sheet can't present over this sheet, so the report
     /// sheet presents inside it, resolved through the registry like the shell does.
@@ -711,6 +722,7 @@ struct Comments: View {
                                             Task {
                                                 do {
                                                     try await env.posts.deleteComment(c.id)
+                                                    onDelta?(-1)
                                                     error = nil
                                                 } catch {
                                                     self.error = String(localized: "Couldn't delete that comment. Try again.", bundle: .module)
@@ -741,6 +753,7 @@ struct Comments: View {
                             }
                             do {
                                 _ = try await env.posts.addComment(text, to: post.id)
+                                onDelta?(1)
                                 draft = ""
                                 error = nil
                             } catch WaypointsError.rateLimited {
@@ -856,14 +869,18 @@ final class Uploader {
                 _ = try await env.posts.createPost(NewPost(carID: car, meetID: meet, videoPath: videoMedia.path,
                                                            posterPath: posterMedia.path, caption: caption,
                                                            durationMs: Int(seconds * 1000)))
+                // The source lives in the picker's tmp area; posting succeeded, drop it.
+                try? FileManager.default.removeItem(at: video)
                 toast = ToastMessage(Text("Posted", bundle: .module))
             } catch WaypointsError.rateLimited {
                 toast = ToastMessage(Text(FeedCopy.rateLimited))
             } catch {
                 let drafts = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appending(path: "drafts")
                 try? FileManager.default.createDirectory(at: drafts, withIntermediateDirectories: true)
-                try? FileManager.default.copyItem(at: video, to: drafts.appending(path: video.lastPathComponent))
-                retry = { [weak self] in self?.post(video: video, poster: poster, caption: caption, car: car, meet: meet, duration: duration) }
+                let saved = drafts.appending(path: video.lastPathComponent)
+                try? FileManager.default.copyItem(at: video, to: saved)
+                // Retry from the draft copy: the source URL is a temp file the system can purge.
+                retry = { [weak self] in self?.post(video: saved, poster: poster, caption: caption, car: car, meet: meet, duration: duration) }
                 toast = ToastMessage(Text("Couldn't post. Saved as a draft.", bundle: .module))
             }
             progress = nil

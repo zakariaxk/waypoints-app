@@ -286,7 +286,7 @@ struct ConvoyLayer: MapLayerProvider {
     var id: String { "convoy" }
     func items(in region: MapRegion) -> AsyncStream<[MapItem]> {
         AsyncStream { c in
-            Task { @MainActor in
+            let task = Task { @MainActor in
                 var last = ""
                 while !Task.isCancelled {
                     var items: [MapItem] = []
@@ -303,18 +303,19 @@ struct ConvoyLayer: MapLayerProvider {
                                                  title: String(localized: "Leader", bundle: .module), priority: 8))
                         }
                     }
-                    let signature = items.map { "\($0.id)\($0.coordinate.latitude)\($0.coordinate.longitude)" }.joined()
+                    let signature = items.map { "\($0.id)\($0.title ?? "")\($0.coordinate.latitude)\($0.coordinate.longitude)" }.joined()
                     if signature != last { c.yield(items); last = signature }
                     try? await Task.sleep(for: .seconds(1))
                 }
                 c.finish()
             }
+            c.onTermination = { _ in task.cancel() }
         }
     }
     /// CNV-5: the shared route as a line under the markers.
     func paths(in region: MapRegion) -> AsyncStream<[MapPath]> {
         AsyncStream { c in
-            Task { @MainActor in
+            let task = Task { @MainActor in
                 var last = Data()
                 while !Task.isCancelled {
                     let data = store.state?.routePolyline ?? Data()
@@ -327,6 +328,7 @@ struct ConvoyLayer: MapLayerProvider {
                 }
                 c.finish()
             }
+            c.onTermination = { _ in task.cancel() }
         }
     }
     @MainActor func detail(for item: MapItem) -> AnyView? {
@@ -536,6 +538,9 @@ struct ConvoySheet: View {
                     Field("Name", text: $name, limit: 40)
                     Field("Destination", text: $place, prompt: "Optional: where you're headed")
                         .onSubmit { Task { await findDestination() } }
+                        // Editing the text after a geocode must drop the resolved point,
+                        // or the convoy silently keeps the old destination.
+                        .onChange(of: place) { destination = nil }
                     if let destination {
                         Text("Heading to \(destination.name)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.go)
                     }

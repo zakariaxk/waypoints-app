@@ -25,6 +25,24 @@ func strLit(s string) string {
 	return "'" + strings.ReplaceAll(s, "'", "''") + "'"
 }
 
+// nullStrLit renders NULL when the field is empty: `model` is nullable and its
+// check rejects ''.
+func nullStrLit(s string) string {
+	if s == "" {
+		return "null"
+	}
+	return strLit(s)
+}
+
+// textLit renders a free-text column (tradeoffs/mistakes are `text` in the
+// schema, one bullet per line) or NULL when empty.
+func textLit(lines []string) string {
+	if len(lines) == 0 {
+		return "null"
+	}
+	return strLit(strings.Join(lines, "\n"))
+}
+
 // guideSQL renders the review-then-apply INSERT for a draft guide. With
 // dedupe and DATABASE_URL set it refuses to emit when a guide with the same
 // (make, task) already exists.
@@ -35,12 +53,12 @@ func guideSQL(g *guide, dedupe bool) (string, error) {
 		}
 	}
 	return fmt.Sprintf(`INSERT INTO public.repair_guides
-  (task, make, model, difficulty, time_min, time_max, tools, parts, steps, tradeoffs, mistakes, sources)
-VALUES (%s, %s, %s, %d, %d, %d, %s, %s, %s, %s, %s, %s);`,
-		strLit(g.Task), strLit(g.Make), strLit(g.Model),
+  (task, make, model, difficulty, time_min_minutes, time_max_minutes, tools, parts, steps, tradeoffs, mistakes, sources, linked_mod_ids)
+VALUES (%s, %s, %s, %d, %d, %d, %s, %s, %s, %s, %s, %s, %s);`,
+		strLit(g.Task), strLit(g.Make), nullStrLit(g.Model),
 		g.Difficulty, g.TimeMin, g.TimeMax,
 		lit(g.Tools), lit(g.Parts), lit(g.Steps),
-		lit(g.Tradeoffs), lit(g.Mistakes), lit(g.Sources)), nil
+		textLit(g.Tradeoffs), textLit(g.Mistakes), lit(g.Sources), "'[]'::jsonb"), nil
 }
 
 // checkDupe asks psql (DATABASE_URL) whether the guide already exists. The

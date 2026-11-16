@@ -333,9 +333,13 @@ final class RaceModel {
         case let .ghost(r):
             themLog = InputLog.decode(r.inputLog)
             them = RunState(spec: modified(spec, mods: r.mods.compactMap(ModCatalog.mod), high: false), launchRpm: themLog?.launchRpm ?? 3500)
+            // A malformed stored log must not read as a 0.000 reaction: race the
+            // fallback driver instead of replaying nothing.
+            if themLog == nil { themLaunchTick = 60 + Int.random(in: 0...20) }
         case let .friend(_, r, s):
             themLog = InputLog.decode(r.inputLog)
             them = RunState(spec: s, launchRpm: themLog?.launchRpm ?? 3500)
+            if themLog == nil { themLaunchTick = 60 + Int.random(in: 0...20) }
         case let .house(h):
             let s = h.spec
             them = RunState(spec: s, launchRpm: min(s.redline * 0.55, 4500))

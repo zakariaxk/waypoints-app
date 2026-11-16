@@ -74,8 +74,15 @@ struct GuidesScreen: View {
         firstCar = cars.first?.id
         var seen: Set<GuideID> = []
         var out: [Guide] = []
+        var byMake: [String: [Guide]] = [:]
         for make in Set(cars.map(\.make)) {
-            for guide in (try? await ctx.env.guides.guidesForMake(make)) ?? [] where seen.insert(guide.id).inserted {
+            byMake[make] = (try? await ctx.env.guides.guidesForMake(make)) ?? []
+        }
+        // Model-scoped rows match their model; nil `model` means every car of the make.
+        for car in cars {
+            for guide in byMake[car.make] ?? []
+            where (guide.model.map { car.model.localizedCaseInsensitiveContains($0) } ?? true)
+                && seen.insert(guide.id).inserted {
                 out.append(guide)
             }
         }
@@ -84,6 +91,9 @@ struct GuidesScreen: View {
 
     private func search() async {
         guard searching else { results = []; return }
+        // Debounce: a backend ilike per keystroke hammers the API while typing.
+        try? await Task.sleep(for: .milliseconds(250))
+        guard !Task.isCancelled else { return }
         results = (try? await ctx.env.guides.search(query)) ?? []
     }
 }

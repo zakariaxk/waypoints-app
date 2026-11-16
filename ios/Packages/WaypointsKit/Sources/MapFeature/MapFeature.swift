@@ -283,10 +283,12 @@ final class MapModel {
     }
 
     var groups: [EntityGroup] {
-        let cell = max(region.longitudeDelta, 0.0008) / 8
+        // Separate axes: lon degrees shrink with latitude, lat degrees don't.
+        let cellLng = max(region.longitudeDelta, 0.0008) / 8
+        let cellLat = max(region.latitudeDelta, 0.0008) / 8
         return Dictionary(grouping: visibleEntities) { e -> String in
             selection == .entity(e.uid) ? "selected"
-                : "\((e.coordinate.latitude / cell).rounded(.down)):\((e.coordinate.longitude / cell).rounded(.down))"
+                : "\((e.coordinate.latitude / cellLat).rounded(.down)):\((e.coordinate.longitude / cellLng).rounded(.down))"
         }.values.compactMap { members in
             members.map(\.uid).min().map { EntityGroup(id: $0, members: members) }
         }

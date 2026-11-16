@@ -175,7 +175,8 @@ struct Nullable<Wrapped: Encodable & Sendable>: Encodable, Sendable {
 
 /// Text safe to embed in a PostgREST `or=(...)` filter or `ilike` pattern.
 func filterSafe(_ text: String) -> String {
-    String(text.filter { !",()*%\\:\"'".contains($0) }.prefix(60)).trimmingCharacters(in: .whitespaces)
+    // `_` is an ilike wildcard like `%`: leaving it in lets one character match anything.
+    String(text.filter { !",()*%\\:\"'_".contains($0) }.prefix(60)).trimmingCharacters(in: .whitespaces)
 }
 
 extension UUIDIdentifier {

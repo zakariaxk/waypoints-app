@@ -160,7 +160,7 @@ struct Browse: View {
                     ErrorState(Text("Couldn't load the market.", bundle: .module)) { Task { await load(more: false) } }
                 } else if loading && listings.isEmpty {
                     SkeletonBlock(height: Size.row * 3, cornerRadius: Radius.r12)
-                } else if shown.isEmpty && !loading {
+                } else if shown.isEmpty && !loading && next == nil {
                     if let c = fitsCar, kind != .car {
                         Group {
                             if kind == .wanted {
@@ -222,7 +222,7 @@ struct Browse: View {
                     Text("Distance", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
                     HStack(spacing: Space.s8) {
                         ForEach([5, 25, 50, 100], id: \.self) { n in
-                            Chip("\(n) \(Units.name)", isSelected: within == n) { within = n; if here == nil { here = Coarse.here() } }
+                            Chip("\(n) \(Units.name)", isSelected: within == n) { within = within == n ? nil : n; if here == nil { here = Coarse.here() } }
                         }
                         Chip("Any", isSelected: within == nil) { within = nil }
                     }
@@ -264,7 +264,8 @@ struct Browse: View {
             let page = try await env.market.listings(asked, after: more ? next : nil, limit: 20)
             loading = false
             guard asked == filter else { return }
-            listings = (more ? listings : []) + page.items
+            let seen = Set(listings.map(\.id))
+            listings = (more ? listings : []) + page.items.filter { !seen.contains($0.id) }
             next = page.next
             failed = false
         } catch {
@@ -649,11 +650,11 @@ struct ListSomething: View {
         }
         .onChange(of: items) {
             Task {
-                var out: [Data] = []
+                var out = images
                 for i in items {
                     if let d = try? await i.loadTransferable(type: Data.self), let jpeg = UIImage(data: d)?.jpegData(compressionQuality: 0.85) { out.append(jpeg) }
                 }
-                images = out
+                images = Array(out.prefix(8))
             }
         }
         .task {

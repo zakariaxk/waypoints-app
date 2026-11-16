@@ -694,7 +694,9 @@ func (c *conn) reader(ctx context.Context) {
 			c.mu.Lock()
 			c.zones = zones
 			c.mu.Unlock()
+			c.pubMu.Lock()
 			c.updatePolicy(now)
+			c.pubMu.Unlock()
 		case *wire.ClientFrame_JoinConvoy:
 			if gate(&c.convoyGate) {
 				c.joinConvoy(b.JoinConvoy.ConvoyId)
@@ -840,6 +842,11 @@ func (c *conn) applyRelations(r store.Relations) {
 	c.out.SetBlocked(r.Blocked)
 	for uid, rel := range want {
 		if old, ok := c.rels[uid]; !ok || old != rel {
+			// Subscribe refcounts the bridge subscription; a changed relation needs
+			// the old count released first or the topic is never dropped.
+			if ok {
+				c.s.hub.Unsubscribe(hub.UserTopic(uid), c.out)
+			}
 			c.s.hub.Subscribe(hub.UserTopic(uid), c.out, rel)
 		}
 	}

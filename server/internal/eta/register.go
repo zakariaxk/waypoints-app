@@ -7,6 +7,7 @@ package eta
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"math"
 	"net/http"
 	"strings"
@@ -124,6 +125,7 @@ func (s *Service) share(w http.ResponseWriter, r *http.Request, c auth.Claims) {
 			}
 		}
 		rows.Close()
+		if err := rows.Err(); err != nil { slog.Warn("rows iteration", "err", err) }
 	}
 
 	if len(ids) > 0 && s.push != nil {

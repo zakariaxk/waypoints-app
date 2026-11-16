@@ -15,6 +15,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"math"
 	"net/http"
 	"strconv"
@@ -176,6 +177,9 @@ func (s *Service) dress(ctx context.Context, pool *pgxpool.Pool, r *requestJSON,
 			r.Responders = append(r.Responders, x)
 		}
 	}
+	if err := rows.Err(); err != nil {
+		slog.Warn("rows iteration", "err", err)
+	}
 }
 
 // MARK: delivery
@@ -210,8 +214,13 @@ func (s *Service) publish(ctx context.Context, r requestJSON, op wire.MapEvent_O
 		}
 		uids := []uint64{p.UID}
 		if rel, err := s.store.Relations(ctx, r.requester); err == nil {
-			uids = append(uids, rel.Friends...)
-			uids = append(uids, rel.Teammates...)
+			seen := map[uint64]bool{p.UID: true}
+			for _, u := range append(rel.Friends, rel.Teammates...) {
+				if !seen[u] { // friend ∩ teammate would get the frame twice
+					seen[u] = true
+					uids = append(uids, u)
+				}
+			}
 		}
 		ev := &wire.MapEvent{Kind: wire.MapEvent_HELP, Id: r.ID, Op: op, LatE7: geo.E7(r.Lat), LngE7: geo.E7(r.Lng),
 			Subtype: r.Kind, Title: title}
@@ -259,6 +268,7 @@ func (s *Service) notifyNearby(ctx context.Context, r requestJSON) {
 		}
 	}
 	rows.Close()
+	if err := rows.Err(); err != nil { slog.Warn("rows iteration", "err", err) }
 	name := "A friend"
 	if p, err := s.store.Profile(ctx, r.requester); err == nil && p.DisplayName != "" {
 		name = p.DisplayName
@@ -284,7 +294,8 @@ func (s *Service) list(w http.ResponseWriter, r *http.Request, c auth.Claims) {
 	minLng, ok2 := f("min_lng")
 	maxLat, ok3 := f("max_lat")
 	maxLng, ok4 := f("max_lng")
-	if !ok1 || !ok2 || !ok3 || !ok4 {
+	if !ok1 || !ok2 || !ok3 || !ok4 || minLat > maxLat || minLng > maxLng ||
+		maxLat-minLat > 20 || maxLng-minLng > 20 {
 		api.Error(w, http.StatusBadRequest, "bbox")
 		return
 	}
@@ -308,6 +319,7 @@ func (s *Service) list(w http.ResponseWriter, r *http.Request, c auth.Claims) {
 		}
 	}
 	rows.Close()
+	if err := rows.Err(); err != nil { slog.Warn("rows iteration", "err", err) }
 	for i := range out {
 		s.dress(ctx, pool, &out[i], c.UserID)
 	}
@@ -506,6 +518,7 @@ func (s *Service) expire(ctx context.Context, pool *pgxpool.Pool, where string, 
 		}
 	}
 	rows.Close()
+	if err := rows.Err(); err != nil { slog.Warn("rows iteration", "err", err) }
 	for _, x := range ended {
 		s.publish(context.WithoutCancel(ctx), x, wire.MapEvent_REMOVE)
 	}

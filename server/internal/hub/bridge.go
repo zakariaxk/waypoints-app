@@ -118,8 +118,8 @@ func (b *bridge) ref(t Topic, delta int) {
 		return
 	}
 	b.mu.Lock()
-	defer b.mu.Unlock()
 	b.refs[s] += delta
+	var drop *cmd
 	switch n := b.refs[s]; {
 	case n > 0 && b.unsubs[s] == nil:
 		if un, err := b.bus.Subscribe(s, func(m bus.Msg) { b.ingest(t, m.Data) }); err == nil {
@@ -133,13 +133,18 @@ func (b *bridge) ref(t Topic, delta int) {
 			// Nothing keeps what other nodes published here current from now on. Drop it, so
 			// a later subscriber is never shown a position its publisher has since hidden.
 			if t.Kind == KindCell {
-				b.h.send(cmd{op: opForget, topic: t})
+				drop = &cmd{op: opForget, topic: t}
 			} else if _, here := b.local[t.Key]; !here {
 				delete(b.pols, t.Key)
 				delete(b.infos, t.Key)
-				b.h.send(cmd{op: opOffline, topic: t})
+				drop = &cmd{op: opOffline, topic: t}
 			}
 		}
+	}
+	b.mu.Unlock()
+	// `h.send` blocks on a bounded shard queue; never call it holding b.mu.
+	if drop != nil {
+		b.h.send(*drop)
 	}
 }
 

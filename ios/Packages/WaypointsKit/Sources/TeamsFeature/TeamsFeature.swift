@@ -10,7 +10,7 @@ public enum TeamsFeature: FeatureModule {
     @MainActor
     public static func register(in registry: FeatureRegistry, env: AppEnvironment) {
         let model = TeamsModel(env: env, registry: registry)
-        registry.registerTab(.teams, badge: { model.unread }) { AnyView(TeamsHome(model: model)) }
+        registry.registerTab(.teams, badge: { model.badgeUnread }) { AnyView(TeamsHome(model: model)) }
         registry.registerRoute(.team, presentation: .push(tab: .teams)) { route in
             guard case let .team(id) = route else { return nil }
             return AnyView(TeamDetail(model: model, teamID: id))
@@ -43,6 +43,7 @@ final class TeamsModel {
     /// SAFE-12: active mutes and per-channel unread for every team (badge exclusion).
     var mutes: Set<MuteTarget> = []
     var allChannelUnread: [ChannelID: Int] = [:]
+    private var channelTeam: [ChannelID: TeamID] = [:]
     var me: UserID?
     var loaded = false
     var failed = false
@@ -84,7 +85,8 @@ final class TeamsModel {
                 n += t.unreadCount
             }
         }
-        for (c, count) in allChannelUnread where mutes.contains(.channel(c)) {
+        for (c, count) in allChannelUnread
+        where mutes.contains(.channel(c)) || (channelTeam[c].map { mutes.contains(.team($0)) } ?? false) {
             n += count
         }
         return n
@@ -96,9 +98,14 @@ final class TeamsModel {
     func refreshMutes() async {
         mutes = (try? await env.messages.mutes()) ?? mutes
         var chans: [ChannelID] = []
+        var owner: [ChannelID: TeamID] = [:]
         for t in teams {
-            chans += ((try? await env.teams.channels(of: t.id)) ?? []).filter { $0.kind == .text }.map(\.id)
+            for c in ((try? await env.teams.channels(of: t.id)) ?? []) where c.kind == .text {
+                chans.append(c.id)
+                owner[c.id] = t.id
+            }
         }
+        channelTeam = owner
         allChannelUnread = (try? await env.messages.unreadCounts(in: chans)) ?? [:]
     }
 
@@ -484,6 +491,8 @@ struct FindOrStart: View {
         }
         .presentationDetents([.large])
         .task(id: code) {
+            // The "Start" pane has no search box; typing its name field shouldn't query.
+            guard mode == 0 else { return }
             try? await Task.sleep(for: .milliseconds(250))
             results = (try? await model.env.teams.publicTeams(matching: code)) ?? []
         }

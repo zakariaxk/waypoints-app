@@ -226,6 +226,9 @@ final class ChatModel {
     }
 
     func delete(_ item: ChatItem) {
+        // A `.sending` item's network call is in flight: deleting the row locally leaves the
+        // send to land invisible. `.failed` items have nothing in flight and can go.
+        guard item.state != .sending else { return }
         guard item.state == .sent else { items.removeAll { $0.id == item.id }; return }
         Task {
             do {
@@ -445,7 +448,7 @@ struct ChatView: View {
                     }
                 }
                 let counts = (model.reactions[item.message.id] ?? [])
-                    .sorted { Reaction.allCases.firstIndex(of: $0.reaction) ?? 0 < Reaction.allCases.firstIndex(of: $1.reaction) ?? 0 }
+                    .sorted { Reaction.allCases.firstIndex(of: $0.reaction) ?? .max < Reaction.allCases.firstIndex(of: $1.reaction) ?? .max }
                 if !counts.isEmpty {
                     HStack(spacing: Space.s4) {
                         ForEach(counts, id: \.reaction) { c in

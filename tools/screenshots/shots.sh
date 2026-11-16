@@ -108,7 +108,8 @@ for size_row in "${SIZES[@]}"; do
     screen="${screen%%#*}"; screen="${screen// /}"; wait="${wait// /}"
     dest="$OUT/$size/$order-$name.png"
     if has_make_shot; then
-      WAIT="${wait:-$SETTLE}" make shot SIMULATOR="$sim" NAME="store-$size-$name" \
+      build_once
+      WAIT="${wait:-$SETTLE}" BUILD=0 make shot SIMULATOR="$sim" NAME="store-$size-$name" \
         ARGS="-wp-preview -wp-open waypoints://debug/$screen"
       cp ".build/shots/store-$size-$name.png" "$dest"
     else

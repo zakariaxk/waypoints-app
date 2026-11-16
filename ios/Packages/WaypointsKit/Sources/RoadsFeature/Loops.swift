@@ -236,6 +236,11 @@ struct LoopDetail: View {
         Task {
             do {
                 let path = Polyline.path(of: roads)
+                guard path.count > 1 else {
+                    self.error = String(localized: "That loop has no route yet. Add a road first.", bundle: .module)
+                    working = false
+                    return
+                }
                 let end = path.last.map { ConvoyDestination(coordinate: $0, name: roads.last?.name ?? loop.name) }
                 let invite = try await env.gateway.createConvoy(name: String(loop.name.prefix(40)), destination: end,
                                                                 routePolyline: Polyline.encode(path))

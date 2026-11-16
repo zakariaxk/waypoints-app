@@ -79,6 +79,9 @@ final class NavigationModel {
     let pathLine: [CLLocationCoordinate2D]?
     var routes: [ScoredRoute] = []
     var selected = 0
+    /// The index auto-picked by `received`/`score`; a manual tap makes these differ, and
+    /// `score` must not override the user's choice once hazard results land.
+    private var autoPick = 0
     var cars: [Car] = []
     var carIndex = 0
     var error = false
@@ -167,7 +170,7 @@ final class NavigationModel {
         var legs = [Leg(at: path[0].cl, along: 0)]
         var i = 1
         var next = spacing
-        while next < total {
+        while next < total && i < path.count - 1 {
             while i < path.count - 1 && cum[i] < next { i += 1 }
             legs.append(Leg(at: path[i].cl, along: cum[i]))
             next += spacing
@@ -327,6 +330,7 @@ final class NavigationModel {
         continuing = false
         routes = found.prefix(3).map { ScoredRoute(route: $0) }
         selected = bestIndex()
+        autoPick = selected
         if guiding, let r = current { prepare(r.route) }
         let paths = routes.map { Self.sample($0.route.polyline, every: 20) }
         Task { await score(paths) }
@@ -339,7 +343,7 @@ final class NavigationModel {
             guard routes.map(\.id) == ids else { return }
             routes[i].hazards = found
         }
-        if guiding { indexHazards() } else { selected = bestIndex() }
+        if guiding { indexHazards() } else if selected == autoPick { selected = bestIndex(); autoPick = selected }
     }
 
     /// Places each clearance hazard on the loaded route as metres from its start, so the strip
@@ -379,11 +383,12 @@ final class NavigationModel {
         guard !cars.isEmpty else { return }
         carIndex = (carIndex + 1) % cars.count
         selected = bestIndex()
+        autoPick = selected
     }
 
     static func sample(_ line: MKPolyline, every: Int) -> [Coordinate] {
         let pts = line.points()
-        return stride(from: 0, to: line.pointCount, by: max(1, line.pointCount / 200)).map {
+        return stride(from: 0, to: line.pointCount, by: max(1, every)).map {
             let c = pts[$0].coordinate
             return Coordinate(latitude: c.latitude, longitude: c.longitude)
         }

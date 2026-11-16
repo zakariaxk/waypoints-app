@@ -274,8 +274,12 @@ struct SpotFlow: View {
     static func city() async -> String {
         let manager = CLLocationManager()
         guard let loc = manager.location else { return "" }
+        let geocoder = CLGeocoder()
         return await withCheckedContinuation { c in
-            CLGeocoder().reverseGeocodeLocation(loc) { @Sendable marks, _ in c.resume(returning: marks?.first?.locality ?? "") }
+            geocoder.reverseGeocodeLocation(loc) { @Sendable marks, _ in
+                _ = geocoder
+                c.resume(returning: marks?.first?.locality ?? "")
+            }
         }
     }
 }

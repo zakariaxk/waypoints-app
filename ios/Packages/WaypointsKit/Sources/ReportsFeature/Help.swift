@@ -170,7 +170,7 @@ struct AskForHelp: View {
                     }
                     if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                     PrimaryButton("Ask for a hand", isLoading: posting) { post() }
-                        .disabled(kind == nil || posting)
+                        .disabled(kind == nil || posting || point == nil)
                 }
                 .padding(.horizontal, Space.margin)
                 .padding(.bottom, Space.s24)
@@ -210,6 +210,8 @@ struct AskForHelp: View {
         posting = true
         error = nil
         let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        // `locate()` may still be running; the fallback is the map's center, possibly miles
+        // off — wait for the real fix before posting at the "exact spot" we disclosed.
         let draft = HelpDraft(kind: kind, coordinate: point ?? fallback, note: trimmed.isEmpty ? nil : trimmed,
                               showNearby: showNearby)
         Task {

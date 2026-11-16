@@ -80,7 +80,8 @@ PY
   git pull --rebase -q 2>/dev/null
   if [ "$(git rev-parse HEAD)" != "$head_before" ] && [ -z "$(git status --porcelain)" ]; then
     mark "$id" 'x'; echo "loop: $id done (rc=$rc)"
-  elif [ -z "$(git status --porcelain)" ] && git log -1 --format=%s | grep -qi "$(echo "$task" | cut -d'|' -f1 | tr -d ' ')"; then
+  elif [ -z "$(git status --porcelain)" ] && [ -n "$(echo "$task" | cut -d'|' -f1 | tr -d ' ')" ] \
+      && git log -1 --format=%s | grep -qi "$(echo "$task" | cut -d'|' -f1 | tr -d ' ')"; then
     mark "$id" 'x'; echo "loop: $id done (commit matched task)"
   else
     mark "$id" '!'

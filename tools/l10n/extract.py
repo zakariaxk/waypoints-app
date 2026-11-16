@@ -81,8 +81,13 @@ def key_variants(literal: str) -> set[str]:
     matches = list(INTERP.finditer(literal))
     n = len(matches)
     if n == 0 or n > 3 or 3 ** n > MAX_VARIANTS:
-        base = INTERP.sub("%@", literal)
-        return {base.replace('\\"', '"').replace("\\n", "\n")}
+        # Beyond the variant budget: emit %@ plus uniform-typed fallbacks so that
+        # e.g. an all-int literal still hits the catalog (Swift emits typed keys).
+        base = INTERP.sub("%@", literal).replace('\\"', '"').replace("\\n", "\n")
+        out = {base}
+        for spec in SPECIFIERS[1:]:
+            out.add(INTERP.sub(spec, literal).replace('\\"', '"').replace("\\n", "\n"))
+        return out
     parts = INTERP.split(literal)
     out = set()
     for combo in itertools.product(SPECIFIERS, repeat=n):

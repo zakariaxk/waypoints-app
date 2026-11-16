@@ -8,17 +8,19 @@ struct GuideDetailScreen: View {
     let ctx: GuidesContext
     let guideID: GuideID?
     /// The viewer's first car, for the mod-sim route; nil falls back to a mod list sheet.
-    let carID: CarID?
+    @State private var carID: CarID?
     @State private var guide: Guide?
     @State private var failed = false
     @State private var done: Set<Int> = []
     @State private var showMods = false
 
     init(ctx: GuidesContext, guideID: GuideID, carID: CarID? = nil) {
-        self.ctx = ctx; self.guideID = guideID; self.carID = carID
+        self.ctx = ctx; self.guideID = guideID
+        _carID = State(initialValue: carID)
     }
     init(ctx: GuidesContext, guide: Guide, carID: CarID? = nil) {
-        self.ctx = ctx; self.guideID = nil; self.carID = carID
+        self.ctx = ctx; self.guideID = nil
+        _carID = State(initialValue: carID)
         _guide = State(initialValue: guide)
         _done = State(initialValue: Self.loadSteps(guide.id))
     }
@@ -130,13 +132,18 @@ struct GuideDetailScreen: View {
     }
 
     private func costLabel(_ part: GuidePart) -> String {
-        let dollars = { (cents: Int) in cents.formatted(.currency(code: "USD").precision(.fractionLength(0))) }
+        let dollars = { (cents: Int) in (cents / 100).formatted(.currency(code: "USD").precision(.fractionLength(0))) }
         return part.estCostCentsLow == part.estCostCentsHigh
             ? dollars(part.estCostCentsLow)
             : "\(dollars(part.estCostCentsLow))–\(dollars(part.estCostCentsHigh))"
     }
 
     private func load() async {
+        // Routes reach this screen with no car; resolve the viewer's first so
+        // "Simulate this" can open the mod sim instead of the raw mod list.
+        if carID == nil, let me = await ctx.env.auth.currentSession()?.userID {
+            carID = (try? await ctx.env.garage.cars(of: me))?.first?.id
+        }
         guard guide == nil, let guideID else { return }
         do { guide = try await ctx.env.guides.guide(guideID); done = Self.loadSteps(guideID); failed = false }
         catch { failed = true }

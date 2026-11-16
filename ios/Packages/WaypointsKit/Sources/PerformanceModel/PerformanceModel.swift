@@ -37,6 +37,10 @@ public struct VehicleSpec: Sendable, Hashable {
                 finalDrive: Double? = nil, tireRadiusM: Double = 0.33, cdA: Double = 0.7, cylinders: Int = 4,
                 layout: EngineLayout = .inline, crankPlane: CrankPlane = .flat, automatic: Bool = false,
                 gearCount: Int? = nil) {
+        // tireRadiusM and weight divide into force/rpm math; zero or negative input
+        // would put NaN/inf on the sim and the drive rig.
+        let tireRadiusM = max(tireRadiusM, 0.1)
+        let weightLb = max(weightLb, 1)
         self.hpCrank = hpCrank; self.torqueLbFt = torqueLbFt; self.weightLb = weightLb; self.drivetrain = drivetrain
         self.aspiration = aspiration; self.redline = redline
         let real = gearRatios?.isEmpty == false

@@ -269,7 +269,7 @@ struct CreateMeet: View {
         let loc = CLLocation(latitude: center.latitude, longitude: center.longitude)
         CLGeocoder().reverseGeocodeLocation(loc) { marks, _ in
             let name = marks?.first.map { $0.name ?? $0.locality ?? "" } ?? ""
-            MainActor.assumeIsolated { if place.isEmpty || editing == nil { place = name } }
+            MainActor.assumeIsolated { if place.isEmpty { place = name } }
         }
     }
 
