@@ -485,6 +485,8 @@ struct ConvoySheet: View {
     @State private var friends: [Friend] = []
     @State private var invited: Set<UserID> = []
     @State private var destination: ConvoyDestination?
+    @State private var loops: [RoadLoop] = []
+    @State private var pickedLoop: LoopID?
     @State private var joining = false
     @State private var working = false
     @State private var error: String?
@@ -542,14 +544,28 @@ struct ConvoySheet: View {
                         .onSubmit { Task { await findDestination() } }
                         // Editing the text after a geocode must drop the resolved point,
                         // or the convoy silently keeps the old destination.
-                        .onChange(of: place) { destination = nil }
+                        .onChange(of: place) { destination = nil; pickedLoop = nil }
                     if let destination {
                         Text("Heading to \(destination.name)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.go)
+                    }
+                    if !loops.isEmpty {
+                        // CNV-14: aim the convoy at a saved loop instead of a searched place.
+                        Text("From a saved loop", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: Space.s8) {
+                                ForEach(loops) { loop in
+                                    Chip(LocalizedStringKey(loop.name), isSelected: pickedLoop == loop.id) { pick(loop) }
+                                }
+                            }
+                        }
+                        .contentMargins(.horizontal, Space.margin, for: .scrollContent)
+                        .padding(.horizontal, -Space.margin)
                     }
                     Text("Everyone in the convoy sees your exact location until you leave.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
                     PrimaryButton("Start convoy", isLoading: working) {
                         run {
-                            if place.isEmpty || destination == nil { await findDestination() }
+                            // No destination yet: resolve the typed place (a loop pick already set it).
+                            if destination == nil { await findDestination() }
                             try await store.create(name: name, destination: destination)
                         }
                     }
@@ -565,6 +581,7 @@ struct ConvoySheet: View {
             if store.code == nil, !code.isEmpty { await store.adopt(code: code) }
             if name.isEmpty, let p = try? await store.env.profiles.myProfile() { name = "\(p.displayName)'s convoy" }
             friends = (try? await store.env.friends.friends()) ?? []
+            loops = (try? await store.env.roads.myLoops()) ?? []
         }
     }
 
@@ -582,6 +599,33 @@ struct ConvoySheet: View {
             }
         }
         if let found { destination = found }
+    }
+
+    /// CNV-14: a loop chip sets the destination to the loop's end, named for the loop;
+    /// tapping the picked chip drops it, the way editing the place text does.
+    private func pick(_ loop: RoadLoop) {
+        if pickedLoop == loop.id {
+            pickedLoop = nil
+            destination = nil
+            return
+        }
+        place = ""
+        Task { await aim(at: loop) }
+    }
+
+    /// The loop's end: its roads joined in order, reversing a road when its far end meets the
+    /// road before it — the same walking LoopDetail's joined path does, kept to the last point.
+    private func aim(at loop: RoadLoop) async {
+        var end: Coordinate?
+        for id in loop.roadIDs {
+            guard let road = try? await store.env.roads.road(id),
+                  let first = road.path.first, let last = road.path.last else { continue }
+            end = end.map { $0.distance(to: last) < $0.distance(to: first) ? first : last } ?? last
+        }
+        // The place field won while roads loaded: leave its cleared destination alone.
+        guard let end, place.isEmpty, pickedLoop == nil else { return }
+        pickedLoop = loop.id
+        destination = ConvoyDestination(coordinate: end, name: loop.name)
     }
 
     private func run(_ body: @escaping () async throws -> Void) {

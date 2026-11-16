@@ -309,6 +309,9 @@
         }
       }
     },
+    "From a saved loop": {
+      "extractionState": "manual"
+    },
     "Heading to %@": {
       "extractionState": "manual",
       "localizations": {

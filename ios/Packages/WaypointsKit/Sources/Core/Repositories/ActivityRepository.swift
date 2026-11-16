@@ -12,6 +12,7 @@ public enum ActivityKind: String, Hashable, Sendable, Codable, CaseIterable {
     case convoyInvite = "convoy_invite"
     case unlock
     case helpResponse = "help_response"
+    case priceDrop = "price_drop"
     /// A kind this build does not know yet.
     case other
 

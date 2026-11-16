@@ -78,6 +78,9 @@
         }
       }
     },
+    "%@ roads": {
+      "extractionState": "manual"
+    },
     "%f of %@ stretches of road here. Counted on this phone only.": {
       "extractionState": "manual",
       "localizations": {
@@ -155,6 +158,9 @@
         }
       }
     },
+    "%f roads": {
+      "extractionState": "manual"
+    },
     "%lld of %@ stretches of road here. Counted on this phone only.": {
       "extractionState": "manual",
       "localizations": {
@@ -231,6 +237,9 @@
           }
         }
       }
+    },
+    "%lld roads": {
+      "extractionState": "manual"
     },
     "A road can't start or end in one of your home zones. Move the handles.": {
       "extractionState": "manual",
@@ -996,6 +1005,9 @@
           }
         }
       }
+    },
+    "Waypoints": {
+      "extractionState": "manual"
     },
     "YOUR DRIVES": {
       "extractionState": "manual",

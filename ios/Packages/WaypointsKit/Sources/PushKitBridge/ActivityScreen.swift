@@ -119,6 +119,7 @@ private struct ActivityRow: View {
         case .convoyInvite: "car.2"
         case .unlock: "seal"
         case .helpResponse: "wrench.and.screwdriver"
+        case .priceDrop: "tag"
         case .other: "bell"
         }
     }

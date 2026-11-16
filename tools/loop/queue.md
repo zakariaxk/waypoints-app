@@ -94,6 +94,6 @@ Format: `- [ ] L## | REQ-IDS | files it owns | one-line task`
 - [x] L79 | TEAM-12 | TeamsFeature | Team page Garage section: members' public cars as chips opening the car. New requirement row.
 - [x] L80 | KNW-8 | supabase migration + checks.sql, Backend, GuidesFeature | guide_votes table + RLS; helpful count + vote/unvote on the guide page; browser sorts by votes. New requirement row.
 - [x] L81 | GAR-20 | GarageFeature, Backend | "Listed for $X" on a car page when it has an active listing; opens the listing. New requirement row.
-- [ ] L82 | MKT-11 | supabase migration + checks.sql, Core ActivityKind | notifications trigger on listings price_cents decrease → activity row for each saver; new kind + label. New requirement row.
-- [ ] L83 | CNV-14 | ConvoyFeature | Convoy create sheet offers the user's saved loops; picking one sets destination = loop end + loop name. New requirement row.
-- [ ] L84 | ROAD-8 | RoadsFeature | Loop share card: joined polylines drawn to scale + name/count/handle, to the share sheet (SPOT-7 pattern). New requirement row.
+- [x] L82 | MKT-11 | supabase migration + checks.sql, Core ActivityKind | notifications trigger on listings price_cents decrease → activity row for each saver; new kind + label. New requirement row.
+- [x] L83 | CNV-14 | ConvoyFeature | Convoy create sheet offers the user's saved loops; picking one sets destination = loop end + loop name. New requirement row.
+- [x] L84 | ROAD-8 | RoadsFeature | Loop share card: joined polylines drawn to scale + name/count/handle, to the share sheet (SPOT-7 pattern). New requirement row.

@@ -648,6 +648,9 @@
         }
       }
     },
+    "%@ roads": {
+      "extractionState": "manual"
+    },
     "%@ rpm": {
       "extractionState": "manual",
       "localizations": {
@@ -1649,6 +1652,9 @@
           }
         }
       }
+    },
+    "%f roads": {
+      "extractionState": "manual"
     },
     "%f rpm": {
       "extractionState": "manual",
@@ -2659,6 +2665,9 @@
           }
         }
       }
+    },
+    "%lld roads": {
+      "extractionState": "manual"
     },
     "%lld rpm": {
       "extractionState": "manual",
@@ -8639,6 +8648,9 @@
           }
         }
       }
+    },
+    "From a saved loop": {
+      "extractionState": "manual"
     },
     "Front splitter": {
       "extractionState": "manual"

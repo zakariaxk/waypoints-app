@@ -1,6 +1,7 @@
 import Core
 import DesignSystem
 import SwiftUI
+import UIKit
 
 // MARK: ROAD-6 Loops
 // Saved roads grouped in order under a name. Lengths only: no speed, time, or ranking.
@@ -124,17 +125,25 @@ struct LoopDetail: View {
     @State private var working = false
     @State private var error: String?
     @State private var done = 0
+    @State private var shared: SharedImage?
+    @Environment(\.displayScale) private var displayScale
 
     private var mine: Bool { loop != nil && loop?.ownerID == me }
 
     var body: some View {
         Sheet(loop.map { Text(verbatim: $0.name) } ?? Text("Loop", bundle: .module), trailing: {
-            if let loop, !mine, !blocked {
-                Menu {
-                    Button("Report") { env.router.open(.reportContent(ContentRef(kind: .user, id: loop.ownerID.description))) }
-                    Button("Block", role: .destructive) { block(loop.ownerID) }
-                } label: { Image.symbol(Symbol.more).foregroundStyle(Color.chalk).frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget) }
-                .accessibilityLabel(Text("More options", bundle: .module))
+            HStack(spacing: 0) {
+                if let loop {
+                    // ROAD-8: share the loop as a card.
+                    IconButton(Symbol.share, label: "Share loop") { share(loop) }
+                }
+                if let loop, !mine, !blocked {
+                    Menu {
+                        Button("Report") { env.router.open(.reportContent(ContentRef(kind: .user, id: loop.ownerID.description))) }
+                        Button("Block", role: .destructive) { block(loop.ownerID) }
+                    } label: { Image.symbol(Symbol.more).foregroundStyle(Color.chalk).frame(minWidth: Size.hitTarget, minHeight: Size.hitTarget) }
+                    .accessibilityLabel(Text("More options", bundle: .module))
+                }
             }
         }, content: {
             ScrollView {
@@ -164,6 +173,7 @@ struct LoopDetail: View {
                 }
             }
         }
+        .sheet(item: $shared) { ShareSheet(items: [$0.image]).presentationDetents([.medium, .large]) }
     }
 
     @ViewBuilder private func content(_ loop: RoadLoop) -> some View {
@@ -234,6 +244,15 @@ struct LoopDetail: View {
         }
         loop = l
         roads = list
+    }
+
+    /// ROAD-8: renders the loop card and hands it to the share sheet.
+    private func share(_ loop: RoadLoop) {
+        Task {
+            let owner = try? await env.profiles.profile(loop.ownerID)
+            let image = await LoopShare.render(name: loop.name, roads: roads, handle: owner?.handle, scale: displayScale)
+            if let image { shared = SharedImage(image: image) }
+        }
     }
 
     /// The MEET-13 mechanism: a convoy named for the loop, with the loop as its route and the
@@ -388,6 +407,95 @@ struct LoopEditor: View {
             }
             saving = false
         }
+    }
+}
+
+// MARK: ROAD-8 Share loop card
+
+/// Every road in the loop stroked in sodium, drawn to scale: one bounding box over all the
+/// coordinates, mapped lng→x, lat→−y with a uniform scale and centered in the canvas frame.
+/// The same sodium the roads layer uses on the map (`RoadsLayer` tint).
+struct LoopRoadsShape: Shape {
+    let paths: [[Coordinate]]
+
+    func path(in rect: CGRect) -> Path {
+        let all = paths.flatMap { $0 }
+        guard let minLng = all.map(\.longitude).min(), let maxLng = all.map(\.longitude).max(),
+              let minLat = all.map(\.latitude).min(), let maxLat = all.map(\.latitude).max() else { return Path() }
+        let dLng = max(maxLng - minLng, 1e-9), dLat = max(maxLat - minLat, 1e-9)
+        let scale = min(rect.width / dLng, rect.height / dLat)
+        let x = { rect.midX + ($0 - (minLng + dLng / 2)) * scale }
+        let y = { rect.midY - ($0 - (minLat + dLat / 2)) * scale }
+        var out = Path()
+        for path in paths {
+            guard let first = path.first else { continue }
+            out.move(to: CGPoint(x: x(first.longitude), y: y(first.latitude)))
+            for c in path.dropFirst() { out.addLine(to: CGPoint(x: x(c.longitude), y: y(c.latitude))) }
+        }
+        return out
+    }
+}
+
+/// The card a loop shares as: the joined polylines to scale over concrete, a sodium paint bar,
+/// the loop name, the road count, the owner's handle.
+struct LoopCard: View {
+    let name: String
+    let roads: [Road]
+    let handle: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Space.s12) {
+            ZStack(alignment: .bottom) {
+                ZStack {
+                    Color.concrete
+                    LoopRoadsShape(paths: roads.map(\.path))
+                        .stroke(Color.sodium, style: StrokeStyle(lineWidth: Size.paintBar, lineCap: .round, lineJoin: .round))
+                        .padding(Space.s12)
+                }
+                .frame(maxWidth: .infinity)
+                .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                .clipped()
+                Rectangle().fill(Color.sodium).frame(height: Size.paintBar)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: Radius.r20, style: .continuous))
+            VStack(alignment: .leading, spacing: Space.s4) {
+                Text(verbatim: name).typeStyle(.title).foregroundStyle(Color.chalk)
+                Text("\(roads.count) roads", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
+            }
+            HStack {
+                if let handle { Text(verbatim: "@\(handle)").typeStyle(.readoutS).foregroundStyle(Color.sodium) }
+                Spacer()
+                Text(verbatim: "Waypoints").typeStyle(.label).foregroundStyle(Color.dust)
+            }
+        }
+        .padding(Space.margin)
+        .frame(width: Size.row * 7)
+        .background(Color.asphalt)
+    }
+}
+
+/// A shared image, identifiable so it can drive `.sheet(item:)`.
+struct SharedImage: Identifiable {
+    let id = UUID()
+    let image: UIImage
+}
+
+/// The system share sheet for an image.
+struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+    func updateUIViewController(_ vc: UIActivityViewController, context: Context) {}
+}
+
+@MainActor
+enum LoopShare {
+    static func render(name: String, roads: [Road], handle: String?, scale: CGFloat) -> UIImage? {
+        let renderer = ImageRenderer(content: LoopCard(name: name, roads: roads, handle: handle)
+            .environment(\.colorScheme, .dark))
+        renderer.scale = scale
+        return renderer.uiImage
     }
 }
 

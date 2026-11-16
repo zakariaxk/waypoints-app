@@ -796,6 +796,26 @@ begin
   perform pg_temp.deny('record_notification: not callable by users', a,
     format($s$select public.record_notification(%L, 'like', null, null, 'x', null, null)$s$, b));
 
+  ---------------------------------------------------------------- price drop (MKT-11)
+  insert into listings (id, seller_id, kind, title, price_cents, condition)
+    values ('cccccccc-0000-4000-8006-0000000000db', a::uuid, 'part', 'Check: hardtop', 90000, 'used'),
+           ('cccccccc-0000-4000-8006-0000000000dc', a::uuid, 'part', 'Check: wheels', 50000, 'used');
+  insert into listing_saves (listing_id, user_id)
+    values ('cccccccc-0000-4000-8006-0000000000db', b::uuid);
+  update listings set price_cents = 75000 where id = 'cccccccc-0000-4000-8006-0000000000db';
+  perform pg_temp.truth('price drop: a saver is notified',
+    exists (select 1 from notifications where user_id = b::uuid and kind = 'price_drop'
+      and subject_url = 'waypoints://listing/cccccccc-0000-4000-8006-0000000000db'));
+  perform pg_temp.truth('price drop: the seller is not notified',
+    not exists (select 1 from notifications where user_id = a::uuid and kind = 'price_drop'));
+  update listings set price_cents = 80000 where id = 'cccccccc-0000-4000-8006-0000000000db';
+  perform pg_temp.truth('price drop: a price increase notifies no one',
+    (select count(*) = 1 from notifications where kind = 'price_drop'));
+  update listings set price_cents = 40000 where id = 'cccccccc-0000-4000-8006-0000000000dc';
+  perform pg_temp.truth('price drop: an unsaved listing notifies no one',
+    not exists (select 1 from notifications where kind = 'price_drop'
+      and subject_url = 'waypoints://listing/cccccccc-0000-4000-8006-0000000000dc'));
+
   ---------------------------------------------------------------- help requests
   insert into help_requests (id, requester_id, kind, geom, note) values
     (help_a::uuid, a::uuid, 'flat_tire', st_setsrid(st_makepoint(-75.02, 39.94), 4326)::geography, 'Check: help');
