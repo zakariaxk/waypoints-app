@@ -369,6 +369,8 @@ struct ListingScreen: View {
     let id: ListingID
     @State private var listing: Listing?
     @State private var seller: Profile?
+    /// MKT-13: the seller's other live listings, capped at five.
+    @State private var others: [Listing] = []
     @State private var me: UserID?
     @State private var editing = false
     @State private var failed = false
@@ -427,6 +429,15 @@ struct ListingScreen: View {
                             }, trailing: { Disclosure() })
                         }
                         .buttonStyle(RowButtonStyle())
+                    }
+                    if !others.isEmpty {
+                        SectionLabel("More from this seller")
+                        ForEach(others) { o in
+                            Button { env.router.open(.listing(o.id)) } label: {
+                                Row(Text(verbatim: o.title), subtitle: Text(verbatim: Price.text(o.priceCents)), trailing: { Disclosure() })
+                            }
+                            .buttonStyle(RowButtonStyle())
+                        }
                     }
                 }
                 .padding(.bottom, Size.row * 3)
@@ -554,6 +565,11 @@ struct ListingScreen: View {
             listing = l
             failed = false
             seller = try? await env.profiles.profile(l.sellerID)
+            // MKT-13: the seller's other live listings; reported ones stay hidden (SAFE-3).
+            others = Array(((try? await env.market.listings(by: l.sellerID)) ?? []).filter {
+                $0.id != l.id && $0.status == .active && !$0.isExpired()
+                    && !hidden.contains(ContentRef(kind: .listing, id: $0.id.description))
+            }.prefix(5))
         } else {
             failed = listing == nil
         }

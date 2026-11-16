@@ -265,6 +265,9 @@
         }
       }
     },
+    "Share guide": {
+      "extractionState": "manual"
+    },
     "Simulate this": {
       "extractionState": "manual",
       "localizations": {
@@ -297,6 +300,9 @@
           }
         }
       }
+    },
+    "Waypoints": {
+      "extractionState": "manual"
     },
     "Waypoints guide · ": {
       "extractionState": "manual",

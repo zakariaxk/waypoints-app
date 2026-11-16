@@ -1101,6 +1101,9 @@
         }
       }
     },
+    "More from this seller": {
+      "extractionState": "manual"
+    },
     "More options": {
       "extractionState": "manual",
       "localizations": {

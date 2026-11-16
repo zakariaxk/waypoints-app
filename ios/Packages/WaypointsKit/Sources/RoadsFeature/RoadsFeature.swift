@@ -262,6 +262,7 @@ struct RoadDetail: View {
     @State private var blocked = false
     @State private var addingToLoop = false
     @State private var toast: ToastMessage?
+    @State private var drivenCount = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.s12) {
@@ -295,6 +296,10 @@ struct RoadDetail: View {
                 bar("Traffic", r.ratings.traffic, count: r.ratings.count)
                 if !friendRatings.isEmpty {
                     Text(verbatim: RoadFormat.friendsRated(friendRatings))
+                        .typeStyle(.sub).foregroundStyle(Color.dust)
+                }
+                if drivenCount > 0 {
+                    Text("You've driven this \(drivenCount)×", bundle: .module)
                         .typeStyle(.sub).foregroundStyle(Color.dust)
                 }
                 HStack(spacing: Space.s12) {
@@ -359,10 +364,22 @@ struct RoadDetail: View {
                     guard let r = scores[f.id], !hidden.contains(ContentRef(kind: .user, id: f.id.description)) else { return nil }
                     return (f, RoadFormat.score(r))
                 }
+                let path = r.path
+                drivenCount = await Task.detached(priority: .utility) { Self.drivenCount(on: path) }.value
             }
         }
         failed = road == nil
         if let mine = try? await env.roads.myRating(for: roadID) { rating = mine }
+    }
+
+    /// ROAD-10: a saved drive counts once when at least two of its points are within 100 m
+    /// of the road path (sampled to keep the comparison cheap). Reads files off-actor.
+    nonisolated private static func drivenCount(on path: [Coordinate]) -> Int {
+        let step = max(1, path.count / 200)
+        let sampled = stride(from: 0, to: path.count, by: step).map { path[$0] }
+        return DriveRecorder.load().count { d in
+            d.points.filter { p in sampled.contains(where: { p.distance(to: $0) < 100 }) }.count >= 2
+        }
     }
 
     private func bar(_ title: LocalizedStringKey, _ value: Double, count: Int) -> some View {

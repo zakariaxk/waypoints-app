@@ -12025,6 +12025,9 @@
         }
       }
     },
+    "More from this seller": {
+      "extractionState": "manual"
+    },
     "More options": {
       "extractionState": "manual",
       "localizations": {
@@ -16178,6 +16181,9 @@
     "Share garage": {
       "extractionState": "manual"
     },
+    "Share guide": {
+      "extractionState": "manual"
+    },
     "Share invite": {
       "extractionState": "manual",
       "localizations": {
@@ -19598,6 +19604,15 @@
           }
         }
       }
+    },
+    "You've driven this %@×": {
+      "extractionState": "manual"
+    },
+    "You've driven this %f×": {
+      "extractionState": "manual"
+    },
+    "You've driven this %lld×": {
+      "extractionState": "manual"
     },
     "You've judged every pair in %@. Try another class.": {
       "extractionState": "manual",

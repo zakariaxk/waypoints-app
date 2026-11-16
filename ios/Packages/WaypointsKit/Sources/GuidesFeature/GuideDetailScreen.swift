@@ -22,6 +22,8 @@ struct GuideDetailScreen: View {
     @State private var logging = false
     @State private var logged = false
     @State private var logFailed = false
+    @State private var shared: SharedImage?
+    @Environment(\.displayScale) private var displayScale
 
     init(ctx: GuidesContext, guideID: GuideID, carID: CarID? = nil) {
         self.ctx = ctx; self.guideID = guideID; self.contextCarID = carID
@@ -45,6 +47,13 @@ struct GuideDetailScreen: View {
         .background(Color.asphalt.ignoresSafeArea())
         .navigationTitle(guide.map { Text(verbatim: $0.vehicleLabel) } ?? Text(""))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if guide != nil {
+                ToolbarItem(placement: .topBarTrailing) {
+                    IconButton(Symbol.share, label: "Share guide") { shareGuide() }
+                }
+            }
+        }
         .task { await load() }
         .sheet(isPresented: $showMods) {
             NavigationStack {
@@ -53,6 +62,7 @@ struct GuideDetailScreen: View {
             }
             .presentationDetents([.medium])
         }
+        .sheet(item: $shared) { ShareSheet(items: [$0.image]).presentationDetents([.medium, .large]) }
         .confirmationDialog(String(localized: "Log to which car?", bundle: .module),
                             isPresented: $showPicker, titleVisibility: .visible) {
             ForEach(pickerCars) { car in
@@ -158,6 +168,13 @@ struct GuideDetailScreen: View {
         } catch {
             self.guide = guide
         }
+    }
+
+    /// KNW-10: renders the guide card and hands it to the share sheet.
+    private func shareGuide() {
+        guard let guide else { return }
+        let image = GuideShare.render(guide: guide, time: GuidesScreen.timeLabel(guide), scale: displayScale)
+        if let image { shared = SharedImage(image: image) }
     }
 
     private func toggle(_ guide: Guide, _ index: Int) {

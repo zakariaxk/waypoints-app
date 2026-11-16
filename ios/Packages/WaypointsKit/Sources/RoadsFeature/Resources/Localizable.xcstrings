@@ -1239,6 +1239,15 @@
         }
       }
     },
+    "You've driven this %@×": {
+      "extractionState": "manual"
+    },
+    "You've driven this %f×": {
+      "extractionState": "manual"
+    },
+    "You've driven this %lld×": {
+      "extractionState": "manual"
+    },
     "Your last drive ended here": {
       "extractionState": "manual"
     },
