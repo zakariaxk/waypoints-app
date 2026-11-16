@@ -727,6 +727,9 @@
         }
       }
     },
+    "Post it": {
+      "extractionState": "manual"
+    },
     "Rate": {
       "extractionState": "manual",
       "localizations": {

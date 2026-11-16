@@ -15,6 +15,9 @@ public enum Route: Hashable, Sendable {
     case activity     // NTF-6, the Activity list (W7-2)
     case askForHelp(Coordinate), help(HelpRequestID)           // PRD HELP (ReportsFeature)
     case loop(LoopID)     // ROAD-6 (RoadsFeature)
+    case road(RoadID)     // FEED-12 (RoadsFeature)
+    /// FEED-12: opens the post composer with a road pre-attached (FeedFeature).
+    case compose(road: RoadID)
     case guides, guide(GuideID)     // KNW-2/3 (GuidesFeature)
 
     /// The case without its payload, used to key route handlers in `FeatureRegistry`.
@@ -25,6 +28,7 @@ public enum Route: Hashable, Sendable {
         case activity
         case askForHelp, help
         case loop
+        case road, compose
         case guides, guide
     }
 
@@ -60,6 +64,8 @@ public enum Route: Hashable, Sendable {
         case .askForHelp: .askForHelp
         case .help: .help
         case .loop: .loop
+        case .road: .road
+        case .compose: .compose
         case .guides: .guides
         case .guide: .guide
         }

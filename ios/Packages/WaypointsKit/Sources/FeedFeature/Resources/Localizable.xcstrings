@@ -419,6 +419,15 @@
         }
       }
     },
+    "On %@": {
+      "extractionState": "manual"
+    },
+    "On %f": {
+      "extractionState": "manual"
+    },
+    "On %lld": {
+      "extractionState": "manual"
+    },
     "Only the first 30 seconds are posted.": {
       "extractionState": "manual",
       "localizations": {
@@ -462,6 +471,9 @@
           }
         }
       }
+    },
+    "Post it": {
+      "extractionState": "manual"
     },
     "Posted": {
       "extractionState": "manual",
@@ -561,6 +573,9 @@
           }
         }
       }
+    },
+    "Tag a road": {
+      "extractionState": "manual"
     },
     "That comment can't be posted.": {
       "extractionState": "manual",

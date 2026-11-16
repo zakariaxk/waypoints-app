@@ -452,6 +452,7 @@ struct PostRow: Decodable, Sendable {
     let authorId: UUID
     let carId: UUID?
     let meetId: UUID?
+    let roadId: UUID?
     let videoPath: String?
     let postPhotos: [Photo]?
     let posterPath: String?
@@ -463,7 +464,7 @@ struct PostRow: Decodable, Sendable {
 
     func model(liked: Bool) -> Post {
         Post(id: PostID(raw: id), authorID: UserID(raw: authorId), carID: carId.map(CarID.init(raw:)),
-             meetID: meetId.map(MeetID.init(raw:)), videoPath: videoPath,
+             meetID: meetId.map(MeetID.init(raw:)), roadID: roadId.map(RoadID.init(raw:)), videoPath: videoPath,
              photoPaths: (postPhotos ?? []).sorted { $0.sort < $1.sort }.map(\.path), posterPath: posterPath ?? "", caption: caption ?? "", durationMs: durationMs ?? 0,
              likeCount: likeCount, commentCount: commentCount, likedByMe: liked, createdAt: createdAt)
     }

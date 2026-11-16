@@ -17,6 +17,11 @@ public enum FeedFeature: FeatureModule {
             guard case let .post(id) = route else { return nil }
             return AnyView(SinglePost(env: env, registry: registry, postID: id))
         }
+        // FEED-12: "Post it" on a road opens the composer with the road attached.
+        registry.registerRoute(.compose, presentation: .sheet) { route in
+            guard case let .compose(road) = route else { return nil }
+            return AnyView(PostVideo(env: env, uploader: uploader, road: road))
+        }
         #if DEBUG
         registry.registerDebugScreen("comments") { AnyView(DebugComments(env: env, registry: registry)) }
         #endif
@@ -126,6 +131,7 @@ final class FeedModel {
     var following: [UserID: Bool] = [:]
     var cars: [CarID: Car] = [:]
     var meets: [MeetID: Meet] = [:]
+    var roads: [RoadID: Road] = [:]
     var next: PageCursor?
     var loading = false
     var failed = false
@@ -179,6 +185,7 @@ final class FeedModel {
             for a in missing where following[a] == nil { following[a] = (try? await env.posts.isFollowing(a)) ?? false }
             for id in page.items.compactMap(\.carID) where cars[id] == nil { cars[id] = try? await env.garage.car(id) }
             for id in page.items.compactMap(\.meetID) where meets[id] == nil { meets[id] = try? await env.meets.meet(id) }
+            for id in page.items.compactMap(\.roadID) where roads[id] == nil { roads[id] = try? await env.roads.road(id) }
         } catch is CancellationError {
         } catch {
             if case WaypointsError.offline = error { offline = true } else { failed = true }
@@ -514,6 +521,12 @@ struct PostOverlay: View {
                 }
                 .buttonStyle(PressScaleStyle())
             }
+            if let id = post.roadID, let road = model.roads[id] {
+                Button { model.env.router.open(.road(id)) } label: {
+                    Text("On \(road.name)", bundle: .module).typeStyle(.sub).foregroundStyle(Color.chalk)
+                }
+                .buttonStyle(PressScaleStyle())
+            }
         }
     }
 
@@ -675,6 +688,7 @@ struct SinglePost: View {
         if let a = try? await env.profiles.profile(p.authorID) { model.authors[a.userID] = a }
         if let id = p.carID { model.cars[id] = try? await env.garage.car(id) }
         if let id = p.meetID { model.meets[id] = try? await env.meets.meet(id) }
+        if let id = p.roadID { model.roads[id] = try? await env.roads.road(id) }
     }
 }
 
@@ -832,7 +846,7 @@ final class Uploader {
     init(env: AppEnvironment) { self.env = env }
 
     /// FEED-11: photos upload in order; the first is also the poster.
-    func post(photos: [Data], caption: String, car: CarID?, meet: MeetID?) {
+    func post(photos: [Data], caption: String, car: CarID?, meet: MeetID?, road: RoadID? = nil) {
         guard !posting else { return }
         posting = true
         progress = 0
@@ -849,20 +863,20 @@ final class Uploader {
                     paths.append(media.path)
                 }
                 guard let first = paths.first else { throw WaypointsError.invalid("photo") }
-                _ = try await env.posts.createPost(NewPost(carID: car, meetID: meet, videoPath: nil, photoPaths: paths,
+                _ = try await env.posts.createPost(NewPost(carID: car, meetID: meet, roadID: road, videoPath: nil, photoPaths: paths,
                                                            posterPath: first, caption: caption, durationMs: 0))
                 toast = ToastMessage(Text("Posted", bundle: .module))
             } catch WaypointsError.rateLimited {
                 toast = ToastMessage(Text(FeedCopy.rateLimited))
             } catch {
-                retry = { [weak self] in self?.post(photos: photos, caption: caption, car: car, meet: meet) }
+                retry = { [weak self] in self?.post(photos: photos, caption: caption, car: car, meet: meet, road: road) }
                 toast = ToastMessage(Text("Couldn't post. Check your connection and try again.", bundle: .module))
             }
             progress = nil
         }
     }
 
-    func post(video: URL, poster: Data, caption: String, car: CarID?, meet: MeetID?, duration: Double) {
+    func post(video: URL, poster: Data, caption: String, car: CarID?, meet: MeetID?, road: RoadID? = nil, duration: Double) {
         guard !posting else { return }
         posting = true
         progress = 0
@@ -878,7 +892,7 @@ final class Uploader {
                 let videoMedia = try await env.media.upload(data, contentType: "video/mp4", to: .posts) { p in
                     Task { @MainActor in self.progress = p }
                 }
-                _ = try await env.posts.createPost(NewPost(carID: car, meetID: meet, videoPath: videoMedia.path,
+                _ = try await env.posts.createPost(NewPost(carID: car, meetID: meet, roadID: road, videoPath: videoMedia.path,
                                                            posterPath: posterMedia.path, caption: caption,
                                                            durationMs: Int(seconds * 1000)))
                 // The source lives in the picker's tmp area; posting succeeded, drop it.
@@ -892,7 +906,7 @@ final class Uploader {
                 let saved = drafts.appending(path: video.lastPathComponent)
                 try? FileManager.default.copyItem(at: video, to: saved)
                 // Retry from the draft copy: the source URL is a temp file the system can purge.
-                retry = { [weak self] in self?.post(video: saved, poster: poster, caption: caption, car: car, meet: meet, duration: duration) }
+                retry = { [weak self] in self?.post(video: saved, poster: poster, caption: caption, car: car, meet: meet, road: road, duration: duration) }
                 toast = ToastMessage(Text("Couldn't post. Saved as a draft.", bundle: .module))
             }
             progress = nil
@@ -954,6 +968,8 @@ struct VideoFile: Transferable {
 struct PostVideo: View {
     let env: AppEnvironment
     let uploader: Uploader
+    /// FEED-12: a road pre-attached by the road sheet's "Post it" (route `.compose`).
+    var road: RoadID?
     @Environment(\.dismiss) private var dismiss
     @State private var item: PhotosPickerItem?
     @State private var pick = false
@@ -970,6 +986,7 @@ struct PostVideo: View {
     @State private var car: CarID?
     @State private var meets: [Meet] = []
     @State private var meet: MeetID?
+    @State private var roadName: String?
     @State private var loadingMedia = false
     @State private var error: String?
 
@@ -1025,15 +1042,20 @@ struct PostVideo: View {
                             })
                         }
                     }
+                    if let roadName {
+                        Row(Text("Tag a road", bundle: .module), showsDivider: false, trailing: {
+                            Text(verbatim: roadName).typeStyle(.sub)
+                        })
+                    }
                     PrimaryButton("Post") {
                         if !photos.isEmpty {
                             let data = photos.compactMap { $0.jpegData(compressionQuality: 0.85) }
-                            uploader.post(photos: data, caption: caption, car: car, meet: meet)
+                            uploader.post(photos: data, caption: caption, car: car, meet: meet, road: road)
                             dismiss()
                             return
                         }
                         guard let video, let data = poster?.jpegData(compressionQuality: 0.8) else { return }
-                        uploader.post(video: video, poster: data, caption: caption, car: car, meet: meet, duration: min(duration, 30))
+                        uploader.post(video: video, poster: data, caption: caption, car: car, meet: meet, road: road, duration: min(duration, 30))
                         dismiss()
                     }
                     .disabled(loadingMedia || ((video == nil || poster == nil) && photos.isEmpty))
@@ -1090,6 +1112,7 @@ struct PostVideo: View {
                 cars = (try? await env.garage.cars(of: me)) ?? []
                 meets = ((try? await env.meets.upcomingMeets(for: me)) ?? []).filter { $0.cancelledAt == nil && $0.startsAt <= .now }
             }
+            if let road { roadName = (try? await env.roads.road(road))?.name }
         }
     }
 

@@ -124,6 +124,9 @@ extension PreviewStore: ProgressRepository {
         let distinctSpots = Set(spots.filter { $0.spotterID == me }.map(\.catalogModelID)).count
         let rated = roadRatings.keys.filter { $0.b == me.raw }.count
         let longestBuild = carList(of: me).map { car in buildEntries.filter { $0.carID == car.id }.count }.max() ?? 0
+        let myCars = Set(carList(of: me).map(\.id))
+        let guideLogged = buildEntries.contains { myCars.contains($0.carID) && $0.body.hasPrefix("Waypoints guide · ") } ? 1 : 0
+        let loopsSaved = roadLoops.values.filter { $0.ownerID == me }.count
         let targets: [(String, Int, Int)] = [
             ("first_meet", earned["first_meet"] == nil ? 0 : 1, 1),
             ("host_3", 0, 3),
@@ -137,6 +140,9 @@ extension PreviewStore: ProgressRepository {
             ("convoy_lead", 0, 1),
             ("strip_12s", 0, 1),
             ("strip_10s", 0, 1),
+            ("spots_10", distinctSpots, 10),
+            ("loop_saved", loopsSaved, 1),
+            ("guide_logged", guideLogged, 1),
         ]
         return targets.map { AchievementProgress(key: $0.0, current: min($0.1, $0.2), target: $0.2, earnedAt: earned[$0.0]) }
     }

@@ -438,13 +438,13 @@ struct LivePosts: PostRepository {
     func createPost(_ post: NewPost) async throws -> Post {
         let me = try ctx.me()
         struct Body: Encodable {
-            let authorId: UUID; let carId: UUID?; let meetId: UUID?; let videoPath: String?; let posterPath: String
+            let authorId: UUID; let carId: UUID?; let meetId: UUID?; let roadId: UUID?; let videoPath: String?; let posterPath: String
             let caption: String; let durationMs: Int?
         }
         struct PhotoBody: Encodable { let postId: UUID; let path: String; let sort: Int }
         let photos = Array(post.photoPaths.prefix(Post.maxPhotos))
         let row: PostRow = try await ctx.run {
-            try await ctx.table("posts").insert(Body(authorId: me.raw, carId: post.carID?.raw, meetId: post.meetID?.raw,
+            try await ctx.table("posts").insert(Body(authorId: me.raw, carId: post.carID?.raw, meetId: post.meetID?.raw, roadId: post.roadID?.raw,
                                                      videoPath: post.videoPath, posterPath: post.posterPath, caption: post.caption,
                                                      durationMs: post.durationMs > 0 ? post.durationMs : nil))
                 .select().single().execute().value
@@ -808,6 +808,7 @@ struct LiveProgress: ProgressRepository {
         "build_10": 10, "showdown_top10": 1, "convoy_lead": 1, "strip_12s": 1, "strip_10s": 1, "teams_join": 1, "meets_5": 5,
         "friends_5": 5, "convoy_3": 3, "listing_1": 1, "showdown_50": 50, "build_25": 25, "venue_5": 5, "reports_1": 1,
         "meets_1": 1, "convoy_1": 1, "spots_5": 5, "strip_1": 1, "roads_1": 1, "posts_5": 5,
+        "loop_saved": 1, "guide_logged": 1, "spots_10": 10,
     ]
 
     func achievements(of user: UserID) async throws -> [Achievement] {
@@ -846,8 +847,9 @@ struct LiveProgress: ProgressRepository {
         let best = races.map(\.etMs).min() ?? Int.max
         let current: [String: Int] = [
             "reports_1": confirmed, "reports_10": confirmed, "reports_50": confirmed,
-            "spots_5": Set(spots.compactMap(\.catalogModelId)).count, "spots_25": Set(spots.compactMap(\.catalogModelId)).count,
-            "spots_100": Set(spots.compactMap(\.catalogModelId)).count, "roads_1": roads, "roads_5": roads, "posts_5": posts,
+            "spots_5": Set(spots.compactMap(\.catalogModelId)).count, "spots_10": Set(spots.compactMap(\.catalogModelId)).count,
+            "spots_25": Set(spots.compactMap(\.catalogModelId)).count, "spots_100": Set(spots.compactMap(\.catalogModelId)).count,
+            "roads_1": roads, "roads_5": roads, "posts_5": posts,
             "listing_1": listings, "venue_5": venue, "teams_join": teams, "strip_1": races.count,
             "strip_12s": best < 12000 ? 1 : 0, "strip_10s": best < 10000 ? 1 : 0,
         ]

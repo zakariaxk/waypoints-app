@@ -215,7 +215,7 @@ extension PreviewStore: PostRepository {
         return decorated(post)
     }
     public func createPost(_ new: NewPost) async throws -> Post {
-        let post = Post(authorID: try me(), carID: new.carID, meetID: new.meetID, videoPath: new.videoPath,
+        let post = Post(authorID: try me(), carID: new.carID, meetID: new.meetID, roadID: new.roadID, videoPath: new.videoPath,
                         photoPaths: Array(new.photoPaths.prefix(Post.maxPhotos)), posterPath: new.posterPath,
                         caption: new.caption, durationMs: new.durationMs)
         posts[post.id] = post

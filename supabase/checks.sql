@@ -1589,6 +1589,28 @@ begin
     $s$insert into repair_guides (task, make, difficulty, time_min_minutes, time_max_minutes, tools, parts, steps, sources)
       values ('Oil change', 'Honda', 1, 10, 20, '[]', '[]', '["step"]', '[]')$s$, '23514');
 
+  ---------------------------------------------------------------- achievements (L75, ICN-8)
+  -- `a` saved its loop in the W10-9 block above; the trigger awards on the first row.
+  perform pg_temp.truth('l75 achievements: first loop awards loop_saved',
+    exists (select 1 from achievements where user_id = a::uuid and key = 'loop_saved'));
+  perform pg_temp.truth('l75 achievements: a denied loop insert awards nothing',
+    not exists (select 1 from achievements where user_id = b::uuid and key = 'loop_saved'));
+  perform pg_temp.allow('l75 achievements: guide entry logged to a timeline', a,
+    format($s$insert into build_entries (car_id, title, body)
+      values (%L, 'Engine oil and filter change', 'Waypoints guide · Mazda MX-5 Miata')$s$, car_a), true);
+  perform pg_temp.truth('l75 achievements: guide entry awards guide_logged',
+    exists (select 1 from achievements where user_id = a::uuid and key = 'guide_logged'));
+  perform pg_temp.allow('l75 achievements: mod install entry on a timeline', b,
+    format($s$insert into build_entries (car_id, title, mod_id)
+      values (%L, 'Coilovers', 'coilover')$s$, car_b), true);
+  perform pg_temp.truth('l75 achievements: mod id alone does not award guide_logged',
+    not exists (select 1 from achievements where user_id = b::uuid and key = 'guide_logged'));
+  perform pg_temp.allow('l75 achievements: ten distinct models spotted', a,
+    format($s$insert into spots (spotter_id, make, model, catalog_model_id)
+      select %L, 'Honda', 'Civic', g from generate_series(1, 10) g$s$, a), true);
+  perform pg_temp.truth('l75 achievements: tenth distinct model awards spots_10',
+    exists (select 1 from achievements where user_id = a::uuid and key = 'spots_10'));
+
   ---------------------------------------------------------------- cascade
   delete from storage.objects where name like a || '/%';
   delete from auth.users where id = a::uuid;

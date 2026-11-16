@@ -18,6 +18,10 @@ public enum RoadsFeature: FeatureModule {
             guard case let .loop(id) = route else { return nil }
             return AnyView(LoopDetail(env: env, loopID: id))
         }
+        registry.registerRoute(.road, presentation: .sheet) { route in
+            guard case let .road(id) = route else { return nil }
+            return AnyView(RoadDetail(env: env, roadID: id))
+        }
         registry.registerDebugScreen("loop") { AnyView(DebugLoop(env: env, edit: false)) }
         registry.registerDebugScreen("loop-edit") { AnyView(DebugLoop(env: env, edit: true)) }
         DriveRecorder.shared.start(env: env)
@@ -262,6 +266,8 @@ struct RoadDetail: View {
                 HStack(spacing: Space.s12) {
                     PrimaryButton("Drive it") { if let start = r.path.first { env.router.open(.navigate(to: start, name: r.name)) } }
                     SecondaryButton("Rate") { ratingOpen.toggle() }
+                    // FEED-12: shares the road as a post.
+                    SecondaryButton("Post it") { env.router.open(.compose(road: r.id)) }
                 }
                 if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                 if ratingOpen {

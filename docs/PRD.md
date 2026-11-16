@@ -306,6 +306,7 @@ The gamified icon set. Earned by taking part, never bought, never for speed or d
 | ICN-5 | Earning an unlock shows it once in the map sheet with "Use it". | P0 | Coded |
 | ICN-6 | Unlocks are awarded by database triggers, by the gateway for those that need presence (meet check-ins, convoys), and by the weekly Showdown close. | P0 | Coded: the weekly close (`w6-8_showdown_week`, SHOW-7) awards `showdown_top10`; it needs pg_cron on the project. |
 | ICN-7 | A profile shows the icons its owner has earned. | P1 | Coded |
+| ICN-8 | The key table covers the surfaces added since plan 9.8: first loop saved, first guide logged to a timeline, and spot milestones past the first. Same rules: one plain-words requirement each, trigger-awarded, never for speed or distance. | P3 | Coded (L75): `loop_saved` (road_loops insert), `spots_10` added to the ach_spots threshold list, `guide_logged` on the "Waypoints guide ·" build-entry prefix; targets/currents wired live + preview; checks.sql rows. Statically reviewed; check-db deferred. |
 
 ### 4.5 Search, routes, and navigation (NAV)
 
@@ -551,6 +552,7 @@ Watching builds, full screen. Plan 5.5, 10.5 (F1 to F3).
 | FEED-9 | Scrolling 50 videos on Wi-Fi never shows a black frame longer than 200 ms, with at most three players alive and flat memory. | P0 | Verified (L39, code): ≤3 players, ±1 eviction, autopause; frame perf needs device. |
 | FEED-10 | You can delete your own post. | P0 | Verified (L39): author DELETE own post 204 via posts_delete_own RLS. |
 | FEED-11 | Photo posts. A post can be up to 6 photos instead of a video, swiped sideways inside the same pager. A post can also tag a meet, and the meet shows posts from it. | P2 | Verified (L39): photo post with post_photos rows readable by others; pager swipes. |
+| FEED-12 | A rated road can be shared as a post: the road sheet offers "Post it", the composer carries the road, and the post renders a road chip that opens the road. | P3 | Coded (L74): posts.road_id + index; `Route.road`/`.compose(road:)`; "Post it" on RoadDetail; road chip in PostOverlay opens the road sheet; feed RPCs select po.* so no function change. Statically reviewed; build/check-db deferred. |
 
 ### 4.18 Showdown (SHOW)
 

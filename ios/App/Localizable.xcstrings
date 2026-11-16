@@ -12032,6 +12032,15 @@
         }
       }
     },
+    "On %@": {
+      "extractionState": "manual"
+    },
+    "On %f": {
+      "extractionState": "manual"
+    },
+    "On %lld": {
+      "extractionState": "manual"
+    },
     "On my way": {
       "extractionState": "manual",
       "localizations": {
@@ -15756,6 +15765,9 @@
           }
         }
       }
+    },
+    "Tag a road": {
+      "extractionState": "manual"
     },
     "Take a photo": {
       "extractionState": "manual",
