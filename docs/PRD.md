@@ -183,26 +183,22 @@ Everything commits to `main`. Before committing: `git pull --rebase`, then `make
 
 ## 3. Where the project stands
 
-Audited 2026-11-13 by building, by inventory of files and endpoints, and by searching the source for each screen's final copy from plan section 10. Nothing was run against a backend, so the only requirements marked Verified are the two the compiler and a source search can prove (CONC-1, CONC-2).
+Audited 2026-11-13 by file inventory; re-audited 2026-11-15 (L51) by running every gate on the live local stack: `make build` green (Debug and unsigned Release arm64), `make check-db` 535/535, `make check-rt` 8/8, `-wp-smoke` 98 PASS / 0 FAIL / 58 SKIP, and every debug screen and both App Store sizes captured and read.
 
 ### 3.1 What exists
 
-- `make build` exits 0 with no warnings: the Go gateway and catalog tool build and vet, and the iOS app builds for the simulator in Swift 6 mode with complete concurrency checking.
-- 32 Swift modules, about 19,600 hand-written lines. All 20 feature modules register themselves and report available. Features do not import each other. One `@unchecked Sendable` type exists, the audio render kernel, as the plan allows.
-- The gateway (about 5,500 lines): the realtime endpoint, privacy, reports, meets, convoys, voice tokens, push, the in-process bus and the NATS bus, metrics, and a load generator.
-- Ten migrations: schema, row-level security, RPCs, triggers, storage, convoys, push triggers, achievements, meet check-ins. `supabase/checks.sql` and a seed for Philadelphia and South Jersey.
-- 36 vehicle silhouettes generated from a proportion table, 8 trails, a 42-entry mod catalog, the design gallery, and the B612 Mono readout face.
-- One benchmark run (Benchmark I, local, 2026-11-10) in `docs/BENCHMARKS.md`.
+- 35 Swift modules, Swift 6 complete concurrency. Every feature module registers itself; features never import each other. The one allowed `@unchecked Sendable` is the audio render kernel.
+- The Go gateway: realtime endpoint, privacy fuzzing, reports, meets, convoys, voice tokens, push, in-process and NATS buses, metrics, load generator, a Dockerfile (verified booting against the local stack), and a Railway scaffold. `tools/guides` drafts repair guides from offline/polite fetches.
+- 52 migrations: schema, RLS, RPCs, triggers, storage, convoys, push, achievements, check-ins, feed hiding, showdown pairing, repair guides. `supabase/checks.sql` runs 535 access checks green.
+- 36 vehicle silhouettes, 8 trails, a 42-entry mod catalog, the design gallery, B612 Mono readouts, four String Catalog languages, and a script-drawn app icon shipped in the bundle.
+- Wave 13: `repair_guides` (44 seeded guides over 19 platforms) and the Guides browser; the RealityKit 3D shop with procedural bodies and live paint/wheel/stance/aero; the SceneKit test drive fed by `VehicleSpec` + mods with synthesized engine audio. Screens verified in `.build/shots/{guides,shop,drive,convoy-live}.png`.
+- Published: `zakariaxk.github.io` serves /, /terms, /privacy, the AASA file, and a 404 page. One benchmark run recorded in `docs/BENCHMARKS.md`.
 
 ### 3.2 What has not happened
 
-- 2026-11-14: `make build` is green after the code-first wave, the app launches in the simulator with `-wp-preview` (the first launch crashed in PushKitBridge; fixed), `make check-rt` passes 8 of 8, and `make screenshots` produces its set. Everything below still holds for the live backend.
-- The app has never run against a backend. There is no `server/.env`, `ios/App/Config.xcconfig` is the local example, and the `supabase` CLI and `nats-server` are not installed on the owner's machine. Docker is running.
-- No screen has been looked at. Roughly twenty thousand lines of first-pass code compile and are unproven.
-- Benchmark II has scripts and no recorded results. Benchmark III has not been attempted.
-- 2026-11-15 (L30, L31): the two stale bullets above predate the local stack. `make dev` now brings Supabase up seeded, writes `server/.env` and `ios/App/Config.xcconfig`, and runs the gateway on 127.0.0.1:8080; `make check-db` passes 519/519 and `-wp-smoke` in the simulator against it prints 98 PASS, 0 FAIL, 58 SKIP.
-
-So the first job is not more features. It is making what exists run, and proving it (wave 6).
+- Nothing ships until the owner-side pieces land: hosted Supabase + production deploy (L52), Apple Developer program items incl. the AASA TEAMID (L25, L27), LiveKit Cloud (L28), the perf reference host (L26), and on-device/App Store Connect verification (L29).
+- 197 requirements Verified with named evidence, 103 Coded (most sit inside owner-blocked or P1/P2 scope), 10 Partial with the gap written in the row. Every P0 that can be proven on the local stack is proven.
+- Benchmarks II and III still have scripts and no recorded results (need the reference host).
 
 ### 3.3 Known gaps
 
@@ -210,23 +206,12 @@ Found by the audit. Each is carried by the requirement in the last column.
 
 | Gap | Evidence | Requirement |
 |---|---|---|
-| Account deletion cannot work | Done (W12-L32): the `delete_account` migration exists and the RPC was exercised against local auth — anon denied, a user call removes the auth row and every owned row. | ACC-10 |
-| The catalog snapshot is not in the app | `ios/App/Resources/` does not exist; the app falls back to the preview seed catalog. | GAR-7 |
-| No curated specs | `tools/catalog/overrides.csv` has a header and no rows, so no car has torque, redline, or gear ratios. | GAR-8 |
-| Kits for one platform only | Supercharger kits exist for the 2024+ Mustang GT. The plan asked for six platforms. | MOD-2 |
-| No reference-car check | `ReferenceCars.swift` and its debug screen do not exist. | MOD-13 |
-| No weekly Showdown job | Nothing awards `showdown_top10` or closes a week. | SHOW-7 |
-| No meet reminder | The RSVP flow never asks, and nothing schedules a notification before a meet starts. | MEET-4, MEET-6 |
-| No universal links | No entitlements file, no associated domain, no landing page. Shared links are `waypoints://` only, which Messages does not make tappable. | LINK-2 |
-| No app icon | The icon set has no image. | CMP-6 |
-| No String Catalogs | Strings were inline in every module. Now catalogued (W8-3). | L10N-1 |
+| Meet reminders are local-only | MEET-6 schedules on-device notifications; there is no server-side reminder for users without the app open recently. Within spec (local notification is the design). | MEET-6 |
+| Weekly Showdown close needs pg_cron | The `showdown_top10` award function exists; it only runs once pg_cron is enabled on the hosted project (L52). | SHOW-7 |
+| Universal links wait on TEAMID | AASA is served at zakariaxk.github.io with a placeholder team id; LINK-2 stays Partial until the owner's Apple team id replaces it. | LINK-2 |
 | No MetricKit | Nothing subscribes to it. | OBS-2 |
-| No realtime debug client | Done (W6-A): `server/cmd/rtdebug` and `make check-rt` script the eight W1-2 scenarios (precise, approximate, hidden, ghost, nearby anonymity, viewport swap, slow consumer, convoy) and print PASS or FAIL. Run 2026-11-14 against the bench gateway: 8 of 8 PASS. | W6-A |
-| "For you" is not ranked | The repository has one feed query ordered by recency. | FEED-2 |
-| Units | Done: locale formatting swept across the app (see the SET-3 row); "9 mi" seen live on `L32-notifs` (W12-L32). | SET-3 |
-| Device token is never removed | Done: `LiveAuth.signOut` removes the stored token first; the DELETE path was proven 204 over REST (W12-L32). | NTF-5 |
-| Video export is not HEVC | The export uses the 1280×720 H.264 preset. The 12 MB cap is unconfirmed. | FEED-7 |
-| Final copy not found in the source | "Saved roads", "Search needs a connection.", "Clear for a lowered car", "Share with convoy", the hazard-ahead strip, "Offline. Follow the route line.", "Invite to convoy", "Convoy ended.", "Add to collection", "Remind you before it starts?", "Couldn't play this.", "Upcoming", "Voice disconnected.", "Edit team", "Change role". Each may be reworded or absent; the owning package confirms. | NAV-1, NAV-3, NAV-8, NAV-12, NAV-13, MAP-12, CNV-7, SPOT-5, MEET-4, FEED-8, TEAM-4, VOX-5, TEAM-8, TEAM-7 |
+| Installed size unverified on device | Release bundle measures 65 MB uncompressed; thinned per-device install size needs a device or App Store Connect report. | PERF-8 |
+
 
 **Where the code and the plan differ and the code is right.** Wave 6 updates the plan to match:
 
@@ -1167,3 +1152,5 @@ Findings go to W8-INT as a list.
 | 2026-11-14 | Version 1.2 added at the owner's request: priority P3, wave 10 (section 8.8), and thirteen requirements marked New (ACC-12, NAV-16, MEET-15, CNV-12, GAR-17, GAR-18, MOD-15, STR-11, TEAM-11, MSG-11, ROAD-6, SAFE-12, L10N-2). Four came off the backlog in section 12. Also this day: `AGENTS.md` replaced `CLAUDE.md` as the agent instructions, and the pull-request ruleset on `main` was deleted (owner's rule: straight to `main`). |
 | 2026-11-15 | The loop: `tools/loop/` (queue, prompt, `loop.sh` orchestrator) drives headless agent sessions through the remaining Partial rows; AGENTS.md "The loop" section is the protocol. |
 | 2026-11-15 | Wave 12 added (section 8.9): the ship-readiness loop, queue rows L30 to L52 — live-stack verification per area, the remaining screen reads, the l10n interpolation bugs, store-shot fixes, gateway leftovers, publishing `site/`, and release-build checks. SAFE-1 corrected to Coded (convoy member rows landed in L16b). |
+| 2026-11-15 | Wave 13 (section 8.10, queue L63–L67): repair-guide knowledge base (KNW-1 to KNW-6), the 3D car shop (GME-1, GME-2, GME-5), and the closed-loop test drive (GME-3, GME-4, GME-6). Requirement table adds KNW and GME areas. |
+| 2026-11-15 | L51 wave audit: every open queue row L30–L62 worked to done or marked owner-blocked; section 3 re-audited on the live stack (535 checks, 8/8 realtime scenarios, 16 store shots, all debug screens). Gaps that are real remain in the rows they belong to. |
