@@ -1,6 +1,6 @@
 # App Store listing and review notes
 
-Final copy for App Store Connect (PRD CMP-1, CMP-4, CMP-7; owner's action PRD 9.1 step 10). `<LINK_HOST>` is the value of `LINK_HOST` in `ios/App/Config.xcconfig`, the host that serves `site/`. Replace it before pasting.
+Final copy for App Store Connect (PRD CMP-1, CMP-4, CMP-7; owner's action PRD 9.1 step 10). The host below is `LINK_HOST` in `ios/App/Config.xcconfig` (`zakariaxk.github.io`, GitHub Pages serving `site/`).
 
 ## Listing
 
@@ -61,14 +61,14 @@ ACTIVITY
 
 Nothing is for sale. Nobody ever sees your speed. For drivers 17 and older.
 
-Terms: https://<LINK_HOST>/terms
+Terms: https://zakariaxk.github.io/terms
 
 **Keywords** (96 of 100): car meet,car club,cars and coffee,convoy,garage,mods,lowered,car spotting,cruise,drag,jdm,stance
 
-**Support URL:** https://<LINK_HOST>/ (the footer links support@waypoints.app)
-**Marketing URL:** https://<LINK_HOST>/
-**Privacy Policy URL:** https://<LINK_HOST>/privacy
-**License agreement:** custom EULA pointing to https://<LINK_HOST>/terms (it carries the six rules and the zero-tolerance clause for objectionable content and abusive users).
+**Support URL:** https://zakariaxk.github.io/ (the footer links support@waypoints.app)
+**Marketing URL:** https://zakariaxk.github.io/
+**Privacy Policy URL:** https://zakariaxk.github.io/privacy
+**License agreement:** custom EULA pointing to https://zakariaxk.github.io/terms (it carries the six rules and the zero-tolerance clause for objectionable content and abusive users).
 **Copyright:** 2026 Waypoints
 
 **Screenshots:** `tools/screenshots/shots.sh` writes the 6.9" (iPhone 16 Pro Max, 1320 × 2868) and 6.5" (iPhone 11 Pro Max, 1242 × 2688) sets to `.build/screenshots/<size>/`, in upload order: map with friends, meet, route preview with low-car scoring, mod simulator, garage car, Showdown, team channel, market.
@@ -96,7 +96,7 @@ Paste into App Review Information, Notes.
 **Sign in and demo account.** Sign in with Apple works with the reviewer's own Apple ID (the app ships the Sign in with Apple entitlement). For email sign-in, use the demo account below: it signs in with a one-time code sent by email, so the notes include the webmail login for the demo mailbox. Demo account steps: on the sign-in screen tap "Continue with email", enter the demo email, tap "Send code", open the mailbox below, and enter the 6-digit code. The account is already onboarded — handle `appreview`, a car with a build log, friends, a meet, and a listing — so every signed-in screen has content. To see two people on the map, sign in on a second device with Sign in with Apple and add the demo user as a friend.
 
 ```
-Email: appreview@<LINK_HOST>
+Email: appreview@zakariaxk.github.io
 Mailbox: <webmail URL>, password <set by owner>
 Handle: appreview
 ```

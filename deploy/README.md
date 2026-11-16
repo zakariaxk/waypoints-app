@@ -6,6 +6,38 @@ Caddy terminates TLS and balances WebSocket and HTTP traffic across both nodes;
 no stickiness is needed. For one node, drop `gateway-b` and `nats` and unset
 `NATS_URL`.
 
+## Railway
+
+`deploy/railway.toml` scaffolds the service: Dockerfile builder, `/healthz`
+healthcheck, restart on failure. The image and boot are proven locally with:
+
+```sh
+docker build -f deploy/Dockerfile -t waypoints-gateway .
+docker run --rm -p 8080:8080 \
+  -e WAYPOINTS_ENV=prod -e SUPABASE_URL=... -e DATABASE_URL=... \
+  -e WAYPOINTS_INTERNAL_SECRET=... waypoints-gateway
+curl localhost:8080/healthz   # 200
+```
+
+Deploy steps (owner; the Railway CLI is installed and signed in):
+
+1. `railway init` — create a project, then link this repo's service to it.
+   Railway reads `deploy/railway.toml` and builds `deploy/Dockerfile` from the
+   repo root.
+2. Set the service variables (no values in the repo — paste real ones in the
+   dashboard or `railway variables set KEY=...`):
+   - `WAYPOINTS_ENV=prod` (required)
+   - `SUPABASE_URL=` — hosted Supabase project URL
+   - `SUPABASE_SERVICE_ROLE_KEY=` — hosted service-role key
+   - `DATABASE_URL=` — hosted Postgres connection string
+   - `WAYPOINTS_INTERNAL_SECRET=` — shared with the pg_net trigger
+   - `NATS_URL=` — optional; only for a multi-node deployment
+   - `APNS_*`, `LIVEKIT_*` — optional; push and voice stay off until set
+   - `PORT` is injected by Railway; the gateway binds it automatically.
+3. `railway up` deploys. The service stays blocked until step 2 has real
+   hosted-Supabase values (PRD 9.1 step 3); prod refuses to start without
+   `SUPABASE_URL`, `DATABASE_URL`, and `WAYPOINTS_INTERNAL_SECRET`.
+
 ## Hardening notes
 
 - Containers run as a non-root user (`gateway`, uid 10001) with all

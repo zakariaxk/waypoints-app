@@ -1,5 +1,5 @@
 # Gateway image. Build from the repository root: docker build -f deploy/Dockerfile .
-FROM golang:1.24-alpine AS build
+FROM golang:1.27-alpine AS build
 WORKDIR /src
 COPY server/go.mod server/go.sum ./
 RUN go mod download

@@ -1530,6 +1530,18 @@ begin
     format($s$insert into listings (seller_id, kind, title, price_cents, condition)
       values (%L, 'part', 'fag special', 100, 'used')$s$, a), '23514');
 
+  ---------------------------------------------------------------- feed_hidden (L58, FEED-5)
+  perform pg_temp.allow('l58 feed_hidden: owner hides a post', a,
+    format($s$insert into feed_hidden (user_id, post_id) values (%L, %L)$s$, a, post_a), true);
+  perform pg_temp.allow('l58 feed_hidden: owner reads own hidden rows', a,
+    format($s$select 1 from feed_hidden where user_id = %L and post_id = %L$s$, a, post_a));
+  perform pg_temp.deny('l58 feed_hidden: other user cannot read a hidden row', b,
+    format($s$select 1 from feed_hidden where user_id = %L and post_id = %L$s$, a, post_a));
+  perform pg_temp.deny('l58 feed_hidden: cannot hide for another user', b,
+    format($s$insert into feed_hidden (user_id, post_id) values (%L, %L)$s$, a, post_a));
+  perform pg_temp.deny('l58 feed_hidden: anon denied', 'anon',
+    format($s$select 1 from feed_hidden where user_id = %L$s$, a));
+
   ---------------------------------------------------------------- cascade
   delete from storage.objects where name like a || '/%';
   delete from auth.users where id = a::uuid;

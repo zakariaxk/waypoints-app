@@ -163,7 +163,7 @@ final class FeedModel {
             } else {
                 page = try await env.posts.forYou(after: next, limit: 10)
             }
-            if reported == nil { reported = (try? await env.safety.reportedTargets()) ?? [] }
+            reported = (try? await env.safety.reportedTargets()) ?? []
             let hidden = reported ?? []
             if replacing { posts = [] }
             let seen = Set(posts.map(\.id))
@@ -355,7 +355,11 @@ struct Pager: View {
                         }
                     }
                 } else {
-                    Button("Not interested") { pool.reset(); model.hide(p) }
+                    Button("Not interested") {
+                        Task { try? await model.env.posts.hidePost(p.id) }
+                        pool.reset()
+                        model.hide(p)
+                    }
                     Button("Report") { model.env.router.open(.reportContent(ContentRef(kind: .post, id: p.id.description))) }
                     Button("Block", role: .destructive) {
                         Task {

@@ -483,6 +483,15 @@ struct LivePosts: PostRepository {
         }
     }
 
+    func hidePost(_ id: PostID) async throws {
+        let me = try ctx.me()
+        struct Body: Encodable { let userId: UUID; let postId: UUID }
+        try await ctx.run {
+            _ = try await ctx.table("feed_hidden").upsert(Body(userId: me.raw, postId: id.raw), onConflict: "user_id,post_id",
+                                                          returning: .minimal, ignoreDuplicates: true).execute()
+        }
+    }
+
     func comments(on post: PostID) async throws -> [PostComment] {
         try await ctx.run {
             let rows: [CommentRow] = try await ctx.table("post_comments").select().eq("post_id", value: post.key)

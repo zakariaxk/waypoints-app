@@ -14,6 +14,8 @@ public protocol PostRepository: Sendable {
     func deletePost(_ id: PostID) async throws
     func like(_ id: PostID) async throws
     func unlike(_ id: PostID) async throws
+    /// FEED-5: "Not interested" — the post stays out of this user's feeds (`feed_hidden`).
+    func hidePost(_ id: PostID) async throws
 
     func comments(on post: PostID) async throws -> [PostComment]
     @discardableResult func addComment(_ body: String, to post: PostID) async throws -> PostComment

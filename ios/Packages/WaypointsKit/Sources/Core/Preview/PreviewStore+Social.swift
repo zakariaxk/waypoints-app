@@ -188,7 +188,7 @@ extension PreviewStore: PostRepository {
         let region = session.flatMap { profiles[$0.userID]?.homeRegion?.lowercased() }
         func local(_ p: Post) -> Bool { region != nil && profiles[p.authorID]?.homeRegion?.lowercased() == region }
         func score(_ p: Post) -> Double { log(1 + Double(p.likeCount)) - Date.now.timeIntervalSince(p.createdAt) / 86400 }
-        let all = posts.values.filter { visible($0.authorID) }
+        let all = posts.values.filter { visible($0.authorID) && !hiddenPosts.contains($0.id) }
             .sorted { (local($0) ? 1 : 0, score($0)) > (local($1) ? 1 : 0, score($1)) }
         let start = cursor.flatMap { Int($0.raw) } ?? 0
         let page = all.dropFirst(start).prefix(limit).map(decorated)
@@ -196,7 +196,7 @@ extension PreviewStore: PostRepository {
     }
     public func followingFeed(after cursor: PageCursor?, limit: Int) async throws -> Page<Post> {
         let me = try me()
-        let all = posts.values.filter { visible($0.authorID) && follows.contains(Pair(me.raw, $0.authorID.raw)) }
+        let all = posts.values.filter { visible($0.authorID) && !hiddenPosts.contains($0.id) && follows.contains(Pair(me.raw, $0.authorID.raw)) }
             .sorted { $0.createdAt > $1.createdAt }
         let start = cursor.flatMap { Int($0.raw) } ?? 0
         let page = all.dropFirst(start).prefix(limit).map(decorated)
@@ -231,6 +231,10 @@ extension PreviewStore: PostRepository {
     }
     public func unlike(_ id: PostID) async throws {
         if likes.remove(Pair(id.raw, try me().raw)) != nil { posts[id]?.likeCount -= 1 }
+    }
+    public func hidePost(_ id: PostID) async throws {
+        _ = try me()
+        hiddenPosts.insert(id)
     }
     public func comments(on post: PostID) async throws -> [PostComment] {
         comments.filter { $0.postID == post && visible($0.authorID) }.sorted { $0.createdAt < $1.createdAt }
