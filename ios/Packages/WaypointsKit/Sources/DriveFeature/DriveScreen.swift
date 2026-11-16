@@ -177,7 +177,11 @@ final class DriveModel: NSObject, SCNSceneRendererDelegate {
     func reset() { rig.reset(to: track.startPosition, heading: track.startHeading) }
 
     nonisolated func renderer(_ renderer: any SCNSceneRenderer, didSimulatePhysicsAtTime time: TimeInterval) {
-        MainActor.assumeIsolated { frame(time) }
+        if Thread.isMainThread {
+            MainActor.assumeIsolated { frame(time) }
+        } else {
+            Task { @MainActor [weak self] in self?.frame(time) }
+        }
     }
 
     private func frame(_ time: TimeInterval) {

@@ -9,6 +9,7 @@ struct MapScreen: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.openURL) private var openURL
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
+    @State private var seededFallback = false
     @State private var detent: Detent = .peek
     @State private var showLayers = false
     @State private var showSearch = false
@@ -41,6 +42,16 @@ struct MapScreen: View {
             }
         }
         .onChange(of: moving) { if !moving { passenger = false } }
+        .onChange(of: model.me?.coordinate) {
+            // STORE-1: until CoreLocation delivers a fix, .userLocation sits on its fallback —
+            // .automatic is a wide regional view. Aim the fallback at the first location
+            // sample so the map opens close on the driver on any simulator.
+            guard let me = model.me?.coordinate, !seededFallback else { return }
+            seededFallback = true
+            position = .userLocation(followsHeading: model.follow == .heading,
+                                     fallback: .region(MKCoordinateRegion(center: me.cl,
+                                                                          span: MKCoordinateSpan(latitudeDelta: 0.08, longitudeDelta: 0.08))))
+        }
         .onChange(of: model.selection) {
             guard let selection = model.selection else { return }
             detent = .medium

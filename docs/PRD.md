@@ -513,7 +513,7 @@ Servers for car clubs. Plan 5.4, 10.7 (T1, T4 to T6).
 | TEAM-6 | Channels can be added, renamed, reordered, and deleted by those permitted. | P0 | Verified (L38): owner create/rename 200; member denied; sort reorder. |
 | TEAM-7 | Members are listed by role. Those permitted can change a member's role or remove them. | P0 | Verified (L38): role-ordered members; owner reassigns; owner row protected. |
 | TEAM-8 | A team's page offers Invite people, Members, Meets, and, when permitted, Channels, Roles, and Edit team. Members can leave; the owner deletes by typing the team's name. | P0 | Verified (L38, code): invite code/QR/share URL; leave + type-name delete. |
-| TEAM-9 | Teammates see each other on the map at the level each chose for Teams. | P0 | Coded — realtime teammate presence covered by check-rt scope, not exercised in L38. |
+| TEAM-9 | Teammates see each other on the map at the level each chose for Teams. | P0 | Verified (L62, live WS probe): omar(team_level=approx) arrives fuzzed — ~2.4 km offset, heading stripped, 88 ms; priya(precise) arrives exact at 10 ms. |
 | TEAM-10 | Only the Teams tab carries an unread count. | P0 | Verified (L38, code): badge only on teams tab, excludes muted. |
 | TEAM-11 | Team standings. Each week a team's score is the sum of Showdown votes its members' cars won, shown on the team page and in a weekly list of teams. Votes only: nothing from driving, distance, or the Strip counts. | P3 | Verified (L38): team_standings live ranks; private hidden; check fixed hermetic. |
 
@@ -524,7 +524,7 @@ Channels and direct messages. Plan 5.4, 10.7 (T2, T7).
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
 | MSG-1 | Messages are bottom-anchored, grouped by author within 5 minutes, with day dividers. | P0 | Verified (L38, code): grouping, 5-min/day dividers. |
-| MSG-2 | A sent message appears at once and arrives for others in under a second. A failed one reads "Not sent. Tap to retry." | P0 | Verified (L38, code): optimistic send + retry state; sub-second via supabase_realtime publication. |
+| MSG-2 | A sent message appears at once and arrives for others in under a second. A failed one reads "Not sent. Tap to retry." | P0 | Verified (L38, L62): optimistic send + retry state; live probe measured 347 ms fan-out of a channel INSERT over the realtime publication. |
 | MSG-3 | A message can carry one image. | P0 | Verified (L38): attachment path + photos upload to messages bucket; storage RLS. |
 | MSG-4 | Long-press offers Copy, Reply (quoting the first line), Delete (your own, or with permission), and Report. | P0 | Verified (L38): soft-delete only (body blanked by trigger); perm-bit delete; no body edits by design. |
 | MSG-5 | Typing "@" lists members; a mention notifies that member. | P0 | Verified (L38): @mention wrote a mention notification via trigger. |

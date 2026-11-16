@@ -53,7 +53,7 @@ public struct ShopView: View {
             }
             .padding(.bottom, Space.s32)
         }
-        .frame(maxHeight: 340)
+        .frame(height: 340)
         .background(Color.tarmac)
     }
 

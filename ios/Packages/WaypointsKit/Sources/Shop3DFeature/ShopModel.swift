@@ -42,11 +42,20 @@ public final class ShopModel {
     /// closure). Camera is the virtual camera orbit controls drive.
     func installScene(in content: inout RealityViewCameraContent) {
         let assembly = CarBuilder.car(shape: shape, paintHex: paintHex, wheelStyle: wheelStyle)
+        assembly.root.orientation = simd_quatf(angle: -.pi * 0.75, axis: [0, 1, 0])
         CarBuilder.apply(clearance: clearance, to: assembly)
         self.assembly = assembly
         content.add(assembly.root)
         content.camera = .virtual
-        content.cameraTarget = assembly.root
+        // The virtual camera frames its target's bounds; generated hull meshes can
+        // report degenerate bounds, so aim it at an invisible box around the car.
+        let framing = ModelEntity(
+            mesh: .generateBox(width: shape.width * 2, height: shape.hullHeight + shape.cabinHeight + 0.6,
+                               depth: shape.length * 1.5))
+        framing.components.set(OpacityComponent(opacity: 0))
+        framing.position.y = (shape.hullHeight + shape.cabinHeight + 0.6) / 2
+        assembly.root.addChild(framing)
+        content.cameraTarget = framing
 
         let ground = ModelEntity(mesh: .generatePlane(width: 30, depth: 30),
                                  materials: [CarBuilder.Materials.ground])

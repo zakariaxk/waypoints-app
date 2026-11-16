@@ -193,7 +193,10 @@ final class NavigationModel {
             cars = (try? await env.garage.cars(of: me)) ?? []
             meet = await goingMeet(me)
         }
-        calculate(from: nil)
+        // STORE-2: route from the first location sample when one lands quickly. A nil
+        // origin makes MKDirections use the device fix, which a fresh simulator may
+        // never send — the sheet then shows skeletons forever, no ETAs and no Go.
+        calculate(from: await firstFix(), alternates: true)
         friends = ((try? await env.friends.friends()) ?? []).sorted { $0.profile.displayName < $1.profile.displayName }
     }
 
@@ -289,11 +292,25 @@ final class NavigationModel {
         }
     }
 
-    func calculate(from origin: CLLocationCoordinate2D?) {
+    /// First location sample, waiting up to 3 s (the preview seed answers at once).
+    private func firstFix() async -> CLLocationCoordinate2D? {
+        let env = self.env
+        return await withTaskGroup(of: CLLocationCoordinate2D?.self) { group in
+            group.addTask {
+                for await sample in await env.location.samples() { return sample.coordinate.cl }
+                return nil
+            }
+            group.addTask { try? await Task.sleep(for: .seconds(3)); return nil }
+            defer { group.cancelAll() }
+            return await group.next() ?? nil
+        }
+    }
+
+    func calculate(from origin: CLLocationCoordinate2D?, alternates: Bool = false) {
         loading = true
         // A stop wins; otherwise the next leg along a multi-leg path, else the destination.
         let request = Self.request(from: origin, to: stop?.coordinate ?? legs.first?.at ?? destination.cl)
-        request.requestsAlternateRoutes = origin == nil
+        request.requestsAlternateRoutes = alternates
         MKDirections(request: request).calculate { response, _ in
             MainActor.assumeIsolated { self.received(response?.routes ?? []) }
         }

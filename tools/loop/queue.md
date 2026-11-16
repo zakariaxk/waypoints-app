@@ -74,7 +74,7 @@ Format: `- [ ] L## | REQ-IDS | files it owns | one-line task`
 - [x] L59 | SHOW-3 | supabase migration, LiveSocial | Pair generation is client-side over a 300-entry/1000-vote window — judged-set misses past 1000 votes repeat pairs. Add a `showdown_next_pair` RPC doing the same-class/±150/unjudged pick in SQL.
 - [x] L60 | TEAM-* | supabase/checks.sql, server or TeamsFeature | Fixed in L38: the rank assertion was seed-dependent; now computed from relative scores. Suite 520/520.
 - [x] L61 | GAR-5 | VehiclePicker.swift | Colour step: suggest paint names other owners of the same make used (distinct paint_name for that make via PostgREST). Found by L36.
-- [~] L62 | TEAM-9, MSG-2 | server, wsprobe | Live proof of teammate map presence at chosen precision + sub-1s message delivery over /v1/rt.
+- [x] L62 | TEAM-9, MSG-2 | server, wsprobe | Live proof of teammate map presence at chosen precision + sub-1s message delivery over /v1/rt.
 - [x] L63 | KNW-1, KNW-6 | supabase migration + seed, checks.sql | `repair_guides` table (task, applies_to make/model/variant, ordered steps, tools, parts+cost, difficulty, time range, tradeoffs, mistakes, source URLs), read-any-authed/write-pipeline RLS, ~30 curated seed guides for seed platforms, check-db rows.
 - [x] L64 | KNW-2..4 | Core repository, Backend, GuidesFeature | GuideRepository protocol + Live impl + preview impl; Guides browser in Garage tab (your cars first, then search); guide page w/ per-step on-device checklist; "Simulate this" hands linked mods to the mod sim.
 - [x] L65 | KNW-5 | tools/guides | Offline scrape pipeline: fetch a forum/manual source, extract facts, write a draft guide JSON with source URLs; emits migration-ready inserts, never copies source text, never publishes.
