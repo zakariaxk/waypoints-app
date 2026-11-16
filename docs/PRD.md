@@ -644,7 +644,7 @@ Required by App Review for any app with user content, and by the kind of place t
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| SAFE-1 | Every person, post, comment, message, listing, meet, map report, spot, road, car, and team can be reported, with a reason (spam, harassment, nudity, dangerous driving, scam, something else) and an optional note. | P0 | Partial (W11 loop L16): nearly every surface; voice participants report via the voice-strip context menu and the comment Report action now presents a nested sheet (the shell-sheet-over-sheet bug was real). Left: convoy member rows. |
+| SAFE-1 | Every person, post, comment, message, listing, meet, map report, spot, road, car, and team can be reported, with a reason (spam, harassment, nudity, dangerous driving, scam, something else) and an optional note. | P0 | Coded (W11 loop L16, L16b): every surface — voice participants via the voice-strip context menu, the comment Report presents a nested sheet, convoy member rows, spots and teams (W11-H-6). |
 | SAFE-2 | A person can be blocked from their profile, from the map, and from any message. Their content, markers, and messages disappear for the blocker at once, in both directions. Blocked people are listed in settings with Unblock. | P0 | Coded |
 | SAFE-3 | A reported item disappears for the person who reported it. | P0 | Coded |
 | SAFE-4 | A text filter with a bundled word list runs on messages, comments, captions, titles, names, and handles before they are sent. | P0 | Coded |
@@ -965,6 +965,7 @@ Starts after 1.0 is on TestFlight. One package per row, in parallel, then W9-INT
 | 8 | 1, 2, INT | Deployed, benchmarked, on TestFlight, ready to submit. |
 | 9 | 1 to 7, INT | Version 1.1. |
 | 10 | 1 to 11, INT | Version 1.2. |
+| 12 | L30 to L51 (loop) | Ship readiness: proven on the local stack; store-ready except the owner's steps. |
 
 ### 8.7 Wave 8 as run (2026-11-14)
 
@@ -1005,6 +1006,20 @@ Thirteen extensions, each small enough for one session and each passing section 
 | **W10-11 Spanish** | L10N-2 | Every `Localizable.xcstrings`, `tools/l10n/**` |
 
 W10-8 and W10-7 both touch `TeamsFeature`: W10-7 runs first.
+
+### 8.9 Wave 12: ship readiness
+
+End state: everything an agent can prove from a terminal is proven — against the live local stack and in captures — and every requirement that still needs a person is listed once, blocked, with exactly what it waits on. Driven by the loop (`tools/loop/`); the items are queue rows L30 to L51.
+
+| Stage | Items | Result |
+|---|---|---|
+| Foundation (alone, in order) | L30, L31 | `make dev` brings the stack up on the owner's machine; `check-db`, `check-rt`, and `-wp-smoke` are green. Every later item assumes this. |
+| Live verification | L32 to L40 | One item per area walks its requirements against the local stack (two simulators where a flow needs two people), fixes what breaks, and sets Verified with the method. |
+| Screens, l10n, store set | L41 to L45 | The DES-7 captures not yet read, the `%lld`/`%@` interpolation and missing-key l10n bugs, and the two flaky 6.5" store shots. |
+| Backend and site | L46 to L48 | Gateway hardening leftovers, the Docker image, and `site/` published to GitHub Pages with `LINK_HOST` set. |
+| Store readiness | L49 to L51 | Unsigned Release build and bundle checks, then a final PRD audit and gate. |
+
+Owner-blocked work stays at the bottom of the queue: the hosted Supabase project and live deploy (L52), the Apple Developer items (L25, L27), LiveKit (L28), the perf reference host (L26), and the device pass plus App Store Connect (L29).
 
 ---
 
@@ -1110,3 +1125,4 @@ Findings go to W8-INT as a list.
 | 2026-11-13 | First version. Written from the owner's original brief, `docs/PLAN.md`, and an audit of commit `80823e1`. Adds the requirements marked New, the harness in section 7, and waves 6 to 9. Sets the order of authority in section 0.1. |
 | 2026-11-14 | Version 1.2 added at the owner's request: priority P3, wave 10 (section 8.8), and thirteen requirements marked New (ACC-12, NAV-16, MEET-15, CNV-12, GAR-17, GAR-18, MOD-15, STR-11, TEAM-11, MSG-11, ROAD-6, SAFE-12, L10N-2). Four came off the backlog in section 12. Also this day: `AGENTS.md` replaced `CLAUDE.md` as the agent instructions, and the pull-request ruleset on `main` was deleted (owner's rule: straight to `main`). |
 | 2026-11-15 | The loop: `tools/loop/` (queue, prompt, `loop.sh` orchestrator) drives headless agent sessions through the remaining Partial rows; AGENTS.md "The loop" section is the protocol. |
+| 2026-11-15 | Wave 12 added (section 8.9): the ship-readiness loop, queue rows L30 to L52 — live-stack verification per area, the remaining screen reads, the l10n interpolation bugs, store-shot fixes, gateway leftovers, publishing `site/`, and release-build checks. SAFE-1 corrected to Coded (convoy member rows landed in L16b). |
