@@ -1471,6 +1471,62 @@ begin
     format($s$select 1 from storage.objects where bucket_id = 'messages' and name = %L$s$,
       a || '/dm-private.jpg'));
 
+  ---------------------------------------------------------------- word filter (L20, SAFE-4)
+  -- Same mirror as the client WordList: slurs and threats reject the write
+  -- with check_violation; ordinary swearing passes.
+  perform pg_temp.truth('text_is_clean: blocked words rejected, ordinary swearing allowed',
+    public.text_is_clean('nice run') and public.text_is_clean('shit happens')
+    and not public.text_is_clean('you are a fag') and not public.text_is_clean('kys')
+    and not public.text_is_clean('killyourself loser') and not public.text_is_clean('a FAG.'));
+  perform pg_temp.deny('word_filter profiles: slur in bio rejected', a,
+    format($s$update profiles set bio = 'total retard' where user_id = %L$s$, a), '23514');
+  perform pg_temp.deny('word_filter profiles: slur in handle rejected', a,
+    format($s$update profiles set handle = 'faggot' where user_id = %L$s$, a), '23514');
+  perform pg_temp.deny('word_filter cars: slur in nickname rejected', a,
+    format($s$update cars set nickname = 'kys' where id = %L$s$, car_a), '23514');
+  perform pg_temp.deny('word_filter teams: slur in name rejected', a,
+    format($s$insert into teams (owner_id, name, tag) values (%L, 'fag crew', 'FGT')$s$, a), '23514');
+  perform pg_temp.deny('word_filter teams: slur in about on edit rejected', a,
+    format($s$update teams set about = 'kill yourself' where id = %L$s$, team_p), '23514');
+  perform pg_temp.deny('word_filter team_roles: slur in role name rejected', a,
+    format($s$insert into team_roles (team_id, name) values (%L, 'nigga')$s$, team_p), '23514');
+  perform pg_temp.deny('word_filter channels: slur in channel name rejected', a,
+    format($s$insert into channels (team_id, name) values (%L, 'fag-room')$s$, team_p), '23514');
+  perform pg_temp.deny('word_filter meets: slur in title rejected (gateway path)', 'service',
+    format($s$insert into meets (host_id, title, kind, geom, starts_at, ends_at) values (%L, 'spic meet', 'meet',
+      st_setsrid(st_makepoint(-75, 39.9), 4326)::geography, now(), now() + interval '1 hour')$s$, a), '23514');
+  perform pg_temp.deny('word_filter meets: slur in details rejected (gateway path)', 'service',
+    format($s$update meets set details = 'wetback run' where id = %L$s$, meet_pub), '23514');
+  perform pg_temp.deny('word_filter roads: slur in name rejected', a,
+    format($s$insert into roads (author_id, name, path) values (%L, 'chink pass',
+      st_geogfromtext('SRID=4326;LINESTRING(-74.80 39.99, -74.82 39.98)'))$s$, a), '23514');
+  perform pg_temp.deny('word_filter road_loops: slur in loop name rejected', a,
+    $s$insert into road_loops (owner_id, name, road_ids) values (auth.uid(), 'kys loop',
+      array['cccccccc-0000-4000-8007-00000000000a']::uuid[])$s$, '23514');
+  perform pg_temp.deny('word_filter spots: slur in model rejected', a,
+    format($s$insert into spots (spotter_id, make, model) values (%L, 'Nissan', 'tranny')$s$, a), '23514');
+  perform pg_temp.deny('word_filter venue_notes: slur in note rejected', a,
+    format($s$insert into venue_notes (geom, author_id, note) values
+      (st_setsrid(st_makepoint(-75.02, 39.94), 4326)::geography, %L, 'kike lot')$s$, a), '23514');
+  perform pg_temp.deny('word_filter reports: slur in note rejected (gateway path)', 'service',
+    format($s$insert into reports (author_id, kind, geom, note) values (%L, 'hazard',
+      st_setsrid(st_makepoint(-75, 39.9), 4326)::geography, 'nigger ahead')$s$, a), '23514');
+  perform pg_temp.deny('word_filter content_reports: slur in note rejected', b,
+    format($s$insert into content_reports (reporter_id, target_kind, target_id, reason, note)
+      values (%L, 'team', %L, 'spam', 'they said kys')$s$, b, team_o), '23514');
+  perform pg_temp.deny('word_filter help_requests: slur in note rejected (gateway path)', 'service',
+    format($s$insert into help_requests (requester_id, kind, geom, note) values (%L, 'stuck',
+      st_setsrid(st_makepoint(-75, 39.9), 4326)::geography, 'retard stuck')$s$, a), '23514');
+  perform pg_temp.deny('word_filter posts: slur in caption rejected', a,
+    format($s$insert into posts (author_id, caption) values (%L, 'wetback day')$s$, a), '23514');
+  perform pg_temp.deny('word_filter post_comments: slur in body rejected', b,
+    format($s$insert into post_comments (post_id, author_id, body) values (%L, %L, 'nigga please')$s$, post_a, b), '23514');
+  perform pg_temp.deny('word_filter messages: slur in body rejected', a,
+    format($s$insert into messages (thread_id, author_id, body) values (%L, %L, 'you fag')$s$, thr_ab, a), '23514');
+  perform pg_temp.deny('word_filter listings: slur in title rejected', a,
+    format($s$insert into listings (seller_id, kind, title, price_cents, condition)
+      values (%L, 'part', 'fag special', 100, 'used')$s$, a), '23514');
+
   ---------------------------------------------------------------- cascade
   delete from storage.objects where name like a || '/%';
   delete from auth.users where id = a::uuid;
