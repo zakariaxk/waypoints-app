@@ -17,7 +17,9 @@ public enum RaceFeature: FeatureModule {
             return AnyView(Lobby(env: env, carID: id))
         }
         registry.registerDebugScreen("car-of-week") { AnyView(DebugCarOfWeek(env: env)) }
+        #if DEBUG
         registry.registerDebugScreen("timeslip") { AnyView(DebugTimeSlip(env: env)) }
+        #endif
     }
 }
 

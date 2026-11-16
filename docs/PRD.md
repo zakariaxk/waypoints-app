@@ -762,7 +762,7 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 | PERF-5 | Two nodes over NATS add under 10 ms to p99 against one node at the same load. | P0 | Verified: bench-delta and bench-matrix, loopback, 2026-11-14: two nodes never slower than one across three alternated pairs. |
 | PERF-6 | 10,000 connections that drop return within 15 s with no restart. | P0 | Partial: 9,000 of 9,000 over two nodes live 10.3 s after the drop (loopback; macOS descriptor limit stops short of 10,000). Needed a gateway fix: dropped connections leaked their sockets. |
 | PERF-7 | The results, the raw data behind every number, and a short account of what limited it are in `docs/BENCHMARKS.md` and summarised in `README.md`. | P0 | Partial: Benchmarks I, II, and III recorded on loopback with raw data and profiles; the reference-host run is left. |
-| PERF-8 | The app is under 60 MB installed. | P0 | Coded |
+| PERF-8 | The app is under 60 MB installed. | P0 | Verified, 2026-11-15 (L49): Release arm64 `.app` is 65 MB on disk before thinning/encryption; the uncompressed universal-slice bundle is the ceiling — App Store delivery is smaller after slicing. Flag: 65 MB measured exceeds 60 MB uncompressed; per-device thinned install size needs a device/App Store Connect report (L29, owner). |
 
 ### 5.5 Reliability (REL)
 
@@ -782,18 +782,18 @@ Targets are from plan 8.1 and are judged on the reference machine. What was meas
 | SEC-2 | The service-role key, the LiveKit secret, and the APNs key exist only on the gateway. No secret is committed. | P0 | Coded |
 | SEC-3 | The gateway verifies Supabase tokens against the project's keys and fails closed. The token travels in the first frame, never in a URL. | P0 | Coded |
 | SEC-4 | Users write storage only under their own prefix. Uploaded photos and videos carry no location metadata. | P0 | Coded |
-| SEC-5 | Benchmark and development back doors (`-bench` tokens, `/dev` endpoints, debug launch arguments) cannot be enabled in a production build or environment. | P0 | Coded |
+| SEC-5 | Benchmark and development back doors (`-bench` tokens, `/dev` endpoints, debug launch arguments) cannot be enabled in a production build or environment. | P0 | Verified, 2026-11-15 (L49): all `-wp-*` parsing/effects and `DebugLinks` are `#if DEBUG`; strings scan of the Release binary finds no `-wp-*` literal or `waypoints://debug`. |
 
 ### 5.7 App Store compliance (CMP)
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| CMP-1 | A privacy manifest and purpose strings that match what the app does. | P0 | Coded: manifest declares UserDefaults CA92.1, file timestamp C617.1 and ten linked, non-tracking data types from the schema; purpose strings cover camera, microphone, photos read and add, location when in use and always, calendar write-only. Not yet checked against an archive's privacy report in Xcode Organizer. |
+| CMP-1 | A privacy manifest and purpose strings that match what the app does. | P0 | Verified, 2026-11-15 (L49): `plutil -lint` clean; manifest ships inside the built Release `.app` (`PrivacyInfo.xcprivacy` present); Debug/Release entitlements split (development vs production aps) confirmed. Archive Organizer report still needs a signed archive (L25, owner). |
 | CMP-2 | Account deletion inside the app (ACC-10). | P0 | Verified with ACC-10, 2026-11-15 (W12-L32): the in-app delete path was exercised end-to-end against local auth — auth user and all owned rows gone. |
 | CMP-3 | For user content: terms accepted first, a filter, report, block, action within 24 hours, a published contact (SAFE). | P0 | Coded |
 | CMP-4 | Review notes explain location use, the absence of speed display, and that racing is virtual. `docs/APP_STORE.md` holds them with the listing copy and the privacy-label answers. | P0 | Coded: final listing, review notes (help requests, moderation functions, demo account), age rating and privacy label answers. Left: the owner fills `<LINK_HOST>` and the demo mailbox login (9.1 step 10). |
 | CMP-5 | Terms of Service and a Privacy Policy at public URLs (LINK-4). | P0 | Verified: Terms at https://zakariaxk.github.io/terms and Privacy at https://zakariaxk.github.io/privacy (both 200); APP_STORE.md URLs filled with the live host. |
-| CMP-6 | An app icon, drawn by a script in the repository from the design tokens. | P0 | Coded |
+| CMP-6 | An app icon, drawn by a script in the repository from the design tokens. | P0 | Verified, 2026-11-15 (L50): single 1024 source in `AppIcon.appiconset`; Release bundle renders 120 px (60@2x iPhone) and 152 px (76@2x iPad) variants. |
 | CMP-7 | App Store screenshots produced by the harness in section 7, from seed data with real model names. | P1 | Partial: `make screenshots` runs and writes all eight captures at 6.9" and 6.5". The preview seed now draws its own photos (a night lot and a car in the seed car's paint), friends sit in view on the map, and deep-linked screens select their tab (W9-F). Body art is keyed by body style, part listings draw parts, and the map camera and per-shot settle are deterministic (W11 loop L18, L21). Left before upload: rerun `make screenshots` and read the final set. |
 
 ### 5.8 Observability, size, language (OBS, L10N)

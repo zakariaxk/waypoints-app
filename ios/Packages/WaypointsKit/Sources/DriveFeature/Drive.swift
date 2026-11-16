@@ -17,7 +17,9 @@ public enum DriveFeature: FeatureModule {
             guard case let .drive(id) = route else { return nil }
             return AnyView(DriveScreen(env: env, carID: id))
         }
+        #if DEBUG
         registry.registerDebugScreen("drive") { AnyView(DebugDrive(env: env)) }
+        #endif
     }
 }
 

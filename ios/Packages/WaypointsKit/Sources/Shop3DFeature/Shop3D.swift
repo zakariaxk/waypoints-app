@@ -15,7 +15,9 @@ public enum Shop3DFeature: FeatureModule {
             return AnyView(ShopRoute(env: env, carID: id))
         }
         #if DEBUG
+        #if DEBUG
         registry.registerDebugScreen("shop") { AnyView(DebugShop(env: env)) }
+        #endif
         #endif
     }
 }

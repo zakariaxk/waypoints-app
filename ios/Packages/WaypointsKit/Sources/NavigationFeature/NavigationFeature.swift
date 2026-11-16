@@ -20,7 +20,9 @@ public enum NavigationFeature: FeatureModule {
             return AnyView(NavigationRoot(env: env, destination: end, name: name, path: path))
         }
         registry.registerDebugScreen("stops") { AnyView(StopsSheet(model: .stopsSeed(env)).background(Color.tarmac).preferredColorScheme(.dark)) }
+        #if DEBUG
         registry.registerDebugScreen("nav-go") { AnyView(DebugNavGo(env: env)) }
+        #endif
     }
 }
 

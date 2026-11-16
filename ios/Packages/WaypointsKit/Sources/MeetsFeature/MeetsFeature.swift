@@ -23,7 +23,9 @@ public enum MeetsFeature: FeatureModule {
             return AnyView(CreateMeet(env: env, start: c))
         }
         #if DEBUG
+        #if DEBUG
         registry.registerDebugScreen("meet-capacity") { AnyView(DebugCapacity(env: env)) }
+        #endif
         #endif
     }
 }

@@ -18,7 +18,9 @@ public enum FeedFeature: FeatureModule {
             return AnyView(SinglePost(env: env, registry: registry, postID: id))
         }
         #if DEBUG
+        #if DEBUG
         registry.registerDebugScreen("comments") { AnyView(DebugComments(env: env, registry: registry)) }
+        #endif
         #endif
     }
 }
