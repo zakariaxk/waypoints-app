@@ -355,6 +355,7 @@ final class NavigationModel {
     func start() {
         guard let r = current else { return }
         guiding = true
+        Task { await env.location.setActive(.navigation, true) }
         prepare(r.route)
         markOnTheWay()
         try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .voicePrompt, options: [.duckOthers])
@@ -367,6 +368,7 @@ final class NavigationModel {
     func endGuidance() {
         task?.cancel()
         guiding = false
+        Task { await env.location.setActive(.navigation, false) }
         voice.stopSpeaking(at: .immediate)
     }
 

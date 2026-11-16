@@ -120,6 +120,7 @@ public actor PreviewLocationService: LocationService {
     public func requestWhenInUse() async { set(.whenInUse) }
     public func requestAlways() async { set(.always) }
     public func setSharing(_ on: Bool) async { sharing = on }
+    public func setActive(_ activity: LocationActivity, _ active: Bool) async {}
     public func homeZones() async -> AsyncStream<[HomeZone]> { zoneBroadcast.subscribe(initial: zones) }
     public func setHomeZones(_ zones: [HomeZone]) async throws {
         guard zones.count <= HomeZone.maximumCount else { throw WaypointsError.invalid("home_zones") }

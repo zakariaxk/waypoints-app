@@ -37,7 +37,13 @@ struct Member: Identifiable, Hashable {
 @Observable
 final class ConvoyStore {
     let env: AppEnvironment
-    var state: ConvoyState?
+    var state: ConvoyState? {
+        didSet {
+            guard (state != nil) != (oldValue != nil) else { return }
+            let active = state != nil
+            Task { await env.location.setActive(.convoy, active) }
+        }
+    }
     var name = ""
     var code: String?
     var myUID: RealtimeUID?

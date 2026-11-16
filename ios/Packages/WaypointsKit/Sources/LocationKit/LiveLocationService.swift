@@ -23,6 +23,9 @@ public actor LiveLocationService: LocationService {
     private var authorizationValue: LocationAuthorization = .notDetermined
     private var sharing: Bool
     private var zones: [HomeZone]
+    private var navigationActive = false
+    private var convoyActive = false
+    private var stationary = false
 
     private var sampleBroadcast = Broadcast<LocationSample>(buffering: .bufferingNewest(1))
     private var authBroadcast = Broadcast<LocationAuthorization>()
@@ -71,6 +74,14 @@ public actor LiveLocationService: LocationService {
         reconcile()
     }
 
+    public func setActive(_ activity: LocationActivity, _ active: Bool) async {
+        switch activity {
+        case .navigation: navigationActive = active
+        case .convoy: convoyActive = active
+        }
+        reconcile()
+    }
+
     public func homeZones() async -> AsyncStream<[HomeZone]> { zoneBroadcast.subscribe(initial: zones) }
 
     public func setHomeZones(_ zones: [HomeZone]) async throws {
@@ -113,11 +124,16 @@ public actor LiveLocationService: LocationService {
 
     // MARK: Updates
 
+    /// What holds location alive in the background (PRV-12): Always authorization — the
+    /// "Keep sharing when the app is closed" setting — or an active navigation or convoy.
+    private var sessionWanted: Bool {
+        authorizationValue == .always || navigationActive || convoyActive
+    }
+
     /// Starts or stops the update loop so it runs exactly when sharing is on and authorized.
     private func reconcile() {
         let shouldRun = sharing && authorizationValue.allowsUse
         if shouldRun, updatesTask == nil {
-            backgroundSession = CLBackgroundActivitySession()
             sampler.reset()
             updatesTask = Task { await self.runUpdates() }
         } else if !shouldRun, let task = updatesTask {
@@ -128,16 +144,35 @@ public actor LiveLocationService: LocationService {
             backgroundSession?.invalidate()
             backgroundSession = nil
         }
+        if shouldRun { applySession() }
+    }
+
+    /// Keeps the held background session in step with `sessionWanted`. Once parked has
+    /// stopped it under keep-sharing alone, only movement or an activity restarts it.
+    private func applySession() {
+        if sessionWanted {
+            if backgroundSession == nil, navigationActive || convoyActive || !stationary {
+                backgroundSession = CLBackgroundActivitySession()
+            }
+        } else {
+            backgroundSession?.invalidate()
+            backgroundSession = nil
+        }
+        parked(stationary)
     }
 
     /// PRV-12: five minutes parked ends background sharing; the next movement seen while the
-    /// app is open starts it again.
+    /// app is open starts it again. An active navigation or convoy holds the session parked.
     private func parked(_ stationary: Bool) {
+        self.stationary = stationary
         if !stationary {
             parkedTask?.cancel()
             parkedTask = nil
-            if backgroundSession == nil { backgroundSession = CLBackgroundActivitySession() }
-        } else if parkedTask == nil {
+            if sessionWanted, backgroundSession == nil { backgroundSession = CLBackgroundActivitySession() }
+        } else if navigationActive || convoyActive {
+            parkedTask?.cancel()
+            parkedTask = nil
+        } else if parkedTask == nil, backgroundSession != nil {
             parkedTask = Task {
                 try? await Task.sleep(for: Self.parkedLimit)
                 if Task.isCancelled { return }
