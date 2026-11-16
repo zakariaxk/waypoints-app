@@ -100,3 +100,6 @@ Format: `- [ ] L## | REQ-IDS | files it owns | one-line task`
 - [x] L85 | GAR-21 | GarageFeature | Service-due mark: service entry remind_on <= today → "Service due" on the car page + timeline; owner clears by editing/done. New requirement row.
 - [x] L86 | SOC-10 | MeetsFeature | "N friends going": meet list rows + meet page name up to three friends with Going RSVPs. New requirement row.
 - [x] L87 | ROAD-9 | RoadsFeature | "Add to a loop" on the road sheet: pick an existing loop (appends) or start a new one carrying the road. New requirement row.
+- [ ] L88 | MKT-12 | MarketFeature | ShareLink on listing detail using Route.listing.shareURL. New requirement row.
+- [ ] L89 | CNV-15 | ConvoyFeature | "Roll again" after convoy end: create new convoy + re-invite resolved member userIDs. New requirement row.
+- [ ] L90 | KNW-9 | GarageFeature | "Guides" row on the car page opening .guides (owner). New requirement row.
