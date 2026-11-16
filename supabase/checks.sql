@@ -626,10 +626,12 @@ begin
     format($s$insert into achievements (user_id, key) values (%L, 'convoy_leader')$s$, a));
 
   perform pg_temp.allow('content_reports: user files a report', b,
-    format($s$insert into content_reports (reporter_id, target_kind, target_id, reason) values (%L, 'post', %L, 'spam')$s$, b, post_a));
+    format($s$insert into content_reports (reporter_id, target_kind, target_id, reason) values (%L, 'post', %L, 'spam')$s$, b, post_a), true);
   perform pg_temp.deny('content_reports: cannot file as someone else', b,
     format($s$insert into content_reports (reporter_id, target_kind, target_id, reason) values (%L, 'post', 'x', 'spam')$s$, a));
-  perform pg_temp.deny('content_reports: users cannot read reports', b,
+  perform pg_temp.allow('content_reports: reporter reads own report', b,
+    format($s$select 1 from content_reports where reporter_id = %L$s$, b));
+  perform pg_temp.deny('content_reports: cannot read others'' reports', a,
     $s$select 1 from content_reports$s$);
 
   perform pg_temp.allow('race_results: owner saves a run', a,

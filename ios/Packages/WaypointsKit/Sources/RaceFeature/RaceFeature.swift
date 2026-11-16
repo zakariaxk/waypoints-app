@@ -17,8 +17,53 @@ public enum RaceFeature: FeatureModule {
             return AnyView(Lobby(env: env, carID: id))
         }
         registry.registerDebugScreen("car-of-week") { AnyView(DebugCarOfWeek(env: env)) }
+        registry.registerDebugScreen("timeslip") { AnyView(DebugTimeSlip(env: env)) }
     }
 }
+
+#if DEBUG
+/// `waypoints://debug/timeslip`: a completed slip including the car-of-week line — the slip is
+/// unreachable headless otherwise (L37). Runs the model to .done with near-redline shifts.
+private struct DebugTimeSlip: View {
+    let env: AppEnvironment
+    @State private var model: RaceModel?
+
+    var body: some View {
+        ZStack {
+            Color.asphalt.ignoresSafeArea()
+            if let model { TimeSlip(model: model, weekly: true, again: {}, close: {}) } else { ProgressView() }
+        }
+        .preferredColorScheme(.dark)
+        .task {
+            guard let me = await env.auth.currentSession()?.userID,
+                  let cars = try? await env.garage.cars(of: me), let car = cars.first else { return }
+            var spec: VehicleSpec?
+            for c in cars {
+                var variant: CatalogVariant?
+                if let id = c.catalogVariantID { variant = try? await env.catalog.variant(id) }
+                if let s = VehicleSpec.from(variant: variant, car: c) { spec = s; break }
+            }
+            // Seed garages can lack specs; a house car's spec fills in so the slip still renders.
+            guard let spec = spec ?? Ladder.cars.first?.spec else { return }
+            let m = RaceModel(car: car, spec: spec, opponent: .house(Ladder.cars[0]), tree: .sportsman)
+            m.phase = .racing
+            m.greenTick = 0
+            m.launched = true
+            m.reactionMs = 120
+            m.log.launchTick = 0
+            m.log.launchRpm = m.me.spec.redline * 0.6
+            m.throttle = true
+            var t = Date()
+            for _ in 0..<240 * 60 where m.phase != .done {
+                if !m.me.finished, m.me.rpm >= m.me.spec.redline * 0.97 { m.tapShift() }
+                t += 1.0 / 60
+                m.frame(t)
+            }
+            model = m
+        }
+    }
+}
+#endif
 
 /// A recorded run's inputs, small enough for `race_results.input_log` (≤4 KB).
 struct InputLog: Codable, Hashable {

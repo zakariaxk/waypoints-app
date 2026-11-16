@@ -35,11 +35,16 @@ xcrun simctl status_bar "$SIMULATOR" override --time "9:41" --batteryState charg
 xcrun simctl install "$SIMULATOR" "$APP"
 xcrun simctl privacy "$SIMULATOR" grant location "$BUNDLE_ID" >/dev/null 2>&1 || true
 xcrun simctl location "$SIMULATOR" set "$LOCATION" >/dev/null 2>&1 || true
+# Relaunching before the old process exits makes simctl drop the args silently;
+# terminate and wait for the app's pid inside this simulator to disappear first.
 xcrun simctl terminate "$SIMULATOR" "$BUNDLE_ID" >/dev/null 2>&1 || true
+for _ in 1 2 3 4 5 6 7 8 9 10; do
+  xcrun simctl spawn "$SIMULATOR" launchctl list 2>/dev/null | grep -q "$BUNDLE_ID" || break
+  sleep 1
+done
 
 # shellcheck disable=SC2086
-# `--` keeps dash-prefixed args from being eaten by simctl's own option parsing.
-xcrun simctl launch "$SIMULATOR" "$BUNDLE_ID" -- $ARGS >/dev/null
+xcrun simctl launch "$SIMULATOR" "$BUNDLE_ID" $ARGS >/dev/null
 sleep "$WAIT"
 
 mkdir -p .build/shots

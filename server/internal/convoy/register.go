@@ -261,10 +261,12 @@ func (s *Service) changed(ctx context.Context, c *Convoy) {
 		go v.ConvoyEnded(c.ID)
 	}
 	if pool := s.store.Pool(); pool != nil {
+		// string, not []byte: the simple query protocol would send bytes as
+		// a \x-hex bytea literal, which jsonb rejects.
 		_, _ = pool.Exec(ctx, `insert into public.convoys (id, join_code, state, ended, updated_at)
 			values ($1, $2, $3, $4, now())
 			on conflict (id) do update set state = excluded.state, ended = excluded.ended, updated_at = now()`,
-			c.ID, c.JoinCode, raw, ended)
+			c.ID, c.JoinCode, string(raw), ended)
 	}
 	frame := &wire.ServerFrame{Body: &wire.ServerFrame_Convoy{Convoy: st}}
 	for _, m := range members {
