@@ -312,6 +312,9 @@ extension PreviewStore: MarketRepository {
     func matches(_ listing: Listing, _ filter: ListingFilter) -> Bool {
         if let kind = filter.kind, listing.kind != kind { return false }
         if let category = filter.category, listing.category != category { return false }
+        if let min = filter.minPriceCents, listing.priceCents < min { return false }
+        if let max = filter.maxPriceCents, listing.priceCents > max { return false }
+        if !filter.conditions.isEmpty && !filter.conditions.contains(listing.condition) { return false }
         if let q = filter.query?.lowercased(), !q.isEmpty,
            !listing.title.lowercased().contains(q), !listing.description.lowercased().contains(q) { return false }
         if let want = filter.fits {

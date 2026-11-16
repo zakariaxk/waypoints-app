@@ -72,6 +72,14 @@ func (s *Server) DeliverConvoy(id string, u *hub.Update) {
 	}
 }
 
+// ConvoySize reports how many local connections are attached to convoyID;
+// package convoy's sweeper uses it to evict registry entries nobody watches.
+func (s *Server) ConvoySize(id string) int {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return len(s.convoys[id])
+}
+
 // DropConvoyMember removes uid as a convoy source for this node's members;
 // package convoy calls it for each "gone" message.
 func (s *Server) DropConvoyMember(id string, uid uint64) {

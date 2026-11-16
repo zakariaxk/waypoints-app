@@ -98,9 +98,15 @@ public struct ListingFilter: Hashable, Sendable, Codable {
     public var category: ListingCategory?
     /// With `near`, keeps listings whose coarse cell (0.1 degree) falls within about this distance (MKT-1).
     public var radiusMeters: Int?
+    public var minPriceCents: Int?
+    public var maxPriceCents: Int?
+    /// Empty means any condition; otherwise only these (K1 filter sheet).
+    public var conditions: Set<ListingCondition>
     public init(kind: ListingKind? = nil, query: String? = nil, fits: Fitment? = nil, near: Coordinate? = nil,
-                category: ListingCategory? = nil, radiusMeters: Int? = nil) {
+                category: ListingCategory? = nil, radiusMeters: Int? = nil, minPriceCents: Int? = nil,
+                maxPriceCents: Int? = nil, conditions: Set<ListingCondition> = []) {
         self.kind = kind; self.query = query; self.fits = fits; self.near = near; self.category = category
-        self.radiusMeters = radiusMeters
+        self.radiusMeters = radiusMeters; self.minPriceCents = minPriceCents; self.maxPriceCents = maxPriceCents
+        self.conditions = conditions
     }
 }

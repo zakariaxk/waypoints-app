@@ -693,6 +693,11 @@ struct LiveMarket: MarketRepository {
             }
             if let k = filter.kind { q = q.eq("kind", value: k.rawValue) }
             if let c = filter.category { q = q.eq("category", value: c.rawValue) }
+            if let min = filter.minPriceCents { q = q.gte("price_cents", value: min) }
+            if let max = filter.maxPriceCents { q = q.lte("price_cents", value: max) }
+            if !filter.conditions.isEmpty {
+                q = q.in("condition", values: filter.conditions.map(\.rawValue).sorted())
+            }
             if let text = filter.query, !text.isEmpty { q = q.ilike("title", pattern: "%\(filterSafe(text))%") }
             if let f = filter.fits {
                 q = q.eq("fits_make", value: f.make)

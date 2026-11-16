@@ -93,9 +93,10 @@ type Service struct {
 	mu     sync.Mutex
 	byID   map[string]*Convoy
 	byCode map[string]string
-	unsub  map[string]func()    // c.<id> bus subscriptions for registry entries
-	infos  map[uint64]*hub.Info // remote publishers' marker identities, deduplicated
-	voice  VoiceRooms
+	unsub   map[string]func()    // c.<id> bus subscriptions for registry entries
+	infos   map[uint64]*hub.Info // remote publishers' marker identities, deduplicated
+	emptyAt map[string]time.Time // registry entries with no connected members, since
+	voice   VoiceRooms
 }
 
 // VoiceRooms is implemented by package voice: every convoy has a LiveKit room
@@ -120,8 +121,9 @@ func Register(a *app.App) {
 		log:    a.Log,
 		byID:   map[string]*Convoy{},
 		byCode: map[string]string{},
-		unsub:  map[string]func(){},
-		infos:  map[uint64]*hub.Info{},
+		unsub:   map[string]func(){},
+		infos:   map[uint64]*hub.Info{},
+		emptyAt: map[string]time.Time{},
 	}
 	if b := bus.From(a); !b.Local() {
 		s.bus = b
@@ -137,6 +139,7 @@ func Register(a *app.App) {
 	a.Mux.HandleFunc("DELETE /v1/convoys/{id}/regroup", api.Authed(v, s.clearRegroup))
 	a.Mux.HandleFunc("DELETE /v1/convoys/{id}", api.Authed(v, s.end))
 	a.Mux.HandleFunc("POST /v1/convoys/{id}/invite", api.Authed(v, s.invite))
+	a.Go("convoy-sweeper", s.sweepIdle)
 	app.Provide(a, s)
 }
 
@@ -283,6 +286,46 @@ func (s *Service) changed(ctx context.Context, c *Convoy) {
 	if s.bus != nil {
 		if b, err := json.Marshal(ws.ConvoyBusMsg{Node: s.node, Op: "state", State: raw}); err == nil {
 			_ = s.bus.Publish(ws.ConvoySubject(c.ID), b)
+		}
+	}
+}
+
+// emptyGrace is how long a registry entry may sit with no connected members
+// before the sweeper evicts it. Members whose app was killed reconnect inside
+// the grace without losing the convoy; past it the entry and its c.<id>
+// subscription are dropped (load brings the record back on demand).
+const emptyGrace = 5 * time.Minute
+
+// sweepIdle evicts registry entries that have had no connected members for
+// emptyGrace (dead convoys whose members never sent a leave).
+func (s *Service) sweepIdle(ctx context.Context) {
+	t := time.NewTicker(time.Minute)
+	defer t.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case now := <-t.C:
+			s.expireIdle(now)
+		}
+	}
+}
+
+func (s *Service) expireIdle(now time.Time) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for id, c := range s.byID {
+		if s.ws.ConvoySize(id) > 0 {
+			delete(s.emptyAt, id)
+			continue
+		}
+		if since, ok := s.emptyAt[id]; !ok {
+			s.emptyAt[id] = now
+		} else if now.Sub(since) >= emptyGrace {
+			delete(s.byID, id)
+			delete(s.byCode, c.JoinCode)
+			delete(s.emptyAt, id)
+			s.unwatch(id)
 		}
 	}
 }

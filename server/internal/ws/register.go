@@ -250,15 +250,22 @@ func (s *Server) closeAll(ctx context.Context) {
 	}
 }
 
-func (s *Server) add(c *conn) {
+// add registers c, refusing when the per-user or total cap is already met.
+// The check runs under the same lock as the insert so two concurrent
+// connects cannot both pass under the cap.
+func (s *Server) add(c *conn) bool {
 	s.mu.Lock()
+	defer s.mu.Unlock()
+	if len(s.byUID[c.uid]) >= maxConnsPerUser || (s.maxConns > 0 && len(s.conns) >= s.maxConns) {
+		return false
+	}
 	s.conns[c] = struct{}{}
 	if s.byUID[c.uid] == nil {
 		s.byUID[c.uid] = map[*conn]struct{}{}
 	}
 	s.byUID[c.uid][c] = struct{}{}
-	s.mu.Unlock()
 	s.m.conns.Inc()
+	return true
 }
 
 func (s *Server) remove(c *conn) {
@@ -466,15 +473,6 @@ func (c *conn) run(ctx context.Context) {
 		return
 	}
 
-	// Bound connections per account and in total before registering.
-	c.s.mu.RLock()
-	perUser, total := len(c.s.byUID[c.uid]), len(c.s.conns)
-	c.s.mu.RUnlock()
-	if perUser >= maxConnsPerUser || (c.s.maxConns > 0 && total >= c.s.maxConns) {
-		c.closeWith(wire.Error_RATE_LIMITED, "too many connections", closeBadFrame)
-		return
-	}
-
 	c.out = newOutbox(c.uid, rels.Blocked, func() {
 		defer func() {
 			if rec := recover(); rec != nil {
@@ -491,7 +489,10 @@ func (c *conn) run(ctx context.Context) {
 			c.ws.Close(closeSlowConsumer, "slow consumer")
 		}()
 	})
-	c.s.add(c)
+	if !c.s.add(c) {
+		c.closeWith(wire.Error_RATE_LIMITED, "too many connections", closeBadFrame)
+		return
+	}
 	defer c.s.remove(c)
 
 	welcome := &wire.ServerFrame{Body: &wire.ServerFrame_Welcome{Welcome: &wire.Welcome{
@@ -945,7 +946,7 @@ func convoyKey(id string) uint64 {
 func (c *conn) viewportHolds(lat, lng int32) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	return c.hasVP && lat >= c.vp.MinLat && lat <= c.vp.MaxLat && lng >= c.vp.MinLng && lng <= c.vp.MaxLng
+	return c.hasVP && c.vp.Holds(lat, lng)
 }
 
 func (c *conn) onViewport(v *wire.SetViewport) {

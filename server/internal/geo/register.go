@@ -79,34 +79,44 @@ func (r Rect) areaKm2() float64 {
 	const kmPerDeg = 111.32
 	lat0, lat1 := Deg(r.MinLat), Deg(r.MaxLat)
 	midLat := (lat0 + lat1) / 2 * math.Pi / 180
-	return (lat1 - lat0) * kmPerDeg * (Deg(r.MaxLng) - Deg(r.MinLng)) * kmPerDeg * math.Cos(midLat)
+	width := Deg(r.MaxLng) - Deg(r.MinLng)
+	if width < 0 {
+		width += 360 // antimeridian crossing
+	}
+	return (lat1 - lat0) * kmPerDeg * width * kmPerDeg * math.Cos(midLat)
+}
+
+// parts returns r as one or two non-wrapping rects: a viewport whose max
+// longitude is less than its min crosses the antimeridian.
+func (r Rect) parts() []Rect {
+	if r.MinLng < r.MaxLng {
+		return []Rect{r}
+	}
+	return []Rect{
+		{MinLat: r.MinLat, MinLng: r.MinLng, MaxLat: r.MaxLat, MaxLng: 1_800_000_000},
+		{MinLat: r.MinLat, MinLng: -1_800_000_000, MaxLat: r.MaxLat, MaxLng: r.MaxLng},
+	}
+}
+
+// Holds reports whether the point lies inside r, honouring antimeridian wrap.
+func (r Rect) Holds(lat, lng int32) bool {
+	if lat < r.MinLat || lat > r.MaxLat {
+		return false
+	}
+	if r.MinLng <= r.MaxLng {
+		return lng >= r.MinLng && lng <= r.MaxLng
+	}
+	return lng >= r.MinLng || lng <= r.MaxLng
 }
 
 // Cover returns the cells at res covering r plus one ring, or nil and false if
 // that would exceed MaxCover cells.
 func Cover(r Rect, res int) ([]uint64, bool) {
-	if r.MaxLat <= r.MinLat || r.MaxLng <= r.MinLng || !Valid(r.MinLat, r.MinLng) || !Valid(r.MaxLat, r.MaxLng) {
+	if r.MaxLat <= r.MinLat || r.MaxLng == r.MinLng || !Valid(r.MinLat, r.MinLng) || !Valid(r.MaxLat, r.MaxLng) {
 		return nil, false
 	}
 	if area, ok := meanAreaKm2[res]; ok && r.areaKm2()/area > 4*MaxCover {
 		return nil, false
-	}
-	poly := h3.GeoPolygon{GeoLoop: h3.GeoLoop{
-		h3.NewLatLng(Deg(r.MinLat), Deg(r.MinLng)),
-		h3.NewLatLng(Deg(r.MinLat), Deg(r.MaxLng)),
-		h3.NewLatLng(Deg(r.MaxLat), Deg(r.MaxLng)),
-		h3.NewLatLng(Deg(r.MaxLat), Deg(r.MinLng)),
-	}}
-	inner, err := h3.PolygonToCells(poly, res)
-	if err != nil {
-		return nil, false
-	}
-	// A viewport smaller than one cell has no cell centre inside it; seed it
-	// with the cells under its corners and centre.
-	seed := []uint64{
-		Cell(r.MinLat, r.MinLng, res), Cell(r.MaxLat, r.MaxLng, res),
-		Cell(r.MinLat, r.MaxLng, res), Cell(r.MaxLat, r.MinLng, res),
-		Cell(r.MinLat/2+r.MaxLat/2, r.MinLng/2+r.MaxLng/2, res),
 	}
 	set := map[uint64]struct{}{}
 	add := func(c h3.Cell) bool {
@@ -119,14 +129,33 @@ func Cover(r Rect, res int) ([]uint64, bool) {
 		}
 		return len(set) <= MaxCover
 	}
-	for _, c := range inner {
-		if !add(c) {
+	for _, p := range r.parts() {
+		poly := h3.GeoPolygon{GeoLoop: h3.GeoLoop{
+			h3.NewLatLng(Deg(p.MinLat), Deg(p.MinLng)),
+			h3.NewLatLng(Deg(p.MinLat), Deg(p.MaxLng)),
+			h3.NewLatLng(Deg(p.MaxLat), Deg(p.MaxLng)),
+			h3.NewLatLng(Deg(p.MaxLat), Deg(p.MinLng)),
+		}}
+		inner, err := h3.PolygonToCells(poly, res)
+		if err != nil {
 			return nil, false
 		}
-	}
-	for _, c := range seed {
-		if c != 0 && !add(h3.Cell(c)) {
-			return nil, false
+		// A viewport smaller than one cell has no cell centre inside it; seed it
+		// with the cells under its corners and centre.
+		seed := []uint64{
+			Cell(p.MinLat, p.MinLng, res), Cell(p.MaxLat, p.MaxLng, res),
+			Cell(p.MinLat, p.MaxLng, res), Cell(p.MaxLat, p.MinLng, res),
+			Cell(p.MinLat/2+p.MaxLat/2, p.MinLng/2+p.MaxLng/2, res),
+		}
+		for _, c := range inner {
+			if !add(c) {
+				return nil, false
+			}
+		}
+		for _, c := range seed {
+			if c != 0 && !add(h3.Cell(c)) {
+				return nil, false
+			}
 		}
 	}
 	out := make([]uint64, 0, len(set))

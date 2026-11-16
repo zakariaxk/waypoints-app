@@ -113,20 +113,14 @@ struct Browse: View {
     @State private var within: Int?
     @State private var here: Coordinate?
 
-    /// Price and condition narrow the loaded results (K1 filter sheet).
-    private var shown: [Listing] {
-        listings.filter { l in
-            (Int(minPrice).map { l.priceCents / 100 >= $0 } ?? true) && (Int(maxPrice).map { l.priceCents / 100 <= $0 } ?? true)
-                && (conditions.isEmpty || conditions.contains(l.condition))
-        }
-    }
-
     private var filter: ListingFilter {
         ListingFilter(kind: kind, query: query.isEmpty ? nil : query,
                       fits: kind != .car ? fitsCar.map { Fitment(make: $0.make, model: $0.model, yearFrom: $0.year, yearTo: $0.year) } : nil,
                       near: within == nil ? nil : here,
                       category: kind != .car ? category : nil,
-                      radiusMeters: within.map { Int(Double($0) * Units.meters) })
+                      radiusMeters: within.map { Int(Double($0) * Units.meters) },
+                      minPriceCents: Int(minPrice).map { $0 * 100 }, maxPriceCents: Int(maxPrice).map { $0 * 100 },
+                      conditions: conditions)
     }
 
     var body: some View {
@@ -160,7 +154,7 @@ struct Browse: View {
                     ErrorState(Text("Couldn't load the market.", bundle: .module)) { Task { await load(more: false) } }
                 } else if loading && listings.isEmpty {
                     SkeletonBlock(height: Size.row * 3, cornerRadius: Radius.r12)
-                } else if shown.isEmpty && !loading && next == nil {
+                } else if listings.isEmpty && !loading && next == nil {
                     if let c = fitsCar, kind != .car {
                         Group {
                             if kind == .wanted {
@@ -179,12 +173,12 @@ struct Browse: View {
                 }
                 if kind == .part {
                     LazyVGrid(columns: [GridItem(.flexible(), spacing: Space.s12), GridItem(.flexible())], spacing: Space.s16) {
-                        ForEach(shown) { l in card(l) }
+                        ForEach(listings) { l in card(l) }
                     }
                 } else if kind == .car {
-                    ForEach(shown) { l in carRow(l) }
+                    ForEach(listings) { l in carRow(l) }
                 } else {
-                    ForEach(shown) { l in wantedRow(l) }
+                    ForEach(listings) { l in wantedRow(l) }
                 }
                 if next != nil {
                     Color.clear.frame(height: Space.s2).onAppear { Task { await load(more: true) } }
@@ -223,10 +217,11 @@ struct Browse: View {
                     HStack(spacing: Space.s8) {
                         ForEach([5, 25, 50, 100], id: \.self) { n in
                             Chip("\(n) \(Units.name)", isSelected: within == n) { within = within == n ? nil : n; if here == nil { here = Coarse.here() } }
+                                .disabled(here == nil)
                         }
                         Chip("Any", isSelected: within == nil) { within = nil }
                     }
-                    if within != nil {
+                    if here == nil || within != nil {
                         Group {
                             if here == nil {
                                 Text("Turn on location to filter by distance.", bundle: .module)
@@ -239,6 +234,7 @@ struct Browse: View {
                     QuietButton("Clear") { minPrice = ""; maxPrice = ""; conditions = []; category = nil; within = nil }
                 }
                 .padding(Space.margin)
+                .task { if here == nil { here = Coarse.here() } }
             }
             .presentationDetents([.medium])
         }
