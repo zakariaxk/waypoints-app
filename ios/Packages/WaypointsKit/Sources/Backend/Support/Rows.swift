@@ -156,12 +156,14 @@ struct BuildEntryRow: Decodable, Sendable {
     let odometer: Int?
     let odometerUnit: OdometerUnit?
     let remindOn: Date?
+    let isPlanned: Bool?
     let createdAt: Date
 
     var model: BuildEntry {
         BuildEntry(id: BuildEntryID(raw: id), carID: CarID(raw: carId), happenedOn: happenedOn, title: title,
                    body: body ?? "", photoPath: photoPath, modID: modId, isService: isService ?? false,
-                   odometer: odometer, odometerUnit: odometerUnit, remindOn: remindOn, createdAt: createdAt)
+                   odometer: odometer, odometerUnit: odometerUnit, remindOn: remindOn,
+                   isPlanned: isPlanned ?? false, createdAt: createdAt)
     }
 }
 
@@ -177,6 +179,7 @@ struct BuildEntryWrite: Encodable, Sendable {
     var odometer: Nullable<Int>
     var odometerUnit: Nullable<String>
     var remindOn: Nullable<String>
+    var isPlanned: Bool
 
     init(_ e: BuildEntry) {
         id = e.id.raw; carId = e.carID.raw; happenedOn = PostgresDate.day(e.happenedOn); title = e.title
@@ -185,6 +188,7 @@ struct BuildEntryWrite: Encodable, Sendable {
         odometer = .init(e.isService ? e.odometer : nil)
         odometerUnit = .init(e.isService && e.odometer != nil ? e.odometerUnit?.rawValue : nil)
         remindOn = .init(e.isService ? e.remindOn.map(PostgresDate.day) : nil)
+        isPlanned = e.isPlanned
     }
 }
 

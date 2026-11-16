@@ -780,6 +780,9 @@
         }
       }
     },
+    "%@ spotted": {
+      "extractionState": "manual"
+    },
     "%@ to %@": {
       "extractionState": "manual",
       "localizations": {
@@ -1778,6 +1781,9 @@
           }
         }
       }
+    },
+    "%f spotted": {
+      "extractionState": "manual"
     },
     "%f to %@": {
       "extractionState": "manual",
@@ -2785,6 +2791,9 @@
           }
         }
       }
+    },
+    "%lld spotted": {
+      "extractionState": "manual"
     },
     "%lld to %@": {
       "extractionState": "manual",
@@ -10530,6 +10539,9 @@
         }
       }
     },
+    "Mark done": {
+      "extractionState": "manual"
+    },
     "Markers": {
       "extractionState": "manual",
       "localizations": {
@@ -12544,6 +12556,9 @@
           }
         }
       }
+    },
+    "Planned": {
+      "extractionState": "manual"
     },
     "Plates and faces are blurred. Tap a box to remove it. Tap the photo to blur more.": {
       "extractionState": "manual",
@@ -14853,6 +14868,9 @@
           }
         }
       }
+    },
+    "Share collection": {
+      "extractionState": "manual"
     },
     "Share invite": {
       "extractionState": "manual",

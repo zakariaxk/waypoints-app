@@ -383,7 +383,7 @@ struct ProfileScreen: View {
         ForEach(byMake.prefix(5), id: \.key) { make, spots in
             Row(Text(verbatim: make), trailing: { Text(verbatim: "\(spots.count)").typeStyle(.readoutS) })
         }
-        NavigationLink { SpottedView(ctx: ctx, spots: model.spots) } label: {
+        NavigationLink { SpottedView(ctx: ctx, spots: model.spots, profile: model.profile) } label: {
             Row(Text("See all", bundle: .module), showsDivider: false, trailing: { Disclosure() })
         }
         .buttonStyle(RowButtonStyle())
@@ -497,6 +497,9 @@ struct PickerSheet: View {
 struct SpottedView: View {
     let ctx: GarageContext
     let spots: [Spot]
+    let profile: Profile?
+    @State private var shared: SharedImage?
+    @Environment(\.displayScale) private var displayScale
 
     var body: some View {
         ScrollView {
@@ -518,7 +521,12 @@ struct SpottedView: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(Dictionary(grouping: list, by: \.model).sorted { $0.key < $1.key }, id: \.key) { model, shots in
-                    SectionLabel(verbatim: model.uppercased())
+                    HStack(spacing: 0) {
+                        SectionLabel(verbatim: model.uppercased())
+                        // SPOT-7: share the model's collection as a card.
+                        IconButton(Symbol.share, label: "Share collection") { share(model: model, shots: shots) }
+                            .padding(.trailing, Space.margin)
+                    }
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: Space.s2), count: 3), spacing: Space.s2) {
                         ForEach(shots) { s in
                             MediaView(url: ctx.url(.spots, s.photoPath), aspectRatio: 1, cornerRadius: 0,
@@ -535,5 +543,17 @@ struct SpottedView: View {
         }
         .background(Color.asphalt.ignoresSafeArea())
         .navigationTitle(make)
+        .sheet(item: $shared) { ShareSheet(items: [$0.image]).presentationDetents([.medium, .large]) }
+    }
+
+    /// SPOT-7: renders the collection card and hands it to the share sheet.
+    private func share(model: String, shots: [Spot]) {
+        Task {
+            let image = await SpotShare.render(make: shots.first?.make ?? "", model: model, count: shots.count,
+                                               photoURL: ctx.url(.spots, shots.first?.photoPath),
+                                               handle: profile?.handle, silhouette: profile?.markerIcon ?? "coupe",
+                                               scale: displayScale)
+            if let image { shared = SharedImage(image: image) }
+        }
     }
 }

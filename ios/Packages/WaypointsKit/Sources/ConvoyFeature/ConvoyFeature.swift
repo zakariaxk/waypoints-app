@@ -496,6 +496,8 @@ struct ConvoySheet: View {
                 if store.state != nil, let c = store.code {
                     Text(verbatim: c).typeStyle(.readoutL).foregroundStyle(Color.chalk)
                     if let url = Route.joinConvoy(code: c).shareURL {
+                        QRCodeView(url.absoluteString)
+                            .frame(maxWidth: Size.row * 6)
                         ShareLink(item: url) {
                             Text("Share invite", bundle: .module).typeStyle(.bodyStrong).foregroundStyle(Color.sodium)
                                 .frame(minHeight: Size.hitTarget).contentShape(Rectangle())

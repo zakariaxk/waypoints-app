@@ -65,7 +65,9 @@ extension PreviewStore: GarageRepository {
     }
 
     public func buildEntries(of car: CarID) async throws -> [BuildEntry] {
-        buildEntries.filter { $0.carID == car }.sorted { $0.happenedOn > $1.happenedOn }
+        let mine = cars[car]?.ownerID == (try? me())
+        return buildEntries.filter { $0.carID == car && (!$0.isPlanned || mine) }
+            .sorted { $0.happenedOn > $1.happenedOn }
     }
     public func addBuildEntry(_ entry: BuildEntry) async throws -> BuildEntry {
         buildEntries.append(entry)

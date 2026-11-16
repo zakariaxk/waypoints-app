@@ -1094,6 +1094,19 @@ begin
   perform pg_temp.deny('build_entries: cost cannot be negative', a,
     format($s$update build_entries set cost_cents = -1 where car_id = %L and title = 'Cost check exhaust'$s$, car_a), '23514');
 
+  ---------------------------------------------------------------- planned entries (L78, GAR-19)
+  perform pg_temp.allow('build_entries: owner logs a planned entry', a,
+    format($s$insert into build_entries (car_id, title, is_planned) values (%L, 'Planned turbo kit', true)$s$, car_a), true);
+  perform pg_temp.allow('build_entries: owner reads own planned entry', a,
+    format($s$select id, title from build_entries where car_id = %L and title = 'Planned turbo kit'$s$, car_a));
+  perform pg_temp.deny('build_entries: another user never sees a planned entry', b,
+    format($s$select id, title from build_entries where car_id = %L and title = 'Planned turbo kit'$s$, car_a));
+  perform pg_temp.deny('build_entries: another user cannot touch a planned entry', b,
+    format($s$update build_entries set is_planned = false where car_id = %L$s$, car_a));
+  perform pg_temp.allow('build_entries: owner marks a planned entry done', a,
+    format($s$update build_entries set is_planned = false, happened_on = current_date
+      where car_id = %L and title = 'Planned turbo kit'$s$, car_a));
+
   ---------------------------------------------------------------- team_standings (W10-7)
   -- B's car won a vote this week (cast_showdown_vote above); B is in private team P.
   perform pg_temp.allow('team_standings: setup, B joins the public team', b,

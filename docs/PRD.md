@@ -404,7 +404,7 @@ Drive together and stay together. Plan 6, 7.6, 10.3 (M9).
 | CNV-10 | A convoy survives a gateway restart or a move to another node. | P0 | Verified (L35): `c.<id>` bus fan-out; Postgres mirror fixed (jsonb param must be `string`, not `[]byte`) — cold-load join after gateway restart verified. |
 | CNV-11 | Every convoy has voice. "Talk" opens the voice sheet for the convoy's own room; you join muted; the room ends with the convoy. This replaces the plan's team-only Talk button. | P1 | Coded (L35): member-gated token, `cv_<id>` room, join muted, cleanup on leave/end. Not live-verifiable without LiveKit Cloud env keys. |
 | CNV-12 | Regroup. Any member can drop a regroup point (a place search or "here"). Every member sees it on the convoy line with one tap to route there; it clears when the host taps "Rolling" or the convoy ends. No speed, gap times, or ordering by position are shown. | P3 | Verified (L35): member PUT regroup 204, leader DELETE 204, member DELETE 403. |
-| CNV-13 | The convoy invite shows the join code as a QR code, like the profile and team codes (SOC-9). | P3 | New |
+| CNV-13 | The convoy invite shows the join code as a QR code, like the profile and team codes (SOC-9). | P3 | Coded (L76): invite sheet renders QRCodeView over the joinConvoy share URL — same payload as ShareLink. Statically reviewed. |
 
 ### 4.10 Friends, follows, and profiles (SOC)
 
@@ -446,7 +446,7 @@ Every car, chosen without clutter. Plan 5.2, 10.8 (G3 to G5), 11.1.
 | GAR-16 | Service log. A timeline entry can be marked as service with an odometer reading and an optional reminder date, delivered as a local notification. | P2 | Verified (L36): service entry w/ odometer + remind_on → local notification; CHECK enforced. |
 | GAR-17 | Gearing and tire calculator. From the car's catalog ratios and tire size: speed at redline in each gear, rpm at a chosen cruising speed, and the speedometer error for a different tire size or final drive. Cars without ratios in the catalog say so instead of guessing. On the device only. | P3 | Verified (L36, code): gearing math + manual fallbacks; catalog ratios for 1,007 variants. |
 | GAR-18 | Build cost. A timeline entry can carry what it cost. The owner alone sees a running total on the car and per-year subtotals; cost is never shown to anyone else and never ranked. | P3 | Verified (L36): cost insert, owner-only read (column privilege), running total. |
-| GAR-19 | Plans. A timeline entry can be marked planned; planned entries sit ahead on the owner's timeline with a Planned mark and no date. Marking one done stamps today. The owner alone sees a planned-cost subtotal; visitors never see planned entries or their cost. | P3 | New |
+| GAR-19 | Plans. A timeline entry can be marked planned; planned entries sit ahead on the owner's timeline with a Planned mark and no date. Marking one done stamps today. The owner alone sees a planned-cost subtotal; visitors never see planned entries or their cost. | P3 | Coded (L78): is_planned + recreated build_entries_read policy (planned rows owner-only); Planned mark, Mark done, planned subtotal, sheet toggle; checks.sql rows. Statically reviewed; check-db deferred. |
 
 ### 4.12 Mod simulator (MOD)
 
@@ -600,7 +600,7 @@ A collection game on the street. Plan 10.3 (M12).
 | SPOT-4 | Only a city name and a coarse cell are stored. No precise position, and no photo metadata. | P0 | Verified (L40): only city stored — no coordinate column at all; photo EXIF stripped. h3_r5 column unused (stricter than spec). |
 | SPOT-5 | The spot joins a collection grouped by make, then model, with counts and the moment "Porsche 911 · 3rd spotted". | P0 | Verified (L40): makes→models collection + "Nth spotted"; insert/read live. |
 | SPOT-6 | Faces are blurred the same way as plates. | P1 | Verified (L40, code): faces blurred same as plates. |
-| SPOT-7 | A collection shares as a card (lead photo or the model silhouette, the make and model, the count, the handle) to the share sheet, like the build card (GAR-15). | P3 | New |
+| SPOT-7 | A collection shares as a card (lead photo or the model silhouette, the make and model, the count, the handle) to the share sheet, like the build card (GAR-15). | P3 | Coded (L77): SpotCard/SpotShare in GarageFeature (the collection view lives there); share icon on each model section header. Statically reviewed. |
 
 ### 4.21 Road ratings (ROAD)
 

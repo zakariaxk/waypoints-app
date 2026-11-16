@@ -8,7 +8,7 @@ import Foundation
 extension LiveGarage {
     /// Every `build_entries` column a signed-in user may select: all but `cost_cents`.
     static let buildEntryColumns =
-        "id,car_id,happened_on,title,body,photo_path,mod_id,is_service,odometer,odometer_unit,remind_on,created_at"
+        "id,car_id,happened_on,title,body,photo_path,mod_id,is_service,odometer,odometer_unit,remind_on,is_planned,created_at"
 
     func buildCosts(of car: CarID) async throws -> [BuildEntryID: Int] {
         struct Params: Encodable, Sendable { let car: UUID }

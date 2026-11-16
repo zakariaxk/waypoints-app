@@ -236,3 +236,61 @@ enum BuildShare {
         return renderer.uiImage
     }
 }
+
+// MARK: SPOT-7 Share collection
+
+/// The card a spot collection shares as: lead photo or the silhouette, make and model, the count, handle.
+struct SpotCard: View {
+    let make: String
+    let model: String
+    let count: Int
+    let photo: UIImage?
+    let handle: String?
+    let silhouette: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Space.s12) {
+            ZStack(alignment: .bottom) {
+                Group {
+                    if let photo {
+                        Image(uiImage: photo).resizable().scaledToFill()
+                    } else {
+                        ZStack { Color.concrete; SilhouetteIcon(silhouette, paint: .dust).padding(Space.s48) }
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .aspectRatio(16.0 / 9.0, contentMode: .fit)
+                .clipped()
+                Rectangle().fill(Color.sodium).frame(height: Size.paintBar)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: Radius.r20, style: .continuous))
+            VStack(alignment: .leading, spacing: Space.s4) {
+                Text(verbatim: "\(make) \(model)").typeStyle(.title).foregroundStyle(Color.chalk)
+                Text("\(count) spotted", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
+            }
+            HStack {
+                if let handle { Text(verbatim: "@\(handle)").typeStyle(.readoutS).foregroundStyle(Color.sodium) }
+                Spacer()
+                Text(verbatim: "Waypoints").typeStyle(.label).foregroundStyle(Color.dust)
+            }
+        }
+        .padding(Space.margin)
+        .frame(width: Size.row * 7)
+        .background(Color.asphalt)
+    }
+}
+
+@MainActor
+enum SpotShare {
+    /// Downloads the lead photo first: `ImageRenderer` draws one pass and does not wait for async images.
+    static func render(make: String, model: String, count: Int, photoURL: URL?, handle: String?, silhouette: String,
+                       scale: CGFloat) async -> UIImage? {
+        var photo: UIImage?
+        if let photoURL, let loaded = try? await URLSession.shared.data(from: photoURL) { photo = UIImage(data: loaded.0) }
+        let renderer = ImageRenderer(content: SpotCard(make: make, model: model, count: count, photo: photo,
+                                                       handle: handle, silhouette: silhouette)
+            .environment(\.colorScheme, .dark))
+        renderer.scale = scale
+        return renderer.uiImage
+    }
+}

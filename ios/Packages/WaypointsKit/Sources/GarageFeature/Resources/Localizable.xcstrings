@@ -34,6 +34,9 @@
         }
       }
     },
+    "%@ spotted": {
+      "extractionState": "manual"
+    },
     "%f icon, earned": {
       "extractionState": "manual",
       "localizations": {
@@ -67,6 +70,9 @@
         }
       }
     },
+    "%f spotted": {
+      "extractionState": "manual"
+    },
     "%lld icon, earned": {
       "extractionState": "manual",
       "localizations": {
@@ -99,6 +105,9 @@
           }
         }
       }
+    },
+    "%lld spotted": {
+      "extractionState": "manual"
     },
     "Accept": {
       "extractionState": "manual",
@@ -939,6 +948,9 @@
         }
       }
     },
+    "Mark done": {
+      "extractionState": "manual"
+    },
     "Message": {
       "extractionState": "manual",
       "localizations": {
@@ -1150,6 +1162,9 @@
           }
         }
       }
+    },
+    "Planned": {
+      "extractionState": "manual"
     },
     "Point the camera at a friend's code.": {
       "extractionState": "manual",
@@ -1557,6 +1572,9 @@
           }
         }
       }
+    },
+    "Share collection": {
+      "extractionState": "manual"
     },
     "Share profile": {
       "extractionState": "manual",

@@ -106,13 +106,17 @@ public struct BuildEntry: Identifiable, Hashable, Sendable, Codable {
     public var odometerUnit: OdometerUnit?
     /// Delivered as a local notification on the owner's device; nothing on the server sends it.
     public var remindOn: Date?
+    /// GAR-19: planned entries sit at the top of the owner's timeline; only the owner sees them.
+    public var isPlanned: Bool
     public var createdAt: Date
     public init(id: BuildEntryID = BuildEntryID(), carID: CarID, happenedOn: Date, title: String, body: String = "",
                 photoPath: String? = nil, modID: String? = nil, isService: Bool = false, odometer: Int? = nil,
-                odometerUnit: OdometerUnit? = nil, remindOn: Date? = nil, createdAt: Date = .now) {
+                odometerUnit: OdometerUnit? = nil, remindOn: Date? = nil, isPlanned: Bool = false,
+                createdAt: Date = .now) {
         self.id = id; self.carID = carID; self.happenedOn = happenedOn; self.title = title; self.body = body
         self.photoPath = photoPath; self.modID = modID; self.isService = isService; self.odometer = odometer
-        self.odometerUnit = odometerUnit; self.remindOn = remindOn; self.createdAt = createdAt
+        self.odometerUnit = odometerUnit; self.remindOn = remindOn; self.isPlanned = isPlanned
+        self.createdAt = createdAt
     }
 }
 

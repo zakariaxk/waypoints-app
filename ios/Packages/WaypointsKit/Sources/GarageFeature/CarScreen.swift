@@ -48,7 +48,10 @@ final class CarModel {
         car = c
         owner = try? await env.profiles.profile(c.ownerID)
         photos = (try? await env.garage.photos(of: carID)) ?? []
-        entries = ((try? await env.garage.buildEntries(of: carID)) ?? []).sorted { $0.happenedOn > $1.happenedOn }
+        // GAR-19: planned entries sit ahead, then newest first.
+        entries = ((try? await env.garage.buildEntries(of: carID)) ?? []).sorted {
+            $0.isPlanned == $1.isPlanned ? $0.happenedOn > $1.happenedOn : $0.isPlanned
+        }
         costs = c.ownerID == me ? ((try? await env.garage.buildCosts(of: carID)) ?? [:]) : [:]
         if let v = c.catalogVariantID { variant = try? await env.catalog.variant(v) }
         showdown = try? await env.showdown.entry(for: carID)
@@ -334,7 +337,11 @@ struct CarScreen: View {
         } else {
             ForEach(model.entries) { e in
                 VStack(alignment: .leading, spacing: Space.s4) {
-                    Text(readout: e.happenedOn.formatted(date: .abbreviated, time: .omitted), token: .readoutS).foregroundStyle(Color.dust)
+                    if e.isPlanned {
+                        Text("Planned", bundle: .module).typeStyle(.sub).foregroundStyle(Color.sodium)
+                    } else {
+                        Text(readout: e.happenedOn.formatted(date: .abbreviated, time: .omitted), token: .readoutS).foregroundStyle(Color.dust)
+                    }
                     Text(verbatim: e.title).typeStyle(.bodyStrong).foregroundStyle(Color.chalk)
                     if let cents = model.costs[e.id] {
                         Text(verbatim: GarageUnits.money(cents: cents)).typeStyle(.sub).foregroundStyle(Color.dust)
@@ -350,6 +357,9 @@ struct CarScreen: View {
                     if let path = e.photoPath {
                         MediaView(url: ctx.url(.cars, path), aspectRatio: 4.0 / 3.0, cornerRadius: Radius.r12, label: Text(verbatim: e.title))
                     }
+                    if e.isPlanned, model.own {
+                        QuietButton("Mark done") { markDone(e) }
+                    }
                 }
                 .padding(.horizontal, Space.margin)
                 .padding(.vertical, Space.s12)
@@ -359,17 +369,40 @@ struct CarScreen: View {
         }
     }
 
+    /// GAR-19: marking a planned entry done stamps it today and drops it into the timeline.
+    private func markDone(_ entry: BuildEntry) {
+        var done = entry
+        done.isPlanned = false
+        done.happenedOn = .now
+        Task {
+            do {
+                try await ctx.env.garage.updateBuildEntry(done)
+                await model.load()
+            } catch {
+                toast = ToastMessage(Text(GarageCopy.failed))
+            }
+        }
+    }
+
     /// GAR-18: the owner's running total and per-year subtotals. Nobody else gets costs.
+    /// GAR-19: a planned subtotal sits beside them; planned entries and their cost never
+    /// reach a visitor (RLS and `build_costs`).
     @ViewBuilder private var costSummary: some View {
-        let costed = model.entries.compactMap { e in
+        let costed = model.entries.filter { !$0.isPlanned }.compactMap { e in
             model.costs[e.id].map { (year: Calendar.current.component(.year, from: e.happenedOn), cents: $0) }
         }
+        let planned = model.entries.filter(\.isPlanned).compactMap { model.costs[$0.id] }.reduce(0, +)
         if model.own, !costed.isEmpty {
             let years = Dictionary(grouping: costed) { $0.year }.mapValues { $0.reduce(0) { $0 + $1.cents } }.sorted { $0.key > $1.key }
             SectionLabel("BUILD COST")
             Row(Text("Total", bundle: .module), subtitle: Text("Only you can see what the build cost.", bundle: .module), trailing: {
                 Text(readout: GarageUnits.money(cents: costed.reduce(0) { $0 + $1.cents }), token: .readoutM).foregroundStyle(Color.chalk)
             })
+            if planned > 0 {
+                Row(Text("Planned", bundle: .module), trailing: {
+                    Text(readout: GarageUnits.money(cents: planned), token: .readoutS)
+                })
+            }
             ForEach(years, id: \.key) { year, cents in
                 Row(Text(verbatim: String(year)), showsDivider: year != years.last?.key, trailing: {
                     Text(readout: GarageUnits.money(cents: cents), token: .readoutS)
@@ -446,6 +479,8 @@ struct TimelineEntrySheet: View {
     @State private var remindOn = Calendar.current.date(byAdding: .month, value: 6, to: .now) ?? .now
     /// GAR-18
     @State private var cost = ""
+    /// GAR-19
+    @State private var isPlanned = false
     /// The entry is saved and only its cost failed: the next tap retries the cost alone.
     @State private var costPending: BuildEntryID?
     @State private var saving = false
@@ -474,6 +509,7 @@ struct TimelineEntrySheet: View {
                     }
                     .buttonStyle(RowButtonStyle())
                     Field("Cost", text: $cost, prompt: "Optional. Only you see it.", limit: 11).keyboardType(.decimalPad)
+                    Toggle("Planned", isOn: $isPlanned).tint(.sodium).typeStyle(.body).foregroundStyle(Color.chalk)
                     Toggle("Service", isOn: $isService).tint(.sodium).typeStyle(.body).foregroundStyle(Color.chalk)
                     if isService {
                         HStack(alignment: .bottom, spacing: Space.s12) {
@@ -530,7 +566,7 @@ struct TimelineEntrySheet: View {
                 let saved = try await ctx.env.garage.addBuildEntry(BuildEntry(
                     carID: car.id, happenedOn: date, title: title, body: details, photoPath: path, modID: modID,
                     isService: isService, odometer: reading, odometerUnit: reading == nil ? nil : unit,
-                    remindOn: isService && remind ? remindOn : nil))
+                    remindOn: isService && remind ? remindOn : nil, isPlanned: isPlanned))
                 await ServiceReminder.sync(saved, car: car)
                 if let modID, let mod = ModCatalog.mod(modID), !car.mods.contains(modID) {
                     var updated = car
