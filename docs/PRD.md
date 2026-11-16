@@ -423,6 +423,7 @@ A person plus their garage. Plan 5.1, 10.8 (G1, G2, G10, G11).
 | SOC-8 | A blocked or blocking profile reads "This profile isn't available." | P0 | Verified (L36): can_read_profile excludes blocks both ways; unavailable state. |
 | SOC-9 | Meet-in-person adding. "My code" shows a QR code of your profile link; "Scan" in Friends reads one and opens the profile. A team's invite shows a QR code too. | P1 | Verified (L36, code): QR code + scan sheet deep-links waypoints://profile. |
 | SOC-10 | "N friends going" on a meet: the meets list row and the meet page name up to three friends who RSVPed Going. | P3 | Coded (L86): lazy per-row RSVP fetch (≤6 rows) + MeetFormat.friendsGoing naming up to three on the meet page. Statically reviewed. |
+| SOC-11 | A road sheet names friends who rated it and their rating — same social signal as "friends going" (SOC-10). | P3 | New |
 
 ### 4.11 Garage and vehicle catalog (GAR)
 
@@ -451,6 +452,7 @@ Every car, chosen without clutter. Plan 5.2, 10.8 (G3 to G5), 11.1.
 | GAR-19 | Plans. A timeline entry can be marked planned; planned entries sit ahead on the owner's timeline with a Planned mark and no date. Marking one done stamps today. The owner alone sees a planned-cost subtotal; visitors never see planned entries or their cost. | P3 | Coded (L78): is_planned + recreated build_entries_read policy (planned rows owner-only); Planned mark, Mark done, planned subtotal, sheet toggle; checks.sql rows. Statically reviewed; check-db deferred. |
 | GAR-20 | A car with an active market listing reads "Listed for $X" under its readouts and opens the listing. | P3 | Coded (L81): `activeListing(forCar:)` (car_id + active + not-expired) → 'Listed for' row opens `.listing`. Statically reviewed. |
 | GAR-21 | A service entry whose reminder day passes marks the car "Service due" until the owner clears it — shown on the car's timeline and at the top of the car page, owner only. | P3 | Coded (L85): per-due-entry row + sodium timeline mark; Clear nils remind_on via updateBuildEntry and cancels the pending notification. Statically reviewed. |
+| GAR-22 | Your garage shares as a card: every car's lead photo or silhouette in a row, with your handle — the whole lineup, like SPOT-7's collection card. | P3 | New |
 
 ### 4.12 Mod simulator (MOD)
 
@@ -1024,6 +1026,7 @@ Thirteen extensions, each small enough for one session and each passing section 
 | Package | Covers | Owns |
 |---|---|---|
 | **W10-1 Stops** | NAV-16 | `Sources/NavigationFeature/**` |
+| NAV-17 | Parked. The map sheet shows where your last drive ended with one tap to navigate back to the car. | P3 | New |
 | **W10-2 Capacity** | MEET-15 | A migration, `server/internal/api/meets.go`, `Sources/MeetsFeature/**` |
 | **W10-3 Regroup** | CNV-12 | `proto/**` and generated types, `server/internal/convoy/**`, `Sources/ConvoyFeature/**` |
 | **W10-4 Builder's tools** | GAR-17, GAR-18 | A migration (one nullable column), `Sources/GarageFeature/**`, `Sources/PerformanceModel/**` (gearing math only) |
@@ -1182,3 +1185,4 @@ Findings go to W8-INT as a list.
 | 2026-11-16 | Fifth static wave: new requirements GAR-21 (service due), SOC-10 (friends going), ROAD-9 (add a road to a loop). Queue L85-L87. |
 | 2026-11-16 | Sixth static wave: new requirements MKT-12 (share a listing), CNV-15 (roll again), KNW-9 (guides link on a car). Queue L88-L90. |
 | 2026-11-16 | L91 two-agent audit caught two bugs (#if imbalance, posts.road_id grant) fixed in place; everything else verified by definition. Seventh wave: L10N-2 catch-up (154 keys missing es) and MOD-16 (share a sim build). Queue L92-L93. |
+| 2026-11-16 | Eighth static wave: new requirements GAR-22 (garage lineup card), SOC-11 (friends' road ratings), NAV-17 (parked card). Queue L94-L96. |
