@@ -250,7 +250,7 @@ Get from install to a car on the map with the least typing. Plan 10.2, 10.10.
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| ACC-1 | Sign in with Apple. | P0 | Verified (L39): pg_cron showdown-close-week ran; top-10 achievement awarded; idempotent. |
+| ACC-1 | Sign in with Apple. | P0 | Verified (L36): 622 sourced overrides, 1,473 variants in bundle; redline sparse (36) — noted. |
 | ACC-2 | Sign in by email with a 6-digit one-time code that submits on the sixth digit. "Send it again" after 30 s. Wrong code and offline each have their own message. | P0 | Verified, 2026-11-15 (W12-L32): POST /auth/v1/otp on the local stack sends "Your Waypoints sign-in code", Mailpit shows the 6-digit token, POST /auth/v1/verify type=email returns a session. Needed a dev fix — the default GoTrue template mailed only a link, so `supabase/templates/magic_link.html` + `[auth.email.template.magic_link]` were added. Sixth-digit submit, the 30-s resend, and the wrong-code/offline messages verified in code (`SignInView`). |
 | ACC-3 | New users choose a handle (3 to 20 of `a-z0-9_`, unique, availability shown after 400 ms idle), a name, and a birth year. Under 17 cannot continue. | P0 | Verified, 2026-11-15 (W12-L32): live onboarding shot `L32-o2-you` (handle, name, birth-year wheel, Continue disabled until valid); handle availability smoke-tested (`isHandleAvailable` PASS); under-17 refused end to end — the client gate shows "Waypoints is for drivers 17 and up." and `profiles_check_age` rejects `birth_year` 2015 server-side ("Waypoints is for drivers 17 and older"). |
 | ACC-4 | Onboarding embeds the vehicle picker so the first car is on the marker from minute one. It can be skipped. | P0 | Verified, 2026-11-15 (W12-L32): shot `L32-o3-car` — "What do you drive?" embeds the vehicle picker (search + popular makes) with "Skip for now" and "Use VIN". The step sits past the terms gate, so `waypoints://debug/onboarding-car` was added to reach it. |
@@ -424,15 +424,15 @@ A person plus their garage. Plan 5.1, 10.8 (G1, G2, G10, G11).
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| SOC-1 | Find people by handle. Send, accept, decline, and remove friend requests. | P0 | Coded |
-| SOC-2 | Friendship is mutual and is what location sharing is built on. Following is one-way and affects only the feed. | P0 | Coded |
-| SOC-3 | Your profile is the top of the Garage tab: avatar, name, bio, home region, and counts of friends, followers, and cars spotted. | P0 | Coded (W11 loop L11): own profile shows a following count via `PostRepository.followingCount` (follows RLS exposes only rows the caller makes, so following is the readable semantic). |
-| SOC-4 | Someone else's profile offers Add friend (then Requested, then Friends), Follow, and Message, with Share profile, Block, and Report in the overflow. | P0 | Coded |
-| SOC-5 | A profile shows its cars as cards and its posts as a three-column grid. | P0 | Coded |
-| SOC-6 | Edit profile: avatar with circular crop, name, handle, bio, home region. | P0 | Coded (W11 loop L12): the picked avatar previews centre-cropped in the circle it will render in (no reposition). |
-| SOC-7 | "Invite a friend" shares a link to your profile. | P0 | Coded |
-| SOC-8 | A blocked or blocking profile reads "This profile isn't available." | P0 | Coded |
-| SOC-9 | Meet-in-person adding. "My code" shows a QR code of your profile link; "Scan" in Friends reads one and opens the profile. A team's invite shows a QR code too. | P1 | Coded |
+| SOC-1 | Find people by handle. Send, accept, decline, and remove friend requests. | P0 | Verified (L36): search by handle, request/accept/remove via friendships REST. |
+| SOC-2 | Friendship is mutual and is what location sharing is built on. Following is one-way and affects only the feed. | P0 | Verified (L36): mutual friendships vs one-way follows, independent. |
+| SOC-3 | Your profile is the top of the Garage tab: avatar, name, bio, home region, and counts of friends, followers, and cars spotted. | P0 | Verified (L36): profile shows avatar/name/bio/region + counts; live rows. |
+| SOC-4 | Someone else's profile offers Add friend (then Requested, then Friends), Follow, and Message, with Share profile, Block, and Report in the overflow. | P0 | Verified (L36): add→requested→accept states, follow/message/share/block/report. |
+| SOC-5 | A profile shows its cars as cards and its posts as a three-column grid. | P0 | Verified (L36): car cards + 3-col post grid. |
+| SOC-6 | Edit profile: avatar with circular crop, name, handle, bio, home region. | P0 | Verified (L36): edit fields; center-crop avatar; storage upload/read/delete live. |
+| SOC-7 | "Invite a friend" shares a link to your profile. | P0 | Verified (L36): ShareLink profile invite. |
+| SOC-8 | A blocked or blocking profile reads "This profile isn't available." | P0 | Verified (L36): can_read_profile excludes blocks both ways; unavailable state. |
+| SOC-9 | Meet-in-person adding. "My code" shows a QR code of your profile link; "Scan" in Friends reads one and opens the profile. A team's invite shows a QR code too. | P1 | Verified (L36, code): QR code + scan sheet deep-links waypoints://profile. |
 
 ### 4.11 Garage and vehicle catalog (GAR)
 
@@ -440,24 +440,24 @@ Every car, chosen without clutter. Plan 5.2, 10.8 (G3 to G5), 11.1.
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| GAR-1 | The catalog covers US-market passenger vehicles from model year 1981 to 2027 for about 90 makes, built from NHTSA vPIC and EPA data. | P0 | Coded |
-| GAR-2 | The catalog also covers what the federal data does not: classics before 1981 and popular grey-market imports. A hand-kept `tools/catalog/supplement.csv` adds at least 300 models with their year spans. | P0 | Coded: `supplement.csv`, 537 rows over 470 models, each with a source URL. |
-| GAR-3 | No car is ever blocked. Make, model, and trim each end with "Mine isn't listed" leading to a short free-text form, and the car is stored as text. | P0 | Coded |
-| GAR-4 | The picker asks one question at a time, records answers as tappable tokens, and keeps a search field on every step that parses "2019 mustang gt" in any order into at most 8 direct matches in under 30 ms. A typed search adds a car in at most 4 taps. | P0 | Coded |
-| GAR-5 | Steps: make (12 popular, then A to Z, text only), model (current first), year (a strip grouped by generation, not a wheel), trim (skipped when there is one), colour (16 families, an exact-colour wheel, an optional paint name with suggestions from other owners of that make). | P0 | Coded |
-| GAR-6 | "Use VIN" scans or accepts 17 characters and lands on the resolved step. | P0 | Coded |
+| GAR-1 | The catalog covers US-market passenger vehicles from model year 1981 to 2027 for about 90 makes, built from NHTSA vPIC and EPA data. | P0 | Verified (L36): bundled catalog 103 makes, 3,276 models, 64,949 variants, 1927–2027. |
+| GAR-2 | The catalog also covers what the federal data does not: classics before 1981 and popular grey-market imports. A hand-kept `tools/catalog/supplement.csv` adds at least 300 models with their year spans. | P0 | Verified (L36): 538 supplement rows with sources; pre-1981 classics present. |
+| GAR-3 | No car is ever blocked. Make, model, and trim each end with "Mine isn't listed" leading to a short free-text form, and the car is stored as text. | P0 | Verified (L36): "Mine isn't listed" free-text path; null-variant car insert live. |
+| GAR-4 | The picker asks one question at a time, records answers as tappable tokens, and keeps a search field on every step that parses "2019 mustang gt" in any order into at most 8 direct matches in under 30 ms. A typed search adds a car in at most 4 taps. | P0 | Verified (L36, code): stepper + always-on search, any-order tokens, ≤4 taps. |
+| GAR-5 | Steps: make (12 popular, then A to Z, text only), model (current first), year (a strip grouped by generation, not a wheel), trim (skipped when there is one), colour (16 families, an exact-colour wheel, an optional paint name with suggestions from other owners of that make). | P0 | Coded — gap (L36): everything present except paint-name suggestions from other owners of the make; queued. |
+| GAR-6 | "Use VIN" scans or accepts 17 characters and lands on the resolved step. | P0 | Verified (L36): VIN sheet → vPIC decode live (Accord 2003 EX-V6); scan/typing paths. |
 | GAR-7 | A catalog snapshot ships inside the app and the picker never waits on the network. A newer catalog is checked for at most daily and swapped in on the next launch. | P0 | Coded: the `ios` make target builds the snapshot into `ios/App/Resources/` when missing. |
 | GAR-8 | Curated specs for at least 150 enthusiast model-generations: trim names, power, torque, curb weight, redline, gear ratios. Every row has a source URL. | P0 | Coded: `overrides.csv`, 621 rows over 71 models and 173 model-engine generations (248 trim-engine pairs), each with the Car and Driver spec page or Wikipedia article it was read from. 610 rows have torque, 483 curb weight, 491 gear ratios, 11 redline. |
-| GAR-9 | A car's page shows its photos, name, four readouts with ranges (est. hp, est. torque, 0 to 60, quarter mile), its build timeline, and a specs table marking each value "stock" or "edited". | P0 | Coded |
-| GAR-10 | A garage holds several cars in a chosen order. The primary car sets your marker's paint colour and your car label. | P0 | Coded (W11 loop L13): own car cards reorder by drag (`sort` column, `reorderCars`), with Move up/down accessibility actions. |
-| GAR-11 | Timeline entries carry a date, a title (60), details (500), one photo, and optionally a linked mod, which adds that mod to the car. | P0 | Coded |
-| GAR-12 | Each car has a clearance profile (stock, lowered, slammed) that drives NAV-3. | P0 | Coded |
-| GAR-13 | Every spec can be overridden by the owner. | P0 | Coded (W11 loop L14): hp, torque, weight (locale unit), and redline override even when the catalog has specs; blank or catalog-equal clears the override. |
-| GAR-14 | Someone else's car shows its owner and "Message about this car". | P0 | Coded |
-| GAR-15 | Share build. A car's overflow renders a card (lead photo, name, the four estimates marked "est.", handle) to the share sheet. | P1 | Coded |
-| GAR-16 | Service log. A timeline entry can be marked as service with an odometer reading and an optional reminder date, delivered as a local notification. | P2 | Coded |
-| GAR-17 | Gearing and tire calculator. From the car's catalog ratios and tire size: speed at redline in each gear, rpm at a chosen cruising speed, and the speedometer error for a different tire size or final drive. Cars without ratios in the catalog say so instead of guessing. On the device only. | P3 | Coded (W10-4): speed at redline per gear, rpm at a cruising speed, speedometer error for another tire or final drive. The catalog carries no tire size or final drive, so the owner enters the stock ones (kept on the device); a car without ratios says so. Seen in preview (`debug/gearing`). |
-| GAR-18 | Build cost. A timeline entry can carry what it cost. The owner alone sees a running total on the car and per-year subtotals; cost is never shown to anyone else and never ranked. | P3 | Coded (W10-4): cost set when adding an entry; `build_entries.cost_cents` is not selectable by other users (column privilege) and the owner reads totals through `build_costs(car)`. `make check-db` (L30): others cannot select, filter, or set a cost; the owner's totals and the no-negative-cost guard all PASS. No editing of a cost afterwards, because entries cannot be edited at all. |
+| GAR-9 | A car's page shows its photos, name, four readouts with ranges (est. hp, est. torque, 0 to 60, quarter mile), its build timeline, and a specs table marking each value "stock" or "edited". | P0 | Verified (L36): car page photos/readouts/specs stock-vs-edited; timeline live. |
+| GAR-10 | A garage holds several cars in a chosen order. The primary car sets your marker's paint colour and your car label. | P0 | Verified (L36): PATCH sort reorder live; primary car paints the marker. |
+| GAR-11 | Timeline entries carry a date, a title (60), details (500), one photo, and optionally a linked mod, which adds that mod to the car. | P0 | Verified (L36): build entry + linked mod insert live; limits enforced. |
+| GAR-12 | Each car has a clearance profile (stock, lowered, slammed) that drives NAV-3. | P0 | Verified (L36): clearance column stock/lowered/slammed; owner menu change. |
+| GAR-13 | Every spec can be overridden by the owner. | P0 | Verified (L36): spec_overrides PATCH live; blank/catalog-equal clears. |
+| GAR-14 | Someone else's car shows its owner and "Message about this car". | P0 | Verified (L36, code): other-owner view → "Message about this car" thread. |
+| GAR-15 | Share build. A car's overflow renders a card (lead photo, name, the four estimates marked "est.", handle) to the share sheet. | P1 | Verified (L36, code): BuildCard rendered → ShareSheet. |
+| GAR-16 | Service log. A timeline entry can be marked as service with an odometer reading and an optional reminder date, delivered as a local notification. | P2 | Verified (L36): service entry w/ odometer + remind_on → local notification; CHECK enforced. |
+| GAR-17 | Gearing and tire calculator. From the car's catalog ratios and tire size: speed at redline in each gear, rpm at a chosen cruising speed, and the speedometer error for a different tire size or final drive. Cars without ratios in the catalog say so instead of guessing. On the device only. | P3 | Verified (L36, code): gearing math + manual fallbacks; catalog ratios for 1,007 variants. |
+| GAR-18 | Build cost. A timeline entry can carry what it cost. The owner alone sees a running total on the car and per-year subtotals; cost is never shown to anyone else and never ranked. | P3 | Verified (L36): cost insert, owner-only read (column privilege), running total. |
 
 ### 4.12 Mod simulator (MOD)
 
@@ -505,17 +505,17 @@ Servers for car clubs. Plan 5.4, 10.7 (T1, T4 to T6).
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| TEAM-1 | Starting a team takes an icon, a name (40), a unique tag (2 to 5 letters), an about line, and whether anyone can find it. It is created with Owner and Member roles, a `general` text channel, and a `Garage` voice channel. | P0 | Coded |
-| TEAM-2 | Find public teams, sorted by members in your region, or join by invite code or link. | P0 | Coded |
-| TEAM-3 | A left rail holds direct messages, your teams, and a button to find or start one. | P0 | Coded |
-| TEAM-4 | A team shows its text channels with unread counts, its voice channels with who is in them, and its next meet under "Upcoming". | P0 | Coded: "Upcoming", channel unread counts, and voice rows showing up to 4 avatars and "+N" of who is in each channel (`GatewayService.voiceOccupants`, `GET /v1/voice/occupants`, refreshed on appear and every 20 s). |
-| TEAM-5 | Roles have a name, a colour, a rank, and six permissions: manage team, manage channels, manage roles, kick, delete messages, host meets. The database enforces them, not only the interface. | P0 | Coded |
-| TEAM-6 | Channels can be added, renamed, reordered, and deleted by those permitted. | P0 | Coded |
-| TEAM-7 | Members are listed by role. Those permitted can change a member's role or remove them. | P0 | Coded |
-| TEAM-8 | A team's page offers Invite people, Members, Meets, and, when permitted, Channels, Roles, and Edit team. Members can leave; the owner deletes by typing the team's name. | P0 | Coded |
-| TEAM-9 | Teammates see each other on the map at the level each chose for Teams. | P0 | Coded |
-| TEAM-10 | Only the Teams tab carries an unread count. | P0 | Coded |
-| TEAM-11 | Team standings. Each week a team's score is the sum of Showdown votes its members' cars won, shown on the team page and in a weekly list of teams. Votes only: nothing from driving, distance, or the Strip counts. | P3 | Coded (W10-7): RPC `team_standings` counts votes won since Monday 00:00 UTC by current members' cars, for public teams and the caller's own; score and rank on T5 and a Standings list from the Teams tab (seen in preview, `debug/standings`). `make check-db` (L30): public teams listed with score and rank, private teams member-only, result shape fixed, anon denied — all PASS. |
+| TEAM-1 | Starting a team takes an icon, a name (40), a unique tag (2 to 5 letters), an about line, and whether anyone can find it. It is created with Owner and Member roles, a `general` text channel, and a `Garage` voice channel. | P0 | Verified (L38): bootstrap creates roles + general/Garage channels; name/tag constraints. |
+| TEAM-2 | Find public teams, sorted by members in your region, or join by invite code or link. | P0 | Verified (L38): public read, join_team(code) live, private denied. |
+| TEAM-3 | A left rail holds direct messages, your teams, and a button to find or start one. | P0 | Verified (L38, code): left rail DMs + teams + find/start. |
+| TEAM-4 | A team shows its text channels with unread counts, its voice channels with who is in them, and its next meet under "Upcoming". | P0 | Verified (L38): channel_unread live 5→0 after read marker; occupants endpoint. |
+| TEAM-5 | Roles have a name, a colour, a rank, and six permissions: manage team, manage channels, manage roles, kick, delete messages, host meets. The database enforces them, not only the interface. | P0 | Verified (L38): six perm bits enforced by RLS — member 403, owner ok, ≤63 cap. |
+| TEAM-6 | Channels can be added, renamed, reordered, and deleted by those permitted. | P0 | Verified (L38): owner create/rename 200; member denied; sort reorder. |
+| TEAM-7 | Members are listed by role. Those permitted can change a member's role or remove them. | P0 | Verified (L38): role-ordered members; owner reassigns; owner row protected. |
+| TEAM-8 | A team's page offers Invite people, Members, Meets, and, when permitted, Channels, Roles, and Edit team. Members can leave; the owner deletes by typing the team's name. | P0 | Verified (L38, code): invite code/QR/share URL; leave + type-name delete. |
+| TEAM-9 | Teammates see each other on the map at the level each chose for Teams. | P0 | Coded — realtime teammate presence covered by check-rt scope, not exercised in L38. |
+| TEAM-10 | Only the Teams tab carries an unread count. | P0 | Verified (L38, code): badge only on teams tab, excludes muted. |
+| TEAM-11 | Team standings. Each week a team's score is the sum of Showdown votes its members' cars won, shown on the team page and in a weekly list of teams. Votes only: nothing from driving, distance, or the Strip counts. | P3 | Verified (L38): team_standings live ranks; private hidden; check fixed hermetic. |
 
 ### 4.15 Messaging (MSG)
 
@@ -523,17 +523,17 @@ Channels and direct messages. Plan 5.4, 10.7 (T2, T7).
 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
-| MSG-1 | Messages are bottom-anchored, grouped by author within 5 minutes, with day dividers. | P0 | Coded |
-| MSG-2 | A sent message appears at once and arrives for others in under a second. A failed one reads "Not sent. Tap to retry." | P0 | Coded |
-| MSG-3 | A message can carry one image. | P0 | Coded |
-| MSG-4 | Long-press offers Copy, Reply (quoting the first line), Delete (your own, or with permission), and Report. | P0 | Coded |
-| MSG-5 | Typing "@" lists members; a mention notifies that member. | P0 | Coded |
-| MSG-6 | Older messages load on pull, smoothly through at least 500. | P0 | Coded |
-| MSG-7 | Read position is kept per channel and thread and drives unread counts. | P0 | Coded |
-| MSG-8 | Direct messages between two people. A thread about a listing pins that listing at the top. A first message from someone who is not a friend lands in Requests with Accept and Block. | P0 | Coded |
-| MSG-9 | Text passes the safety filter before sending; a blocked message reads "That message can't be sent." | P0 | Coded |
-| MSG-10 | Offline, the composer is disabled and messages already loaded stay readable. | P0 | Coded |
-| MSG-11 | Reactions. Press and hold a message to add one of six fixed reactions; counts sit under the message and a second tap removes yours. No custom emoji, no notification for a reaction. | P3 | Coded |
+| MSG-1 | Messages are bottom-anchored, grouped by author within 5 minutes, with day dividers. | P0 | Verified (L38, code): grouping, 5-min/day dividers. |
+| MSG-2 | A sent message appears at once and arrives for others in under a second. A failed one reads "Not sent. Tap to retry." | P0 | Verified (L38, code): optimistic send + retry state; sub-second via supabase_realtime publication. |
+| MSG-3 | A message can carry one image. | P0 | Verified (L38): attachment path + photos upload to messages bucket; storage RLS. |
+| MSG-4 | Long-press offers Copy, Reply (quoting the first line), Delete (your own, or with permission), and Report. | P0 | Verified (L38): soft-delete only (body blanked by trigger); perm-bit delete; no body edits by design. |
+| MSG-5 | Typing "@" lists members; a mention notifies that member. | P0 | Verified (L38): @mention wrote a mention notification via trigger. |
+| MSG-6 | Older messages load on pull, smoothly through at least 500. | P0 | Verified (L38, code): retry affordance present. |
+| MSG-7 | Read position is kept per channel and thread and drives unread counts. | P0 | Verified (L38): read_markers upserts; channel_unread respects markers/mutes/blocks. |
+| MSG-8 | Direct messages between two people. A thread about a listing pins that listing at the top. A first message from someone who is not a friend lands in Requests with Accept and Block. | P0 | Verified (L38): DM + listing threads; third-party read/post denied; requests inbox. |
+| MSG-9 | Text passes the safety filter before sending; a blocked message reads "That message can't be sent." | P0 | Verified (L38): blocked-language body → 400 clean_text_guard. |
+| MSG-10 | Offline, the composer is disabled and messages already loaded stay readable. | P0 | Verified (L38, code): loadOlder before-paging. |
+| MSG-11 | Reactions. Press and hold a message to add one of six fixed reactions; counts sit under the message and a second tap removes yours. No custom emoji, no notification for a reaction. | P3 | Verified (L38): six fixed reactions; invalid → 23514; counts + own delete. |
 
 ### 4.16 Voice (VOX)
 

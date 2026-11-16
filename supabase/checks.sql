@@ -1071,7 +1071,8 @@ begin
   perform pg_temp.allow('team_standings: setup, B joins the public team', b,
     format($s$insert into team_members (team_id, user_id) values (%L, %L)$s$, team_o, b), true);
   perform pg_temp.allow('team_standings: a public team is listed with its score and rank', c,
-    format($s$select 1 from team_standings() where team_id = %L and score >= 1 and rank = 1$s$, team_o));
+    format($s$select 1 from team_standings() s where team_id = %L and score >= 1
+      and rank = (select count(*) + 1 from team_standings() t2 where t2.score > s.score)$s$, team_o));
   perform pg_temp.allow('team_standings: a member sees their private team', b,
     format($s$select 1 from team_standings() where team_id = %L and score >= 1$s$, team_p));
   perform pg_temp.deny('team_standings: a private team is hidden from non-members', c,
