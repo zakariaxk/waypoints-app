@@ -71,7 +71,30 @@ public final class ShellModel {
             }
             phase = next
             router.setSignedIn(next == .signedIn)
+            if next == .signedOut { await clearAccountState() }
         }
+    }
+
+    /// ACC-9: signing out drops every trace of the account kept on this phone, so nothing of
+    /// it leaks into the next sign-in — recents, reminders, racing state, the drive traces,
+    /// and the home zones (device-only Keychain). Device-scoped state stays: `appLanguage`,
+    /// `notifications.asked`, `nav.muted`, `map.layers`, the catalog, and `account.suspended`,
+    /// which the sign-in screen still has to read for the suspension banner.
+    private func clearAccountState() async {
+        let defaults = UserDefaults.standard
+        for key in ["map.recents", "progress.seen", "recordDrives", "strip.ladder.opened", "strip.tree"] {
+            defaults.removeObject(forKey: key)
+        }
+        for key in defaults.dictionaryRepresentation().keys
+        where key.hasPrefix("meet.remind.") || key.hasPrefix("gearing.") {
+            defaults.removeObject(forKey: key)
+        }
+        // RoadsFeature records drive traces as JSON here; they are the account's movement history.
+        if let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            try? FileManager.default.removeItem(at: support.appending(path: "drives"))
+        }
+        await environment.location.setSharing(true)
+        try? await environment.location.setHomeZones([])
     }
 }
 
