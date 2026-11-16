@@ -112,3 +112,6 @@ Format: `- [ ] L## | REQ-IDS | files it owns | one-line task`
 - [x] L97 | MKT-13 | MarketFeature | "More from this seller" on the listing page: seller's other active listings as tappable rows. New requirement row.
 - [x] L98 | KNW-10 | GuidesFeature | Guide share card: title, task count, author, votes → share sheet (SimCard/GarageCard pattern). New requirement row.
 - [x] L99 | ROAD-10 | RoadsFeature | "You've driven this N×" on the road sheet from local DriveRecorder traces. New requirement row.
+- [ ] L100 | FEED-13 | FeedFeature, PostRepository, Backend, Preview, supabase | Edit your own post's caption: posts_update_own policy + updatePost repo method + edit affordance. New requirement row.
+- [ ] L101 | ROAD-11 | RoadsFeature/Loops.swift | "You've driven this loop N×" on LoopDetail from DriveRecorder traces vs the joined path. New requirement row.
+- [ ] L102 | ROAD-12 | RoadsFeature | Share a recorded drive as a card: trace polyline + distance + date → share sheet (LoopCard pattern). New requirement row.

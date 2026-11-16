@@ -566,6 +566,7 @@ Watching builds, full screen. Plan 5.5, 10.5 (F1 to F3).
 | FEED-10 | You can delete your own post. | P0 | Verified (L39): author DELETE own post 204 via posts_delete_own RLS. |
 | FEED-11 | Photo posts. A post can be up to 6 photos instead of a video, swiped sideways inside the same pager. A post can also tag a meet, and the meet shows posts from it. | P2 | Verified (L39): photo post with post_photos rows readable by others; pager swipes. |
 | FEED-12 | A rated road can be shared as a post: the road sheet offers "Post it", the composer carries the road, and the post renders a road chip that opens the road. | P3 | Coded (L74): posts.road_id + index; `Route.road`/`.compose(road:)`; "Post it" on RoadDetail; road chip in PostOverlay opens the road sheet; feed RPCs select po.* so no function change. Statically reviewed; build/check-db deferred. |
+| FEED-13 | Edit a post's caption. The owner can change their own post's caption after posting. | P3 | New |
 
 ### 4.18 Showdown (SHOW)
 
@@ -1187,3 +1188,4 @@ Findings go to W8-INT as a list.
 | 2026-11-16 | L91 two-agent audit caught two bugs (#if imbalance, posts.road_id grant) fixed in place; everything else verified by definition. Seventh wave: L10N-2 catch-up (154 keys missing es) and MOD-16 (share a sim build). Queue L92-L93. |
 | 2026-11-16 | Eighth static wave: new requirements GAR-22 (garage lineup card), SOC-11 (friends' road ratings), NAV-17 (parked card). Queue L94-L96. |
 | 2026-11-16 | Ninth static wave: new requirements MKT-13 (more from seller), KNW-10 (guide share card), ROAD-10 (times driven). Queue L97-L99. |
+| 2026-11-16 | Tenth static wave: new requirements FEED-13 (edit caption), ROAD-11 (loop driven count), ROAD-12 (share a drive). Queue L100-L102. |
