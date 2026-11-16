@@ -112,7 +112,15 @@
       }
     },
     "Simulate this": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Simular esto"
+          }
+        }
+      }
     },
     "Tab %@ registered twice": {
       "extractionState": "manual",

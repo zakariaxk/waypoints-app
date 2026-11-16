@@ -2,91 +2,323 @@
   "sourceLanguage": "en",
   "strings": {
     "Add a car to your garage and matching guides show up here, or search every task above.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade un coche a tu garaje y las guías que coincidan aparecerán aquí, o busca cualquier tarea arriba."
+          }
+        }
+      }
     },
     "Add to build log": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir al registro del montaje"
+          }
+        }
+      }
     },
     "COMMON MISTAKES": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ERRORES COMUNES"
+          }
+        }
+      }
     },
     "Couldn't load this guide.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cargar esta guía."
+          }
+        }
+      }
     },
     "Couldn't log it. Try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo registrar. Inténtalo de nuevo."
+          }
+        }
+      }
     },
     "Difficulty · easy": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dificultad · fácil"
+          }
+        }
+      }
     },
     "Difficulty · expert": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dificultad · experto"
+          }
+        }
+      }
     },
     "Difficulty · hard": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dificultad · difícil"
+          }
+        }
+      }
     },
     "Difficulty · involved": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dificultad · laboriosa"
+          }
+        }
+      }
     },
     "Difficulty · moderate": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dificultad · moderada"
+          }
+        }
+      }
     },
     "FOR YOUR CARS": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PARA TUS COCHES"
+          }
+        }
+      }
     },
     "Guides": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guías"
+          }
+        }
+      }
     },
     "Helpful · %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Útil · %@"
+          }
+        }
+      }
     },
     "Helpful · %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Útil · %f"
+          }
+        }
+      }
     },
     "Helpful · %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Útil · %lld"
+          }
+        }
+      }
     },
     "Linked mods": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mods vinculados"
+          }
+        }
+      }
     },
     "Log to which car?": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Registrar en qué coche?"
+          }
+        }
+      }
     },
     "Logged": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registrado"
+          }
+        }
+      }
     },
     "No guides match.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ninguna guía coincide."
+          }
+        }
+      }
     },
     "PARTS": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PIEZAS"
+          }
+        }
+      }
     },
     "RESULTS": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RESULTADOS"
+          }
+        }
+      }
     },
     "SOURCES": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FUENTES"
+          }
+        }
+      }
     },
     "STEPS": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PASOS"
+          }
+        }
+      }
     },
     "Search every task": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar todas las tareas"
+          }
+        }
+      }
     },
     "Simulate this": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Simular esto"
+          }
+        }
+      }
     },
     "TOOLS": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HERRAMIENTAS"
+          }
+        }
+      }
     },
     "TRADEOFFS": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PROS Y CONTRAS"
+          }
+        }
+      }
     },
     "Waypoints guide · ": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guía de Waypoints · "
+          }
+        }
+      }
     },
     "brake pads, downpipe, alignment": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "pastillas de freno, downpipe, alineación"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

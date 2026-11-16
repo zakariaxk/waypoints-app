@@ -310,22 +310,70 @@
       }
     },
     "%@ and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %@ van"
+          }
+        }
+      }
     },
     "%@ and %@ more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %@ más van"
+          }
+        }
+      }
     },
     "%@ and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %f van"
+          }
+        }
+      }
     },
     "%@ and %f more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %f más van"
+          }
+        }
+      }
     },
     "%@ and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %lld van"
+          }
+        }
+      }
     },
     "%@ and %lld more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %lld más van"
+          }
+        }
+      }
     },
     "%@ characters left": {
       "extractionState": "manual",
@@ -361,7 +409,15 @@
       }
     },
     "%@ friends going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ amigos van"
+          }
+        }
+      }
     },
     "%@ friends out": {
       "extractionState": "manual",
@@ -430,7 +486,15 @@
       }
     },
     "%@ is going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ va"
+          }
+        }
+      }
     },
     "%@ members": {
       "extractionState": "manual",
@@ -510,13 +574,37 @@
       }
     },
     "%@ new since %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nuevos desde el %@"
+          }
+        }
+      }
     },
     "%@ new since %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nuevos desde el %f"
+          }
+        }
+      }
     },
     "%@ new since %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nuevos desde el %lld"
+          }
+        }
+      }
     },
     "%@ of %@ cars": {
       "extractionState": "manual",
@@ -673,7 +761,15 @@
       }
     },
     "%@ roads": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ carreteras"
+          }
+        }
+      }
     },
     "%@ rpm": {
       "extractionState": "manual",
@@ -808,7 +904,15 @@
       }
     },
     "%@ spotted": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ avistados"
+          }
+        }
+      }
     },
     "%@ to %@": {
       "extractionState": "manual",
@@ -1097,31 +1201,103 @@
       }
     },
     "%@, %@ and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %@ y %@ van"
+          }
+        }
+      }
     },
     "%@, %@ and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %@ y %f van"
+          }
+        }
+      }
     },
     "%@, %@ and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %@ y %lld van"
+          }
+        }
+      }
     },
     "%@, %f and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %f y %@ van"
+          }
+        }
+      }
     },
     "%@, %f and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %f y %f van"
+          }
+        }
+      }
     },
     "%@, %f and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %f y %lld van"
+          }
+        }
+      }
     },
     "%@, %lld and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %lld y %@ van"
+          }
+        }
+      }
     },
     "%@, %lld and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %lld y %f van"
+          }
+        }
+      }
     },
     "%@, %lld and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %lld y %lld van"
+          }
+        }
+      }
     },
     "%@, locked": {
       "extractionState": "manual",
@@ -1366,22 +1542,70 @@
       }
     },
     "%f and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %@ van"
+          }
+        }
+      }
     },
     "%f and %@ more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %@ más van"
+          }
+        }
+      }
     },
     "%f and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %f van"
+          }
+        }
+      }
     },
     "%f and %f more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %f más van"
+          }
+        }
+      }
     },
     "%f and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %lld van"
+          }
+        }
+      }
     },
     "%f and %lld more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %lld más van"
+          }
+        }
+      }
     },
     "%f characters left": {
       "extractionState": "manual",
@@ -1417,7 +1641,15 @@
       }
     },
     "%f friends going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f amigos van"
+          }
+        }
+      }
     },
     "%f friends out": {
       "extractionState": "manual",
@@ -1486,7 +1718,15 @@
       }
     },
     "%f is going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f va"
+          }
+        }
+      }
     },
     "%f members": {
       "extractionState": "manual",
@@ -1566,13 +1806,37 @@
       }
     },
     "%f new since %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f nuevos desde el %@"
+          }
+        }
+      }
     },
     "%f new since %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f nuevos desde el %f"
+          }
+        }
+      }
     },
     "%f new since %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f nuevos desde el %lld"
+          }
+        }
+      }
     },
     "%f of %@ cars": {
       "extractionState": "manual",
@@ -1729,7 +1993,15 @@
       }
     },
     "%f roads": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f carreteras"
+          }
+        }
+      }
     },
     "%f rpm": {
       "extractionState": "manual",
@@ -1864,7 +2136,15 @@
       }
     },
     "%f spotted": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f avistados"
+          }
+        }
+      }
     },
     "%f to %@": {
       "extractionState": "manual",
@@ -2153,31 +2433,103 @@
       }
     },
     "%f, %@ and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %@ y %@ van"
+          }
+        }
+      }
     },
     "%f, %@ and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %@ y %f van"
+          }
+        }
+      }
     },
     "%f, %@ and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %@ y %lld van"
+          }
+        }
+      }
     },
     "%f, %f and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %f y %@ van"
+          }
+        }
+      }
     },
     "%f, %f and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %f y %f van"
+          }
+        }
+      }
     },
     "%f, %f and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %f y %lld van"
+          }
+        }
+      }
     },
     "%f, %lld and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %lld y %@ van"
+          }
+        }
+      }
     },
     "%f, %lld and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %lld y %f van"
+          }
+        }
+      }
     },
     "%f, %lld and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %lld y %lld van"
+          }
+        }
+      }
     },
     "%f, locked": {
       "extractionState": "manual",
@@ -2422,22 +2774,70 @@
       }
     },
     "%lld and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %@ van"
+          }
+        }
+      }
     },
     "%lld and %@ more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %@ más van"
+          }
+        }
+      }
     },
     "%lld and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %f van"
+          }
+        }
+      }
     },
     "%lld and %f more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %f más van"
+          }
+        }
+      }
     },
     "%lld and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %lld van"
+          }
+        }
+      }
     },
     "%lld and %lld more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %lld más van"
+          }
+        }
+      }
     },
     "%lld characters left": {
       "extractionState": "manual",
@@ -2473,7 +2873,15 @@
       }
     },
     "%lld friends going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld amigos van"
+          }
+        }
+      }
     },
     "%lld friends out": {
       "extractionState": "manual",
@@ -2542,7 +2950,15 @@
       }
     },
     "%lld is going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld va"
+          }
+        }
+      }
     },
     "%lld members": {
       "extractionState": "manual",
@@ -2633,10 +3049,26 @@
       }
     },
     "%lld new since %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nuevos desde el %f"
+          }
+        }
+      }
     },
     "%lld new since %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nuevos desde el %lld"
+          }
+        }
+      }
     },
     "%lld of %@ cars": {
       "extractionState": "manual",
@@ -2793,7 +3225,15 @@
       }
     },
     "%lld roads": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld carreteras"
+          }
+        }
+      }
     },
     "%lld rpm": {
       "extractionState": "manual",
@@ -2928,7 +3368,15 @@
       }
     },
     "%lld spotted": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld avistados"
+          }
+        }
+      }
     },
     "%lld to %@": {
       "extractionState": "manual",
@@ -3217,31 +3665,103 @@
       }
     },
     "%lld, %@ and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %@ y %@ van"
+          }
+        }
+      }
     },
     "%lld, %@ and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %@ y %f van"
+          }
+        }
+      }
     },
     "%lld, %@ and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %@ y %lld van"
+          }
+        }
+      }
     },
     "%lld, %f and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %f y %@ van"
+          }
+        }
+      }
     },
     "%lld, %f and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %f y %f van"
+          }
+        }
+      }
     },
     "%lld, %f and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %f y %lld van"
+          }
+        }
+      }
     },
     "%lld, %lld and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %lld y %@ van"
+          }
+        }
+      }
     },
     "%lld, %lld and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %lld y %f van"
+          }
+        }
+      }
     },
     "%lld, %lld and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %lld y %lld van"
+          }
+        }
+      }
     },
     "%lld, locked": {
       "extractionState": "manual",
@@ -3310,7 +3830,15 @@
       }
     },
     "1 friend going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 amigo va"
+          }
+        }
+      }
     },
     "1 friend out": {
       "extractionState": "manual",
@@ -3357,13 +3885,37 @@
       }
     },
     "3D view of %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista 3D de %@"
+          }
+        }
+      }
     },
     "3D view of %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista 3D de %f"
+          }
+        }
+      }
     },
     "3D view of %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vista 3D de %lld"
+          }
+        }
+      }
     },
     "6 characters": {
       "extractionState": "manual",
@@ -3454,7 +4006,15 @@
       }
     },
     "AERO": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AERO"
+          }
+        }
+      }
     },
     "ALL": {
       "extractionState": "manual",
@@ -3644,7 +4204,15 @@
       }
     },
     "Add a car to your garage and matching guides show up here, or search every task above.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade un coche a tu garaje y las guías que coincidan aparecerán aquí, o busca cualquier tarea arriba."
+          }
+        }
+      }
     },
     "Add a comment": {
       "extractionState": "manual",
@@ -3834,10 +4402,26 @@
       }
     },
     "Add to a loop": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir a una vuelta"
+          }
+        }
+      }
     },
     "Add to build log": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir al registro del montaje"
+          }
+        }
+      }
     },
     "Add to collection": {
       "extractionState": "manual",
@@ -3906,16 +4490,48 @@
       }
     },
     "Added": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadida"
+          }
+        }
+      }
     },
     "Added to %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadida a %@"
+          }
+        }
+      }
     },
     "Added to %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadida a %f"
+          }
+        }
+      }
     },
     "Added to %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadida a %lld"
+          }
+        }
+      }
     },
     "Adds %@ minutes to the trip": {
       "extractionState": "manual",
@@ -4776,7 +5392,15 @@
       }
     },
     "Brake": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Freno"
+          }
+        }
+      }
     },
     "Brakes": {
       "extractionState": "manual",
@@ -5153,7 +5777,15 @@
       }
     },
     "COMMON MISTAKES": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ERRORES COMUNES"
+          }
+        }
+      }
     },
     "CONVOY": {
       "extractionState": "manual",
@@ -5860,7 +6492,15 @@
       }
     },
     "Couldn't add it to the loop. Check your connection and try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo añadir a la vuelta. Comprueba tu conexión e inténtalo de nuevo."
+          }
+        }
+      }
     },
     "Couldn't add it to your calendar.": {
       "extractionState": "manual",
@@ -6380,7 +7020,15 @@
       }
     },
     "Couldn't load this guide.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cargar esta guía."
+          }
+        }
+      }
     },
     "Couldn't load this listing.": {
       "extractionState": "manual",
@@ -6548,7 +7196,15 @@
       }
     },
     "Couldn't log it. Try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo registrar. Inténtalo de nuevo."
+          }
+        }
+      }
     },
     "Couldn't open the conversation. Check your connection and try again.": {
       "extractionState": "manual",
@@ -7332,19 +7988,59 @@
       }
     },
     "Difficulty · easy": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dificultad · fácil"
+          }
+        }
+      }
     },
     "Difficulty · expert": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dificultad · experto"
+          }
+        }
+      }
     },
     "Difficulty · hard": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dificultad · difícil"
+          }
+        }
+      }
     },
     "Difficulty · involved": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dificultad · laboriosa"
+          }
+        }
+      }
     },
     "Difficulty · moderate": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dificultad · moderada"
+          }
+        }
+      }
     },
     "Direct messages": {
       "extractionState": "manual",
@@ -8348,7 +9044,15 @@
       }
     },
     "FOR YOUR CARS": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PARA TUS COCHES"
+          }
+        }
+      }
     },
     "FRIENDS": {
       "extractionState": "manual",
@@ -8824,10 +9528,26 @@
       }
     },
     "From a saved loop": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De una vuelta guardada"
+          }
+        }
+      }
     },
     "Front splitter": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Splitter delantero"
+          }
+        }
+      }
     },
     "Front-mount intercooler": {
       "extractionState": "manual",
@@ -8863,7 +9583,15 @@
       }
     },
     "Full": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Llena"
+          }
+        }
+      }
     },
     "Full height": {
       "extractionState": "manual",
@@ -8877,7 +9605,15 @@
       }
     },
     "GARAGE": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GARAJE"
+          }
+        }
+      }
     },
     "Garage": {
       "extractionState": "manual",
@@ -9122,7 +9858,15 @@
       }
     },
     "Guides": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guías"
+          }
+        }
+      }
     },
     "HOME ZONES": {
       "extractionState": "manual",
@@ -9257,13 +10001,37 @@
       }
     },
     "Helpful · %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Útil · %@"
+          }
+        }
+      }
     },
     "Helpful · %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Útil · %f"
+          }
+        }
+      }
     },
     "Helpful · %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Útil · %lld"
+          }
+        }
+      }
     },
     "Hidden": {
       "extractionState": "manual",
@@ -10300,7 +11068,15 @@
       }
     },
     "Linked mods": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mods vinculados"
+          }
+        }
+      }
     },
     "List it": {
       "extractionState": "manual",
@@ -10336,7 +11112,15 @@
       }
     },
     "Listed for": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anunciado por"
+          }
+        }
+      }
     },
     "Listing": {
       "extractionState": "manual",
@@ -10471,10 +11255,26 @@
       }
     },
     "Log to which car?": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Registrar en qué coche?"
+          }
+        }
+      }
     },
     "Logged": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Registrado"
+          }
+        }
+      }
     },
     "Long-tube headers": {
       "extractionState": "manual",
@@ -10565,7 +11365,15 @@
       }
     },
     "Lowered": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rebajado"
+          }
+        }
+      }
     },
     "MEETS": {
       "extractionState": "manual",
@@ -10744,7 +11552,15 @@
       }
     },
     "Mark done": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marcar como hecho"
+          }
+        }
+      }
     },
     "Markers": {
       "extractionState": "manual",
@@ -10978,7 +11794,15 @@
       }
     },
     "Mesh": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Malla"
+          }
+        }
+      }
     },
     "Message": {
       "extractionState": "manual",
@@ -11586,7 +12410,15 @@
       }
     },
     "No guides match.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ninguna guía coincide."
+          }
+        }
+      }
     },
     "No limit": {
       "extractionState": "manual",
@@ -11611,7 +12443,15 @@
       }
     },
     "No loops yet. Start one with this road.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no hay vueltas. Crea una con esta carretera."
+          }
+        }
+      }
     },
     "No meet": {
       "extractionState": "manual",
@@ -12241,10 +13081,26 @@
       }
     },
     "Omar and Priya are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omar y Priya van"
+          }
+        }
+      }
     },
     "Omar is going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omar va"
+          }
+        }
+      }
     },
     "On": {
       "extractionState": "manual",
@@ -12258,13 +13114,37 @@
       }
     },
     "On %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@"
+          }
+        }
+      }
     },
     "On %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %f"
+          }
+        }
+      }
     },
     "On %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %lld"
+          }
+        }
+      }
     },
     "On my way": {
       "extractionState": "manual",
@@ -12377,7 +13257,15 @@
       }
     },
     "Open in shop": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir en la tienda"
+          }
+        }
+      }
     },
     "Open-source licences": {
       "extractionState": "manual",
@@ -12457,10 +13345,26 @@
       }
     },
     "PAINT": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PINTURA"
+          }
+        }
+      }
     },
     "PARTS": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PIEZAS"
+          }
+        }
+      }
     },
     "PEOPLE'S CHOICE": {
       "extractionState": "manual",
@@ -12771,7 +13675,15 @@
       }
     },
     "Planned": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planeado"
+          }
+        }
+      }
     },
     "Plates and faces are blurred. Tap a box to remove it. Tap the photo to blur more.": {
       "extractionState": "manual",
@@ -13115,7 +14027,15 @@
       }
     },
     "RESULTS": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RESULTADOS"
+          }
+        }
+      }
     },
     "ROLES": {
       "extractionState": "manual",
@@ -13349,7 +14269,15 @@
       }
     },
     "Rear wing": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alerón trasero"
+          }
+        }
+      }
     },
     "Recent": {
       "extractionState": "manual",
@@ -14023,7 +14951,15 @@
       }
     },
     "Reset": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restablecer"
+          }
+        }
+      }
     },
     "Resonator delete": {
       "extractionState": "manual",
@@ -14092,7 +15028,15 @@
       }
     },
     "Roll again": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salir de nuevo"
+          }
+        }
+      }
     },
     "Roll out": {
       "extractionState": "manual",
@@ -14380,8 +15324,27 @@
         }
       }
     },
+    "SIMULATED": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SIMULADO"
+          }
+        }
+      }
+    },
     "SOURCES": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FUENTES"
+          }
+        }
+      }
     },
     "SPECS": {
       "extractionState": "manual",
@@ -14417,10 +15380,26 @@
       }
     },
     "STANCE": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STANCE"
+          }
+        }
+      }
     },
     "STEPS": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PASOS"
+          }
+        }
+      }
     },
     "STOCK SETUP": {
       "extractionState": "manual",
@@ -14753,7 +15732,15 @@
       }
     },
     "Search every task": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar todas las tareas"
+          }
+        }
+      }
     },
     "Search for a place": {
       "extractionState": "manual",
@@ -14943,16 +15930,48 @@
       }
     },
     "Service due": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servicio pendiente"
+          }
+        }
+      }
     },
     "Service due %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servicio pendiente: %@"
+          }
+        }
+      }
     },
     "Service due %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servicio pendiente: %f"
+          }
+        }
+      }
     },
     "Service due %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servicio pendiente: %lld"
+          }
+        }
+      }
     },
     "Service reminder: %@": {
       "extractionState": "manual",
@@ -15098,7 +16117,15 @@
       }
     },
     "Share collection": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir colección"
+          }
+        }
+      }
     },
     "Share invite": {
       "extractionState": "manual",
@@ -15151,6 +16178,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Compartir perfil"
+          }
+        }
+      }
+    },
+    "Share simulated build": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir montaje simulado"
           }
         }
       }
@@ -15299,7 +16337,26 @@
       }
     },
     "Simulate this": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Simular esto"
+          }
+        }
+      }
+    },
+    "Simulated estimates from stock specs and the mods listed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estimaciones simuladas a partir de las especificaciones de serie y los mods indicados."
+          }
+        }
+      }
     },
     "Skip": {
       "extractionState": "manual",
@@ -15324,7 +16381,15 @@
       }
     },
     "Slammed": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pegado al piso"
+          }
+        }
+      }
     },
     "Small": {
       "extractionState": "manual",
@@ -15415,7 +16480,15 @@
       }
     },
     "Spokes": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Radios"
+          }
+        }
+      }
     },
     "Sportsman": {
       "extractionState": "manual",
@@ -15693,7 +16766,15 @@
       }
     },
     "Steelie": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Llanta de acero"
+          }
+        }
+      }
     },
     "Steep": {
       "extractionState": "manual",
@@ -15718,7 +16799,15 @@
       }
     },
     "Steering": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dirección"
+          }
+        }
+      }
     },
     "Still there": {
       "extractionState": "manual",
@@ -15760,6 +16849,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "De serie para todos. Un coche nuevo cada lunes."
+          }
+        }
+      }
+    },
+    "Stock — no mods switched on.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De serie — sin mods activados."
           }
         }
       }
@@ -15919,7 +17019,15 @@
       }
     },
     "TOOLS": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HERRAMIENTAS"
+          }
+        }
+      }
     },
     "TOTAL LENGTH": {
       "extractionState": "manual",
@@ -15933,7 +17041,15 @@
       }
     },
     "TRADEOFFS": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PROS Y CONTRAS"
+          }
+        }
+      }
     },
     "TREE": {
       "extractionState": "manual",
@@ -16013,7 +17129,15 @@
       }
     },
     "Tag a road": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etiquetar una carretera"
+          }
+        }
+      }
     },
     "Take a photo": {
       "extractionState": "manual",
@@ -16126,7 +17250,15 @@
       }
     },
     "Test drive": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prueba de manejo"
+          }
+        }
+      }
     },
     "Thanks. Counted.": {
       "extractionState": "manual",
@@ -16250,7 +17382,15 @@
       }
     },
     "That loop has no route yet. Add a road first.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esa vuelta aún no tiene ruta. Añade primero una carretera."
+          }
+        }
+      }
     },
     "That message can't be sent.": {
       "extractionState": "manual",
@@ -17584,7 +18724,15 @@
       }
     },
     "WHEELS": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "LLANTAS"
+          }
+        }
+      }
     },
     "WHO SEES YOU": {
       "extractionState": "manual",
@@ -17719,7 +18867,15 @@
       }
     },
     "Waypoints guide · ": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guía de Waypoints · "
+          }
+        }
+      }
     },
     "Waypoints is for drivers 17 and up.": {
       "extractionState": "manual",
@@ -17733,7 +18889,15 @@
       }
     },
     "We couldn't put this car on the loop.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No pudimos poner este coche en la vuelta."
+          }
+        }
+      }
     },
     "We don't have specs for this car. Enter power and weight to simulate it.": {
       "extractionState": "manual",
@@ -18484,7 +19648,15 @@
       }
     },
     "Your paint": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu pintura"
+          }
+        }
+      }
     },
     "Your photo": {
       "extractionState": "manual",
@@ -18641,7 +19813,15 @@
       }
     },
     "brake pads, downpipe, alignment": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "pastillas de freno, downpipe, alineación"
+          }
+        }
+      }
     },
     "build entries": {
       "extractionState": "manual",

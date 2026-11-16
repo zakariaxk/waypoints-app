@@ -79,7 +79,15 @@
       }
     },
     "%@ roads": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ carreteras"
+          }
+        }
+      }
     },
     "%f of %@ stretches of road here. Counted on this phone only.": {
       "extractionState": "manual",
@@ -159,7 +167,15 @@
       }
     },
     "%f roads": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f carreteras"
+          }
+        }
+      }
     },
     "%lld of %@ stretches of road here. Counted on this phone only.": {
       "extractionState": "manual",
@@ -239,7 +255,15 @@
       }
     },
     "%lld roads": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld carreteras"
+          }
+        }
+      }
     },
     "A road can't start or end in one of your home zones. Move the handles.": {
       "extractionState": "manual",
@@ -264,19 +288,59 @@
       }
     },
     "Add to a loop": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir a una vuelta"
+          }
+        }
+      }
     },
     "Added": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadida"
+          }
+        }
+      }
     },
     "Added to %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadida a %@"
+          }
+        }
+      }
     },
     "Added to %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadida a %f"
+          }
+        }
+      }
     },
     "Added to %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadida a %lld"
+          }
+        }
+      }
     },
     "Block": {
       "extractionState": "manual",
@@ -290,7 +354,15 @@
       }
     },
     "Couldn't add it to the loop. Check your connection and try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo añadir a la vuelta. Comprueba tu conexión e inténtalo de nuevo."
+          }
+        }
+      }
     },
     "Couldn't block them. Check your connection and try again.": {
       "extractionState": "manual",
@@ -535,7 +607,15 @@
       }
     },
     "Full": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Llena"
+          }
+        }
+      }
     },
     "In this loop, in order": {
       "extractionState": "manual",
@@ -736,7 +816,15 @@
       }
     },
     "No loops yet. Start one with this road.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no hay vueltas. Crea una con esta carretera."
+          }
+        }
+      }
     },
     "No ratings": {
       "extractionState": "manual",
@@ -761,7 +849,15 @@
       }
     },
     "Post it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Publicarlo"
+          }
+        }
+      }
     },
     "Rate": {
       "extractionState": "manual",
@@ -973,7 +1069,15 @@
       }
     },
     "That loop has no route yet. Add a road first.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esa vuelta aún no tiene ruta. Añade primero una carretera."
+          }
+        }
+      }
     },
     "The loop is removed. Its roads stay.": {
       "extractionState": "manual",
@@ -1031,7 +1135,15 @@
       }
     },
     "Waypoints": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waypoints"
+          }
+        }
+      }
     },
     "YOUR DRIVES": {
       "extractionState": "manual",

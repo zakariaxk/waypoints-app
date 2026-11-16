@@ -200,7 +200,15 @@
       }
     },
     "Couldn't start the convoy. Check your connection and try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo iniciar la caravana. Comprueba tu conexión e inténtalo de nuevo."
+          }
+        }
+      }
     },
     "Destination": {
       "extractionState": "manual",
@@ -313,7 +321,15 @@
       }
     },
     "From a saved loop": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De una vuelta guardada"
+          }
+        }
+      }
     },
     "Heading to %@": {
       "extractionState": "manual",
@@ -525,7 +541,15 @@
       }
     },
     "Roll again": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salir de nuevo"
+          }
+        }
+      }
     },
     "Rolling": {
       "extractionState": "manual",

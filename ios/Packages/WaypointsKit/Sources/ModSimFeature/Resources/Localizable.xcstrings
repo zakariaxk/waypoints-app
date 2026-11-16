@@ -903,6 +903,17 @@
         }
       }
     },
+    "SIMULATED": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SIMULADO"
+          }
+        }
+      }
+    },
     "Save": {
       "extractionState": "manual",
       "localizations": {
@@ -969,6 +980,28 @@
         }
       }
     },
+    "Share simulated build": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir montaje simulado"
+          }
+        }
+      }
+    },
+    "Simulated estimates from stock specs and the mods listed.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Estimaciones simuladas a partir de las especificaciones de serie y los mods indicados."
+          }
+        }
+      }
+    },
     "Stock": {
       "extractionState": "manual",
       "localizations": {
@@ -976,6 +1009,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "De serie"
+          }
+        }
+      }
+    },
+    "Stock — no mods switched on.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De serie — sin mods activados."
           }
         }
       }
@@ -1009,6 +1053,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Par, lb-ft"
+          }
+        }
+      }
+    },
+    "Waypoints": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waypoints"
           }
         }
       }

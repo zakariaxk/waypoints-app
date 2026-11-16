@@ -35,13 +35,37 @@
       }
     },
     "%@ new since %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nuevos desde el %@"
+          }
+        }
+      }
     },
     "%@ new since %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nuevos desde el %f"
+          }
+        }
+      }
     },
     "%@ new since %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ nuevos desde el %lld"
+          }
+        }
+      }
     },
     "%f %@": {
       "extractionState": "manual",
@@ -77,13 +101,37 @@
       }
     },
     "%f new since %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f nuevos desde el %@"
+          }
+        }
+      }
     },
     "%f new since %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f nuevos desde el %f"
+          }
+        }
+      }
     },
     "%f new since %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f nuevos desde el %lld"
+          }
+        }
+      }
     },
     "%lld %@": {
       "extractionState": "manual",
@@ -130,10 +178,26 @@
       }
     },
     "%lld new since %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nuevos desde el %f"
+          }
+        }
+      }
     },
     "%lld new since %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld nuevos desde el %lld"
+          }
+        }
+      }
     },
     "Active": {
       "extractionState": "manual",
@@ -1423,7 +1487,15 @@
       }
     },
     "Share": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir"
+          }
+        }
+      }
     },
     "Sold": {
       "extractionState": "manual",

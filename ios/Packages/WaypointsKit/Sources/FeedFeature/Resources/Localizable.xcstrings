@@ -420,13 +420,37 @@
       }
     },
     "On %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %@"
+          }
+        }
+      }
     },
     "On %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %f"
+          }
+        }
+      }
     },
     "On %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En %lld"
+          }
+        }
+      }
     },
     "Only the first 30 seconds are posted.": {
       "extractionState": "manual",
@@ -473,7 +497,15 @@
       }
     },
     "Post it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Publicarlo"
+          }
+        }
+      }
     },
     "Posted": {
       "extractionState": "manual",
@@ -575,7 +607,15 @@
       }
     },
     "Tag a road": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Etiquetar una carretera"
+          }
+        }
+      }
     },
     "That comment can't be posted.": {
       "extractionState": "manual",

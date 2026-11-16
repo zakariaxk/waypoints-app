@@ -35,28 +35,92 @@
       }
     },
     "%@ and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %@ van"
+          }
+        }
+      }
     },
     "%@ and %@ more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %@ más van"
+          }
+        }
+      }
     },
     "%@ and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %f van"
+          }
+        }
+      }
     },
     "%@ and %f more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %f más van"
+          }
+        }
+      }
     },
     "%@ and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %lld van"
+          }
+        }
+      }
     },
     "%@ and %lld more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %lld más van"
+          }
+        }
+      }
     },
     "%@ friends going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ amigos van"
+          }
+        }
+      }
     },
     "%@ is going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ va"
+          }
+        }
+      }
     },
     "%@ of %@ cars": {
       "extractionState": "manual",
@@ -92,31 +156,103 @@
       }
     },
     "%@, %@ and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %@ y %@ van"
+          }
+        }
+      }
     },
     "%@, %@ and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %@ y %f van"
+          }
+        }
+      }
     },
     "%@, %@ and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %@ y %lld van"
+          }
+        }
+      }
     },
     "%@, %f and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %f y %@ van"
+          }
+        }
+      }
     },
     "%@, %f and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %f y %f van"
+          }
+        }
+      }
     },
     "%@, %f and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %f y %lld van"
+          }
+        }
+      }
     },
     "%@, %lld and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %lld y %@ van"
+          }
+        }
+      }
     },
     "%@, %lld and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %lld y %f van"
+          }
+        }
+      }
     },
     "%@, %lld and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, %lld y %lld van"
+          }
+        }
+      }
     },
     "%f %@ of the month": {
       "extractionState": "manual",
@@ -152,28 +288,92 @@
       }
     },
     "%f and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %@ van"
+          }
+        }
+      }
     },
     "%f and %@ more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %@ más van"
+          }
+        }
+      }
     },
     "%f and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %f van"
+          }
+        }
+      }
     },
     "%f and %f more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %f más van"
+          }
+        }
+      }
     },
     "%f and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %lld van"
+          }
+        }
+      }
     },
     "%f and %lld more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %lld más van"
+          }
+        }
+      }
     },
     "%f friends going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f amigos van"
+          }
+        }
+      }
     },
     "%f is going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f va"
+          }
+        }
+      }
     },
     "%f of %@ cars": {
       "extractionState": "manual",
@@ -209,31 +409,103 @@
       }
     },
     "%f, %@ and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %@ y %@ van"
+          }
+        }
+      }
     },
     "%f, %@ and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %@ y %f van"
+          }
+        }
+      }
     },
     "%f, %@ and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %@ y %lld van"
+          }
+        }
+      }
     },
     "%f, %f and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %f y %@ van"
+          }
+        }
+      }
     },
     "%f, %f and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %f y %f van"
+          }
+        }
+      }
     },
     "%f, %f and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %f y %lld van"
+          }
+        }
+      }
     },
     "%f, %lld and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %lld y %@ van"
+          }
+        }
+      }
     },
     "%f, %lld and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %lld y %f van"
+          }
+        }
+      }
     },
     "%f, %lld and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f, %lld y %lld van"
+          }
+        }
+      }
     },
     "%lld %@ of the month": {
       "extractionState": "manual",
@@ -269,28 +541,92 @@
       }
     },
     "%lld and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %@ van"
+          }
+        }
+      }
     },
     "%lld and %@ more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %@ más van"
+          }
+        }
+      }
     },
     "%lld and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %f van"
+          }
+        }
+      }
     },
     "%lld and %f more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %f más van"
+          }
+        }
+      }
     },
     "%lld and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %lld van"
+          }
+        }
+      }
     },
     "%lld and %lld more going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %lld más van"
+          }
+        }
+      }
     },
     "%lld friends going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld amigos van"
+          }
+        }
+      }
     },
     "%lld is going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld va"
+          }
+        }
+      }
     },
     "%lld of %@ cars": {
       "extractionState": "manual",
@@ -326,34 +662,114 @@
       }
     },
     "%lld, %@ and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %@ y %@ van"
+          }
+        }
+      }
     },
     "%lld, %@ and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %@ y %f van"
+          }
+        }
+      }
     },
     "%lld, %@ and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %@ y %lld van"
+          }
+        }
+      }
     },
     "%lld, %f and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %f y %@ van"
+          }
+        }
+      }
     },
     "%lld, %f and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %f y %f van"
+          }
+        }
+      }
     },
     "%lld, %f and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %f y %lld van"
+          }
+        }
+      }
     },
     "%lld, %lld and %@ are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %lld y %@ van"
+          }
+        }
+      }
     },
     "%lld, %lld and %f are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %lld y %f van"
+          }
+        }
+      }
     },
     "%lld, %lld and %lld are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld, %lld y %lld van"
+          }
+        }
+      }
     },
     "1 friend going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 amigo va"
+          }
+        }
+      }
     },
     "30 minutes before": {
       "extractionState": "manual",
@@ -1269,10 +1685,26 @@
       }
     },
     "Omar and Priya are going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omar y Priya van"
+          }
+        }
+      }
     },
     "Omar is going": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omar va"
+          }
+        }
+      }
     },
     "On the way": {
       "extractionState": "manual",
@@ -1550,7 +1982,15 @@
       }
     },
     "Start a convoy": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Iniciar una caravana"
+          }
+        }
+      }
     },
     "Start a meet": {
       "extractionState": "manual",

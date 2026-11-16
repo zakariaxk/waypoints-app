@@ -35,7 +35,15 @@
       }
     },
     "%@ spotted": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ avistados"
+          }
+        }
+      }
     },
     "%f icon, earned": {
       "extractionState": "manual",
@@ -71,7 +79,15 @@
       }
     },
     "%f spotted": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f avistados"
+          }
+        }
+      }
     },
     "%lld icon, earned": {
       "extractionState": "manual",
@@ -107,7 +123,15 @@
       }
     },
     "%lld spotted": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld avistados"
+          }
+        }
+      }
     },
     "Accept": {
       "extractionState": "manual",
@@ -363,7 +387,15 @@
       }
     },
     "Clear": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limpiar"
+          }
+        }
+      }
     },
     "Clearance": {
       "extractionState": "manual",
@@ -795,7 +827,15 @@
       }
     },
     "Guides": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guías"
+          }
+        }
+      }
     },
     "Handle": {
       "extractionState": "manual",
@@ -941,7 +981,15 @@
       }
     },
     "Listed for": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anunciado por"
+          }
+        }
+      }
     },
     "Make primary car": {
       "extractionState": "manual",
@@ -955,7 +1003,15 @@
       }
     },
     "Mark done": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Marcar como hecho"
+          }
+        }
+      }
     },
     "Message": {
       "extractionState": "manual",
@@ -1123,7 +1179,15 @@
       }
     },
     "Open in shop": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir en la tienda"
+          }
+        }
+      }
     },
     "Optional": {
       "extractionState": "manual",
@@ -1170,7 +1234,15 @@
       }
     },
     "Planned": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planeado"
+          }
+        }
+      }
     },
     "Point the camera at a friend's code.": {
       "extractionState": "manual",
@@ -1492,16 +1564,48 @@
       }
     },
     "Service due": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servicio pendiente"
+          }
+        }
+      }
     },
     "Service due %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servicio pendiente: %@"
+          }
+        }
+      }
     },
     "Service due %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servicio pendiente: %f"
+          }
+        }
+      }
     },
     "Service due %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servicio pendiente: %lld"
+          }
+        }
+      }
     },
     "Service reminder: %@": {
       "extractionState": "manual",
@@ -1592,7 +1696,15 @@
       }
     },
     "Share collection": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir colección"
+          }
+        }
+      }
     },
     "Share profile": {
       "extractionState": "manual",
@@ -1639,7 +1751,15 @@
       }
     },
     "Test drive": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prueba de manejo"
+          }
+        }
+      }
     },
     "That code isn't a Waypoints profile.": {
       "extractionState": "manual",

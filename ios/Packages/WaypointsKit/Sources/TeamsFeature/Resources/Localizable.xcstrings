@@ -552,7 +552,15 @@
       }
     },
     "GARAGE": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GARAJE"
+          }
+        }
+      }
     },
     "Host meets": {
       "extractionState": "manual",

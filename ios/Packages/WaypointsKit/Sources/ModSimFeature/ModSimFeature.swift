@@ -297,6 +297,8 @@ struct ModSimView: View {
     @State private var askName = false
     @State private var renaming: SavedBuild?
     @State private var buildName = ""
+    @State private var shared: SharedImage?
+    @Environment(\.displayScale) private var displayScale
 
     init(env: AppEnvironment, carID: CarID, comparing: Bool = false) {
         _model = State(initialValue: ModSimModel(env: env, carID: carID, comparing: comparing))
@@ -342,6 +344,10 @@ struct ModSimView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     QuietButton("Save to car") { askSave = true }.disabled(model.mods == model.saved)
                 }
+                ToolbarItem(placement: .topBarTrailing) {
+                    IconButton(Symbol.share, label: "Share simulated build") { shareSim() }
+                        .disabled(model.modEstimate == nil)
+                }
             }
         }
         .confirmationDialog("Save to car", isPresented: $askSave) {
@@ -372,12 +378,25 @@ struct ModSimView: View {
             Button("Cancel", role: .cancel) {}
         }
         .haptic(.tick, trigger: tick)
+        .sheet(item: $shared) { ShareSheet(items: [$0.image]).presentationDetents([.medium, .large]) }
         .toast(Binding(get: { model.toast }, set: { model.toast = $0 }))
         .task { await model.load() }
         .onDisappear {
             revving = false
             model.rev(false)
             model.synth.stop()
+        }
+    }
+
+    /// MOD-16: renders the simulated-build card and hands it to the share sheet.
+    private func shareSim() {
+        guard let car = model.car, let estimate = model.modEstimate else { return }
+        Task {
+            let owner = try? await model.env.profiles.profile(car.ownerID)
+            let image = SimShare.render(car: car, mods: model.selected, estimate: estimate,
+                                        handle: owner?.handle, silhouette: owner?.markerIcon ?? "coupe",
+                                        scale: displayScale)
+            if let image { shared = SharedImage(image: image) }
         }
     }
 
