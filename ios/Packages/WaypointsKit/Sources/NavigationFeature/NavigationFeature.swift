@@ -20,8 +20,28 @@ public enum NavigationFeature: FeatureModule {
             return AnyView(NavigationRoot(env: env, destination: end, name: name, path: path))
         }
         registry.registerDebugScreen("stops") { AnyView(StopsSheet(model: .stopsSeed(env)).background(Color.tarmac).preferredColorScheme(.dark)) }
+        registry.registerDebugScreen("nav-go") { AnyView(DebugNavGo(env: env)) }
     }
 }
+
+#if DEBUG
+/// `waypoints://debug/nav-go`: guidance without tapping Go (NAV-5/6/9 proof) — the first
+/// upcoming meet like `debug/nav`, started once routes load.
+private struct DebugNavGo: View {
+    let env: AppEnvironment
+    @State private var meet: Meet?
+    var body: some View {
+        NavigationRoot(env: env,
+                       destination: meet?.coordinate ?? Coordinate(latitude: 39.9387, longitude: -75.0230),
+                       name: meet?.placeName ?? "Cherry Hill Mall",
+                       autoStart: true)
+            .task {
+                let region = MapRegion(minLatitude: 39.3, minLongitude: -75.4, maxLatitude: 40.2, maxLongitude: -74.4)
+                meet = (try? await env.meets.meets(in: region))?.sorted { $0.startsAt < $1.startsAt }.first { $0.endsAt > .now }
+            }
+    }
+}
+#endif
 
 /// One alternate with its clearance hazards.
 struct ScoredRoute: Identifiable {
@@ -601,10 +621,12 @@ final class NavigationModel {
 
 struct NavigationRoot: View {
     @State private var model: NavigationModel
+    let autoStart: Bool
     @Environment(\.dismiss) private var dismiss
 
-    init(env: AppEnvironment, destination: Coordinate, name: String?, path: [Coordinate]? = nil) {
+    init(env: AppEnvironment, destination: Coordinate, name: String?, path: [Coordinate]? = nil, autoStart: Bool = false) {
         _model = State(initialValue: NavigationModel(env: env, destination: destination, name: name, path: path))
+        self.autoStart = autoStart
     }
 
     var body: some View {
@@ -612,7 +634,17 @@ struct NavigationRoot: View {
             if model.guiding { GuidanceView(model: model) { model.endGuidance(); dismiss() } } else { RoutePreview(model: model) { dismiss() } }
         }
         .preferredColorScheme(.dark)
-        .task { await model.load() }
+        .task {
+            await model.load()
+            // `load` kicks off the route request; wait for the alternates (or failure) before
+            // auto-starting for `waypoints://debug/nav-go`.
+            if autoStart {
+                for _ in 0..<50 where model.routes.isEmpty && !model.error {
+                    try? await Task.sleep(for: .milliseconds(300))
+                }
+                if !model.routes.isEmpty { model.start() }
+            }
+        }
         .onDisappear {
             model.endGuidance()
             model.teardown()

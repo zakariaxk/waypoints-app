@@ -38,7 +38,8 @@ xcrun simctl location "$SIMULATOR" set "$LOCATION" >/dev/null 2>&1 || true
 xcrun simctl terminate "$SIMULATOR" "$BUNDLE_ID" >/dev/null 2>&1 || true
 
 # shellcheck disable=SC2086
-xcrun simctl launch "$SIMULATOR" "$BUNDLE_ID" $ARGS >/dev/null
+# `--` keeps dash-prefixed args from being eaten by simctl's own option parsing.
+xcrun simctl launch "$SIMULATOR" "$BUNDLE_ID" -- $ARGS >/dev/null
 sleep "$WAIT"
 
 mkdir -p .build/shots

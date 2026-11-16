@@ -329,16 +329,16 @@ Waze-grade guidance built on MapKit, with the one thing nobody else has: routes 
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
 | NAV-1 | Search finds places, people, and meets. Before typing it offers the last 5 recents, up to 3 meets tonight, and up to 3 saved roads. Offline it shows recents and says "Search needs a connection." | P0 | Coded |
-| NAV-2 | Route preview draws up to three routes with time, distance, and main road. | P0 | Coded |
-| NAV-3 | Low-car routing. Each car has a clearance profile. For a lowered or slammed car, each route lists the reports that matter along it ("2 speed bumps, 1 steep entrance") or reads "Clear for a lowered car". Among routes within 20% of the fastest, the one with the fewest is preselected and labelled "Best for your car". When none is clean, the screen says Apple Maps routing cannot be steered around them. | P0 | Coded |
+| NAV-2 | Route preview draws up to three routes with time, distance, and main road. | P0 | Verified (L34): live stack, three alternates rendered with ETA/distance/main road. |
+| NAV-3 | Low-car routing. Each car has a clearance profile. For a lowered or slammed car, each route lists the reports that matter along it ("2 speed bumps, 1 steep entrance") or reads "Clear for a lowered car". Among routes within 20% of the fastest, the one with the fewest is preselected and labelled "Best for your car". When none is clean, the screen says Apple Maps routing cannot be steered around them. | P0 | Verified (L34): Marcus's lowered S2000 — preview shows "BEST FOR YOUR CAR" pick and per-route clearance lines on the live stack. |
 | NAV-4 | Tapping the car in route preview switches which garage car is being scored. | P0 | Coded |
-| NAV-5 | Guidance shows the next maneuver, the distance to it, and the road name; the following maneuver when it is within 300 m; a heading-up, pitched, following map. | P0 | Coded (W11 loop L06): a second banner line shows the following maneuver when the step after next is within 300 m. |
+| NAV-5 | Guidance shows the next maneuver, the distance to it, and the road name; the following maneuver when it is within 300 m; a heading-up, pitched, following map. | P0 | Verified (L34): live guidance shots show next-maneuver banner, distance, road name, and the within-300 m second line, on the following map. |
 | NAV-6 | Spoken guidance at 800 m, 200 m, and at the maneuver, built from our own templates in the locale's units, ducking other audio. Mute persists. | P0 | Coded (W11 loop L07): own templates — turn derived from step geometry, road clause kept — at 800 m and 200 m plus at the maneuver, imperial sub-mile fractions, ducking other audio; mute persists via `nav.muted`. |
-| NAV-7 | Leaving the route (40 m off for 5 s) recalculates without asking. At most one request per 8 s. | P0 | Coded |
+| NAV-7 | Leaving the route (40 m off for 5 s) recalculates without asking. At most one request per 8 s. | P0 | Verified (L34): route-70 drive diverged from the planned path; guidance recalculated and ETA/distance updated live. |
 | NAV-8 | For a non-stock car, a clearance report within 250 m ahead shows a strip ("Speed bump in 250 ft"), one haptic, and one spoken line. | P0 | Coded |
-| NAV-9 | Your own speed appears on your navigation screen and nowhere else. | P0 | Coded |
+| NAV-9 | Your own speed appears on your navigation screen and nowhere else. | P0 | Verified (L34): 34 mph badge live in guidance; absent from map/friend views. |
 | NAV-10 | Arrival reads "You've arrived" and ends guidance after 10 s. | P0 | Coded |
-| NAV-11 | While moving, the only controls are mute, End, and the "Still there?" prompt. | P0 | Coded |
+| NAV-11 | While moving, the only controls are mute, End, and the "Still there?" prompt. | P0 | Verified (L34): live guidance shows only mute, End, and Add a stop (NAV-16); no other controls. |
 | NAV-12 | Offline, guidance continues on the loaded route and reads "Offline. Follow the route line." when it cannot reroute. | P0 | Coded |
 | NAV-13 | With a convoy active, route preview offers "Share with convoy". | P0 | Coded |
 | NAV-14 | Directions is offered wherever a place appears: a friend, a meet, a road, a regroup point, a help request. | P0 | Coded |
@@ -352,12 +352,12 @@ The map is useful with nobody online. Plan 5.3, 10.3 (M5, M6).
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
 | RPT-1 | Eight kinds: speed bump, steep entrance, pothole, rough road, police, hazard, closure, E85 fuel. | P0 | Coded |
-| RPT-2 | Posting takes two taps: add, then the kind. An optional note (120). A toast offers Undo; the author can remove a report for 5 minutes. | P0 | Coded (W11 loop L08): report detail shows an author-only Remove inside the 5-minute window (existing `undoReport` / `DELETE /v1/reports/{id}` enforces both server-side) and hides it after. |
+| RPT-2 | Posting takes two taps: add, then the kind. An optional note (120). A toast offers Undo; the author can remove a report for 5 minutes. | P0 | Verified (L34): `DELETE /v1/reports/{id}` returned 204 within the window and 404 after; author check enforced server-side. |
 | RPT-3 | Lifetimes: police 45 minutes, hazard 2 hours, closure 24 hours, each extended by "Still there"; pothole and rough road 90 days; speed bump, steep entrance, and E85 permanent. | P0 | Coded |
-| RPT-4 | A report within 30 m of an existing one of the same kind counts as a confirmation, not a duplicate. | P0 | Coded |
-| RPT-5 | Anyone can vote "Still there" or "Gone". Two Gone votes with no later Still there remove it. | P0 | Coded |
-| RPT-6 | A new, changed, or removed report reaches everyone viewing that area within one gateway tick. | P0 | Coded |
-| RPT-7 | Passing a temporary report while navigating asks "Still there?" for 8 seconds. | P0 | Coded (W9-H): "Still there?" during guidance within 40 m of a police, hazard, or closure report, auto-dismissed after 8 s. |
+| RPT-4 | A report within 30 m of an existing one of the same kind counts as a confirmation, not a duplicate. | P0 | Verified (L34): second post within ~1 m merged into the same id and `confirmations` went 1→2 with an extended expiry. |
+| RPT-5 | Anyone can vote "Still there" or "Gone". Two Gone votes with no later Still there remove it. | P0 | Verified (L34): two Gone votes on a live report deleted it — subsequent vote returned 404 and the row was gone from `public.reports`. |
+| RPT-6 | A new, changed, or removed report reaches everyone viewing that area within one gateway tick. | P0 | Verified (L34): a pothole posted over the API appeared on priya's live map within ~3 s. |
+| RPT-7 | Passing a temporary report while navigating asks "Still there?" for 8 seconds. | P0 | Verified (L34, code + API): 40 m predicate, 8 s auto-dismiss, and live vote calls proven end-to-end; banner itself not captured headless. |
 | RPT-8 | The shape of a report's badge encodes its severity, so colour is not the only signal. | P0 | Coded |
 | RPT-9 | Two more kinds: speed camera and red-light camera, permanent and confirmable like a speed bump. There is no checkpoint kind and never will be (App Review guideline 1.4.4 *(verify)*). | P1 | Coded |
 
@@ -368,11 +368,11 @@ A driver who is stuck asks the people who would actually come. Nobody in this sp
 | ID | Requirement | Pri | Status |
 |---|---|---|---|
 | HELP-1 | From the add menu, "Ask for a hand" posts a help request at your position with one of five kinds: flat tire, jump start, out of fuel, stuck, something else. Optional note (120). | P1 | Coded |
-| HELP-2 | It is shown to friends and teammates with your name and car. A switch, off by default, also shows it to drivers nearby as "A driver needs a hand" with no name. | P1 | Coded |
+| HELP-2 | It is shown to friends and teammates with your name and car. A switch, off by default, also shows it to drivers nearby as "A driver needs a hand" with no name. | P1 | Verified (L34): `show_nearby` defaults false; a friend's GET listed the request with name and car label while nearby drivers saw nothing. |
 | HELP-3 | The sheet says, before posting: "This shares your exact spot with the people you pick until you clear it. For an emergency, call emergency services." | P1 | Coded |
 | HELP-4 | Friends and teammates within 25 km are notified. | P1 | Coded |
-| HELP-5 | A viewer can tap "On my way"; the requester is told who is coming. Directions is offered. | P1 | Coded |
-| HELP-6 | It ends when the requester taps "I'm good", or after 60 minutes unless extended. One active request per person. | P1 | Coded |
+| HELP-5 | A viewer can tap "On my way"; the requester is told who is coming. Directions is offered. | P1 | Verified (L34): `POST /respond` set `coming:true` for the viewer and the requester's fetch listed "Marcus Reyes" in responders. |
+| HELP-6 | It ends when the requester taps "I'm good", or after 60 minutes unless extended. One active request per person. | P1 | Verified (L34): new request expired at +60 min; `PUT /extend` re-armed it; `DELETE` ended it (204, `ended_at` set, gone from list). |
 | HELP-7 | Home zones do not apply to a help request (the user chose to share the spot), and the sheet says so when posting from inside one. | P1 | Coded |
 
 Build note: a table `help_requests`, gateway endpoints beside the reports ones, and a third `MapEvent.Kind`. Delivery to friends and teammates uses the per-user subjects that already exist; only the opt-in nearby form goes to the cell.
