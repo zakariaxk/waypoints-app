@@ -263,6 +263,21 @@
         }
       }
     },
+    "Add to a loop": {
+      "extractionState": "manual"
+    },
+    "Added": {
+      "extractionState": "manual"
+    },
+    "Added to %@": {
+      "extractionState": "manual"
+    },
+    "Added to %f": {
+      "extractionState": "manual"
+    },
+    "Added to %lld": {
+      "extractionState": "manual"
+    },
     "Block": {
       "extractionState": "manual",
       "localizations": {
@@ -273,6 +288,9 @@
           }
         }
       }
+    },
+    "Couldn't add it to the loop. Check your connection and try again.": {
+      "extractionState": "manual"
     },
     "Couldn't block them. Check your connection and try again.": {
       "extractionState": "manual",
@@ -516,6 +534,9 @@
         }
       }
     },
+    "Full": {
+      "extractionState": "manual"
+    },
     "In this loop, in order": {
       "extractionState": "manual",
       "localizations": {
@@ -713,6 +734,9 @@
           }
         }
       }
+    },
+    "No loops yet. Start one with this road.": {
+      "extractionState": "manual"
     },
     "No ratings": {
       "extractionState": "manual",

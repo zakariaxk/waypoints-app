@@ -34,6 +34,30 @@
         }
       }
     },
+    "%@ and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%@ and %@ more going": {
+      "extractionState": "manual"
+    },
+    "%@ and %f are going": {
+      "extractionState": "manual"
+    },
+    "%@ and %f more going": {
+      "extractionState": "manual"
+    },
+    "%@ and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%@ and %lld more going": {
+      "extractionState": "manual"
+    },
+    "%@ friends going": {
+      "extractionState": "manual"
+    },
+    "%@ is going": {
+      "extractionState": "manual"
+    },
     "%@ of %@ cars": {
       "extractionState": "manual",
       "localizations": {
@@ -66,6 +90,33 @@
           }
         }
       }
+    },
+    "%@, %@ and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%@, %@ and %f are going": {
+      "extractionState": "manual"
+    },
+    "%@, %@ and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%@, %f and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%@, %f and %f are going": {
+      "extractionState": "manual"
+    },
+    "%@, %f and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%@, %lld and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%@, %lld and %f are going": {
+      "extractionState": "manual"
+    },
+    "%@, %lld and %lld are going": {
+      "extractionState": "manual"
     },
     "%f %@ of the month": {
       "extractionState": "manual",
@@ -100,6 +151,30 @@
         }
       }
     },
+    "%f and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%f and %@ more going": {
+      "extractionState": "manual"
+    },
+    "%f and %f are going": {
+      "extractionState": "manual"
+    },
+    "%f and %f more going": {
+      "extractionState": "manual"
+    },
+    "%f and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%f and %lld more going": {
+      "extractionState": "manual"
+    },
+    "%f friends going": {
+      "extractionState": "manual"
+    },
+    "%f is going": {
+      "extractionState": "manual"
+    },
     "%f of %@ cars": {
       "extractionState": "manual",
       "localizations": {
@@ -132,6 +207,33 @@
           }
         }
       }
+    },
+    "%f, %@ and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%f, %@ and %f are going": {
+      "extractionState": "manual"
+    },
+    "%f, %@ and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%f, %f and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%f, %f and %f are going": {
+      "extractionState": "manual"
+    },
+    "%f, %f and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%f, %lld and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%f, %lld and %f are going": {
+      "extractionState": "manual"
+    },
+    "%f, %lld and %lld are going": {
+      "extractionState": "manual"
     },
     "%lld %@ of the month": {
       "extractionState": "manual",
@@ -166,6 +268,30 @@
         }
       }
     },
+    "%lld and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%lld and %@ more going": {
+      "extractionState": "manual"
+    },
+    "%lld and %f are going": {
+      "extractionState": "manual"
+    },
+    "%lld and %f more going": {
+      "extractionState": "manual"
+    },
+    "%lld and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%lld and %lld more going": {
+      "extractionState": "manual"
+    },
+    "%lld friends going": {
+      "extractionState": "manual"
+    },
+    "%lld is going": {
+      "extractionState": "manual"
+    },
     "%lld of %@ cars": {
       "extractionState": "manual",
       "localizations": {
@@ -198,6 +324,36 @@
           }
         }
       }
+    },
+    "%lld, %@ and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %@ and %f are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %@ and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %f and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %f and %f are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %f and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %lld and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %lld and %f are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %lld and %lld are going": {
+      "extractionState": "manual"
+    },
+    "1 friend going": {
+      "extractionState": "manual"
     },
     "30 minutes before": {
       "extractionState": "manual",
@@ -1111,6 +1267,12 @@
           }
         }
       }
+    },
+    "Omar and Priya are going": {
+      "extractionState": "manual"
+    },
+    "Omar is going": {
+      "extractionState": "manual"
     },
     "On the way": {
       "extractionState": "manual",

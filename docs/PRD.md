@@ -421,7 +421,7 @@ A person plus their garage. Plan 5.1, 10.8 (G1, G2, G10, G11).
 | SOC-7 | "Invite a friend" shares a link to your profile. | P0 | Verified (L36): ShareLink profile invite. |
 | SOC-8 | A blocked or blocking profile reads "This profile isn't available." | P0 | Verified (L36): can_read_profile excludes blocks both ways; unavailable state. |
 | SOC-9 | Meet-in-person adding. "My code" shows a QR code of your profile link; "Scan" in Friends reads one and opens the profile. A team's invite shows a QR code too. | P1 | Verified (L36, code): QR code + scan sheet deep-links waypoints://profile. |
-| SOC-10 | "N friends going" on a meet: the meets list row and the meet page name up to three friends who RSVPed Going. | P3 | New |
+| SOC-10 | "N friends going" on a meet: the meets list row and the meet page name up to three friends who RSVPed Going. | P3 | Coded (L86): lazy per-row RSVP fetch (≤6 rows) + MeetFormat.friendsGoing naming up to three on the meet page. Statically reviewed. |
 
 ### 4.11 Garage and vehicle catalog (GAR)
 
@@ -449,7 +449,7 @@ Every car, chosen without clutter. Plan 5.2, 10.8 (G3 to G5), 11.1.
 | GAR-18 | Build cost. A timeline entry can carry what it cost. The owner alone sees a running total on the car and per-year subtotals; cost is never shown to anyone else and never ranked. | P3 | Verified (L36): cost insert, owner-only read (column privilege), running total. |
 | GAR-19 | Plans. A timeline entry can be marked planned; planned entries sit ahead on the owner's timeline with a Planned mark and no date. Marking one done stamps today. The owner alone sees a planned-cost subtotal; visitors never see planned entries or their cost. | P3 | Coded (L78): is_planned + recreated build_entries_read policy (planned rows owner-only); Planned mark, Mark done, planned subtotal, sheet toggle; checks.sql rows. Statically reviewed; check-db deferred. |
 | GAR-20 | A car with an active market listing reads "Listed for $X" under its readouts and opens the listing. | P3 | Coded (L81): `activeListing(forCar:)` (car_id + active + not-expired) → 'Listed for' row opens `.listing`. Statically reviewed. |
-| GAR-21 | A service entry whose reminder day passes marks the car "Service due" until the owner clears it — shown on the car's timeline and at the top of the car page, owner only. | P3 | New |
+| GAR-21 | A service entry whose reminder day passes marks the car "Service due" until the owner clears it — shown on the car's timeline and at the top of the car page, owner only. | P3 | Coded (L85): per-due-entry row + sodium timeline mark; Clear nils remind_on via updateBuildEntry and cancels the pending notification. Statically reviewed. |
 
 ### 4.12 Mod simulator (MOD)
 
@@ -1030,7 +1030,7 @@ Thirteen extensions, each small enough for one session and each passing section 
 | **W10-8 Reactions and mute** | MSG-11, SAFE-12 | A migration, `server/internal/push/**` (skip muted), `Sources/MessagingFeature/**`, `Sources/TeamsFeature/**` (mute rows only) |
 | **W10-9 Loops** | ROAD-6 | A migration, `Sources/RoadsFeature/**`, one `Route` case in `Core` |
 | ROAD-8 | A loop shares as a card: the joined road polylines drawn to scale, the loop name, road count, and the owner's handle, to the share sheet (like SPOT-7). | P3 | Coded (L84): LoopRoadsShape bounding-box scale + LoopCard/LoopShare in RoadsFeature; share IconButton in the LoopDetail trailing row. Statically reviewed. |
-| ROAD-9 | A rated road joins a loop in place: the road sheet offers "Add to a loop", listing your loops (appends it) and "New loop" (starts one carrying it). | P3 | New |
+| ROAD-9 | A rated road joins a loop in place: the road sheet offers "Add to a loop", listing your loops (appends it) and "New loop" (starts one carrying it). | P3 | Coded (L87): AddToLoop sheet — existing loops (Added/Full states) or New loop via LoopEditor pre-seeded with the road; toast confirms. Statically reviewed. |
 | **W10-10 Your data** | ACC-12 | A migration (one RPC), `Sources/SettingsFeature/**` |
 | **W10-11 Spanish** | L10N-2 | Every `Localizable.xcstrings`, `tools/l10n/**` |
 

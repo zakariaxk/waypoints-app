@@ -82,6 +82,7 @@ struct MeetsSectionView: View {
     let region: MapRegion
     @State private var meets: [Meet] = []
     @State private var here: Coordinate?
+    @State private var friends: Set<UserID> = []
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -89,10 +90,16 @@ struct MeetsSectionView: View {
                 SectionLabel("MEETS")
                 ForEach(meets.sorted { $0.startsAt < $1.startsAt }.prefix(6)) { m in
                     Button { env.router.open(.meet(m.id)) } label: {
-                        Row(Text(verbatim: m.title), subtitle: Text(verbatim: MeetFormat.place(m, from: here)), leading: {
-                            MeetPin(kind: m.kind.rawValue, live: m.isHappening()).scaleEffect(0.7)
-                                .frame(width: Size.Marker.meetPin, height: Size.Marker.meetPin)
-                        }, trailing: { Text(readout: MeetFormat.when(m), token: .readoutS) })
+                        VStack(alignment: .leading, spacing: 0) {
+                            Row(Text(verbatim: m.title), subtitle: Text(verbatim: MeetFormat.place(m, from: here)),
+                                showsDivider: false, leading: {
+                                MeetPin(kind: m.kind.rawValue, live: m.isHappening()).scaleEffect(0.7)
+                                    .frame(width: Size.Marker.meetPin, height: Size.Marker.meetPin)
+                            }, trailing: { Text(readout: MeetFormat.when(m), token: .readoutS) })
+                            MeetFriendsGoing(env: env, meetID: m.id, friends: friends)
+                            // The row's divider, moved under the friends line.
+                            Hairline().padding(.leading, Space.margin + Size.Marker.meetPin + Space.s12)
+                        }
                     }
                     .buttonStyle(RowButtonStyle())
                 }
@@ -105,7 +112,34 @@ struct MeetsSectionView: View {
                 && !hidden.contains(ContentRef(kind: .meet, id: $0.id.description))
                 && !hidden.contains(ContentRef(kind: .user, id: $0.hostID.description)) }
         }
+        .task { friends = Set(((try? await env.friends.friends()) ?? []).map(\.id)) }
         .task { for await s in await env.location.samples() { here = s.coordinate; break } }
+    }
+}
+
+/// SOC-10: "3 friends going" under a meets list row. Loads that meet's RSVPs lazily, once the
+/// row is on screen; the section is capped at six rows so the fan-out stays small.
+private struct MeetFriendsGoing: View {
+    let env: AppEnvironment
+    let meetID: MeetID
+    let friends: Set<UserID>
+    @State private var count = 0
+
+    var body: some View {
+        Group {
+            if count > 0 {
+                Text(verbatim: MeetFormat.friendsGoing(count))
+                    .typeStyle(.foot).foregroundStyle(Color.dust)
+                    .padding(.leading, Space.margin + Size.Marker.meetPin + Space.s12)
+                    .padding(.bottom, Space.s8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .task(id: meetID) {
+            guard !friends.isEmpty else { return }
+            count = ((try? await env.meets.rsvps(for: meetID)) ?? [])
+                .filter { $0.status == .going && friends.contains($0.userID) }.count
+        }
     }
 }
 
@@ -361,6 +395,7 @@ struct MeetDetail: View {
     @State private var editing = false
     @State private var showGoing = false
     @State private var goingPeople: [Profile] = []
+    @State private var friends: [Friend] = []
     @State private var road: Road?
     @State private var here: Coordinate?
     @State private var checkedIn = false
@@ -548,11 +583,17 @@ struct MeetDetail: View {
 
     @ViewBuilder private var going: some View {
         let count = rsvps.filter { $0.status == .going }.count
+        // SOC-10: friends among the Going, named up to three.
+        let goingFriends = friends.filter { f in rsvps.contains { $0.userID == f.id && $0.status == .going } }
         if count > 0 {
             VStack(alignment: .leading, spacing: 0) {
                 Button { showGoing = true } label: {
                     Text("Who's going · \(count)", bundle: .module).typeStyle(.label).foregroundStyle(Color.dust)
                         .frame(minHeight: Size.hitTarget).contentShape(Rectangle())
+                }
+                if !goingFriends.isEmpty {
+                    Text(verbatim: MeetFormat.friendsGoing(goingFriends))
+                        .typeStyle(.sub).foregroundStyle(Color.dust)
                 }
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: Space.s12) {
@@ -700,6 +741,7 @@ struct MeetDetail: View {
         rsvps = ((try? await env.meets.rsvps(for: meetID)) ?? [])
             .filter { !hidden.contains(ContentRef(kind: .user, id: $0.userID.description)) }
         mine = (try? await env.meets.myRSVP(for: meetID))?.status
+        friends = (try? await env.friends.friends()) ?? []
         await MeetReminder.sync(m, going: mine == .going)
         if let me { cars = (try? await env.garage.cars(of: me)) ?? [] }
         var list: [Car] = []

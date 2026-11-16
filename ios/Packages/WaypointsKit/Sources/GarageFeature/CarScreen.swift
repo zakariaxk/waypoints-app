@@ -103,6 +103,7 @@ struct CarScreen: View {
                     titleBlock(car)
                     if let est = model.estimate { readouts(est, car: car) }
                     listedRow
+                    serviceDue
                     if model.own { ownActions(car) } else { otherActions(car) }
                     timeline
                     costSummary
@@ -287,6 +288,25 @@ struct CarScreen: View {
         }
     }
 
+    /// GAR-21: a service entry whose reminder day passed stays "Service due" until the owner
+    /// clears it. Owner only; each due entry gets a line naming it and its day.
+    @ViewBuilder private var serviceDue: some View {
+        if model.own {
+            let today = Calendar.current.startOfDay(for: .now)
+            let due = model.entries.compactMap { e -> (BuildEntry, Date)? in
+                guard e.isService, let day = e.remindOn, day < today else { return nil }
+                return (e, day)
+            }
+            ForEach(due.indices, id: \.self) { i in
+                let (e, day) = due[i]
+                Row(Text("Service due", bundle: .module),
+                    subtitle: Text(verbatim: "\(e.title) · \(day.formatted(date: .abbreviated, time: .omitted))"),
+                    trailing: { QuietButton("Clear") { clearReminder(e) } })
+            }
+            if !due.isEmpty { Spacer().frame(height: Space.s16) }
+        }
+    }
+
     @ViewBuilder private func ownActions(_ car: Car) -> some View {
         VStack(spacing: 0) {
             if ctx.registry.canOpen(.modSim(car.id)) {
@@ -369,8 +389,12 @@ struct CarScreen: View {
                     if e.isService {
                         let odo = e.odometer.map { GarageUnits.odometer($0, e.odometerUnit ?? GarageUnits.defaultOdometer) }
                         (odo.map { Text("Service · \($0)", bundle: .module) } ?? Text("Service", bundle: .module)).typeStyle(.sub).foregroundStyle(Color.dust)
-                        if let day = e.remindOn, day >= Calendar.current.startOfDay(for: .now) {
-                            Text("Reminder \(day.formatted(date: .abbreviated, time: .omitted))", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
+                        if let day = e.remindOn {
+                            if day >= Calendar.current.startOfDay(for: .now) {
+                                Text("Reminder \(day.formatted(date: .abbreviated, time: .omitted))", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
+                            } else if model.own {
+                                Text("Service due \(day.formatted(date: .abbreviated, time: .omitted))", bundle: .module).typeStyle(.sub).foregroundStyle(Color.sodium)
+                            }
                         }
                     }
                     if !e.body.isEmpty { Text(verbatim: e.body).typeStyle(.body).foregroundStyle(Color.chalk) }
@@ -397,6 +421,21 @@ struct CarScreen: View {
         Task {
             do {
                 try await ctx.env.garage.updateBuildEntry(done)
+                await model.load()
+            } catch {
+                toast = ToastMessage(Text(GarageCopy.failed))
+            }
+        }
+    }
+
+    /// GAR-21: clearing a due reminder drops the "Service due" mark and the pending notification.
+    private func clearReminder(_ entry: BuildEntry) {
+        var cleared = entry
+        cleared.remindOn = nil
+        Task {
+            do {
+                try await ctx.env.garage.updateBuildEntry(cleared)
+                ServiceReminder.cancel(entry.id)
                 await model.load()
             } catch {
                 toast = ToastMessage(Text(GarageCopy.failed))

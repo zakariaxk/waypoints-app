@@ -232,6 +232,8 @@ struct RoadDetail: View {
     @State private var failed = false
     @State private var me: UserID?
     @State private var blocked = false
+    @State private var addingToLoop = false
+    @State private var toast: ToastMessage?
 
     var body: some View {
         VStack(alignment: .leading, spacing: Space.s12) {
@@ -269,6 +271,8 @@ struct RoadDetail: View {
                     // FEED-12: shares the road as a post.
                     SecondaryButton("Post it") { env.router.open(.compose(road: r.id)) }
                 }
+                // ROAD-9: adds this road to one of your loops, or starts a new one with it.
+                SecondaryButton("Add to a loop") { addingToLoop = true }
                 if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
                 if ratingOpen {
                     RatingSteppers(rating: $rating)
@@ -295,7 +299,15 @@ struct RoadDetail: View {
         }
         .padding(.horizontal, Space.margin)
         .haptic(.done, trigger: done)
+        .toast($toast)
         .task { await load() }
+        .sheet(isPresented: $addingToLoop) {
+            if let r = road {
+                AddToLoop(env: env, road: r) { name in
+                    toast = ToastMessage(Text("Added to \(name)", bundle: .module))
+                }
+            }
+        }
     }
 
     private func load() async {

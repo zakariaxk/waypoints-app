@@ -362,6 +362,9 @@
         }
       }
     },
+    "Clear": {
+      "extractionState": "manual"
+    },
     "Clearance": {
       "extractionState": "manual",
       "localizations": {
@@ -1487,6 +1490,18 @@
           }
         }
       }
+    },
+    "Service due": {
+      "extractionState": "manual"
+    },
+    "Service due %@": {
+      "extractionState": "manual"
+    },
+    "Service due %f": {
+      "extractionState": "manual"
+    },
+    "Service due %lld": {
+      "extractionState": "manual"
     },
     "Service reminder: %@": {
       "extractionState": "manual",

@@ -110,6 +110,102 @@ struct LoopsList: View {
     }
 }
 
+/// ROAD-9: the road sheet's "Add to a loop" chooser. Loops already holding this road are
+/// marked and disabled; "New loop" opens the editor with this road already picked.
+struct AddToLoop: View {
+    let env: AppEnvironment
+    let road: Road
+    let onAdded: (String) -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var loops: [RoadLoop]?
+    @State private var failed = false
+    @State private var creating = false
+    @State private var working = false
+    @State private var error: String?
+
+    var body: some View {
+        Sheet(Text("Add to a loop", bundle: .module)) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: Space.s8) {
+                    if let loops {
+                        if loops.isEmpty {
+                            Text("No loops yet. Start one with this road.", bundle: .module)
+                                .typeStyle(.body).foregroundStyle(Color.dust)
+                        }
+                        VStack(alignment: .leading, spacing: 0) {
+                            ForEach(loops) { l in
+                                let contains = l.roadIDs.contains(road.id)
+                                let full = l.roadIDs.count >= LoopEditor.maxRoads
+                                Button { add(to: l) } label: {
+                                    Row(Text(verbatim: l.name),
+                                        subtitle: Text("\(l.roadIDs.count.formatted(.number)) roads", bundle: .module),
+                                        trailing: {
+                                            if contains {
+                                                Text("Added", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
+                                            } else if full {
+                                                Text("Full", bundle: .module).typeStyle(.foot).foregroundStyle(Color.dust)
+                                            } else {
+                                                Image.symbol(Symbol.add)
+                                            }
+                                        })
+                                }
+                                .buttonStyle(RowButtonStyle())
+                                .disabled(contains || full || working)
+                            }
+                            Button { creating = true } label: {
+                                Row(Text("New loop", bundle: .module), trailing: { Image.symbol(Symbol.add) })
+                            }
+                            .buttonStyle(RowButtonStyle())
+                            .disabled(working)
+                        }
+                        .padding(.horizontal, -Space.margin)
+                    } else if failed {
+                        Text("Couldn't load your loops.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
+                        SecondaryButton("Try again") { Task { await load() } }
+                    } else {
+                        SkeletonRow(hasLeading: false)
+                    }
+                    if let error { Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake) }
+                }
+                .padding(Space.margin)
+            }
+        }
+        .presentationDetents([.medium, .large])
+        .task { await load() }
+        .sheet(isPresented: $creating) {
+            LoopEditor(env: env, loop: nil, roads: [road]) { saved in
+                onAdded(saved.name)
+                dismiss()
+            }
+        }
+    }
+
+    private func load() async {
+        failed = false
+        loops = try? await env.roads.myLoops()
+        failed = loops == nil
+    }
+
+    private func add(to loop: RoadLoop) {
+        guard !working else { return }
+        working = true
+        error = nil
+        Task {
+            do {
+                var l = loop
+                l.roadIDs.append(road.id)
+                try await env.roads.saveLoop(l)
+                await LoopStore.shared.load(env)
+                onAdded(l.name)
+                dismiss()
+            } catch {
+                self.error = message(for: error, fallback: String(localized: "Couldn't add it to the loop. Check your connection and try again.", bundle: .module))
+                working = false
+            }
+        }
+    }
+}
+
 /// A loop: its roads in order, the total length, and what you can do with it. Opened by
 /// `Route.loop`, so a share link lands here too.
 struct LoopDetail: View {
@@ -308,7 +404,7 @@ struct LoopEditor: View {
     @State private var error: String?
 
     /// `road_loops.road_ids` holds at most this many.
-    private static let maxRoads = 20
+    static let maxRoads = 20
 
     init(env: AppEnvironment, loop: RoadLoop?, roads: [Road], onSaved: @escaping (RoadLoop) -> Void) {
         self.env = env

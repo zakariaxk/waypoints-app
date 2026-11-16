@@ -279,6 +279,31 @@ extension MeetFormat {
     }
 }
 
+// MARK: SOC-10 friends going
+
+extension MeetFormat {
+    /// The list row's line: "1 friend going", "3 friends going".
+    static func friendsGoing(_ count: Int) -> String {
+        count == 1 ? String(localized: "1 friend going", bundle: .module)
+                   : String(localized: "\(count) friends going", bundle: .module)
+    }
+
+    /// E2's names under "Who's going": "Omar is going", "Omar and Priya are going",
+    /// "Omar, Priya, Sam and 2 more going" — up to three names.
+    static func friendsGoing(_ friends: [Friend]) -> String {
+        let names = friends.prefix(3).map(\.profile.displayName)
+        let more = friends.count - names.count
+        switch (names.count, more) {
+        case (1, 0): return String(localized: "\(names[0]) is going", bundle: .module)
+        case (2, 0): return String(localized: "\(names[0]) and \(names[1]) are going", bundle: .module)
+        case (3, 0): return String(localized: "\(names[0]), \(names[1]) and \(names[2]) are going", bundle: .module)
+        default:
+            let list = names.joined(separator: ", ")
+            return String(localized: "\(list) and \(more) more going", bundle: .module)
+        }
+    }
+}
+
 // MARK: MEET-13 road route
 
 /// Google encoded polyline, precision 5: the convoy route format (`ConvoyState.routePolyline`).

@@ -309,6 +309,24 @@
         }
       }
     },
+    "%@ and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%@ and %@ more going": {
+      "extractionState": "manual"
+    },
+    "%@ and %f are going": {
+      "extractionState": "manual"
+    },
+    "%@ and %f more going": {
+      "extractionState": "manual"
+    },
+    "%@ and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%@ and %lld more going": {
+      "extractionState": "manual"
+    },
     "%@ characters left": {
       "extractionState": "manual",
       "localizations": {
@@ -341,6 +359,9 @@
           }
         }
       }
+    },
+    "%@ friends going": {
+      "extractionState": "manual"
     },
     "%@ friends out": {
       "extractionState": "manual",
@@ -407,6 +428,9 @@
           }
         }
       }
+    },
+    "%@ is going": {
+      "extractionState": "manual"
     },
     "%@ members": {
       "extractionState": "manual",
@@ -1072,6 +1096,33 @@
         }
       }
     },
+    "%@, %@ and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%@, %@ and %f are going": {
+      "extractionState": "manual"
+    },
+    "%@, %@ and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%@, %f and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%@, %f and %f are going": {
+      "extractionState": "manual"
+    },
+    "%@, %f and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%@, %lld and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%@, %lld and %f are going": {
+      "extractionState": "manual"
+    },
+    "%@, %lld and %lld are going": {
+      "extractionState": "manual"
+    },
     "%@, locked": {
       "extractionState": "manual",
       "localizations": {
@@ -1314,6 +1365,24 @@
         }
       }
     },
+    "%f and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%f and %@ more going": {
+      "extractionState": "manual"
+    },
+    "%f and %f are going": {
+      "extractionState": "manual"
+    },
+    "%f and %f more going": {
+      "extractionState": "manual"
+    },
+    "%f and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%f and %lld more going": {
+      "extractionState": "manual"
+    },
     "%f characters left": {
       "extractionState": "manual",
       "localizations": {
@@ -1346,6 +1415,9 @@
           }
         }
       }
+    },
+    "%f friends going": {
+      "extractionState": "manual"
     },
     "%f friends out": {
       "extractionState": "manual",
@@ -1412,6 +1484,9 @@
           }
         }
       }
+    },
+    "%f is going": {
+      "extractionState": "manual"
     },
     "%f members": {
       "extractionState": "manual",
@@ -2077,6 +2152,33 @@
         }
       }
     },
+    "%f, %@ and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%f, %@ and %f are going": {
+      "extractionState": "manual"
+    },
+    "%f, %@ and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%f, %f and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%f, %f and %f are going": {
+      "extractionState": "manual"
+    },
+    "%f, %f and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%f, %lld and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%f, %lld and %f are going": {
+      "extractionState": "manual"
+    },
+    "%f, %lld and %lld are going": {
+      "extractionState": "manual"
+    },
     "%f, locked": {
       "extractionState": "manual",
       "localizations": {
@@ -2319,6 +2421,24 @@
         }
       }
     },
+    "%lld and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%lld and %@ more going": {
+      "extractionState": "manual"
+    },
+    "%lld and %f are going": {
+      "extractionState": "manual"
+    },
+    "%lld and %f more going": {
+      "extractionState": "manual"
+    },
+    "%lld and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%lld and %lld more going": {
+      "extractionState": "manual"
+    },
     "%lld characters left": {
       "extractionState": "manual",
       "localizations": {
@@ -2351,6 +2471,9 @@
           }
         }
       }
+    },
+    "%lld friends going": {
+      "extractionState": "manual"
     },
     "%lld friends out": {
       "extractionState": "manual",
@@ -2417,6 +2540,9 @@
           }
         }
       }
+    },
+    "%lld is going": {
+      "extractionState": "manual"
     },
     "%lld members": {
       "extractionState": "manual",
@@ -3090,6 +3216,33 @@
         }
       }
     },
+    "%lld, %@ and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %@ and %f are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %@ and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %f and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %f and %f are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %f and %lld are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %lld and %@ are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %lld and %f are going": {
+      "extractionState": "manual"
+    },
+    "%lld, %lld and %lld are going": {
+      "extractionState": "manual"
+    },
     "%lld, locked": {
       "extractionState": "manual",
       "localizations": {
@@ -3155,6 +3308,9 @@
           }
         }
       }
+    },
+    "1 friend going": {
+      "extractionState": "manual"
     },
     "1 friend out": {
       "extractionState": "manual",
@@ -3677,6 +3833,9 @@
         }
       }
     },
+    "Add to a loop": {
+      "extractionState": "manual"
+    },
     "Add to build log": {
       "extractionState": "manual"
     },
@@ -3745,6 +3904,18 @@
           }
         }
       }
+    },
+    "Added": {
+      "extractionState": "manual"
+    },
+    "Added to %@": {
+      "extractionState": "manual"
+    },
+    "Added to %f": {
+      "extractionState": "manual"
+    },
+    "Added to %lld": {
+      "extractionState": "manual"
     },
     "Adds %@ minutes to the trip": {
       "extractionState": "manual",
@@ -5687,6 +5858,9 @@
           }
         }
       }
+    },
+    "Couldn't add it to the loop. Check your connection and try again.": {
+      "extractionState": "manual"
     },
     "Couldn't add it to your calendar.": {
       "extractionState": "manual",
@@ -8688,6 +8862,9 @@
         }
       }
     },
+    "Full": {
+      "extractionState": "manual"
+    },
     "Full height": {
       "extractionState": "manual",
       "localizations": {
@@ -11433,6 +11610,9 @@
         }
       }
     },
+    "No loops yet. Start one with this road.": {
+      "extractionState": "manual"
+    },
     "No meet": {
       "extractionState": "manual",
       "localizations": {
@@ -12059,6 +12239,12 @@
           }
         }
       }
+    },
+    "Omar and Priya are going": {
+      "extractionState": "manual"
+    },
+    "Omar is going": {
+      "extractionState": "manual"
     },
     "On": {
       "extractionState": "manual",
@@ -14752,6 +14938,18 @@
           }
         }
       }
+    },
+    "Service due": {
+      "extractionState": "manual"
+    },
+    "Service due %@": {
+      "extractionState": "manual"
+    },
+    "Service due %f": {
+      "extractionState": "manual"
+    },
+    "Service due %lld": {
+      "extractionState": "manual"
     },
     "Service reminder: %@": {
       "extractionState": "manual",
