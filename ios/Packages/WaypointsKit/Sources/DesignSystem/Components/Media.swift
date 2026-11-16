@@ -83,7 +83,7 @@ public struct Readout: View {
     }
 
     private var number: Text {
-        var text = Text(verbatim: value).font(token.font).foregroundStyle(Color.chalk)
+        var text = Text(readout: value, token: token).foregroundStyle(Color.chalk)
         if let unit {
             text = text + Text(verbatim: thinSpace + unit).font(TypeToken.readoutS.font).foregroundStyle(Color.dust)
         }

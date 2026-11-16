@@ -64,6 +64,27 @@ public extension View {
 /// A thin space, used between a number and its unit ("412 hp").
 public let thinSpace = "\u{2009}"
 
+public extension Text {
+    /// Verbatim text in a readout token. The embedded face draws `.` `,` `:` and `·` at the
+    /// left of the fixed-width cell with almost a full cell of space after them, so "12.5"
+    /// reads "12. 5"; a kern on just those glyphs pulls the next character in. Digits keep
+    /// their tabular advance.
+    init(readout value: String, token: TypeToken) {
+        let tight: Set<Character> = [".", ",", ":", "·"]
+        var text = Text(verbatim: "")
+        var run = ""
+        for ch in value {
+            if tight.contains(ch) {
+                text = text + Text(verbatim: run) + Text(verbatim: String(ch)).kerning(-token.size * 0.32)
+                run = ""
+            } else {
+                run.append(ch)
+            }
+        }
+        self = (text + Text(verbatim: run)).font(token.font)
+    }
+}
+
 /// B612 Mono Bold, embedded under the SIL OFL (Resources/Fonts/OFL.txt). Falls back to SF Mono
 /// Bold if the file cannot be registered.
 enum ReadoutFace {

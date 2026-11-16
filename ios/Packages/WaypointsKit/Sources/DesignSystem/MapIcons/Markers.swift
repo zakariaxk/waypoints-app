@@ -67,8 +67,7 @@ public struct VehicleMarker: View {
             }
             .frame(width: max(size, Size.hitTarget), height: max(size, Size.hitTarget))
             if case let .friend(name) = role, !name.isEmpty {
-                Text(verbatim: staleness >= 300 ? "\(name) · \(Int(staleness / 60))\(thinSpace)m" : name)
-                    .typeStyle(.readoutS)
+                Text(readout: staleness >= 300 ? "\(name) · \(Int(staleness / 60))\(thinSpace)m" : name, token: .readoutS)
                     .foregroundStyle(Color.chalk)
                     .padding(.horizontal, Space.s4)
                     .padding(.vertical, Space.s2)
@@ -143,19 +142,11 @@ public struct ReportBadge: View {
     let kind: String
     public init(kind: String) { self.kind = kind }
 
-    private var symbol: String {
+    private var ink: Color {
         switch kind {
-        case "speed_bump": "chevron.compact.up"
-        case "steep_entrance": "arrow.up.right"
-        case "pothole": "circle.dotted"
-        case "rough_road": "water.waves"
-        case "police": "shield"
-        case "hazard": "exclamationmark"
-        case "closure": "xmark"
-        case "fuel_e85": "fuelpump"
-        case "speed_camera", "red_light_camera": "camera.fill"
-        case "help": "hand.raised.fill"
-        default: "mappin"
+        case "speed_bump", "steep_entrance", "rough_road": .sodium
+        case "help": .chalk
+        default: .asphalt
         }
     }
 
@@ -186,10 +177,8 @@ public struct ReportBadge: View {
                 Circle().fill(Color.tarmac).frame(width: s, height: s)
                     .overlay(Circle().strokeBorder(Color.sodium, lineWidth: Size.Marker.ring))
             }
-            Image(systemName: symbol)
-                .font(.system(size: Size.Marker.reportGlyph * 0.55, weight: .bold))
-                .foregroundStyle(["speed_bump", "steep_entrance", "rough_road"].contains(kind) ? Color.sodium
-                                 : kind == "help" ? Color.chalk : Color.asphalt)
+            ReportGlyph(kind: kind, paint: ink)
+                .frame(width: Size.Marker.reportGlyph * 0.66, height: Size.Marker.reportGlyph * 0.66)
         }
         .frame(width: Size.hitTarget, height: Size.hitTarget)
         .mapShadow()
@@ -206,26 +195,15 @@ public struct MeetPin: View {
     let live: Bool
     public init(kind: String, time: String? = nil, live: Bool = false) { self.kind = kind; self.time = time; self.live = live }
 
-    private var symbol: String {
-        switch kind {
-        case "cruise": "road.lanes.curved.right"
-        case "hangout": "cup.and.saucer"
-        case "track_day": "flag.checkered"
-        case "show": "rosette"
-        default: "car.2"
-        }
-    }
-
     public var body: some View {
         VStack(spacing: Space.s2) {
-            Image(systemName: symbol)
-                .font(.system(size: Size.Marker.meetPin * 0.42, weight: .semibold))
-                .foregroundStyle(Color.sodium)
+            MeetGlyph(kind: kind)
+                .frame(width: Size.Marker.meetPin * 0.6, height: Size.Marker.meetPin * 0.6)
                 .frame(width: Size.Marker.meetPin, height: Size.Marker.meetPin)
                 .background(Color.tarmac, in: RoundedRectangle(cornerRadius: Radius.r12))
                 .overlay(RoundedRectangle(cornerRadius: Radius.r12).strokeBorder(live ? Color.go : Color.seam, lineWidth: Size.Marker.ring))
             if let time {
-                Text(verbatim: time).typeStyle(.readoutS).foregroundStyle(Color.chalk)
+                Text(readout: time, token: .readoutS).foregroundStyle(Color.chalk)
                     .padding(.horizontal, Space.s4).background(Color.tarmac, in: Capsule())
             }
         }
