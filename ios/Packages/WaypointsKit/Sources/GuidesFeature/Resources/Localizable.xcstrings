@@ -34,6 +34,28 @@
         }
       }
     },
+    "Copied": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiado"
+          }
+        }
+      }
+    },
+    "Copy parts list": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar lista de piezas"
+          }
+        }
+      }
+    },
     "Couldn't load this guide.": {
       "extractionState": "manual",
       "localizations": {
@@ -199,6 +221,17 @@
         }
       }
     },
+    "Name — $12": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre — 12 $"
+          }
+        }
+      }
+    },
     "No guides match.": {
       "extractionState": "manual",
       "localizations": {
@@ -266,7 +299,15 @@
       }
     },
     "Share guide": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir guía"
+          }
+        }
+      }
     },
     "Simulate this": {
       "extractionState": "manual",
@@ -302,7 +343,15 @@
       }
     },
     "Waypoints": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waypoints"
+          }
+        }
+      }
     },
     "Waypoints guide · ": {
       "extractionState": "manual",

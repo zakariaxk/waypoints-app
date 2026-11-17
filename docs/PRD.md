@@ -701,7 +701,7 @@ How to actually fix and mod your car. Structured guides, not scraped forum text.
 | KNW-8 | Helpful votes. A guide shows a count of people who found it useful; tapping the same control votes or unvotes. The browser sorts matching guides by votes first. One row per person, changeable, no down-votes. | P3 | Coded (L80): guide_votes (post_likes mirror) + votes_count trigger column; Helpful chip toggle, browser sorts by votes. checks.sql rows. Statically reviewed; check-db deferred. |
 | KNW-9 | A car page links to its guides: the owner sees a "Guides" row that opens the guide browser (whose For your cars section already matches this car's make/model). | P3 | Verified (L90): already shipped — `ownActions` has a canOpen-gated "Guides" row opening `.guides`; the browser's For-your-cars section matches the car's make. No change needed. |
 | KNW-10 | A guide shares as a card: title, step count, helpful votes — like MOD-16's sim card. | P3 | Coded (L98): GuideCard/GuideShare (wrench header, vehicle · time, STEPS + FOUND HELPFUL cells) + toolbar share. Guides are pipeline-written, so no author handle. Statically reviewed. |
-| KNW-11 | A guide's parts list copies to the clipboard — names, quantities, and costs for a parts order. | P3 | New |
+| KNW-11 | A guide's parts list copies to the clipboard — names, quantities, and costs for a parts order. | P3 | Coded (L104): QuietButton 'Copy parts list' under the parts rows (hidden when empty), UIPasteboard, Copied state. Statically reviewed. |
 
 ### 4.27 3D garage and test drive (GME)
 

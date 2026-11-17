@@ -2,7 +2,15 @@
   "sourceLanguage": "en",
   "strings": {
     "%@ cars": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ coches"
+          }
+        }
+      }
     },
     "%@ icon, earned": {
       "extractionState": "manual",
@@ -49,7 +57,15 @@
       }
     },
     "%f cars": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f coches"
+          }
+        }
+      }
     },
     "%f icon, earned": {
       "extractionState": "manual",
@@ -96,7 +112,15 @@
       }
     },
     "%lld cars": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld coches"
+          }
+        }
+      }
     },
     "%lld icon, earned": {
       "extractionState": "manual",
@@ -792,7 +816,15 @@
       }
     },
     "Garage": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Garaje"
+          }
+        }
+      }
     },
     "Gear %@": {
       "extractionState": "manual",
@@ -1719,7 +1751,15 @@
       }
     },
     "Share garage": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir garaje"
+          }
+        }
+      }
     },
     "Share profile": {
       "extractionState": "manual",

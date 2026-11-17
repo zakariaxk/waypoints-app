@@ -332,7 +332,15 @@
       }
     },
     "%@ and %@ more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %@ más la valoraron"
+          }
+        }
+      }
     },
     "%@ and %f are going": {
       "extractionState": "manual",
@@ -357,7 +365,15 @@
       }
     },
     "%@ and %f more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %f más la valoraron"
+          }
+        }
+      }
     },
     "%@ and %lld are going": {
       "extractionState": "manual",
@@ -382,10 +398,26 @@
       }
     },
     "%@ and %lld more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %lld más la valoraron"
+          }
+        }
+      }
     },
     "%@ cars": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ coches"
+          }
+        }
+      }
     },
     "%@ characters left": {
       "extractionState": "manual",
@@ -1576,7 +1608,15 @@
       }
     },
     "%f and %@ more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %@ más la valoraron"
+          }
+        }
+      }
     },
     "%f and %f are going": {
       "extractionState": "manual",
@@ -1601,7 +1641,15 @@
       }
     },
     "%f and %f more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %f más la valoraron"
+          }
+        }
+      }
     },
     "%f and %lld are going": {
       "extractionState": "manual",
@@ -1626,10 +1674,26 @@
       }
     },
     "%f and %lld more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %lld más la valoraron"
+          }
+        }
+      }
     },
     "%f cars": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f coches"
+          }
+        }
+      }
     },
     "%f characters left": {
       "extractionState": "manual",
@@ -2820,7 +2884,15 @@
       }
     },
     "%lld and %@ more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %@ más la valoraron"
+          }
+        }
+      }
     },
     "%lld and %f are going": {
       "extractionState": "manual",
@@ -2845,7 +2917,15 @@
       }
     },
     "%lld and %f more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %f más la valoraron"
+          }
+        }
+      }
     },
     "%lld and %lld are going": {
       "extractionState": "manual",
@@ -2870,10 +2950,26 @@
       }
     },
     "%lld and %lld more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %lld más la valoraron"
+          }
+        }
+      }
     },
     "%lld cars": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld coches"
+          }
+        }
+      }
     },
     "%lld characters left": {
       "extractionState": "manual",
@@ -6505,6 +6601,17 @@
         }
       }
     },
+    "Copied": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiado"
+          }
+        }
+      }
+    },
     "Copy": {
       "extractionState": "manual",
       "localizations": {
@@ -6512,6 +6619,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Copiar"
+          }
+        }
+      }
+    },
+    "Copy parts list": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copiar lista de piezas"
           }
         }
       }
@@ -7364,7 +7482,15 @@
       }
     },
     "Couldn't save the caption. Try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo guardar el pie de foto. Inténtalo de nuevo."
+          }
+        }
+      }
     },
     "Couldn't save the car. Check your connection and try again.": {
       "extractionState": "manual",
@@ -8511,7 +8637,15 @@
       }
     },
     "Edit caption": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar pie de foto"
+          }
+        }
+      }
     },
     "Edit car": {
       "extractionState": "manual",
@@ -8712,13 +8846,37 @@
       }
     },
     "Ended %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminó %@"
+          }
+        }
+      }
     },
     "Ended %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminó %f"
+          }
+        }
+      }
     },
     "Ended %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminó %lld"
+          }
+        }
+      }
     },
     "Ends": {
       "extractionState": "manual",
@@ -12032,7 +12190,15 @@
       }
     },
     "More from this seller": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Más de este vendedor"
+          }
+        }
+      }
     },
     "More options": {
       "extractionState": "manual",
@@ -12250,6 +12416,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nombre"
+          }
+        }
+      }
+    },
+    "Name — $12": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre — 12 $"
           }
         }
       }
@@ -13410,7 +13587,15 @@
       }
     },
     "PARKED": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "APARCADO"
+          }
+        }
+      }
     },
     "PARTS": {
       "extractionState": "manual",
@@ -16185,13 +16370,37 @@
       }
     },
     "Share drive": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir trayecto"
+          }
+        }
+      }
     },
     "Share garage": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir garaje"
+          }
+        }
+      }
     },
     "Share guide": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir guía"
+          }
+        }
+      }
     },
     "Share invite": {
       "extractionState": "manual",
@@ -17360,7 +17569,15 @@
       }
     },
     "That caption can't be saved.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese pie de foto no se puede guardar."
+          }
+        }
+      }
     },
     "That code didn't match. Check the email and try again.": {
       "extractionState": "manual",
@@ -19618,22 +19835,70 @@
       }
     },
     "You've driven this %@×": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La has recorrido %@×"
+          }
+        }
+      }
     },
     "You've driven this %f×": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La has recorrido %f×"
+          }
+        }
+      }
     },
     "You've driven this %lld×": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La has recorrido %lld×"
+          }
+        }
+      }
     },
     "You've driven this loop %@×": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Has recorrido esta vuelta %@×"
+          }
+        }
+      }
     },
     "You've driven this loop %f×": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Has recorrido esta vuelta %f×"
+          }
+        }
+      }
     },
     "You've driven this loop %lld×": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Has recorrido esta vuelta %lld×"
+          }
+        }
+      }
     },
     "You've judged every pair in %@. Try another class.": {
       "extractionState": "manual",
@@ -19713,7 +19978,15 @@
       }
     },
     "Your last drive ended here": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu último trayecto terminó aquí"
+          }
+        }
+      }
     },
     "Your marker": {
       "extractionState": "manual",

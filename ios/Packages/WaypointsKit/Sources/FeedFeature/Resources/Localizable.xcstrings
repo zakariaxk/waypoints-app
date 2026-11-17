@@ -266,7 +266,15 @@
       }
     },
     "Couldn't save the caption. Try again.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo guardar el pie de foto. Inténtalo de nuevo."
+          }
+        }
+      }
     },
     "Cover frame": {
       "extractionState": "manual",
@@ -302,7 +310,15 @@
       }
     },
     "Edit caption": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Editar pie de foto"
+          }
+        }
+      }
     },
     "Follow": {
       "extractionState": "manual",
@@ -536,7 +552,15 @@
       }
     },
     "Save": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guardar"
+          }
+        }
+      }
     },
     "See For you": {
       "extractionState": "manual",
@@ -627,7 +651,15 @@
       }
     },
     "That caption can't be saved.": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese pie de foto no se puede guardar."
+          }
+        }
+      }
     },
     "That comment can't be posted.": {
       "extractionState": "manual",

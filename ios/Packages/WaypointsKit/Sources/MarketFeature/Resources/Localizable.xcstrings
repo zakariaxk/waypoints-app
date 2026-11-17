@@ -1102,7 +1102,15 @@
       }
     },
     "More from this seller": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Más de este vendedor"
+          }
+        }
+      }
     },
     "More options": {
       "extractionState": "manual",

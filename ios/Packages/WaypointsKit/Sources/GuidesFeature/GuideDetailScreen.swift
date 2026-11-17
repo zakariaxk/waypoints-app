@@ -1,6 +1,7 @@
 import Core
 import DesignSystem
 import SwiftUI
+import UIKit
 
 /// KNW-3/4/7: one guide — tools, parts with cost, checkable steps kept on the device,
 /// tradeoffs and mistakes, sources at the foot, "Simulate this" when the task installs mods,
@@ -23,6 +24,7 @@ struct GuideDetailScreen: View {
     @State private var logged = false
     @State private var logFailed = false
     @State private var shared: SharedImage?
+    @State private var copiedParts = false
     @Environment(\.displayScale) private var displayScale
 
     init(ctx: GuidesContext, guideID: GuideID, carID: CarID? = nil) {
@@ -91,6 +93,10 @@ struct GuideDetailScreen: View {
                         subtitle: part.partNumber.map { Text(verbatim: $0) },
                         trailing: { Text(readout: costLabel(part), token: .readoutS).foregroundStyle(Color.dust) })
                 }
+                // KNW-11: the whole parts list on the clipboard for a parts order.
+                QuietButton(copiedParts ? "Copied" : "Copy parts list") { copyParts(guide) }
+                    .disabled(copiedParts)
+                    .padding(.horizontal, Space.margin)
             }
             if !guide.tools.isEmpty {
                 SectionLabel("TOOLS")
@@ -175,6 +181,15 @@ struct GuideDetailScreen: View {
         guard let guide else { return }
         let image = GuideShare.render(guide: guide, time: GuidesScreen.timeLabel(guide), scale: displayScale)
         if let image { shared = SharedImage(image: image) }
+    }
+
+    /// KNW-11: "Name — $12" per line so it pastes straight into a parts order.
+    private func copyParts(_ guide: Guide) {
+        UIPasteboard.general.string = guide.parts
+            .map { "\($0.name) — \(costLabel($0))" }
+            .joined(separator: "\n")
+        copiedParts = true
+        Task { try? await Task.sleep(for: .seconds(Timing.toast)); copiedParts = false }
     }
 
     private func toggle(_ guide: Guide, _ index: Int) {

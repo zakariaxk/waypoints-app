@@ -2,13 +2,37 @@
   "sourceLanguage": "en",
   "strings": {
     "%@ and %@ more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %@ más la valoraron"
+          }
+        }
+      }
     },
     "%@ and %f more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %f más la valoraron"
+          }
+        }
+      }
     },
     "%@ and %lld more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ y %lld más la valoraron"
+          }
+        }
+      }
     },
     "%@ of %@ stretches of road here. Counted on this phone only.": {
       "extractionState": "manual",
@@ -99,13 +123,37 @@
       }
     },
     "%f and %@ more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %@ más la valoraron"
+          }
+        }
+      }
     },
     "%f and %f more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %f más la valoraron"
+          }
+        }
+      }
     },
     "%f and %lld more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f y %lld más la valoraron"
+          }
+        }
+      }
     },
     "%f of %@ stretches of road here. Counted on this phone only.": {
       "extractionState": "manual",
@@ -196,13 +244,37 @@
       }
     },
     "%lld and %@ more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %@ más la valoraron"
+          }
+        }
+      }
     },
     "%lld and %f more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %f más la valoraron"
+          }
+        }
+      }
     },
     "%lld and %lld more rated it": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld y %lld más la valoraron"
+          }
+        }
+      }
     },
     "%lld of %@ stretches of road here. Counted on this phone only.": {
       "extractionState": "manual",
@@ -623,13 +695,37 @@
       }
     },
     "Ended %@": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminó %@"
+          }
+        }
+      }
     },
     "Ended %f": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminó %f"
+          }
+        }
+      }
     },
     "Ended %lld": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminó %lld"
+          }
+        }
+      }
     },
     "Every road you saved is in this loop.": {
       "extractionState": "manual",
@@ -885,7 +981,15 @@
       }
     },
     "PARKED": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "APARCADO"
+          }
+        }
+      }
     },
     "Post it": {
       "extractionState": "manual",
@@ -1053,7 +1157,15 @@
       }
     },
     "Share drive": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir trayecto"
+          }
+        }
+      }
     },
     "Share loop": {
       "extractionState": "manual",
@@ -1243,25 +1355,81 @@
       }
     },
     "You've driven this %@×": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La has recorrido %@×"
+          }
+        }
+      }
     },
     "You've driven this %f×": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La has recorrido %f×"
+          }
+        }
+      }
     },
     "You've driven this %lld×": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La has recorrido %lld×"
+          }
+        }
+      }
     },
     "You've driven this loop %@×": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Has recorrido esta vuelta %@×"
+          }
+        }
+      }
     },
     "You've driven this loop %f×": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Has recorrido esta vuelta %f×"
+          }
+        }
+      }
     },
     "You've driven this loop %lld×": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Has recorrido esta vuelta %lld×"
+          }
+        }
+      }
     },
     "Your last drive ended here": {
-      "extractionState": "manual"
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu último trayecto terminó aquí"
+          }
+        }
+      }
     },
     "Your saved roads": {
       "extractionState": "manual",
