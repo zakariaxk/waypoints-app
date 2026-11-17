@@ -385,6 +385,7 @@ Anyone drops a meet on the map in three fields, from a full show to "Wawa and ch
 | MEET-14 | People's choice. During a show or meet, each person checked in can pick one car from those brought. When it ends, the meet shows the winner and the car's timeline gains a line. | P2 | Verified (L35): votes gated to checked-in users on Going cars; sweep set winner_car_id and wrote the timeline line. |
 | MEET-15 | Capacity. A host can cap a meet at a number of cars. Going past the cap joins a waitlist in order; when someone drops, the first waiting person becomes Going and is told once. E2 shows "12 of 20 cars" and "Waitlist · 3". | P3 | Verified (L35): capacity → waitlist → ordered promotion, one notification, sweep consumes the promotion row. |
 | MEET-16 | Anyone Going can start a convoy to the meet: one tap on the meet detail names the convoy for the meet, sets its destination to the meet coordinate, and invites the other Going RSVPs. MEET-13 covers the host's timed roll-out on cruises; this covers every other kind and every other attendee. | P3 | Coded (L71): "Start a convoy" on MeetDetail for Going attendees when roll-out isn't theirs; mirrors rollOut (create + join + invite Going RSVPs + joinConvoy route). Statically reviewed; build deferred (disk constraint). |
+| MEET-17 | A meet page carries a discussion thread: attendees (and anyone who can see the meet) post short comments on it. | P3 | New |
 
 ### 4.9 Convoys (CNV)
 
@@ -454,6 +455,7 @@ Every car, chosen without clutter. Plan 5.2, 10.8 (G3 to G5), 11.1.
 | GAR-20 | A car with an active market listing reads "Listed for $X" under its readouts and opens the listing. | P3 | Coded (L81): `activeListing(forCar:)` (car_id + active + not-expired) → 'Listed for' row opens `.listing`. Statically reviewed. |
 | GAR-21 | A service entry whose reminder day passes marks the car "Service due" until the owner clears it — shown on the car's timeline and at the top of the car page, owner only. | P3 | Coded (L85): per-due-entry row + sodium timeline mark; Clear nils remind_on via updateBuildEntry and cancels the pending notification. Statically reviewed. |
 | GAR-22 | Your garage shares as a card: every car's lead photo or silhouette in a row, with your handle — the whole lineup, like SPOT-7's collection card. | P3 | Coded (L94): GarageCard/GarageShare beside SPOT-7's in Codes.swift; share icon on the CARS label of your own profile (≤5 lead photos). Statically reviewed. |
+| GAR-23 | One car shares as a card: its lead photo or silhouette, title, mods count, and the owner's handle — like GAR-15's build card. | P3 | New |
 
 ### 4.12 Mod simulator (MOD)
 
@@ -548,6 +550,7 @@ Talk while driving, hands off. Plan 10.7 (T3).
 | MKT-11 | A listing's price dropping tells everyone who saved it: an activity row "A saved listing dropped to $X" opening the listing. | P3 | Coded (L82): `listings_price_drop_notify` trigger → `record_notification` per saver (seller skipped via actor check); `price_drop` kind + tag icon; checks.sql rows. Statically reviewed; check-db deferred. |
 | MKT-12 | A listing shares its link: the share button on the listing hands the `waypoints://listing/<id>` (or universal) link to the share sheet, like the profile and convoy links. | P3 | Coded (L88): ShareLink over `Route.listing.shareURL` in the listing's bottom bar, all viewers. Statically reviewed. |
 | MKT-13 | A listing page offers the seller's other active listings as rows that open them — window-shopping a seller's garage. | P3 | Coded (L97): 'More from this seller' rows via listings(by:), active/non-expired, reported excluded, ≤5. Statically reviewed. |
+| MKT-14 | "Make an offer" on a listing opens the seller thread with a prefilled offer the buyer edits before sending. | P3 | New |
 
 ### 4.17 Feed (FEED)
 
@@ -1196,3 +1199,4 @@ Findings go to W8-INT as a list.
 | 2026-11-16 | Ninth static wave: new requirements MKT-13 (more from seller), KNW-10 (guide share card), ROAD-10 (times driven). Queue L97-L99. |
 | 2026-11-16 | Tenth static wave: new requirements FEED-13 (edit caption), ROAD-11 (loop driven count), ROAD-12 (share a drive). Queue L100-L102. |
 | 2026-11-16 | Eleventh wave: second repo-wide static audit (L103) and KNW-11 (copy parts list). Queue L103-L104. |
+| 2026-11-16 | Twelfth wave: new requirements MEET-17 (meet discussion), MKT-14 (make an offer), GAR-23 (car share card). Queue L105-L107. |
