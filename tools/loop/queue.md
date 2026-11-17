@@ -115,3 +115,5 @@ Format: `- [ ] L## | REQ-IDS | files it owns | one-line task`
 - [x] L100 | FEED-13 | FeedFeature, PostRepository, Backend, Preview, supabase | Edit your own post's caption: posts_update_own policy + updatePost repo method + edit affordance. New requirement row.
 - [x] L101 | ROAD-11 | RoadsFeature/Loops.swift | "You've driven this loop N×" on LoopDetail from DriveRecorder traces vs the joined path. New requirement row.
 - [x] L102 | ROAD-12 | RoadsFeature | Share a recorded drive as a card: trace polyline + distance + date → share sheet (LoopCard pattern). New requirement row.
+- [ ] L103 | static audit | repo-wide | Second audit pass: cross-reference every API/symbol/migration/checks fixture added L92-L102 (share cards, updateCaption, ratings(for:), guide_votes already audited, caption grant).
+- [ ] L104 | KNW-11 | GuidesFeature | "Copy parts list" on the guide detail — parts with costs to the clipboard for a parts order. New requirement row.
