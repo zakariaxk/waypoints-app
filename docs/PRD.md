@@ -547,6 +547,7 @@ Talk while driving, hands off. Plan 10.7 (T3).
 
 | MKT-11 | A listing's price dropping tells everyone who saved it: an activity row "A saved listing dropped to $X" opening the listing. | P3 | Coded (L82): `listings_price_drop_notify` trigger → `record_notification` per saver (seller skipped via actor check); `price_drop` kind + tag icon; checks.sql rows. Statically reviewed; check-db deferred. |
 | MKT-12 | A listing shares its link: the share button on the listing hands the `waypoints://listing/<id>` (or universal) link to the share sheet, like the profile and convoy links. | P3 | Coded (L88): ShareLink over `Route.listing.shareURL` in the listing's bottom bar, all viewers. Statically reviewed. |
+| MKT-13 | A listing page offers the seller's other active listings as rows that open them — window-shopping a seller's garage. | P3 | Coded (L97): 'More from this seller' rows via listings(by:), active/non-expired, reported excluded, ≤5. Statically reviewed. |
 
 ### 4.17 Feed (FEED)
 
@@ -699,6 +700,8 @@ How to actually fix and mod your car. Structured guides, not scraped forum text.
 | KNW-7 | Log it. When every step of a guide is checked, the guide page offers "Add to build log": a timeline entry on the car being worked on carrying the guide's title, today's date, and the guide's linked mods. | P3 | Coded (L72): all-checked-steps → "Add to build log" → context car > single make/model match > picker → addBuildEntry (title ≤60, first linked mod). Statically reviewed; build deferred. |
 | KNW-8 | Helpful votes. A guide shows a count of people who found it useful; tapping the same control votes or unvotes. The browser sorts matching guides by votes first. One row per person, changeable, no down-votes. | P3 | Coded (L80): guide_votes (post_likes mirror) + votes_count trigger column; Helpful chip toggle, browser sorts by votes. checks.sql rows. Statically reviewed; check-db deferred. |
 | KNW-9 | A car page links to its guides: the owner sees a "Guides" row that opens the guide browser (whose For your cars section already matches this car's make/model). | P3 | Verified (L90): already shipped — `ownActions` has a canOpen-gated "Guides" row opening `.guides`; the browser's For-your-cars section matches the car's make. No change needed. |
+| KNW-10 | A guide shares as a card: title, step count, helpful votes — like MOD-16's sim card. | P3 | Coded (L98): GuideCard/GuideShare (wrench header, vehicle · time, STEPS + FOUND HELPFUL cells) + toolbar share. Guides are pipeline-written, so no author handle. Statically reviewed. |
+| KNW-11 | A guide's parts list copies to the clipboard — names, quantities, and costs for a parts order. | P3 | New |
 
 ### 4.27 3D garage and test drive (GME)
 
@@ -1192,3 +1195,4 @@ Findings go to W8-INT as a list.
 | 2026-11-16 | Eighth static wave: new requirements GAR-22 (garage lineup card), SOC-11 (friends' road ratings), NAV-17 (parked card). Queue L94-L96. |
 | 2026-11-16 | Ninth static wave: new requirements MKT-13 (more from seller), KNW-10 (guide share card), ROAD-10 (times driven). Queue L97-L99. |
 | 2026-11-16 | Tenth static wave: new requirements FEED-13 (edit caption), ROAD-11 (loop driven count), ROAD-12 (share a drive). Queue L100-L102. |
+| 2026-11-16 | Eleventh wave: second repo-wide static audit (L103) and KNW-11 (copy parts list). Queue L103-L104. |
