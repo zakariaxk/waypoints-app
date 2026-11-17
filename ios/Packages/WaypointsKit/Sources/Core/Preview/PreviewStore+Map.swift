@@ -85,6 +85,23 @@ extension PreviewStore: MeetRepository {
         guard try await isCheckedIn(meet) else { throw WaypointsError.forbidden }
         meetChoices[Pair(meet.raw, try me().raw)] = car
     }
+    public func comments(on meet: MeetID) async throws -> [MeetComment] {
+        meetComments.filter { $0.meetID == meet }.sorted { $0.createdAt < $1.createdAt }
+    }
+    public func addComment(_ body: String, to meet: MeetID) async throws -> MeetComment {
+        guard let m = meets[meet], canSee(m) else { throw WaypointsError.notFound }
+        let comment = MeetComment(meetID: meet, authorID: try me(), body: String(body.prefix(300)))
+        meetComments.append(comment)
+        return comment
+    }
+    public func deleteComment(_ id: CommentID) async throws {
+        guard let i = meetComments.firstIndex(where: { $0.id == id }) else { throw WaypointsError.notFound }
+        let me = try me()
+        guard meetComments[i].authorID == me || meets[meetComments[i].meetID]?.hostID == me else {
+            throw WaypointsError.forbidden
+        }
+        meetComments.remove(at: i)
+    }
 }
 
 extension PreviewStore: RoadRepository {

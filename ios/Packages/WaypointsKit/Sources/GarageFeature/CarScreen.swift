@@ -122,6 +122,12 @@ struct CarScreen: View {
         .background(Color.asphalt.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            if model.car != nil {
+                // GAR-23: share this car as a card; owner and visitor alike.
+                ToolbarItem(placement: .topBarTrailing) {
+                    IconButton(Symbol.share, label: "Share car") { shareCar() }
+                }
+            }
             if model.own {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -202,6 +208,17 @@ struct CarScreen: View {
             let image = await BuildShare.render(car: car, photoURL: ctx.url(.cars, model.photos.first?.path),
                                                 estimate: model.estimate, handle: model.owner?.handle,
                                                 silhouette: model.owner?.markerIcon ?? "coupe", scale: displayScale)
+            if let image { shared = SharedImage(image: image) }
+        }
+    }
+
+    /// GAR-23: renders the car card and hands it to the share sheet.
+    private func shareCar() {
+        guard let car = model.car else { return }
+        Task {
+            let image = await CarShare.render(car: car, photoURL: ctx.url(.cars, model.photos.first?.path),
+                                              handle: model.owner?.handle,
+                                              silhouette: model.owner?.markerIcon ?? "coupe", scale: displayScale)
             if let image { shared = SharedImage(image: image) }
         }
     }

@@ -782,6 +782,17 @@
         }
       }
     },
+    "Add a comment": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añadir un comentario"
+          }
+        }
+      }
+    },
     "Add details": {
       "extractionState": "manual",
       "localizations": {
@@ -811,6 +822,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Añade lo que sepas"
+          }
+        }
+      }
+    },
+    "Block": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bloquear"
           }
         }
       }
@@ -903,6 +925,17 @@
         }
       }
     },
+    "Comment": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comentario"
+          }
+        }
+      }
+    },
     "Couldn't add it to your calendar.": {
       "extractionState": "manual",
       "localizations": {
@@ -910,6 +943,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "No se pudo añadir al calendario."
+          }
+        }
+      }
+    },
+    "Couldn't block them. Check your connection and try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo bloquear. Comprueba tu conexión e inténtalo de nuevo."
           }
         }
       }
@@ -925,6 +969,17 @@
         }
       }
     },
+    "Couldn't delete that comment. Try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo eliminar ese comentario. Inténtalo de nuevo."
+          }
+        }
+      }
+    },
     "Couldn't find that place. Try a fuller name or address.": {
       "extractionState": "manual",
       "localizations": {
@@ -936,6 +991,17 @@
         }
       }
     },
+    "Couldn't load comments. Check your connection and try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudieron cargar los comentarios. Comprueba tu conexión e inténtalo de nuevo."
+          }
+        }
+      }
+    },
     "Couldn't load this meet. Check your connection and try again.": {
       "extractionState": "manual",
       "localizations": {
@@ -943,6 +1009,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "No se pudo cargar este encuentro. Comprueba tu conexión e inténtalo de nuevo."
+          }
+        }
+      }
+    },
+    "Couldn't post that comment. Try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo publicar ese comentario. Inténtalo de nuevo."
           }
         }
       }
@@ -1009,6 +1086,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Crucero"
+          }
+        }
+      }
+    },
+    "DISCUSSION": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DISCUSIÓN"
+          }
+        }
+      }
+    },
+    "Delete": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar"
           }
         }
       }
@@ -1629,6 +1728,17 @@
         }
       }
     },
+    "No comments yet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no hay comentarios."
+          }
+        }
+      }
+    },
     "No limit": {
       "extractionState": "manual",
       "localizations": {
@@ -1948,6 +2058,17 @@
         }
       }
     },
+    "Send": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar"
+          }
+        }
+      }
+    },
     "Share": {
       "extractionState": "manual",
       "localizations": {
@@ -2076,6 +2197,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Empinado"
+          }
+        }
+      }
+    },
+    "That comment can't be posted.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ese comentario no se puede publicar."
           }
         }
       }
@@ -2417,6 +2549,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Quién va · %lld"
+          }
+        }
+      }
+    },
+    "You're doing that a lot. Try again in a few minutes.": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lo estás haciendo mucho. Inténtalo de nuevo en unos minutos."
           }
         }
       }

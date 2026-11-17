@@ -562,6 +562,17 @@
         }
       }
     },
+    "%@ mods": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ mods"
+          }
+        }
+      }
+    },
     "%@ needs %@": {
       "extractionState": "manual",
       "localizations": {
@@ -1838,6 +1849,17 @@
         }
       }
     },
+    "%f mods": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f mods"
+          }
+        }
+      }
+    },
     "%f needs %@": {
       "extractionState": "manual",
       "localizations": {
@@ -3110,6 +3132,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld modelos"
+          }
+        }
+      }
+    },
+    "%lld mods": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld mods"
           }
         }
       }
@@ -7910,6 +7943,17 @@
         }
       }
     },
+    "DISCUSSION": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DISCUSIÓN"
+          }
+        }
+      }
+    },
     "DRIVEN MAP": {
       "extractionState": "manual",
       "localizations": {
@@ -11657,6 +11701,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Marca"
+          }
+        }
+      }
+    },
+    "Make an offer": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hacer una oferta"
           }
         }
       }
@@ -16358,6 +16413,17 @@
         }
       }
     },
+    "Share car": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir coche"
+          }
+        }
+      }
+    },
     "Share collection": {
       "extractionState": "manual",
       "localizations": {
@@ -19544,6 +19610,105 @@
           "stringUnit": {
             "state": "translated",
             "value": "Calculado a partir de medidas nominales de neumático; un neumático cargado mide algo menos. El error del velocímetro supone que este se acciona desde la transmisión."
+          }
+        }
+      }
+    },
+    "Would you take %@ for %@?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %@ por %@?"
+          }
+        }
+      }
+    },
+    "Would you take %@ for %f?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %@ por %f?"
+          }
+        }
+      }
+    },
+    "Would you take %@ for %lld?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %@ por %lld?"
+          }
+        }
+      }
+    },
+    "Would you take %f for %@?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %f por %@?"
+          }
+        }
+      }
+    },
+    "Would you take %f for %f?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %f por %f?"
+          }
+        }
+      }
+    },
+    "Would you take %f for %lld?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %f por %lld?"
+          }
+        }
+      }
+    },
+    "Would you take %lld for %@?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %lld por %@?"
+          }
+        }
+      }
+    },
+    "Would you take %lld for %f?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %lld por %f?"
+          }
+        }
+      }
+    },
+    "Would you take %lld for %lld?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %lld por %lld?"
           }
         }
       }

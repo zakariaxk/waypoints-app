@@ -375,6 +375,7 @@ struct ListingScreen: View {
     @State private var editing = false
     @State private var failed = false
     @State private var messaging = false
+    @State private var offering = false
     @State private var toast: ToastMessage?
     @Environment(\.dismiss) private var dismiss
 
@@ -523,6 +524,21 @@ struct ListingScreen: View {
                             .contentShape(Circle())
                     }
                     .accessibilityLabel(Text("Share", bundle: .module))
+                }
+            }
+            if l.sellerID != me, l.kind != .wanted, l.status == .active, !l.isExpired() {
+                SecondaryButton("Make an offer", isLoading: offering) {
+                    guard !offering else { return }
+                    offering = true
+                    Task {
+                        do {
+                            let t = try await env.messages.openThread(with: l.sellerID, listing: l.id)
+                            env.router.open(.thread(t.id, draft: String(localized: "Would you take \(Price.text(l.priceCents)) for \(l.title)?", bundle: .module)))
+                        } catch {
+                            toast = ToastMessage(Text(verbatim: message(for: error, fallback: String(localized: "Couldn't open the conversation. Check your connection and try again.", bundle: .module))))
+                        }
+                        offering = false
+                    }
                 }
             }
         }

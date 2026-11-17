@@ -249,6 +249,23 @@ begin
   perform pg_temp.deny('meet_rsvps: cannot change another''s RSVP', a,
     format($s$update meet_rsvps set status = 'maybe' where user_id = %L$s$, b));
 
+  perform pg_temp.allow('meet_comments: user comments on a meet they can see', b,
+    format($s$insert into meet_comments (id, meet_id, author_id, body)
+      values ('cccccccc-0000-4000-800d-000000000001', %L, %L, 'See you there')$s$, meet_pub, b), true);
+  perform pg_temp.deny('meet_comments: cannot comment on a meet you cannot see', c,
+    format($s$insert into meet_comments (meet_id, author_id, body) values (%L, %L, 'x')$s$, meet_fr, c));
+  perform pg_temp.deny('meet_comments: cannot comment as someone else', b,
+    format($s$insert into meet_comments (meet_id, author_id, body) values (%L, %L, 'x')$s$, meet_pub, a));
+  perform pg_temp.deny('meet_comments: third party cannot delete a comment', c,
+    $s$delete from meet_comments where id = 'cccccccc-0000-4000-800d-000000000001'$s$);
+  perform pg_temp.allow('meet_comments: meet host deletes a comment', a,
+    $s$delete from meet_comments where id = 'cccccccc-0000-4000-800d-000000000001'$s$);
+  perform pg_temp.allow('meet_comments: author posts a second comment', b,
+    format($s$insert into meet_comments (id, meet_id, author_id, body)
+      values ('cccccccc-0000-4000-800d-000000000002', %L, %L, 'Mine')$s$, meet_pub, b));
+  perform pg_temp.allow('meet_comments: author deletes own comment', b,
+    $s$delete from meet_comments where id = 'cccccccc-0000-4000-800d-000000000002'$s$);
+
   ---------------------------------------------------------------- privacy, presence, devices
   perform pg_temp.allow('privacy_settings: owner reads own', a,
     format($s$select 1 from privacy_settings where user_id = %L$s$, a));

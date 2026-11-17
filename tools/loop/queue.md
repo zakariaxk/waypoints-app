@@ -117,6 +117,6 @@ Format: `- [ ] L## | REQ-IDS | files it owns | one-line task`
 - [x] L102 | ROAD-12 | RoadsFeature | Share a recorded drive as a card: trace polyline + distance + date → share sheet (LoopCard pattern). New requirement row.
 - [x] L103 | static audit | repo-wide | Second audit pass: cross-reference every API/symbol/migration/checks fixture added L92-L102 (share cards, updateCaption, ratings(for:), guide_votes already audited, caption grant).
 - [x] L104 | KNW-11 | GuidesFeature | "Copy parts list" on the guide detail — parts with costs to the clipboard for a parts order. New requirement row.
-- [ ] L105 | MEET-17 | MeetsFeature, MeetRepository, Backend, Preview, supabase | Meet discussion: meet_comments table (post_comments mirror + meet_visible insert + abuse limit + clean_text) + comment UI on the meet page. New requirement row.
-- [ ] L106 | MKT-14 | MarketFeature | "Make an offer" on a listing opens the seller thread with a prefilled offer draft (.thread draft exists). New requirement row.
-- [ ] L107 | GAR-23 | GarageFeature | Per-car share card: lead photo/silhouette, title, mods count, handle (BuildCard/GarageCard pattern). New requirement row.
+- [x] L105 | MEET-17 | MeetsFeature, MeetRepository, Backend, Preview, supabase | Meet discussion: meet_comments table (post_comments mirror + meet_visible insert + abuse limit + clean_text) + comment UI on the meet page. New requirement row.
+- [x] L106 | MKT-14 | MarketFeature | "Make an offer" on a listing opens the seller thread with a prefilled offer draft (.thread draft exists). New requirement row.
+- [x] L107 | GAR-23 | GarageFeature | Per-car share card: lead photo/silhouette, title, mods count, handle (BuildCard/GarageCard pattern). New requirement row.

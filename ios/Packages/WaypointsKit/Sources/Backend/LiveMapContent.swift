@@ -141,6 +141,29 @@ struct LiveMeets: MeetRepository {
             }
         }
     }
+
+    func comments(on meet: MeetID) async throws -> [MeetComment] {
+        try await ctx.run {
+            let rows: [MeetCommentRow] = try await ctx.table("meet_comments").select().eq("meet_id", value: meet.key)
+                .order("created_at").limit(200).execute().value
+            return rows.map(\.model)
+        }
+    }
+
+    func addComment(_ body: String, to meet: MeetID) async throws -> MeetComment {
+        let me = try ctx.me()
+        struct Body: Encodable { let meetId: UUID; let authorId: UUID; let body: String }
+        return try await ctx.run {
+            let row: MeetCommentRow = try await ctx.table("meet_comments")
+                .insert(Body(meetId: meet.raw, authorId: me.raw, body: body))
+                .select().single().execute().value
+            return row.model
+        }
+    }
+
+    func deleteComment(_ id: CommentID) async throws {
+        try await ctx.run { _ = try await ctx.table("meet_comments").delete(returning: .minimal).eq("id", value: id.key).execute() }
+    }
 }
 
 /// `reports` (read). Posting and voting go through the gateway.

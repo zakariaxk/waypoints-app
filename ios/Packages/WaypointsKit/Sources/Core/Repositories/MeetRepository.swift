@@ -21,4 +21,10 @@ public protocol MeetRepository: Sendable {
     /// Picks one car brought to the meet; nil withdraws the pick. RLS allows it only while the
     /// meet or show is on and the user is checked in.
     func setChoice(_ car: CarID?, for meet: MeetID) async throws
+
+    /// `meet_comments` (MEET-17): the meet's discussion thread, oldest first.
+    func comments(on meet: MeetID) async throws -> [MeetComment]
+    @discardableResult func addComment(_ body: String, to meet: MeetID) async throws -> MeetComment
+    /// Authors and the meet host may delete; RLS refuses anyone else.
+    func deleteComment(_ id: CommentID) async throws
 }

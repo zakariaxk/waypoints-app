@@ -487,6 +487,19 @@ struct CommentRow: Decodable, Sendable {
     }
 }
 
+struct MeetCommentRow: Decodable, Sendable {
+    let id: UUID
+    let meetId: UUID
+    let authorId: UUID
+    let body: String
+    let createdAt: Date
+
+    var model: MeetComment {
+        MeetComment(id: CommentID(raw: id), meetID: MeetID(raw: meetId), authorID: UserID(raw: authorId), body: body,
+                    createdAt: createdAt)
+    }
+}
+
 struct ShowdownRow: Decodable, Sendable {
     let carId: UUID
     let rating: Int

@@ -85,6 +85,19 @@ public struct Meet: Identifiable, Hashable, Sendable, Codable {
     public func isHappening(at date: Date = .now) -> Bool { cancelledAt == nil && startsAt <= date && date < endsAt }
 }
 
+/// A discussion comment on a meet (MEET-17, `meet_comments`). Anyone who can see
+/// the meet can post; the author and the meet host can delete.
+public struct MeetComment: Identifiable, Hashable, Sendable, Codable {
+    public let id: CommentID
+    public let meetID: MeetID
+    public let authorID: UserID
+    public var body: String                   // ≤300
+    public var createdAt: Date
+    public init(id: CommentID = CommentID(), meetID: MeetID, authorID: UserID, body: String, createdAt: Date = .now) {
+        self.id = id; self.meetID = meetID; self.authorID = authorID; self.body = body; self.createdAt = createdAt
+    }
+}
+
 /// Body of `POST /v1/meets` and `PATCH /v1/meets/{id}`.
 public struct MeetDraft: Hashable, Sendable, Codable {
     public var title: String

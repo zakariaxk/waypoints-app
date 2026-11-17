@@ -25,6 +25,7 @@ public actor PreviewStore {
     var rsvps: [MeetRSVP]
     var meetChoices: [Pair: CarID] = [:]
     var venueNotes: [VenueNote]
+    var meetComments: [MeetComment] = []
     var roads: [RoadID: Road]
     var roadRatings: [Pair: RoadRating] = [:]
     var roadLoops: [LoopID: RoadLoop] = [PreviewSeed.roadLoop.id: PreviewSeed.roadLoop]

@@ -329,3 +329,110 @@ enum Polyline {
         out.unicodeScalars.append(Unicode.Scalar(UInt8(v + 63)))
     }
 }
+
+// MARK: MEET-17 discussion
+
+/// The meet's comment thread (`meet_comments`): anyone who can see the meet can
+/// post; the author and the meet host can delete, others can report or block.
+struct MeetDiscussion: View {
+    let env: AppEnvironment
+    let meet: Meet
+    @State private var comments: [MeetComment] = []
+    @State private var authors: [UserID: Profile] = [:]
+    @State private var draft = ""
+    @State private var me: UserID?
+    @State private var error: String?
+    @State private var loaded = false
+    @State private var sending = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Space.s8) {
+            SectionLabel("DISCUSSION")
+            if !loaded {
+                SkeletonRow()
+            } else if comments.isEmpty {
+                Text("No comments yet.", bundle: .module).typeStyle(.sub).foregroundStyle(Color.dust)
+            }
+            ForEach(comments) { c in
+                let a = authors[c.authorID]
+                Row(Text(verbatim: "@\(a?.handle ?? "")  ") + Text(verbatim: c.body).fontWeight(.regular),
+                    subtitle: Text(verbatim: c.createdAt.formatted(.relative(presentation: .numeric))),
+                    leading: { Avatar(name: a?.displayName ?? "", url: a?.avatarPath.map { env.media.publicURL(bucket: .avatars, path: $0) }, size: .s28) })
+                    .contextMenu {
+                        if c.authorID != me {
+                            Button("Report") { env.router.open(.reportContent(ContentRef(kind: .comment, id: c.id.description))) }
+                            Button("Block", role: .destructive) {
+                                Task {
+                                    do {
+                                        try await env.safety.block(c.authorID)
+                                        comments.removeAll { $0.authorID == c.authorID }
+                                    } catch {
+                                        error = String(localized: "Couldn't block them. Check your connection and try again.", bundle: .module)
+                                    }
+                                }
+                            }
+                        }
+                        if c.authorID == me || meet.hostID == me {
+                            Button("Delete", role: .destructive) {
+                                Task {
+                                    do {
+                                        try await env.meets.deleteComment(c.id)
+                                        comments.removeAll { $0.id == c.id }
+                                        error = nil
+                                    } catch {
+                                        error = String(localized: "Couldn't delete that comment. Try again.", bundle: .module)
+                                    }
+                                }
+                            }
+                        }
+                    }
+            }
+            if let error {
+                Text(verbatim: error).typeStyle(.foot).foregroundStyle(Color.brake)
+            }
+            HStack(alignment: .bottom, spacing: Space.s8) {
+                Field("Comment", text: $draft, prompt: "Add a comment", limit: 300)
+                IconButton(Symbol.send, label: "Send") {
+                    let text = draft
+                    guard !sending else { return }
+                    sending = true
+                    Task {
+                        defer { sending = false }
+                        if case .blocked = await env.safety.check(text) {
+                            error = String(localized: "That comment can't be posted.", bundle: .module)
+                            return
+                        }
+                        do {
+                            _ = try await env.meets.addComment(text, to: meet.id)
+                            draft = ""
+                            error = nil
+                        } catch WaypointsError.rateLimited {
+                            error = String(localized: "You're doing that a lot. Try again in a few minutes.", bundle: .module)
+                        } catch {
+                            error = String(localized: "Couldn't post that comment. Try again.", bundle: .module)
+                        }
+                        await load()
+                    }
+                }
+                .disabled(draft.isEmpty || sending)
+                .padding(.bottom, Space.s4)
+            }
+        }
+        .task { me = await env.auth.currentSession()?.userID; await load() }
+    }
+
+    private func load() async {
+        if let list = try? await env.meets.comments(on: meet.id) {
+            // SAFE-3: comments and authors the user reported stay hidden for them.
+            let hidden = (try? await env.safety.reportedTargets()) ?? []
+            comments = list.filter {
+                !hidden.contains(ContentRef(kind: .comment, id: $0.id.description))
+                    && !hidden.contains(ContentRef(kind: .user, id: $0.authorID.description))
+            }
+        } else if error == nil {
+            error = String(localized: "Couldn't load comments. Check your connection and try again.", bundle: .module)
+        }
+        loaded = true
+        for p in (try? await env.profiles.profiles(Array(Set(comments.map(\.authorID))))) ?? [] { authors[p.userID] = p }
+    }
+}

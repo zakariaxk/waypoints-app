@@ -947,6 +947,17 @@
         }
       }
     },
+    "Make an offer": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hacer una oferta"
+          }
+        }
+      }
+    },
     "Make cover": {
       "extractionState": "manual",
       "localizations": {
@@ -1636,6 +1647,105 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ruedas y neumáticos"
+          }
+        }
+      }
+    },
+    "Would you take %@ for %@?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %@ por %@?"
+          }
+        }
+      }
+    },
+    "Would you take %@ for %f?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %@ por %f?"
+          }
+        }
+      }
+    },
+    "Would you take %@ for %lld?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %@ por %lld?"
+          }
+        }
+      }
+    },
+    "Would you take %f for %@?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %f por %@?"
+          }
+        }
+      }
+    },
+    "Would you take %f for %f?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %f por %f?"
+          }
+        }
+      }
+    },
+    "Would you take %f for %lld?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %f por %lld?"
+          }
+        }
+      }
+    },
+    "Would you take %lld for %@?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %lld por %@?"
+          }
+        }
+      }
+    },
+    "Would you take %lld for %f?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %lld por %f?"
+          }
+        }
+      }
+    },
+    "Would you take %lld for %lld?": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Aceptarías %lld por %lld?"
           }
         }
       }

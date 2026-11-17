@@ -34,6 +34,17 @@
         }
       }
     },
+    "%@ mods": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ mods"
+          }
+        }
+      }
+    },
     "%@ new": {
       "extractionState": "manual",
       "localizations": {
@@ -89,6 +100,17 @@
         }
       }
     },
+    "%f mods": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%f mods"
+          }
+        }
+      }
+    },
     "%f new": {
       "extractionState": "manual",
       "localizations": {
@@ -140,6 +162,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld modelos"
+          }
+        }
+      }
+    },
+    "%lld mods": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld mods"
           }
         }
       }
@@ -1735,6 +1768,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "Compartir montaje"
+          }
+        }
+      }
+    },
+    "Share car": {
+      "extractionState": "manual",
+      "localizations": {
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compartir coche"
           }
         }
       }

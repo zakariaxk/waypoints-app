@@ -426,6 +426,7 @@ struct MeetDetail: View {
                 peoplesChoice(m)
                 MeetPostsStrip(env: env, meetID: meetID)
                 venue
+                MeetDiscussion(env: env, meet: m)
                 if !m.details.isEmpty { Text(verbatim: m.details).typeStyle(.body).foregroundStyle(Color.chalk) }
             } else if failed {
                 ErrorState(Text("Couldn't load this meet. Check your connection and try again.", bundle: .module)) { Task { await load() } }
