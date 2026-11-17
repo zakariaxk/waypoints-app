@@ -12,6 +12,8 @@ public protocol PostRepository: Sendable {
     func post(_ id: PostID) async throws -> Post
     @discardableResult func createPost(_ post: NewPost) async throws -> Post
     func deletePost(_ id: PostID) async throws
+    /// FEED-13: the owner edits their own caption; the returned row replaces the local copy.
+    @discardableResult func updateCaption(_ id: PostID, caption: String) async throws -> Post
     func like(_ id: PostID) async throws
     func unlike(_ id: PostID) async throws
     /// FEED-5: "Not interested" — the post stays out of this user's feeds (`feed_hidden`).

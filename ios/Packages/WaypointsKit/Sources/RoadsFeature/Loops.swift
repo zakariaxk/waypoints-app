@@ -222,6 +222,7 @@ struct LoopDetail: View {
     @State private var error: String?
     @State private var done = 0
     @State private var shared: SharedImage?
+    @State private var drivenCount = 0
     @Environment(\.displayScale) private var displayScale
 
     private var mine: Bool { loop != nil && loop?.ownerID == me }
@@ -275,6 +276,10 @@ struct LoopDetail: View {
     @ViewBuilder private func content(_ loop: RoadLoop) -> some View {
         let total = Units.length(roads.reduce(0) { $0 + $1.lengthMeters })
         Readout(total.value, unit: total.unit, label: "TOTAL LENGTH")
+        if drivenCount > 0 {
+            Text("You've driven this loop \(drivenCount)×", bundle: .module)
+                .typeStyle(.sub).foregroundStyle(Color.dust)
+        }
         if roads.isEmpty {
             Text("The roads in this loop are no longer available.", bundle: .module).typeStyle(.body).foregroundStyle(Color.dust)
         } else {
@@ -340,6 +345,21 @@ struct LoopDetail: View {
         }
         loop = l
         roads = list
+        if !list.isEmpty {
+            let path = Polyline.path(of: list)
+            drivenCount = await Task.detached(priority: .utility) { Self.drivenCount(on: path) }.value
+        }
+    }
+
+    /// ROAD-11: the ROAD-10 rule on the loop's joined path — a saved drive counts once when
+    /// at least two of its points are within 100 m of it (sampled to keep it cheap). Reads
+    /// files off-actor.
+    nonisolated private static func drivenCount(on path: [Coordinate]) -> Int {
+        let step = max(1, path.count / 200)
+        let sampled = stride(from: 0, to: path.count, by: step).map { path[$0] }
+        return DriveRecorder.load().count { d in
+            d.points.filter { p in sampled.contains(where: { p.distance(to: $0) < 100 }) }.count >= 2
+        }
     }
 
     /// ROAD-8: renders the loop card and hands it to the share sheet.

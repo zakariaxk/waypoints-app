@@ -528,8 +528,15 @@ begin
     format($s$select 1 from posts where id = %L$s$, post_a));
   perform pg_temp.deny('posts: non-owner cannot delete', b,
     format($s$delete from posts where id = %L$s$, post_a));
-  perform pg_temp.deny('posts: captions cannot be edited', a,
+  -- L100 (FEED-13): the owner edits the caption; nothing else is writable.
+  perform pg_temp.allow('posts: owner edits the caption', a,
     format($s$update posts set caption = 'edited' where id = %L$s$, post_a));
+  perform pg_temp.deny('posts: non-owner cannot edit the caption', b,
+    format($s$update posts set caption = 'nope' where id = %L$s$, post_a));
+  perform pg_temp.deny('posts: only the caption is writable', a,
+    format($s$update posts set like_count = 500 where id = %L$s$, post_a));
+  perform pg_temp.deny('posts: cannot reassign the author', a,
+    format($s$update posts set caption = 'x', author_id = %L where id = %L$s$, b, post_a));
 
   perform pg_temp.allow('post_likes: user likes a post', b,
     format($s$insert into post_likes (post_id, user_id) values (%L, %L)$s$, post_a, b), true);

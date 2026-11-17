@@ -482,22 +482,37 @@ struct DrivesView: View {
     let env: AppEnvironment
     @State private var drives: [Drive] = []
     @State private var open: Drive?
+    @State private var shared: SharedImage?
+    @Environment(\.displayScale) private var displayScale
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             if !drives.isEmpty {
                 SectionLabel("YOUR DRIVES")
                 ForEach(drives.prefix(5)) { d in
-                    Button { open = d } label: {
-                        Row(Text(verbatim: d.startedAt.formatted(date: .abbreviated, time: .shortened)),
-                            trailing: { Text("Save a stretch", bundle: .module).typeStyle(.foot).foregroundStyle(Color.sodium) })
+                    HStack(spacing: 0) {
+                        Button { open = d } label: {
+                            Row(Text(verbatim: d.startedAt.formatted(date: .abbreviated, time: .shortened)),
+                                trailing: { Text("Save a stretch", bundle: .module).typeStyle(.foot).foregroundStyle(Color.sodium) })
+                        }
+                        .buttonStyle(RowButtonStyle())
+                        // ROAD-12: share the drive as a card.
+                        IconButton(Symbol.share, label: "Share drive") { share(d) }
+                            .padding(.trailing, Space.margin)
                     }
-                    .buttonStyle(RowButtonStyle())
                 }
             }
         }
         .onAppear { drives = DriveRecorder.shared.drives() }
         .sheet(item: $open, onDismiss: { drives = DriveRecorder.shared.drives() }) { d in SaveStretch(env: env, drive: d) }
+        .sheet(item: $shared) { ShareSheet(items: [$0.image]).presentationDetents([.medium, .large]) }
+    }
+
+    /// ROAD-12: renders the drive card and hands it to the share sheet.
+    private func share(_ d: Drive) {
+        if let image = DriveShare.render(drive: d, scale: displayScale) {
+            shared = SharedImage(image: image)
+        }
     }
 }
 

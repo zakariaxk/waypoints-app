@@ -467,6 +467,15 @@ struct LivePosts: PostRepository {
         try await ctx.run { _ = try await ctx.table("posts").delete(returning: .minimal).eq("id", value: id.key).execute() }
     }
 
+    /// FEED-13: `posts_update_own` plus a caption-only column grant; only the owner reaches the row.
+    func updateCaption(_ id: PostID, caption: String) async throws -> Post {
+        struct Body: Encodable { let caption: String }
+        try await ctx.run {
+            _ = try await ctx.table("posts").update(Body(caption: caption), returning: .minimal).eq("id", value: id.key).execute()
+        }
+        return try await post(id)
+    }
+
     func like(_ id: PostID) async throws {
         let me = try ctx.me()
         struct Body: Encodable { let postId: UUID; let userId: UUID }

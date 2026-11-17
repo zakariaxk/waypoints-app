@@ -226,6 +226,12 @@ extension PreviewStore: PostRepository {
         guard posts[id]?.authorID == me else { throw WaypointsError.forbidden }
         posts[id] = nil
     }
+    public func updateCaption(_ id: PostID, caption: String) async throws -> Post {
+        let me = try me()
+        guard let post = posts[id], post.authorID == me else { throw WaypointsError.forbidden }
+        posts[id]?.caption = String(caption.prefix(150))
+        return decorated(posts[id] ?? post)
+    }
     public func like(_ id: PostID) async throws {
         if likes.insert(Pair(id.raw, try me().raw)).inserted { posts[id]?.likeCount += 1 }
     }

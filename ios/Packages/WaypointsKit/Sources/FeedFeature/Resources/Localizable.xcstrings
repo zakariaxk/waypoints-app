@@ -265,6 +265,9 @@
         }
       }
     },
+    "Couldn't save the caption. Try again.": {
+      "extractionState": "manual"
+    },
     "Cover frame": {
       "extractionState": "manual",
       "localizations": {
@@ -297,6 +300,9 @@
           }
         }
       }
+    },
+    "Edit caption": {
+      "extractionState": "manual"
     },
     "Follow": {
       "extractionState": "manual",
@@ -529,6 +535,9 @@
         }
       }
     },
+    "Save": {
+      "extractionState": "manual"
+    },
     "See For you": {
       "extractionState": "manual",
       "localizations": {
@@ -616,6 +625,9 @@
           }
         }
       }
+    },
+    "That caption can't be saved.": {
+      "extractionState": "manual"
     },
     "That comment can't be posted.": {
       "extractionState": "manual",

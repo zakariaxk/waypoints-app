@@ -7363,6 +7363,9 @@
         }
       }
     },
+    "Couldn't save the caption. Try again.": {
+      "extractionState": "manual"
+    },
     "Couldn't save the car. Check your connection and try again.": {
       "extractionState": "manual",
       "localizations": {
@@ -8506,6 +8509,9 @@
           }
         }
       }
+    },
+    "Edit caption": {
+      "extractionState": "manual"
     },
     "Edit car": {
       "extractionState": "manual",
@@ -16178,6 +16184,9 @@
         }
       }
     },
+    "Share drive": {
+      "extractionState": "manual"
+    },
     "Share garage": {
       "extractionState": "manual"
     },
@@ -17349,6 +17358,9 @@
           }
         }
       }
+    },
+    "That caption can't be saved.": {
+      "extractionState": "manual"
     },
     "That code didn't match. Check the email and try again.": {
       "extractionState": "manual",
@@ -19612,6 +19624,15 @@
       "extractionState": "manual"
     },
     "You've driven this %lld×": {
+      "extractionState": "manual"
+    },
+    "You've driven this loop %@×": {
+      "extractionState": "manual"
+    },
+    "You've driven this loop %f×": {
+      "extractionState": "manual"
+    },
+    "You've driven this loop %lld×": {
       "extractionState": "manual"
     },
     "You've judged every pair in %@. Try another class.": {

@@ -1052,6 +1052,9 @@
         }
       }
     },
+    "Share drive": {
+      "extractionState": "manual"
+    },
     "Share loop": {
       "extractionState": "manual",
       "localizations": {
@@ -1246,6 +1249,15 @@
       "extractionState": "manual"
     },
     "You've driven this %lld×": {
+      "extractionState": "manual"
+    },
+    "You've driven this loop %@×": {
+      "extractionState": "manual"
+    },
+    "You've driven this loop %f×": {
+      "extractionState": "manual"
+    },
+    "You've driven this loop %lld×": {
       "extractionState": "manual"
     },
     "Your last drive ended here": {

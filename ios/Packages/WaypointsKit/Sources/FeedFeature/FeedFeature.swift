@@ -291,6 +291,8 @@ struct Pager: View {
     @State private var current: Int? = 0
     @State private var commentsFor: Post?
     @State private var overflow: Post?
+    @State private var editingCaption: Post?
+    @State private var captionDraft = ""
     @State private var toast: ToastMessage?
 
     private var posts: [Post] { model.posts }
@@ -359,6 +361,7 @@ struct Pager: View {
         .confirmationDialog("", isPresented: Binding(get: { overflow != nil }, set: { if !$0 { overflow = nil } })) {
             if let p = overflow {
                 if p.authorID == model.me {
+                    Button("Edit caption") { captionDraft = p.caption; editingCaption = p }
                     Button("Delete", role: .destructive) {
                         Task {
                             do {
@@ -390,6 +393,26 @@ struct Pager: View {
                     }
                 }
             }
+        }
+        .alert("Edit caption", isPresented: Binding(get: { editingCaption != nil }, set: { if !$0 { editingCaption = nil } })) {
+            TextField("Caption", text: $captionDraft)
+            Button("Save") {
+                guard let p = editingCaption else { return }
+                let caption = String(captionDraft.prefix(150))
+                Task {
+                    if case .blocked = await model.env.safety.check(caption) {
+                        toast = ToastMessage(Text("That caption can't be saved.", bundle: .module))
+                        return
+                    }
+                    do {
+                        let updated = try await model.env.posts.updateCaption(p.id, caption: caption)
+                        if let i = model.posts.firstIndex(where: { $0.id == p.id }) { model.posts[i] = updated }
+                    } catch {
+                        toast = ToastMessage(Text("Couldn't save the caption. Try again.", bundle: .module))
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {}
         }
     }
 }
@@ -612,6 +635,8 @@ struct SinglePost: View {
     @State private var pool = PlayerPool()
     @State private var comments: Post?
     @State private var overflow = false
+    @State private var editingCaption: Post?
+    @State private var captionDraft = ""
     @State private var failed = false
     @State private var toast: ToastMessage?
     @Environment(\.dismiss) private var dismiss
@@ -645,6 +670,7 @@ struct SinglePost: View {
         .confirmationDialog("", isPresented: $overflow) {
             if let p = model.posts.first {
                 if p.authorID == model.me {
+                    Button("Edit caption") { captionDraft = p.caption; editingCaption = p }
                     Button("Delete", role: .destructive) {
                         Task {
                             do {
@@ -669,6 +695,26 @@ struct SinglePost: View {
                     }
                 }
             }
+        }
+        .alert("Edit caption", isPresented: Binding(get: { editingCaption != nil }, set: { if !$0 { editingCaption = nil } })) {
+            TextField("Caption", text: $captionDraft)
+            Button("Save") {
+                guard let p = editingCaption else { return }
+                let caption = String(captionDraft.prefix(150))
+                Task {
+                    if case .blocked = await env.safety.check(caption) {
+                        toast = ToastMessage(Text("That caption can't be saved.", bundle: .module))
+                        return
+                    }
+                    do {
+                        let updated = try await env.posts.updateCaption(p.id, caption: caption)
+                        if let i = model.posts.firstIndex(where: { $0.id == p.id }) { model.posts[i] = updated }
+                    } catch {
+                        toast = ToastMessage(Text("Couldn't save the caption. Try again.", bundle: .module))
+                    }
+                }
+            }
+            Button("Cancel", role: .cancel) {}
         }
         .task { await load() }
     }

@@ -566,7 +566,7 @@ Watching builds, full screen. Plan 5.5, 10.5 (F1 to F3).
 | FEED-10 | You can delete your own post. | P0 | Verified (L39): author DELETE own post 204 via posts_delete_own RLS. |
 | FEED-11 | Photo posts. A post can be up to 6 photos instead of a video, swiped sideways inside the same pager. A post can also tag a meet, and the meet shows posts from it. | P2 | Verified (L39): photo post with post_photos rows readable by others; pager swipes. |
 | FEED-12 | A rated road can be shared as a post: the road sheet offers "Post it", the composer carries the road, and the post renders a road chip that opens the road. | P3 | Coded (L74): posts.road_id + index; `Route.road`/`.compose(road:)`; "Post it" on RoadDetail; road chip in PostOverlay opens the road sheet; feed RPCs select po.* so no function change. Statically reviewed; build/check-db deferred. |
-| FEED-13 | Edit a post's caption. The owner can change their own post's caption after posting. | P3 | New |
+| FEED-13 | Edit a post's caption. The owner can change their own post's caption after posting. | P3 | Coded (L100): posts_update_own + grant update (caption) only; updateCaption repo; Edit caption alert on own-post overflow, SAFE-4 pre-checked. Statically reviewed; check-db deferred. |
 
 ### 4.18 Showdown (SHOW)
 
@@ -1040,8 +1040,8 @@ Thirteen extensions, each small enough for one session and each passing section 
 | ROAD-8 | A loop shares as a card: the joined road polylines drawn to scale, the loop name, road count, and the owner's handle, to the share sheet (like SPOT-7). | P3 | Coded (L84): LoopRoadsShape bounding-box scale + LoopCard/LoopShare in RoadsFeature; share IconButton in the LoopDetail trailing row. Statically reviewed. |
 | ROAD-9 | A rated road joins a loop in place: the road sheet offers "Add to a loop", listing your loops (appends it) and "New loop" (starts one carrying it). | P3 | Coded (L87): AddToLoop sheet — existing loops (Added/Full states) or New loop via LoopEditor pre-seeded with the road; toast confirms. Statically reviewed. |
 | ROAD-10 | A road sheet notes "You've driven this N×" from local drive traces that pass along the road (ROAD-5's driven map made personal). | P3 | Coded (L99): ≥2 trace points within 100 m of the sampled path, counted off-actor; dust sub line. Statically reviewed. |
-| ROAD-11 | A loop detail notes "You've driven this loop N×" — same local-trace rule as ROAD-10, against the loop's joined path. | P3 | New |
-| ROAD-12 | A saved drive shares as a card: its trace polyline, distance, and date — like ROAD-8's loop card. | P3 | New |
+| ROAD-11 | A loop detail notes "You've driven this loop N×" — same local-trace rule as ROAD-10, against the loop's joined path. | P3 | Coded (L101): LoopDetail.drivenCount mirrors RoadDetail's helper over Polyline.path. Statically reviewed. |
+| ROAD-12 | A saved drive shares as a card: its trace polyline, distance, and date — like ROAD-8's loop card. | P3 | Coded (L102): DriveCard/DriveShare reusing LoopRoadsShape + Units.length; share icon beside each drive row. Statically reviewed. |
 | **W10-10 Your data** | ACC-12 | A migration (one RPC), `Sources/SettingsFeature/**` |
 | **W10-11 Spanish** | L10N-2 | Every `Localizable.xcstrings`, `tools/l10n/**` |
 
